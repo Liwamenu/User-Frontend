@@ -1,0 +1,299 @@
+@import url("https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap");
+@import url("https://fonts.cdnfonts.com/css/conthrax");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box !important;
+  scroll-behavior: smooth;
+  scrollbar-width: 0.25rem;
+}
+
+body[class="dark"] {
+  background-color: #161717;
+}
+
+body[class="light"] {
+  background-color: white;
+}
+
+.dark {
+  --primary-1: #4f46e5;
+  --primary-2: #7839cd;
+
+  --gr-1: #94a3b8;
+  --gr-2: #a3a3a3;
+  --gr-3: #cbd5e1;
+  --gr-4: #334155;
+  --gr-5: #475569;
+
+  --light-1: #1e293b;
+  --light-2: #312e81;
+  --light-3: #374151;
+  --light-4: #1d222a;
+  --light-5: #3e4a5b;
+
+  --link-1: #3b82f6;
+  --light-green: #14532d;
+
+  /* SOLID */
+  --white-1: #161717;
+  --white-2: #111827;
+  --black-1: #ffffff;
+  --black-2: #eeebeb;
+  --black-3: #c8c5c5;
+  --green-1: #16a34a;
+  --green-2: #15803d;
+  --green-3: #0891b2;
+  --yellow-1: #fbbf24;
+  --red-1: #dc2626;
+  --red-2: #be185d;
+  --blue-1: #2563eb;
+  --purple-1: #9333ea;
+  --orange-1: #ea580c;
+  --pink-1: #db2777;
+  --brown-1: #954007; /* 78350f */
+
+  --border-1: #1e293b;
+
+  /* TABLE */
+  --table: #334155;
+  --table-odd: #1e293b;
+
+  /* STATUS */
+  --status-green: #14532d;
+  --status-red: #7f1d1d;
+  --status-yellow: #854d0e;
+  --status-gray: #475569;
+  --status-blue: #1e40af;
+  --status-purple: #5b21b6;
+  --status-orange: #9a3412;
+  --status-pink: #9d174d;
+  --status-brown: #521a0b; /* 3e1b11; */
+  --status-primary-1: #6d28d9;
+  --status-primary-2: #312e81;
+}
+
+.light {
+  --primary-1: #4f46e5;
+  --primary-2: #7839cd;
+
+  --gr-1: #64748b;
+  --gr-2: #808080;
+  --gr-3: #718ebf;
+  --gr-4: #f5f5f5;
+  --gr-5: #d6d3d1;
+
+  --light-1: #eef2ff;
+  --light-2: #f4eefb;
+  --light-3: #eceef6;
+  --light-4: #e4e4e4;
+  --light-5: #eeeded;
+
+  --link-1: #007aff;
+  --light-green: #e9ffef;
+
+  /* SOLID */
+  --white-1: #ffffff;
+  --white-2: #f3f4f6;
+  --black-1: #000000;
+  --black-2: #232323;
+  --black-3: #3a3c40;
+  --green-1: #42a86b;
+  --green-2: #409261;
+  --green-3: #16bdca;
+  --yellow-1: #dc9362;
+  --red-1: #ff3753;
+  --red-2: #e74694;
+  --red-3: #dc5a65;
+  --blue-1: #3478f6;
+  --purple-1: #a459d1;
+  --orange-1: #ff7b3d;
+  --pink-1: #ff5da2;
+  --brown-1: #8b5e34;
+  --border-1: #dfeaf2;
+
+  /* TABLE */
+  --table: #d9d9d9;
+  --table-odd: #f9fafc;
+
+  /* STATUS */
+  --status-green: #e9ffef;
+  --status-red: #ffe9e9;
+  --status-yellow: #fff6d6;
+  --status-gray: #e4e4e4;
+  --status-blue: #e7f0ff;
+  --status-purple: #f4e6ff;
+  --status-orange: #ffece4;
+  --status-pink: #ffe7f1;
+  --status-brown: #f7ede7;
+  --status-primary-1: #9690f1;
+  --status-primary-2: #f4eefb;
+}
+
+section {
+  min-height: 100dvh;
+}
+.light .section_row {
+  grid-template-rows: auto auto auto 1fr;
+  background-color: #ffffff;
+}
+.dark .section_row {
+  grid-template-rows: auto auto auto 1fr;
+  background-color: #151515;
+}
+.dark input {
+  font-family: "Lexend Deca", sans-serif;
+  background-color: #1b1a1e;
+}
+.light input {
+  font-family: "Lexend Deca", sans-serif;
+  background-color: #ffffff;
+}
+
+.customInput input {
+  background-color: transparent !important;
+  color: white;
+}
+
+.stroke {
+  -webkit-text-stroke-width: 1.5px;
+  -webkit-text-stroke-color: black;
+  -webkit-text-stroke: 1.5px black;
+}
+
+body {
+  overflow-x: hidden;
+  font-family: "Lexend Deca", sans-serif;
+}
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.form-container {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transition: all 0.6s ease-in-out;
+}
+.sign-in-container {
+  left: 0;
+  width: 50%;
+  z-index: 2;
+}
+.right-panel-active .sign-in-container {
+  transform: translateX(100%);
+}
+.sign-up-container {
+  left: 0;
+  width: 50%;
+  opacity: 0;
+  z-index: 1;
+}
+.right-panel-active .sign-up-container {
+  transform: translateX(100%);
+  opacity: 1;
+  z-index: 5;
+  animation: show 0.6s;
+}
+.right-panel-active .sign-in-container {
+  left: 0;
+  width: 50%;
+  opacity: 0;
+  z-index: 1;
+}
+
+@keyframes show {
+  0%,
+  49.99% {
+    opacity: 0;
+    z-index: 1;
+  }
+  50%,
+  100% {
+    opacity: 1;
+    z-index: 5;
+  }
+}
+
+.overlay-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  z-index: 100;
+}
+.right-panel-active .overlay-container {
+  transform: translateX(-100%);
+}
+
+@media (max-width: 1024px) {
+  .sign-up-container {
+    transform: none !important;
+  }
+}
+
+/* FadeIn */
+@keyframes fadeInOutAnimation {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.fade {
+  animation: fadeInOutAnimation 1.5s ease-in-out infinite;
+}
+
+.custom-datepicker {
+  min-width: 20.5rem;
+}
+
+.custom-popper-left {
+  right: -3rem;
+}
+.custom-popper-right {
+  right: -22rem;
+}
+
+/* CUSTOM SCROLL BAR */
+::-webkit-scrollbar {
+  width: 0.25rem;
+  height: 0.25rem;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #bababa;
+  border-radius: 1rem;
+}
