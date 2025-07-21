@@ -47,7 +47,7 @@ function Login() {
       }
       dispatch(resetLoginState());
     } else if (success) {
-      navigate("/orders");
+      navigate("/restaurants");
       toast.dismiss();
       toast.success("Başarıyla Giriş Yapıldı");
       dispatch(resetLoginState());

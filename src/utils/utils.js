@@ -1,10 +1,7 @@
-//MODULES
-import _ from "lodash";
 import toast from "react-hot-toast";
+// import licenseTypeIds from "../enums/licenseTypeIds";
 
-//UTILS
-
-export function formatDateString({
+export function formatDateString(
   dateString,
   letDay = true,
   letMonth = true,
@@ -12,8 +9,8 @@ export function formatDateString({
   hour = false,
   min = false,
   sec = false,
-  joint = "-",
-}) {
+  joint = "-"
+) {
   const date = new Date(dateString);
 
   // Extract the month, day, and year
@@ -76,29 +73,8 @@ export const formatDate = (date) => {
   return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
 };
 
-export const formatToISO = (date, offsetHours = 0) => {
-  const miliDate = new Date(date.seconds * 1000); // Convert seconds to milliseconds
-
-  // Adjust for the timezone offset
-  const adjustedDate = new Date(
-    miliDate.getTime() + offsetHours * 60 * 60 * 1000
-  );
-
-  // Extract milliseconds and nanoseconds
-  const milliseconds = adjustedDate.getMilliseconds();
-  const nanoseconds = date.nanoseconds;
-
-  // Merge milliseconds and nanoseconds into a 7-digit fractional part
-  const fractionalSeconds = `${milliseconds
-    .toString()
-    .padStart(3, "0")}${nanoseconds.toString().padStart(9, "0").slice(0, 4)}`; // Merge and slice to get 7 digits total
-
-  // Build the ISO string
-  const isoString = `${adjustedDate
-    .toISOString()
-    .slice(0, 19)}.${fractionalSeconds}`;
-
-  return isoString;
+export const formatToIso = (date) => {
+  return date ? new Date(date).toISOString() : "";
 };
 
 export function getRemainingDays(endDateTime) {
@@ -115,18 +91,23 @@ export function getRemainingDays(endDateTime) {
 }
 
 export const maxInput = (e) => {
-  const { value, type } = e.target;
+  const { value, type, name } = e.target;
   const maxAllowed = e.target?.maxLength;
 
   let useVal = value;
 
   // Handle different input types
-  if (type === "number") {
-    useVal = value.replace(/[^\d.]/g, ""); // Only allow digits
+  if (type === "number" || name === "digit") {
+    useVal = value.replace(/[^\d]/g, ""); // Only allow digits
+  }
+
+  // Handle the "price" input type
+  if (name === "price") {
+    useVal = formatToPrice(value);
   }
 
   // Enforce max length
-  if (maxAllowed && maxAllowed !== -1 && useVal.length > maxAllowed) {
+  if (maxAllowed && maxAllowed !== -1 && useVal?.length > maxAllowed) {
     return useVal.slice(0, maxAllowed);
   }
 
@@ -183,7 +164,11 @@ export function formatEmail(email) {
   return formattedEmail;
 }
 
-export const formatSelectorData = (data, withPhoneNumber = false) => {
+export const formatSelectorData = (
+  data,
+  withPhoneNumber = false,
+  withCity = false
+) => {
   if (!Array.isArray(data) || data.length === 0) {
     return [];
   }
@@ -199,46 +184,78 @@ export const formatSelectorData = (data, withPhoneNumber = false) => {
     sortedData = dataCopy.sort((a, b) =>
       a.fullName.localeCompare(b.fullName, "tr")
     );
-  } else if (data[0]?.username) {
-    sortedData = dataCopy.sort((a, b) =>
-      a.username.localeCompare(b.username, "tr")
-    );
   }
-  if (withPhoneNumber && sortedData[0]?.phoneNumber) {
-    outData = sortedData.map((ent) => {
-      // console.log(ent.userId);
-      return {
-        value: ent.id,
-        label: (ent?.name ? ent.name : ent?.fullName) + " " + ent?.phoneNumber,
-        id: ent.id,
-        userId: ent.userId,
-      };
-    });
-  } else {
-    outData = sortedData.map((ent) => {
-      return {
-        ...ent,
-        value: ent.id,
-        label: ent?.name
-          ? ent.name
-          : ent?.fullName
-          ? ent.fullName
-          : ent?.username,
-        id: ent.id,
-        userId: ent?.userId,
-      };
-    });
-  }
+  outData = sortedData.map((ent) => {
+    return {
+      value: ent.id,
+      label:
+        (ent?.name ? ent.name : ent?.fullName) +
+        (withPhoneNumber && ent?.phoneNumber ? " " + ent.phoneNumber : "") +
+        (withCity && ent?.city ? " " + ent.city : ""),
+      id: ent.id,
+      userId: ent.userId,
+    };
+  });
   return outData;
 };
 
-export function groupedLicensePackages(data) {
+// export const formatLisansPackages = (data) => {
+//   if (!Array.isArray(data) || data.length === 0) {
+//     return [];
+//   }
+
+//   function CustomLabel(label, year, description, price) {
+//     const bgColors = [
+//       "bg-[#4682B4] border-[#4682B4]",
+//       "bg-[--link-1] border-[--link-1]",
+//       "bg-[--primary-1] border-[--primary-1]",
+//       "bg-[--primary-2] border-[--primary-2]",
+//     ];
+
+//     const bgColor = bgColors.length > year ? bgColors[year - 1] : bgColors[0];
+
+//     return `
+//       <div class="flex justify-between">
+//         <p class='w-36'>${label}</p>
+//         <p class='w-20 text-[--link-1]' > ${year} Yıllık </p>
+//         <p class='text-xs text-[--white-1] border rounded-full px-1.5 mx-0.5 py-1 whitespace-nowrap ${bgColor}' > ${description} </p>
+//         <p class='w-12' >${price}</p>
+//       </div>`;
+//   }
+
+//   const outData = data
+//     .filter((ent) => ent.isActive)
+//     .map((ent, index) => {
+//       return {
+//         ...ent,
+//         value: licenseTypeIds[ent.licenseTypeId].label,
+//         label: CustomLabel(
+//           licenseTypeIds[ent.licenseTypeId].label,
+//           ent.time,
+//           ent.description,
+//           ent.price,
+//           index
+//         ),
+//         id: ent.licenseTypeId,
+//         time: ent.time,
+//         price: ent.price,
+//         licensePackageId: ent.id,
+//       };
+//     });
+//   return outData;
+// };
+
+export function groupedLicensePackages(data, active = true) {
   const groupedData = data.reduce((result, item) => {
-    if (!result[item.licenseTypeId]) {
-      result[item.licenseTypeId] = [];
+    if (active && !item.isActive) {
+      return result;
     }
 
-    result[item.licenseTypeId].push(item);
+    if (result[item.licenseTypeId]) {
+      result[item.licenseTypeId].push(item);
+    } else {
+      result[item.licenseTypeId] = [item];
+    }
 
     return result;
   }, {});
@@ -362,8 +379,8 @@ export function getDateRange(years) {
   };
 }
 
-export function sumCartPrices(data, format = "tr-TR") {
-  const formattedNumber = new Intl.NumberFormat(format, {
+export function sumCartPrices(data) {
+  const formattedNumber = new Intl.NumberFormat("tr-TR", {
     style: "decimal",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -386,6 +403,10 @@ export function groupByRestaurantId(data) {
 
   // Convert the grouped data object into an array
   return Object.values(groupedData);
+}
+
+export function validPrice(price) {
+  return parseFloat(price.replace(/\./g, "").replace(",", "."));
 }
 
 export function isValidCardNumber(cardNumber) {
@@ -438,42 +459,12 @@ export function getCardProvider(cardNumber, src) {
   return { name: "Default", ...src[0] };
 }
 
-export function compareWithCurrentDateTime(
-  givenDateTime,
-  secondDate,
-  givenXMinAhead
-) {
-  let now = secondDate ? new Date(secondDate) : new Date();
-  let targetDateTime = new Date(givenDateTime);
-
-  if (givenXMinAhead) {
-    targetDateTime = new Date(
-      new Date(givenDateTime).getTime() + 60000 * givenXMinAhead
-    );
-  }
-
-  const remainingTime = targetDateTime - now; // Difference in milliseconds
-
-  // Convert remaining time to total minutes
-  const remainingMinutes = Math.floor(remainingTime / (1000 * 60)); // Convert ms to minutes
-  const remainingSeconds = Math.floor(remainingTime / 1000); // Convert ms to seconds
-  const isTimePassed = targetDateTime < now;
-
-  return { remainingMinutes, remainingSeconds };
-}
-
-//
-export const formatByDate = (inData, lastInLast) => {
-  // Remove duplicates based on both 'id'
-  const uniqueOrders = _.uniqBy(inData, (entity) => entity.id);
-
-  return uniqueOrders.sort((a, b) => {
-    const dateA = new Date(a.createdDateTime);
-    const dateB = new Date(b.createdDateTime);
-    if (lastInLast) {
-      return dateA - dateB;
-    } else {
-      return dateB - dateA;
-    }
+// Handle copy to clipboard
+export function copyToClipboard({ text, setStatus, msg }) {
+  navigator.clipboard.writeText(text).then(() => {
+    if (setStatus) {
+      setStatus(true);
+      setTimeout(() => setStatus(false), 2000);
+    } else toast.success(msg || "Bağlantı kopyalandı!", { id: "TEXT_COPIED" });
   });
-};
+}

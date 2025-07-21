@@ -9,7 +9,9 @@ import UserPlusI from "./userPlus";
 import LogI from "./log";
 import PaymentI from "./payment";
 import ParamsI from "./parameters";
-import CourierI from "./courier";
+import TemplatesI from "./templates";
+import DebitI from "./debt";
+import TempUsersI from "./tempUsers";
 
 import WarnI from "./warn";
 import GobackI from "./goback";
@@ -32,19 +34,19 @@ import DownArrowI from "./downArrow";
 import CloudUI from "./cloudU";
 import AsteriskI from "./asterisk";
 import MenuI from "./menu";
-import PrinterI from "./printer";
-import InfoI from "./info";
-import CloudI from "./cloud";
-import NoOrdersI from "./noOrders";
-import RotateI from "./rotate";
+import TransactionsI from "./transactions";
 import CloseI from "./close";
-import LockI from "./lock";
-import SeenI from "./seen";
+import InfoI from "./info";
+import SendI from "./send";
+import WaitI from "./wait";
+import CopyI from "./copy";
+import QRI from "./qr";
+import ManagerI from "./manager";
 import SunI from "./sun";
 import MoonI from "./moon";
-import EyeI from "./eye";
-import DocI from "./document";
+import EmailI from "./email";
 import LinkI from "./link";
+import EyeI from "./eye";
 
 export {
   DashboardI,
@@ -78,18 +80,20 @@ export {
   CloudUI,
   AsteriskI,
   MenuI,
-  PrinterI,
-  InfoI,
-  CloudI,
-  NoOrdersI,
-  CourierI,
-  RotateI,
+  TemplatesI,
+  DebitI,
+  TransactionsI,
   CloseI,
-  LockI,
-  SeenI,
+  InfoI,
+  SendI,
+  WaitI,
+  CopyI,
+  QRI,
+  ManagerI,
   SunI,
   MoonI,
-  EyeI,
-  DocI,
+  EmailI,
   LinkI,
+  EyeI,
+  TempUsersI,
 };

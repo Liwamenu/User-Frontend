@@ -78,7 +78,7 @@ function Header({ openSidebar, setOpenSidebar }) {
           </div>
 
           <p className="flex items-center text-3xl max-sm:text-xl text-[--primary-1] font-[conthrax]">
-            Pentegrasyon
+            Liwamenu
           </p>
 
           <div className="flex gap-4 max-sm:gap-2">

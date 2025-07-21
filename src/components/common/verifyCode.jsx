@@ -149,11 +149,7 @@ const VerifyCode = ({
         />
 
         <div className="mt-10 text-[--white-1]">
-          {isEmail ? (
-            <EmailUserMessage mail={phoneNumber} />
-          ) : (
-            <PhoneUserMessage number={spacePhoneNumber(phoneNumber)} />
-          )}
+          <EmailUserMessage mail={email} />
         </div>
 
         <div className="flex flex-col mt-10 w-full">

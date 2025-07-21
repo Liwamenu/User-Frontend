@@ -14,7 +14,7 @@ import CustomCheckbox from "../components/common/customCheckbox";
 import CustomPhoneInput from "../components/common/customPhoneInput";
 
 //FUNC
-import { formatEmail, spacePhoneNumber } from "../utils/utils";
+import { formatEmail } from "../utils/utils";
 
 // REDUX
 import { getCities } from "../redux/data/getCitiesSlice";
@@ -313,11 +313,7 @@ const Register = () => {
           </form>
         ) : (
           /* Verify Page*/
-          <VerifyCode
-            email={email}
-            setToConfirm={setToConfirm}
-            onSuccess={() => navigate("/login")}
-          />
+          <CheckEmail email={email} />
         )
       }
     />
@@ -396,6 +392,34 @@ function PrivacyBtn() {
         Kullanım Şartları
       </button>
       nı okudum ve onaylıyorum.
+    </div>
+  );
+}
+
+function CheckEmail({ email }) {
+  return (
+    <div className="light">
+      <div className="flex justify-center relative">
+        <div className="w-max">
+          <h2 className="text-[2.7rem] font-bold text-[--white-1] tracking-tighter">
+            Onayla
+          </h2>
+        </div>
+      </div>
+
+      <div className="flex flex-col items-center mt-5">
+        <div className="mt-10 text-[--white-1]">
+          <>
+            <span className="text-[--link-1] font-bold">{email}</span> email
+            adresinize bir onay kodu gönderdik. Lütfen e-posta mesajlarınızı
+            kontrol edin ve e-postanızı doğrulayın.
+          </>
+        </div>
+
+        <div className="flex flex-col mt-10 w-full">
+          <div className="shrink-0 h-px bg-slate-200 w-full mt-24" />
+        </div>
+      </div>
     </div>
   );
 }
