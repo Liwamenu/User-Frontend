@@ -61,7 +61,7 @@ export const getUsers = createAsyncThunk(
   "Users/GetUsers",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.get(`${baseURL}Users/GetAllUsers`, {
+      const res = await api.get(`${baseURL}Users/GetUsers`, {
         params: data,
       });
 

@@ -26,7 +26,7 @@ const AddUser = ({ onSuccess }) => {
   const toastId = useRef();
   const dispatcher = useRef();
 
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
 
   const { loading, success, error } = useSelector(
     (state) => state.users.addUser
@@ -119,28 +119,20 @@ const AddUser = ({ onSuccess }) => {
 
   const clearForm = () => {
     setPopupContent(null);
-    setShowPopup(false);
   };
 
   // TOAST
   useEffect(() => {
     if (loading) {
-      toastId.current = toast.loading("Adding user...");
+      toastId.current = toast.loading("İşleniyor...");
     }
     if (error) {
-      toastId.current && toast.dismiss(toastId.current);
-      if (error?.message_TR) {
-        toast.error(error.message_TR);
-      } else {
-        toast.error("Something went wrong");
-      }
       dispatch(resetaddUserState());
     } else if (success) {
-      toastId.current && toast.dismiss(toastId.current);
+      toast.dismiss(toastId.current);
       onSuccess();
-      setShowPopup(false);
       setPopupContent(null);
-      toast.success("User added successfuly");
+      toast.success("Başarılı");
       dispatch(resetaddUserState());
     }
   }, [loading, success, error]);

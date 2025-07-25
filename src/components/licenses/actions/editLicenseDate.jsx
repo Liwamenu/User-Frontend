@@ -16,13 +16,12 @@ import {
 } from "../../../redux/licenses/updateLicenseDateSlice";
 
 const EditLicenseDate = ({ licenseData, onSuccess }) => {
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
 
   const handleClick = () => {
     setPopupContent(
       <EditLicenseDatePopup onSuccess={onSuccess} license={licenseData} />
     );
-    setShowPopup(true);
   };
 
   return (
@@ -39,7 +38,7 @@ export default EditLicenseDate;
 function EditLicenseDatePopup({ onSuccess, license }) {
   const toastId = useRef();
   const dispatch = useDispatch();
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
 
   const { loading, success, error } = useSelector(
     (state) => state.licenses.updateLicenseDate
@@ -55,7 +54,6 @@ function EditLicenseDatePopup({ onSuccess, license }) {
 
   const closeForm = () => {
     setPopupContent(null);
-    setShowPopup(false);
   };
 
   const handleSubmit = (e) => {
@@ -98,7 +96,6 @@ function EditLicenseDatePopup({ onSuccess, license }) {
     } else if (success) {
       toastId.current && toast.dismiss(toastId.current);
       onSuccess();
-      setShowPopup(false);
       setPopupContent(null);
       toast.success("Lisans günü başarıyla güncellendi.");
       dispatch(resetUpdateLicenseDateState());

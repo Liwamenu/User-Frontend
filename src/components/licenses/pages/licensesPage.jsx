@@ -152,11 +152,6 @@ const LicensesPage = () => {
   // TOAST GET AND SET LICENSES OR LICENSES RESTAURANT
   useEffect(() => {
     if (error) {
-      if (error?.message_TR) {
-        toast.error(error.message_TR);
-      } else {
-        toast.error("Something went wrong");
-      }
       dispatch(resetGetLicensesState());
     }
     if (success) {

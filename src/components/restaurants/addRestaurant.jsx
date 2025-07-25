@@ -42,12 +42,11 @@ import { getCities } from "../../redux/data/getCitiesSlice";
 const AddRestaurant = ({ onSuccess }) => {
   const params = useParams();
   const userId = params.id;
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
   const handleClick = () => {
     setPopupContent(
       <AddRestaurantPopup onSuccess={onSuccess} userId={userId} />
     );
-    setShowPopup(true);
   };
 
   return (
@@ -68,7 +67,7 @@ function AddRestaurantPopup({ onSuccess, userId }) {
   const toastId = useRef();
   const localUser = getAuth()?.isManager;
 
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
 
   const { loading, success, error } = useSelector(
     (state) => state.restaurants.addRestaurant
@@ -124,7 +123,6 @@ function AddRestaurantPopup({ onSuccess, userId }) {
 
   const closeForm = () => {
     setPopupContent(null);
-    setShowPopup(false);
   };
 
   const handleSubmit = (e) => {
@@ -166,7 +164,6 @@ function AddRestaurantPopup({ onSuccess, userId }) {
     } else if (success) {
       toastId.current && toast.dismiss(toastId.current);
       onSuccess();
-      setShowPopup(false);
       setPopupContent(null);
       toast.success("Restoran başarıyla eklendi 🥳🥳");
       dispatch(resetAddRestaurantState());

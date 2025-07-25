@@ -6,7 +6,7 @@ import { Outlet, Navigate } from "react-router-dom";
 const ProtectedRoute = () => {
   const KEY = import.meta.env.VITE_LOCAL_KEY;
   let token;
-  console.log(token);
+  // console.log(token);
 
   try {
     token = JSON.parse(localStorage.getItem(KEY))?.token;

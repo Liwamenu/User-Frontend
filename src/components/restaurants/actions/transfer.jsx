@@ -22,12 +22,11 @@ import {
 } from "../../../redux/restaurants/restaurantTransferSlice";
 
 const TransferRestaurant = ({ restaurant, onSuccess }) => {
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
   const handleClick = () => {
     setPopupContent(
       <TransferRestaurantPopup restaurant={restaurant} onSuccess={onSuccess} />
     );
-    setShowPopup(true);
   };
 
   return (

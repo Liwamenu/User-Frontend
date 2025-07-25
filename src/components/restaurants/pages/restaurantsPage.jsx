@@ -165,11 +165,6 @@ const RestaurantsPage = () => {
   // TOAST AND GET MERGED USERS
   useEffect(() => {
     if (error) {
-      if (error?.message_TR) {
-        toast.error(error.message_TR);
-      } else {
-        toast.error("Something went wrong");
-      }
       dispatch(resetGetRestaurantsState());
     }
 
@@ -252,8 +247,7 @@ const RestaurantsPage = () => {
   }, [neighsSuccess]);
 
   //HIDE POPUP
-  const { contentRef, setContentRef, setShowPopup, setPopupContent } =
-    usePopup();
+  const { contentRef, setContentRef, setPopupContent } = usePopup();
   const filterRestaurant = useRef();
   useEffect(() => {
     if (filterRestaurant) {

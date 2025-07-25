@@ -185,11 +185,6 @@ const UserRestaurants = () => {
   // TOAST, AND SET RESTAURATS
   useEffect(() => {
     if (error) {
-      if (error?.message_TR) {
-        toast.error(error.message_TR);
-      } else {
-        toast.error("Something went wrong");
-      }
       dispatch(resetGetUserRestaurantsState());
     }
 
@@ -253,8 +248,7 @@ const UserRestaurants = () => {
   }, [neighsSuccess]);
 
   //HIDE POPUP
-  const { contentRef, setContentRef, setShowPopup, setPopupContent } =
-    usePopup();
+  const { contentRef, setContentRef, setPopupContent } = usePopup();
   const filterRestaurant = useRef();
   useEffect(() => {
     if (filterRestaurant) {

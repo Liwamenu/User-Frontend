@@ -11,7 +11,7 @@ import {
 import { CancelI } from "../../../assets/icon";
 
 const ChangeRestaurantStatus = ({ restaurant, onSuccess }) => {
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
 
   const handleEditRestaurantStatus = () => {
     setPopupContent(
@@ -20,7 +20,6 @@ const ChangeRestaurantStatus = ({ restaurant, onSuccess }) => {
         onSuccess={onSuccess}
       />
     );
-    setShowPopup(true);
   };
 
   return (
@@ -45,8 +44,7 @@ function ChangeRestaurantStatusPopup({ restaurant, onSuccess }) {
   const dispatch = useDispatch();
   const toastId = useRef();
   const restaurantStatusRef = useRef();
-  const { setShowPopup, setPopupContent, contentRef, setContentRef } =
-    usePopup();
+  const { setPopupContent, contentRef, setContentRef } = usePopup();
 
   const { loading, success, error } = useSelector(
     (state) => state.restaurants.updateRestaurant
@@ -85,7 +83,6 @@ function ChangeRestaurantStatusPopup({ restaurant, onSuccess }) {
 
   const closeThePopup = () => {
     setPopupContent(null);
-    setShowPopup(false);
   };
 
   function editRestaurantStatus() {
@@ -109,7 +106,6 @@ function ChangeRestaurantStatusPopup({ restaurant, onSuccess }) {
     } else if (success) {
       toastId.current && toast.dismiss(toastId.current);
       onSuccess();
-      setShowPopup(false);
       setPopupContent(null);
       toast.success(
         `Restoran başarıyla ${

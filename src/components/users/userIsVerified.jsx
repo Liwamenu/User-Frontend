@@ -1,38 +1,42 @@
-import { useEffect, useRef, useState } from "react";
-import { usePopup } from "../../context/PopupContext";
-import { CancelI } from "../../assets/icon";
-import CustomCheckbox from "../common/customCheckbox";
-import { useDispatch, useSelector } from "react-redux";
+//MODULES
 import toast from "react-hot-toast";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
+//COMP
+import { CancelI } from "../../assets/icon";
+import { usePopup } from "../../context/PopupContext";
+import CustomCheckbox from "../common/customCheckbox";
+
+//REDUX
 import {
-  resetUpdateUserIsVerified,
   updateUserIsVerified,
+  resetUpdateUserIsVerified,
 } from "../../redux/users/updateUserIsVerifiedSlice";
 
 const ChangeUserIsVerified = ({ user, onSuccess }) => {
   const usersStatusRef = useRef();
 
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
 
   const handleEditUserStatus = () => {
     setPopupContent(
       <EditUserIsVerifiedPopup user={user} onSuccess={onSuccess} />
     );
-    setShowPopup(true);
   };
 
   return (
     <>
       <span
         className={`text-xs font-normal px-3 py-1 border border-solid rounded-full cursor-pointer ${
-          user.isVerify
+          user.emailConfirmed
             ? "text-[--green-1] bg-[--status-green] border-[--green-1]"
             : "text-[--black-1] bg-[--light-4]"
         } `}
         onClick={handleEditUserStatus}
         ref={usersStatusRef}
       >
-        ● {user.isVerify ? "Onaylı" : "Onlaylanmadı"}
+        ● {user.emailConfirmed ? "Onaylı" : "Onlaylanmadı"}
       </span>
     </>
   );
@@ -49,18 +53,16 @@ function EditUserIsVerifiedPopup({ user, onSuccess }) {
     (state) => state.users.updateIsVerified
   );
 
-  const { setShowPopup, setPopupContent, contentRef, setContentRef } =
-    usePopup();
+  const { setPopupContent, contentRef, setContentRef } = usePopup();
 
   const [userData, setUserData] = useState({
     userId: user.id,
-    isVerify: user.isVerify,
+    emailConfirmed: user.emailConfirmed,
     checked: false,
   });
 
   const closeThePopup = () => {
     setPopupContent(null);
-    setShowPopup(false);
   };
 
   function editUserStatus() {
@@ -128,12 +130,12 @@ function EditUserIsVerifiedPopup({ user, onSuccess }) {
               <p className="min-w-28">Durum:</p>
               <p
                 className={`py-3 border border-dashed w-36 text-center rounded-md ${
-                  user.isVerify
+                  user.emailConfirmed
                     ? "text-[--green-1] border-[--green-1]"
                     : "text-[--black-1] border-[--black-2]"
                 }`}
               >
-                ● {user.isVerify ? "Onaylı" : "Onlaylanmadı"}
+                ● {user.emailConfirmed ? "Onaylı" : "Onlaylanmadı"}
               </p>
             </div>
 
@@ -141,16 +143,16 @@ function EditUserIsVerifiedPopup({ user, onSuccess }) {
               <p className="min-w-28">İşlem:</p>
               <CustomCheckbox
                 className2={`${
-                  user.isVerify ? "text-[--red-1]" : "text-[--green-1]"
+                  user.emailConfirmed ? "text-[--red-1]" : "text-[--green-1]"
                 }`}
-                label={user.isVerify ? "Onaylama" : "Onayla"}
+                label={user.emailConfirmed ? "Onaylama" : "Onayla"}
                 checked={userData.checked}
                 onChange={() =>
                   setUserData((prev) => {
                     return {
                       ...prev,
                       checked: !userData.checked,
-                      isVerify: !userData.isVerify,
+                      emailConfirmed: !userData.emailConfirmed,
                     };
                   })
                 }
@@ -162,12 +164,12 @@ function EditUserIsVerifiedPopup({ user, onSuccess }) {
                 disabled={!userData.checked}
                 onClick={editUserStatus}
                 className={`py-3 w-24 text-center rounded-md border border-solid transition-colors disabled:cursor-not-allowed ${
-                  user.isVerify
+                  user.emailConfirmed
                     ? "bg-[--status-red] text-[--red-1] border-[--red-1] hover:bg-[--red-1] hover:text-[--white-1] disabled:hover:bg-[--status-red] disabled:hover:text-[--red-1]"
                     : "bg-[--status-green] text-[--green-1] hover:bg-[--green-1] hover:text-[--white-1] border-[--green-1] disabled:hover:bg-[--status-green] disabled:hover:text-[--green-1]"
                 }`}
               >
-                {user.isVerify ? "Onaylama" : "Onayla"}
+                {user.emailConfirmed ? "Onaylama" : "Onayla"}
               </button>
             </div>
           </div>

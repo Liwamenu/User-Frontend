@@ -64,7 +64,7 @@ export const privateApi = () => {
         errorMessage = "Hesabınız aktif değil";
         toast.error(errorMessage, { id: "403" });
       } else if (error.response) {
-        const resErr = error?.response?.data?.message || null;
+        const resErr = error?.response?.data?.message_TR || null;
         if (resErr) {
           errorMessage = resErr;
         } else {

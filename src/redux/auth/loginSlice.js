@@ -52,7 +52,7 @@ export const login = createAsyncThunk(
         password,
       });
 
-      console.log(res);
+      // console.log(res);
       const KEY = import.meta.env.VITE_LOCAL_KEY;
       localStorage.setItem(`${KEY}`, JSON.stringify(res.data));
       return res.data.sessionId;

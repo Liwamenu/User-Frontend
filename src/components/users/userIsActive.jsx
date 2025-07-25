@@ -13,11 +13,10 @@ import toast from "react-hot-toast";
 const ChangeUsersStatus = ({ user, onSuccess }) => {
   const usersStatusRef = useRef();
 
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
 
   const handleEditUserStatus = () => {
     setPopupContent(<EditUserStatusPopup user={user} onSuccess={onSuccess} />);
-    setShowPopup(true);
   };
 
   return (
@@ -48,8 +47,7 @@ function EditUserStatusPopup({ user, onSuccess }) {
     (state) => state.users.updateIsActive
   );
 
-  const { setShowPopup, setPopupContent, contentRef, setContentRef } =
-    usePopup();
+  const { setPopupContent, contentRef, setContentRef } = usePopup();
 
   const [userData, setUserData] = useState({
     userId: user.id,
@@ -61,7 +59,6 @@ function EditUserStatusPopup({ user, onSuccess }) {
 
   const closeThePopup = () => {
     setPopupContent(null);
-    setShowPopup(false);
   };
 
   function editUserStatus() {

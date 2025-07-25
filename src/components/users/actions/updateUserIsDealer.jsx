@@ -37,7 +37,7 @@ export default UpdateUserIsDealer;
 function UpdateUserIsDealerPopup({ onSuccess, user }) {
   const toastId = useRef();
   const dispatch = useDispatch();
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
   const { loading, success, error } = useSelector(
     (state) => state.users.updateIsDealer
   );
@@ -52,7 +52,6 @@ function UpdateUserIsDealerPopup({ onSuccess, user }) {
 
   const clearForm = () => {
     setPopupContent(null);
-    setShowPopup(false);
   };
 
   function handleAddTemplate(e) {

@@ -141,17 +141,12 @@ const UsersPage = () => {
   // TOAST AND SET USERS
   useEffect(() => {
     if (error) {
-      if (error?.message) {
-        toast.error(error.message);
-      } else {
-        toast.error("Something went wrong");
-      }
       dispatch(resetGetUsersState());
     }
 
     if (success) {
-      setUsersData(users?.users);
-      setTotalItems(users?.total);
+      setUsersData(users?.data);
+      setTotalItems(users?.totalCount);
       dispatch(resetGetUsersState());
     }
   }, [loading, success, error, users]);
@@ -166,8 +161,7 @@ const UsersPage = () => {
   }, [citiesData]);
 
   //HIDE POPUP
-  const { contentRef, setContentRef, setShowPopup, setPopupContent } =
-    usePopup();
+  const { contentRef, setContentRef, setPopupContent } = usePopup();
   const usersFilterRef = useRef();
   useEffect(() => {
     if (usersFilterRef) {
@@ -388,7 +382,6 @@ const UsersPage = () => {
               <button
                 className="h-11 whitespace-nowrap text-[--primary-2] px-3 rounded-md text-sm font-normal border-[1.5px] border-solid border-[--primary-2]"
                 onClick={() => {
-                  setShowPopup(true);
                   setPopupContent(
                     <AddUser onSuccess={() => handleFilter(true)} />
                   );

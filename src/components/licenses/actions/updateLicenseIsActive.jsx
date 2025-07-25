@@ -16,13 +16,12 @@ import {
 } from "../../../redux/licenses/updateLicenseIsActiveSlice";
 
 const EditLicenseIsActive = ({ licenseData, onSuccess }) => {
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
 
   const handleClick = () => {
     setPopupContent(
       <EditLicenseIsActivesPopup onSuccess={onSuccess} license={licenseData} />
     );
-    setShowPopup(true);
   };
 
   return (
@@ -49,7 +48,7 @@ function EditLicenseIsActivesPopup({ onSuccess, license }) {
   const dispatch = useDispatch();
   const licenseDataIsActiveRef = useRef();
 
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
 
   const { loading, success, error } = useSelector(
     (state) => state.licenses.updateLicenseIsActive
@@ -62,7 +61,6 @@ function EditLicenseIsActivesPopup({ onSuccess, license }) {
 
   const closeForm = () => {
     setPopupContent(null);
-    setShowPopup(false);
   };
 
   const handleSubmit = (e) => {
@@ -91,7 +89,6 @@ function EditLicenseIsActivesPopup({ onSuccess, license }) {
     } else if (success) {
       toastId.current && toast.dismiss(toastId.current);
       onSuccess();
-      setShowPopup(false);
       setPopupContent(null);
       toast.success(
         `Lisans başarıyla ${

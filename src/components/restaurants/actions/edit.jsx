@@ -29,12 +29,12 @@ import {
 import ActionButton from "../../common/actionButton";
 
 const EditRestaurant = ({ restaurant, onSuccess }) => {
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
+  console.log(restaurant);
   const handleClick = () => {
     setPopupContent(
       <EditRestaurantPopup restaurant={restaurant} onSuccess={onSuccess} />
     );
-    setShowPopup(true);
   };
 
   return (
@@ -52,7 +52,7 @@ export default EditRestaurant;
 function EditRestaurantPopup({ restaurant, onSuccess }) {
   const dispatch = useDispatch();
   const toastId = useRef();
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
   const {
     id: restaurantId,
     dealerId,
@@ -130,7 +130,6 @@ function EditRestaurantPopup({ restaurant, onSuccess }) {
 
   const closeForm = () => {
     setPopupContent(null);
-    setShowPopup(false);
   };
 
   const handleSubmit = (e) => {
@@ -175,7 +174,6 @@ function EditRestaurantPopup({ restaurant, onSuccess }) {
     } else if (success) {
       toastId.current && toast.dismiss(toastId.current);
       onSuccess();
-      setShowPopup(false);
       setPopupContent(null);
       toast.success("Restoran başarıyla güncelendi 🥳🥳");
       dispatch(resetUpdateRestaurant());
