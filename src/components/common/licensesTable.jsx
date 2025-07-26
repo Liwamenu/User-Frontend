@@ -9,8 +9,7 @@ const LicensesTable = ({ inData, totalItems, onSuccess }) => {
         <table className="w-full text-sm font-light">
           <thead>
             <tr className="bg-[--light-3] h-8 text-left text-[--black-1]">
-              <th className="pl-4 font-normal">Pazaryeri</th>
-              <th className="font-normal">Restoran</th>
+              <th className="pl-4 font-normal">Restoran</th>
               <th className="font-normal">Kullanıcı</th>
               <th className="font-normal">Bitiş Tarihi</th>
               <th className="font-normal">Kalan Gün</th>
@@ -27,8 +26,7 @@ const LicensesTable = ({ inData, totalItems, onSuccess }) => {
                   totalItems < 8 ? "" : "last:border-b-0"
                 } `}
               >
-                <td className="whitespace-nowrap text-[--black-2] pl-4 font-normal"></td>
-                <td className="whitespace-nowrap text-[--black-2] font-light">
+                <td className="whitespace-nowrap text-[--black-2] pl-4 font-normal">
                   {data.restaurantName}
                 </td>
                 <td className="whitespace-nowrap text-[--black-2] font-light">

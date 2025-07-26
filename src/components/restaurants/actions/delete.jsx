@@ -103,7 +103,7 @@ function DeleteRetaurantPopup({ restaurant, onSuccess }) {
         <h1 className="self-center text-2xl font-bold">Silinecek</h1>
         <div className="flex flex-col px-4 sm:px-14 mt-9 w-full text-left">
           <p className="">
-            Kullanıcı{" "}
+            Restoran{" "}
             <span className="font-bold text-[--primary-2]">
               {restaurant.name}
             </span>{" "}
@@ -128,10 +128,10 @@ function DeleteRetaurantPopup({ restaurant, onSuccess }) {
             </span>
             Emin misiniz?
           </p>
-          <p className="mt-5">
+          {/* <p className="mt-5">
             💡(Silmeden önce bağlı lisansları başka bir restorana transfer
             edebilirsiniz)
-          </p>
+          </p> */}
           <div className="mt-10 flex flex-col gap-4">
             <CustomCheckbox
               checked={checked}

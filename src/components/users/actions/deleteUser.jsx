@@ -66,7 +66,6 @@ const DeletePopup = ({ data, onSuccess }) => {
   );
 
   const [checked, setChecked] = useState(false);
-  const [checked2, setChecked2] = useState(true);
   const [licenseNumber, setLicenseNumber] = useState(null);
   const [restorantNumber, setRestorantNumber] = useState(null);
 
@@ -168,7 +167,11 @@ const DeletePopup = ({ data, onSuccess }) => {
           <div className="flex gap-3 self-end max-sm:mt-4 mt-2 text-[--white-1]">
             <button
               className="px-10 py-2 text-base bg-[--red-1] rounded-lg disabled:cursor-not-allowed disabled:opacity-70"
-              disabled={!checked || !restaurants || !userLicenses}
+              disabled={
+                !checked ||
+                (!restorantNumber && restorantNumber !== 0) ||
+                (!licenseNumber && licenseNumber !== 0)
+              }
               onClick={handleDelete}
             >
               Sil

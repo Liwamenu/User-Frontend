@@ -186,6 +186,7 @@ const RestaurantLicensesPage = () => {
   //TOAST AND SET LICENSES OR GET RESTAURANT DATA
   useEffect(() => {
     if (success) {
+      console.log(userInData);
       if (!restaurantInData) {
         dispatch(getRestaurant({ restaurantId }));
       } else if (!userInData && (isUserPath || isRestaurantPath)) {
@@ -196,11 +197,6 @@ const RestaurantLicensesPage = () => {
     }
 
     if (error) {
-      if (error?.message_TR) {
-        toast.error(error.message_TR);
-      } else {
-        toast.error("Something went wrong");
-      }
       dispatch(resetGetRestaurantLicenses());
     }
   }, [success, restaurantInData]);
@@ -208,11 +204,6 @@ const RestaurantLicensesPage = () => {
   //TOAST AND SET RESTAURANT DATA OR GET USER DATA
   useEffect(() => {
     if (restaurantError) {
-      if (restaurantError?.message_TR) {
-        toast.error(restaurantError.message_TR);
-      } else {
-        toast.error("Something went wrong");
-      }
       dispatch(resetGetRestaurantState());
     }
 
@@ -234,11 +225,6 @@ const RestaurantLicensesPage = () => {
     }
 
     if (userError) {
-      if (userError?.message_TR) {
-        toast.error(userError.message_TR);
-      } else {
-        toast.error("Something went wrong");
-      }
       dispatch(resetgetUser());
     }
   }, [userSucc, userError, user]);

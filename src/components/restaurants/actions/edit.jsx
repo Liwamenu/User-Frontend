@@ -1,36 +1,42 @@
+//MODULES
+import { isEqual } from "lodash";
+import toast from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
-import { CancelI, EditI } from "../../../assets/icon";
-import { usePopup } from "../../../context/PopupContext";
-import CustomInput from "../../common/customInput";
-import CustomPhoneInput from "../../common/customPhoneInput";
-import CustomSelect from "../../common/customSelector";
-import {
-  getDistricts,
-  resetGetDistrictsState,
-} from "../../../redux/data/getDistrictsSlice";
-import { getCities } from "../../../redux/data/getCitiesSlice";
 import { useDispatch, useSelector } from "react-redux";
+
+//COMP
+import CustomInput from "../../common/customInput";
+import ActionButton from "../../common/actionButton";
+import { CancelI, EditI } from "../../../assets/icon";
+import CustomSelect from "../../common/customSelector";
+import { usePopup } from "../../../context/PopupContext";
+import CustomTextarea from "../../common/customTextarea";
+import CustomPhoneInput from "../../common/customPhoneInput";
+
+//FUNC
+import { googleMap } from "../../../utils/utils";
+
+//REDUX
 import {
   getNeighs,
   resetGetNeighsState,
 } from "../../../redux/data/getNeighsSlice";
-import CustomTextarea from "../../common/customTextarea";
-import toast from "react-hot-toast";
-import { googleMap } from "../../../utils/utils";
-import {
-  resetUpdateRestaurant,
-  updateRestaurant,
-} from "../../../redux/restaurants/updateRestaurantSlice";
-import { isEqual } from "lodash";
 import {
   getLocation,
   resetGetLocationState,
 } from "../../../redux/data/getLocationSlice";
-import ActionButton from "../../common/actionButton";
+import {
+  getDistricts,
+  resetGetDistrictsState,
+} from "../../../redux/data/getDistrictsSlice";
+import {
+  updateRestaurant,
+  resetUpdateRestaurant,
+} from "../../../redux/restaurants/updateRestaurantSlice";
+import { getCities } from "../../../redux/data/getCitiesSlice";
 
 const EditRestaurant = ({ restaurant, onSuccess }) => {
   const { setPopupContent } = usePopup();
-  console.log(restaurant);
   const handleClick = () => {
     setPopupContent(
       <EditRestaurantPopup restaurant={restaurant} onSuccess={onSuccess} />

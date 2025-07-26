@@ -87,9 +87,7 @@ export const getUser = createAsyncThunk(
   async ({ userId }, { rejectWithValue }) => {
     try {
       const res = await api.get(`${baseURL}Users/GetUserById`, {
-        params: {
-          id: userId,
-        },
+        params: { userId },
       });
 
       //console.log(res);
