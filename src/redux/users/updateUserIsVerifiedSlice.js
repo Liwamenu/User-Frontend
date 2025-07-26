@@ -52,13 +52,13 @@ const updateUserIsVerifiedSlice = createSlice({
 
 export const updateUserIsVerified = createAsyncThunk(
   "Users/updateUserIsVerified",
-  async ({ userId, isVerify }, { rejectWithValue }) => {
-    console.log({ isVerify });
+  async ({ userId, emailConfirmed }, { rejectWithValue }) => {
+    console.log({ emailConfirmed });
     try {
       const res = await api.put(
         `${baseURL}Users/UpdateUserIsVerify`,
         {},
-        { params: { userId, isVerify } }
+        { params: { userId, emailConfirmed } }
       );
 
       // console.log(res.data);
