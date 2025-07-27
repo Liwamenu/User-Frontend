@@ -5,7 +5,7 @@ import authSlice from "./redux/auth";
 import dataSlice from "./redux/data";
 import adminSlice from "./redux/admin";
 // import generalVariablesSlice from "./redux/generalVars";
-// import licensePackagesSlice from "./redux/licensePackages";
+import licensePackagesSlice from "./redux/licensePackages";
 import licensesSlice from "./redux/licenses";
 import restaurantsSlice from "./redux/restaurants";
 // import userSlice from "./redux/user";
@@ -36,7 +36,7 @@ const store = configureStore({
     // tempUsers: tempUsersSlice,
     restaurants: restaurantsSlice,
     licenses: licensesSlice,
-    // licensePackages: licensePackagesSlice,
+    licensePackages: licensePackagesSlice,
     data: dataSlice,
     // generalVars: generalVariablesSlice,
     // getContext: getContextSlice,

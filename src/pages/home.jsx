@@ -14,7 +14,7 @@ import Users from "./users";
 import Restourants from "./restourants";
 import Licenses from "./licenses";
 // import Parameters from "./parameters";
-// import LicensePackages from "./licensePackages";
+import LicensePackages from "./licensePackages";
 // import Profile from "./profile";
 // import Messages from "./messages";
 // import Templates from "./templates";
@@ -35,12 +35,12 @@ const Home = () => {
         <Route path="/users/*" element={<Users />} />
         <Route path="/restaurants/*" element={<Restourants />} />
         <Route path="/licenses/*" element={<Licenses />} />
+        <Route path="/license-packages/*" element={<LicensePackages />} />
         {/*
         <Route path="/*" element={<DashboardPage />} />
         <Route path="/dashboard/*" element={<DashboardPage />} />
         <Route path="/temp-users/*" element={<TempUsers />} />
         <Route path="/accounts/*" element={<Accounts />} />
-        <Route path="/license-packages/*" element={<LicensePackages />} />
         <Route path="/parameters/*" element={<Parameters />} />
         <Route path="/profile/*" element={<Profile />} />
         <Route path="/payments/*" element={<Payments />} />
