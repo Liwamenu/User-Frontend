@@ -79,14 +79,14 @@ function AddLicensePackagePopup({ onSuccess }) {
       ...licensePackagesData,
       userPrice: userValidPrice,
       dealerPrice: dealerValidPrice,
-      licenseTypeId: licensePackagesData.licenseTypeId.id,
+     
     });
     dispatch(
       addLicensePackage({
         ...licensePackagesData,
         userPrice: userValidPrice,
         dealerPrice: dealerValidPrice,
-        licenseTypeId: licensePackagesData.licenseTypeId.id,
+        
       })
     );
   };
