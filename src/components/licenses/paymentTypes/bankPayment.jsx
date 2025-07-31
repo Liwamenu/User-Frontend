@@ -11,16 +11,10 @@ import { usePopup } from "../../../context/PopupContext";
 import ForwardButton from "../stepsAssets/forwardButton";
 import CustomFileInput from "../../common/customFileInput";
 import { PaymentLoader } from "../stepsAssets/paymentLoader";
-import { getPriceWithKDV, groupByRestaurantId } from "../../../utils/utils";
-
-//IMAGES
-import Getiryemek from "../../../assets/img/packages/Getiryemek.png";
-import MigrosYemek from "../../../assets/img/packages/MigrosYemek.png";
-import Siparisim from "../../../assets/img/packages/Siparisim.png";
-import TrendyolYemek from "../../../assets/img/packages/TrendyolYemek.png";
-import GoFody from "../../../assets/img/packages/GoFody.png";
-import Yemeksepeti from "../../../assets/img/packages/Yemeksepeti.png";
-import Autoronics from "../../../assets/img/packages/Autoronics.png";
+import {
+  // getPriceWithKDV,
+  groupByRestaurantId,
+} from "../../../utils/utils";
 
 //REDUX
 import {
@@ -31,16 +25,6 @@ import {
   extendByBankPay,
   resetExtendByBankPay,
 } from "../../../redux/licenses/extendLicense/extendByBankPaySlice";
-
-const imageSRCs = [
-  { src: Getiryemek, name: "Getiryemek" },
-  { src: MigrosYemek, name: "MigrosYemek" },
-  { src: TrendyolYemek, name: "TrendyolYemek" },
-  { src: Yemeksepeti, name: "Yemeksepeti" },
-  { src: GoFody, name: "GoFody" },
-  { src: Siparisim, name: "Siparisim" },
-  { src: Autoronics, name: "Autoronics" },
-];
 
 const BankPayment = ({
   step,
@@ -83,8 +67,8 @@ const BankPayment = ({
 
     const { city, district, neighbourhood } = userInvData;
     const paymentAmount = cartItems.reduce(
-      (acc, item) =>
-        acc + parseFloat(getPriceWithKDV(item.price, item.kdvData)),
+      (acc, item) => acc + parseFloat(item.price),
+      // acc + parseFloat(getPriceWithKDV(item.price, item.kdvData)),
       0
     );
     const addLicenseBasket = cartItems.reduce((result, item) => {
@@ -199,9 +183,6 @@ const BankPayment = ({
                 <div className="flex flex-wrap gap-x-4 gap-y-2 pb-2">
                   {pkg.map((item, i) => (
                     <div key={i} className="flex text-sm">
-                      <p className="mt-1 pr-2">
-                        {imageSRCs[item.licenseTypeId]?.name}
-                      </p>
                       <p className="mt-1">
                         {item.time} Yıllık{i < pkg.length - 1 && ","}
                       </p>

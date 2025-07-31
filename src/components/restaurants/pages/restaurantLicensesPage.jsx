@@ -25,7 +25,7 @@ import {
   getRestaurantLicenses,
   resetGetRestaurantLicenses,
 } from "../../../redux/licenses/getRestaurantLicensesSlice";
-import { getUser, resetgetUser } from "../../../redux/users/getUserByIdSlice";
+import { getUser, resetGetUser } from "../../../redux/users/getUserByIdSlice";
 
 const RestaurantLicensesPage = () => {
   const dispatch = useDispatch();
@@ -160,7 +160,7 @@ const RestaurantLicensesPage = () => {
     setLicensesData(updatedData);
     setRestaurantData(inRestaurant);
     setTotalItems(restaurantLicenses.totalCount);
-    dispatch(resetgetUser());
+    dispatch(resetGetUser());
     dispatch(resetGetRestaurantState());
     dispatch(resetGetRestaurantLicenses());
   }
@@ -225,7 +225,7 @@ const RestaurantLicensesPage = () => {
     }
 
     if (userError) {
-      dispatch(resetgetUser());
+      dispatch(resetGetUser());
     }
   }, [userSucc, userError, user]);
 

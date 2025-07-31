@@ -35,7 +35,9 @@ const LicensePackagesTable = ({
                   totalItems < 8 ? "bg-[--red-1]" : "last:border-b-0"
                 } `}
               >
-                <div className="w-40 flex items-center">{data.name}</div>
+                <div className="w-40 text-[--black-2] flex items-center justify-center">
+                  {data.name}
+                </div>
                 <div className="w-36 text-[--black-2] flex items-center justify-center">
                   {data.time} Yıllık
                 </div>

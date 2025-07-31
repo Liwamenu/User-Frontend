@@ -19,7 +19,7 @@ import LicensesTable from "../../../components/common/licensesTable";
 // REDUX
 import {
   getUser,
-  resetgetUserState,
+  resetGetUserState,
 } from "../../../redux/users/getUserByIdSlice";
 import {
   getUserLicenses,
@@ -172,12 +172,12 @@ const UserLicensesPage = () => {
       } else {
         toast.error("Something went wrong");
       }
-      dispatch(resetgetUserState());
+      dispatch(resetGetUserState());
     }
 
     if (user) {
       setUserData(user);
-      dispatch(resetgetUserState());
+      dispatch(resetGetUserState());
     }
   }, [user, getUserErr]);
 

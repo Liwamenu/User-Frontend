@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import {
   formatToPrice,
-  getPriceWithKDV,
+  // getPriceWithKDV,
   groupedLicensePackages,
 } from "../../../utils/utils";
 
@@ -14,17 +14,6 @@ import BackButton from "../stepsAssets/backButton";
 import ForwardButton from "../stepsAssets/forwardButton";
 import { usePopup } from "../../../context/PopupContext";
 import { PaymentLoader } from "../stepsAssets/paymentLoader";
-
-//ASSETS
-import GoFody from "../../../assets/img/packages/GoFody.png";
-import Siparisim from "../../../assets/img/packages/Siparisim.png";
-import Getiryemek from "../../../assets/img/packages/Getiryemek.png";
-import MigrosYemek from "../../../assets/img/packages/MigrosYemek.png";
-import Yemeksepeti from "../../../assets/img/packages/Yemeksepeti.png";
-import TrendyolYemek from "../../../assets/img/packages/TrendyolYemek.png";
-import Autoronics from "../../../assets/img/packages/Autoronics.png";
-import Vigo from "../../../assets/img/packages/Vigo.png";
-import PaketNet from "../../../assets/img/packages/PaketNet.png";
 
 //REDUX
 import {
@@ -35,18 +24,6 @@ import {
   extendByBankPay,
   resetExtendByBankPay,
 } from "../../../redux/licenses/extendLicense/extendByBankPaySlice";
-
-const imageSRCs = [
-  { src: Getiryemek, name: "Getiryemek" },
-  { src: MigrosYemek, name: "MigrosYemek" },
-  { src: TrendyolYemek, name: "TrendyolYemek" },
-  { src: Yemeksepeti, name: "Yemeksepeti" },
-  { src: GoFody, name: "GoFody" },
-  { src: Siparisim, name: "Siparisim" },
-  { src: Autoronics, name: "Autoronics" },
-  { src: Vigo, name: "Vigo" },
-  { src: PaketNet, name: "PaketNet" },
-];
 
 const WithOutPayment = ({
   user,
@@ -82,16 +59,17 @@ const WithOutPayment = ({
       (acc, item) => acc + parseFloat(item.price),
       0
     );
-    const kdv = cartItems.reduce(
-      (acc, item) =>
-        acc + (parseFloat(item.price) / 100) * item.kdvData.kdvPercentage,
-      0
-    );
-    const useKDV = cartItems[0]?.kdvData.useKDV;
-    const kdvTotal = formatToPrice(kdv);
+    // const kdv = cartItems.reduce(
+    //   (acc, item) =>
+    //     acc + (parseFloat(item.price) / 100) * item.kdvData.kdvPercentage,
+    //   0
+    // );
+    // const useKDV = cartItems[0]?.kdvData.useKDV;
+    // const kdvTotal = formatToPrice(kdv);
     const total = formatToPrice(result);
-    const totalWithKdv = formatToPrice(result + kdv);
-    return { total, kdvTotal, useKDV, totalWithKdv };
+    // const totalWithKdv = formatToPrice(result + kdv);
+    return { total };
+    // return { total, kdvTotal, useKDV, totalWithKdv };
   }
 
   function handleSubmit(e) {
@@ -99,8 +77,8 @@ const WithOutPayment = ({
     if (addLoading || extendLoading) return;
 
     const paymentAmount = cartItems.reduce(
-      (acc, item) =>
-        acc + parseFloat(getPriceWithKDV(item.price, item.kdvData)),
+      (acc, item) => acc + parseFloat(item.price),
+      // acc + parseFloat(getPriceWithKDV(item.price, item.kdvData)),
       0
     );
     const addLicenseBasket = cartItems.reduce((result, item) => {
@@ -216,11 +194,6 @@ const WithOutPayment = ({
               key={i}
               className="flex items-center gap-8 even:bg-[--white-1] odd:bg-[--table-odd] relative"
             >
-              <img
-                src={imageSRCs[licensePkg[0].licenseTypeId]?.src}
-                alt="Pazaryeri"
-                className="w-36 h-full rounded-sm"
-              />
               {i === 0 && (
                 <p className="absolute -top-8 left-0 right-0 w-36">Pazaryeri</p>
               )}
@@ -258,12 +231,12 @@ const WithOutPayment = ({
 
                       <div className="flex gap-8 py-1">
                         <div className="text-center flex flex-col justify-center px-3 relative">
-                          {i === 0 && pkg.kdvData.useKDV && (
+                          {i === 0 && pkg?.kdvData?.useKDV && (
                             <p className="absolute -top-8 left-0 right-0">
                               KDV%{pkg.kdvPercentage}
                             </p>
                           )}
-                          {pkg.kdvData.useKDV && (
+                          {pkg?.kdvData?.useKDV && (
                             <p className="font-normal w-24">
                               {(pkg.price / 100) * pkg.kdvPercentage} ₺
                             </p>
@@ -276,13 +249,8 @@ const WithOutPayment = ({
                             </p>
                           )}
                           <p className="font-normal">
-                            {formatToPrice(
-                              getPriceWithKDV(pkg.price, pkg.kdvData).replace(
-                                ".00",
-                                ""
-                              )
-                            )}{" "}
-                            ₺
+                            {formatToPrice(pkg.price)} ₺
+                            {/* {formatToPrice(getPriceWithKDV(pkg.price, pkg.kdvData).replace(".00", ""))}{" "}₺ */}
                           </p>
                         </div>
                       </div>
@@ -295,7 +263,7 @@ const WithOutPayment = ({
         <div className="flex justify-between px-2">
           <p>Toplam</p>{" "}
           <p>
-            {getTotalPrice().useKDV
+            {getTotalPrice()?.useKDV
               ? getTotalPrice().totalWithKdv
               : getTotalPrice().total}{" "}
             ₺

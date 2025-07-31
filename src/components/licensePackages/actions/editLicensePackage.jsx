@@ -18,13 +18,14 @@ import {
 
 //UTILS
 import { formatToPrice } from "../../../utils/utils";
+import TimeIds from "../../../enums/licensePackagesTimeId";
+import CustomSelect from "../../common/customSelector";
 
 const EditLicensePackage = ({ licensePackage, onSuccess }) => {
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
 
-  const handlePopup = (event) => {
-    event.stopPropagation();
-    setShowPopup(true);
+  const handlePopup = (e) => {
+    e.stopPropagation();
     setPopupContent(
       <EditLicensePackagePopup data={licensePackage} onSuccess={onSuccess} />
     );
@@ -46,35 +47,29 @@ export default EditLicensePackage;
 function EditLicensePackagePopup({ data, onSuccess }) {
   const dispatch = useDispatch();
   const toastId = useRef();
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
 
   const { loading, success, error } = useSelector(
     (state) => state.licensePackages.updateLicensePackage
   );
 
-  const [licensePackagesDataBefore, setLicensePackagesDataBefore] = useState({
-    licenseTypeId: { value: null, label: "Pazaryeri Seç", id: null },
+  const initialData = {
+    id: data.id,
     time: data.time,
+    licensePackageId: data.id,
     userPrice: formatToPrice(data.userPrice),
     dealerPrice: formatToPrice(data.dealerPrice),
     description: data.description,
-  });
-  const [licensePackagesData, setLicensePackagesData] = useState({
-    licenseTypeId: { value: null, label: "Pazaryeri Seç", id: null },
-    time: data.time,
-    userPrice: formatToPrice(data.userPrice),
-    dealerPrice: formatToPrice(data.dealerPrice),
-    description: data.description,
-  });
-
-  const closeForm = () => {
-    setPopupContent(null);
-    setShowPopup(false);
+    name: data.name,
+    timeId: data.timeId,
+    isActive: data.isActive,
   };
+
+  const [licensePackagesData, setLicensePackagesData] = useState(initialData);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isEqual(licensePackagesDataBefore, licensePackagesData)) {
+    if (isEqual(initialData, licensePackagesData)) {
       toast.error("Hiç bir değişiklik yapmadınız");
       return;
     }
@@ -92,8 +87,6 @@ function EditLicensePackagePopup({ data, onSuccess }) {
         ...licensePackagesData,
         userPrice: userValidPrice,
         dealerPrice: dealerValidPrice,
-        licensePackageId: data.id,
-        licenseTypeId: licensePackagesData.licenseTypeId.id,
       })
     );
   };
@@ -109,7 +102,6 @@ function EditLicensePackagePopup({ data, onSuccess }) {
     } else if (success) {
       toast.dismiss(toastId.current);
       onSuccess();
-      setShowPopup(false);
       setPopupContent(null);
       toast.success("Lisans paketi başarıyla düzenlendı 🥳🥳");
       dispatch(resetUpdateLicensePackage());
@@ -122,21 +114,36 @@ function EditLicensePackagePopup({ data, onSuccess }) {
         <div className="absolute -top-6 right-3 z-[50]">
           <div
             className="text-[--primary-2] p-2 border border-solid border-[--primary-2] rounded-full cursor-pointer hover:bg-[--primary-2] hover:text-[--white-1] transition-colors"
-            onClick={closeForm}
+            onClick={() => setPopupContent(null)}
           >
             <CancelI />
           </div>
         </div>
 
         <h1 className="self-center text-2xl font-bold">
-          Lisans Paketi EDüzenlekle
+          Lisans Paketi Düzenle
         </h1>
         <div className="flex flex-col px-4 sm:px-14 mt-9 w-full text-left">
           <form onSubmit={handleSubmit}>
             <div className="flex max-sm:flex-col sm:gap-4">
               <CustomInput
-                label="Yıl"
-                placeholder="Yıl"
+                label="Ad"
+                placeholder="Ad"
+                required={true}
+                type="text"
+                value={licensePackagesData.name}
+                onChange={(e) => {
+                  setLicensePackagesData((prev) => {
+                    return {
+                      ...prev,
+                      name: e,
+                    };
+                  });
+                }}
+              />
+              <CustomInput
+                label="Zaman"
+                placeholder="1,2,3..."
                 required={true}
                 type="number"
                 value={licensePackagesData.time}
@@ -188,6 +195,7 @@ function EditLicensePackagePopup({ data, onSuccess }) {
 
             <div className="flex max-sm:flex-col sm:gap-4">
               <CustomInput
+                required
                 type="text"
                 maxLength={25}
                 label="Açıklama"
@@ -198,6 +206,50 @@ function EditLicensePackagePopup({ data, onSuccess }) {
                     return {
                       ...prev,
                       description: e,
+                    };
+                  });
+                }}
+              />
+              <CustomSelect
+                type="Zaman Tipi"
+                label="Zaman Tipi"
+                value={
+                  licensePackagesData.selectedTimeId || {
+                    value: 0,
+                    label: "Yıl",
+                  }
+                }
+                options={TimeIds}
+                onChange={(selectedOption) => {
+                  setLicensePackagesData((prev) => {
+                    return {
+                      ...prev,
+                      timeId: selectedOption.value,
+                      selectedTimeId: selectedOption,
+                    };
+                  });
+                }}
+              />
+            </div>
+
+            <div className="flex max-sm:flex-col sm:gap-4 sm:w-1/2">
+              <CustomSelect
+                type="Durum"
+                label="Durum"
+                value={
+                  licensePackagesData.isActive
+                    ? { value: true, label: "Aktif" }
+                    : { value: false, label: "Pasif" }
+                }
+                options={[
+                  { value: true, label: "Aktif" },
+                  { value: false, label: "Pasif" },
+                ]}
+                onChange={(selectedOption) => {
+                  setLicensePackagesData((prev) => {
+                    return {
+                      ...prev,
+                      isActive: selectedOption.value,
                     };
                   });
                 }}

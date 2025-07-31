@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import PaymentCard from "../../payment/card/card";
 import BackButton from "../stepsAssets/backButton";
 import PayTRForm from "../../payment/form/PayTRForm";
-import { getPriceWithKDV } from "../../../utils/utils";
+// import { getPriceWithKDV } from "../../../utils/utils";
 import { usePopup } from "../../../context/PopupContext";
 import ForwardButton from "../stepsAssets/forwardButton";
 import { PaymentLoader } from "../stepsAssets/paymentLoader";
@@ -79,8 +79,8 @@ const OnlinePayment = ({
     const address = `${userInvData.city}/${userInvData.district}/${userInvData.neighbourhood}`;
 
     const paymentAmount = cartItems.reduce(
-      (acc, item) =>
-        acc + parseFloat(getPriceWithKDV(item.price, item.kdvData)),
+      (acc, item) => acc + parseFloat(item.price),
+      // acc + parseFloat(getPriceWithKDV(item.price, item.kdvData)),
       0
     );
 

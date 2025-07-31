@@ -38,6 +38,7 @@ import {
   resetAddRestaurantState,
 } from "../../redux/restaurants/addRestaurantSlice";
 import { getCities } from "../../redux/data/getCitiesSlice";
+import CustomFileInput from "../common/customFileInput";
 
 const AddRestaurant = ({ onSuccess }) => {
   const params = useParams();
@@ -108,6 +109,7 @@ function AddRestaurantPopup({ onSuccess, userId }) {
   const [cities, setCities] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [neighs, setNeighs] = useState([]);
+  const [document, setDocument] = useState("");
   const [restaurantData, setRestaurantData] = useState({
     userId: { id: userId },
     name: "",
@@ -121,14 +123,24 @@ function AddRestaurantPopup({ onSuccess, userId }) {
     isActive: true,
   });
 
-  const closeForm = () => {
-    setPopupContent(null);
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(addRestaurant({ ...restaurantData }));
+
+    const formData = new FormData();
+    formData.append("UserId", restaurantData.userId);
+    formData.append("Name", restaurantData.name);
+    formData.append("PhoneNumber", restaurantData.phoneNumber);
+    formData.append("Latitude", restaurantData.latitude);
+    formData.append("Longitude", restaurantData.longitude);
+    formData.append("City", restaurantData.city.value);
+    formData.append("District", restaurantData.district.value);
+    formData.append("Neighbourhood", restaurantData.neighbourhood.value);
+    formData.append("Address", restaurantData.address);
+    formData.append("IsActive", restaurantData.isActive);
+    formData.append("Image", document);
+
     // console.log(restaurantData);
+    dispatch(addRestaurant({ formData, x: restaurantData.userId }));
   };
 
   async function handleOpenMap() {
@@ -154,19 +166,14 @@ function AddRestaurantPopup({ onSuccess, userId }) {
       toastId.current = toast.loading("İşleniyor 🤩...");
     }
     if (error) {
-      toastId.current && toast.dismiss(toastId.current);
-      if (error?.message_TR) {
-        toast.error(error.message_TR + "🙁");
-      } else {
-        toast.error("Something went wrong");
-      }
+      toast.dismiss(toastId.current);
       dispatch(resetAddRestaurantState());
     } else if (success) {
-      toastId.current && toast.dismiss(toastId.current);
       onSuccess();
       setPopupContent(null);
-      toast.success("Restoran başarıyla eklendi 🥳🥳");
+      toast.dismiss(toastId.current);
       dispatch(resetAddRestaurantState());
+      toast.success("Restoran başarıyla eklendi 🥳🥳");
     }
   }, [loading, success, error]);
 
@@ -188,8 +195,8 @@ function AddRestaurantPopup({ onSuccess, userId }) {
       setUsersData(formatSelectorData(users.data));
     }
     if (usersError) {
-      toast.error("Kullanıcılar alınamadı");
       dispatch(resetGetUsersState());
+      toast.error("Kullanıcılar alınamadı");
     }
   }, [usersSuccess, usersError]);
 
@@ -304,7 +311,7 @@ function AddRestaurantPopup({ onSuccess, userId }) {
         <div className="absolute -top-6 right-3 z-[50]">
           <div
             className="text-[--primary-2] p-2 border border-solid border-[--primary-2] rounded-full cursor-pointer hover:bg-[--primary-2] hover:text-[--white-1] transition-colors"
-            onClick={closeForm}
+            onClick={() => setPopupContent(null)}
           >
             <CancelI />
           </div>
@@ -524,6 +531,16 @@ function AddRestaurantPopup({ onSuccess, userId }) {
                   readOnly={true}
                 />
               </div>
+            </div>
+
+            <div className="mt-4">
+              <CustomFileInput
+                className="h-[8rem] p-4"
+                value={document}
+                onChange={setDocument}
+                accept={"image/png, image/jpeg"}
+                required
+              />
             </div>
 
             <div className="w-full flex justify-end mt-10">

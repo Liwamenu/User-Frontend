@@ -23,12 +23,12 @@ const getUserByIdSlice = createSlice({
   name: "getUser",
   initialState: initialState,
   reducers: {
-    resetgetUserState: (state) => {
+    resetGetUserState: (state) => {
       state.loading = false;
       state.success = false;
       state.error = null;
     },
-    resetgetUser: (state) => {
+    resetGetUser: (state) => {
       state.loading = false;
       state.success = false;
       state.error = null;
@@ -146,6 +146,6 @@ export const getMergedUsers = createAsyncThunk(
   }
 );
 
-export const { resetgetUserState, resetgetUser, resetGetMergedUsers } =
+export const { resetGetUserState, resetGetUser, resetGetMergedUsers } =
   getUserByIdSlice.actions;
 export default getUserByIdSlice.reducer;

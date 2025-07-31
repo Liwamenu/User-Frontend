@@ -17,11 +17,10 @@ import {
 } from "../../../redux/licensePackages/deleteLicensePackageSlice";
 
 const DeleteLicensePackage = ({ licensePackage, onSuccess }) => {
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
 
   const handlePopup = (event) => {
     event.stopPropagation();
-    setShowPopup(true);
     setPopupContent(
       <DeleteLicensePackagePopup data={licensePackage} onSuccess={onSuccess} />
     );
@@ -45,13 +44,12 @@ const DeleteLicensePackagePopup = ({ data, onSuccess }) => {
   const { loading, success, error } = useSelector(
     (state) => state.licensePackages.deleteLicensePackage
   );
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
 
   const [checked, setChecked] = useState(false);
 
   function closeForm() {
     setPopupContent(null);
-    setShowPopup(false);
   }
 
   function handleDelete() {

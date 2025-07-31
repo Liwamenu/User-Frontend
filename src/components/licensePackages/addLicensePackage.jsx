@@ -16,6 +16,7 @@ import {
   addLicensePackage,
   resetAddLicensePackage,
 } from "../../redux/licensePackages/addLicensePackageSlice";
+import TimeIds from "../../enums/licensePackagesTimeId";
 
 const AddLicensePackage = ({ onSuccess }) => {
   const params = useParams();
@@ -60,6 +61,7 @@ function AddLicensePackagePopup({ onSuccess }) {
     description: "",
     name: "",
     timeId: "",
+    isActive: true,
   });
 
   const closeForm = () => {
@@ -79,14 +81,12 @@ function AddLicensePackagePopup({ onSuccess }) {
       ...licensePackagesData,
       userPrice: userValidPrice,
       dealerPrice: dealerValidPrice,
-     
     });
     dispatch(
       addLicensePackage({
         ...licensePackagesData,
         userPrice: userValidPrice,
         dealerPrice: dealerValidPrice,
-        
       })
     );
   };
@@ -142,7 +142,7 @@ function AddLicensePackagePopup({ onSuccess }) {
               />
               <CustomInput
                 label="Zaman"
-                placeholder="Zaman"
+                placeholder="1,2,3..."
                 required={true}
                 type="number"
                 value={licensePackagesData.time}
@@ -194,6 +194,7 @@ function AddLicensePackagePopup({ onSuccess }) {
 
             <div className="flex max-sm:flex-col sm:gap-4">
               <CustomInput
+                required
                 type="text"
                 maxLength={25}
                 label="Açıklama"
@@ -217,16 +218,37 @@ function AddLicensePackagePopup({ onSuccess }) {
                     label: "Yıl",
                   }
                 }
-                options={[
-                  { value: 0, label: "Yıl" },
-                  { value: 1, label: "Ay" },
-                ]}
+                options={TimeIds}
                 onChange={(selectedOption) => {
                   setLicensePackagesData((prev) => {
                     return {
                       ...prev,
                       timeId: selectedOption.value,
                       selectedTimeId: selectedOption,
+                    };
+                  });
+                }}
+              />
+            </div>
+
+            <div className="flex max-sm:flex-col sm:gap-4 sm:w-1/2">
+              <CustomSelect
+                type="Durum"
+                label="Durum"
+                value={
+                  licensePackagesData.isActive
+                    ? { value: true, label: "Aktif" }
+                    : { value: false, label: "Pasif" }
+                }
+                options={[
+                  { value: true, label: "Aktif" },
+                  { value: false, label: "Pasif" },
+                ]}
+                onChange={(selectedOption) => {
+                  setLicensePackagesData((prev) => {
+                    return {
+                      ...prev,
+                      isActive: selectedOption.value,
                     };
                   });
                 }}

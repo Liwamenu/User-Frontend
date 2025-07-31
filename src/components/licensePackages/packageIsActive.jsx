@@ -15,15 +15,15 @@ import {
 //COMP
 import { CancelI } from "../../assets/icon";
 import CustomToggle from "../common/customToggle";
+import { formatToPrice } from "../../utils/utils";
 
 const EditPackageIsActive = ({ packageData, onSuccess }) => {
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
 
   const handleClick = () => {
     setPopupContent(
       <EditPackageIsActivesPopup onSuccess={onSuccess} package_={packageData} />
     );
-    setShowPopup(true);
   };
 
   return (
@@ -50,28 +50,30 @@ function EditPackageIsActivesPopup({ onSuccess, package_ }) {
   const toastId = useRef();
   const packageDataIsActiveRef = useRef();
 
-  const { setShowPopup, setPopupContent } = usePopup();
+  const { setPopupContent } = usePopup();
 
   const { loading, success, error } = useSelector(
     (state) => state.licensePackages.updateLicensePackage
   );
 
-  const { id, licenseTypeId, time, price, description, isActive } = package_;
-
-  const [packageData, setpackageData] = useState({
+  const initialData = {
+    id: package_.id,
+    time: package_.time,
+    licensePackageId: package_.id,
+    userPrice: formatToPrice(package_.userPrice),
+    dealerPrice: formatToPrice(package_.dealerPrice),
+    description: package_.description,
+    name: package_.name,
+    timeId: package_.timeId,
+    isActive: package_.isActive,
     checked: false,
-    licensePackageId: id,
-    licenseTypeId,
-    time,
-    price,
-    description,
-    isActive,
-  });
+  };
+
+  const [packageData, setpackageData] = useState(initialData);
   // console.log(packageData);
 
   const closeForm = () => {
     setPopupContent(null);
-    setShowPopup(false);
   };
 
   const handleSubmit = (e) => {
@@ -85,15 +87,10 @@ function EditPackageIsActivesPopup({ onSuccess, package_ }) {
       toastId.current = toast.loading("İşleniyor 🤩...");
     }
     if (error) {
-      toastId.current && toast.dismiss(toastId.current);
-      if (error?.message_TR) {
-        toast.error(error.message_TR + "🙁");
-      } else {
-        toast.error("Something went wrong");
-      }
+      toast.dismiss(toastId.current);
       dispatch(resetUpdateLicensePackage());
     } else if (success) {
-      toastId.current && toast.dismiss(toastId.current);
+      toast.dismiss(toastId.current);
       onSuccess();
       closeForm();
       toast.success(

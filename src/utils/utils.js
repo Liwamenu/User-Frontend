@@ -267,14 +267,14 @@ export function groupedLicensePackages(data, active = true) {
   return sortedArray;
 }
 
-export function getPriceWithKDV(price, kdv) {
-  let KDV = 0;
-  if (kdv.useKDV) {
-    KDV = kdv?.kdvPercentage / 100;
-  }
-  const totalPrice = price + price * KDV;
-  return totalPrice.toFixed(2);
-}
+// export function getPriceWithKDV(price, kdv) {
+//   let KDV = 0;
+//   if (kdv.useKDV) {
+//     KDV = kdv?.kdvPercentage / 100;
+//   }
+//   const totalPrice = price + price * KDV;
+//   return totalPrice.toFixed(2);
+// }
 
 let marker = null;
 export function googleMap(lat, lng, setLat, setLng, boundaryCoords, zoom = 15) {

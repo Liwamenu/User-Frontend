@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEditUserInvoiceById } from "../../../../hooks/useEditUserInvoiceById";
 
 //REDUX
-import { getUserById } from "../../../redux/user/getUserByIdSlice";
+import { getUser } from "../../../redux/users/getUserByIdSlice";
 import EditUserInvoiceById from "../../invoice/editUserInvoiceById";
 
 const InvoiceData = ({
@@ -63,7 +63,7 @@ const InvoiceData = ({
       const district = userInvoice.district?.label;
       const neighbourhood = userInvoice.neighbourhood?.label;
       setUserInvData({ ...userInvoice, city, district, neighbourhood });
-      dispatch(getUserById({ userId: user.id }));
+      dispatch(getUser({ userId: user.id }));
     }
   }, [addInvError, updateInvError, addInvSucc, updateInvSucc]);
 

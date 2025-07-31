@@ -20,117 +20,114 @@ body[class="light"] {
 }
 
 .dark {
-  --primary-1: #4f46e5;
-  --primary-2: #7839cd;
+  --primary-1: #3b82f6;
+  --primary-2: #06b6d4;
 
-  --gr-1: #94a3b8;
-  --gr-2: #a3a3a3;
+  --gr-1: #64748b;
+  --gr-2: #94a3b8;
   --gr-3: #cbd5e1;
-  --gr-4: #334155;
-  --gr-5: #475569;
+  --gr-4: #1e293b;
+  --gr-5: #334155;
 
-  --light-1: #1e293b;
-  --light-2: #312e81;
-  --light-3: #374151;
-  --light-4: #1d222a;
-  --light-5: #3e4a5b;
+  --light-1: #0f172a;
+  --light-2: #1e293b;
+  --light-3: #1e293b;
+  --light-4: #111827;
+  --light-5: #27374d;
 
-  --link-1: #3b82f6;
-  --light-green: #14532d;
+  --link-1: #0ea5e9;
+  --light-green: #064e3b;
 
-  /* SOLID */
-  --white-1: #161717;
-  --white-2: #111827;
-  --black-1: #ffffff;
-  --black-2: #eeebeb;
-  --black-3: #c8c5c5;
-  --green-1: #16a34a;
+  --white-1: #0b0f1a;
+  --white-2: #1c1f2a;
+  --black-1: #f0f0f0;
+  --black-2: #dddddd;
+  --black-3: #bcbcbc;
+
+  --green-1: #22c55e;
   --green-2: #15803d;
-  --green-3: #0891b2;
-  --yellow-1: #fbbf24;
-  --red-1: #dc2626;
-  --red-2: #be185d;
-  --blue-1: #2563eb;
-  --purple-1: #9333ea;
-  --orange-1: #ea580c;
-  --pink-1: #db2777;
-  --brown-1: #954007; /* 78350f */
+  --green-3: #14b8a6;
+  --yellow-1: #eab308;
+  --red-1: #ef4444;
+  --red-2: #be123c;
+  --blue-1: #3b82f6;
+  --purple-1: #8b5cf6;
+  --orange-1: #f97316;
+  --pink-1: #ec4899;
+  --brown-1: #78350f;
 
-  --border-1: #1e293b;
+  --border-1: #334155;
 
-  /* TABLE */
-  --table: #334155;
-  --table-odd: #1e293b;
+  --table: #1e293b;
+  --table-odd: #0f172a;
 
-  /* STATUS */
   --status-green: #14532d;
   --status-red: #7f1d1d;
   --status-yellow: #854d0e;
   --status-gray: #475569;
-  --status-blue: #1e40af;
-  --status-purple: #5b21b6;
-  --status-orange: #9a3412;
+  --status-blue: #1d4ed8;
+  --status-purple: #6d28d9;
+  --status-orange: #b45309;
   --status-pink: #9d174d;
-  --status-brown: #521a0b; /* 3e1b11; */
-  --status-primary-1: #6d28d9;
-  --status-primary-2: #312e81;
+  --status-brown: #3e1b11;
+  --status-primary-1: #0284c7;
+  --status-primary-2: #0f172a;
 }
 
 .light {
-  --primary-1: #4f46e5;
-  --primary-2: #7839cd;
+  --primary-1: #3b82f6;
+  --primary-2: #06b6d4;
 
   --gr-1: #64748b;
-  --gr-2: #808080;
-  --gr-3: #718ebf;
-  --gr-4: #f5f5f5;
-  --gr-5: #d6d3d1;
+  --gr-2: #9ca3af;
+  --gr-3: #cbd5e1;
+  --gr-4: #f1f5f9;
+  --gr-5: #e2e8f0;
 
-  --light-1: #eef2ff;
-  --light-2: #f4eefb;
-  --light-3: #eceef6;
-  --light-4: #e4e4e4;
-  --light-5: #eeeded;
+  --light-1: #f8fafc;
+  --light-2: #ecfeff;
+  --light-3: #e0f2fe;
+  --light-4: #f1f5f9;
+  --light-5: #e2e8f0;
 
-  --link-1: #007aff;
-  --light-green: #e9ffef;
+  --link-1: #0ea5e9;
+  --light-green: #e0fce3;
 
-  /* SOLID */
   --white-1: #ffffff;
-  --white-2: #f3f4f6;
-  --black-1: #000000;
-  --black-2: #232323;
-  --black-3: #3a3c40;
-  --green-1: #42a86b;
-  --green-2: #409261;
-  --green-3: #16bdca;
-  --yellow-1: #dc9362;
-  --red-1: #ff3753;
-  --red-2: #e74694;
-  --red-3: #dc5a65;
-  --blue-1: #3478f6;
-  --purple-1: #a459d1;
-  --orange-1: #ff7b3d;
-  --pink-1: #ff5da2;
-  --brown-1: #8b5e34;
-  --border-1: #dfeaf2;
+  --white-2: #f9fafb;
+  --black-1: #1a1a1a;
+  --black-2: #2d2d2d;
+  --black-3: #505050;
 
-  /* TABLE */
-  --table: #d9d9d9;
-  --table-odd: #f9fafc;
+  --green-1: #22c55e;
+  --green-2: #16a34a;
+  --green-3: #2dd4bf;
+  --yellow-1: #facc15;
+  --red-1: #ef4444;
+  --red-2: #e11d48;
+  --red-3: #f87171;
+  --blue-1: #3b82f6;
+  --purple-1: #a855f7;
+  --orange-1: #fb923c;
+  --pink-1: #f472b6;
+  --brown-1: #b45309;
 
-  /* STATUS */
-  --status-green: #e9ffef;
-  --status-red: #ffe9e9;
-  --status-yellow: #fff6d6;
-  --status-gray: #e4e4e4;
-  --status-blue: #e7f0ff;
-  --status-purple: #f4e6ff;
-  --status-orange: #ffece4;
-  --status-pink: #ffe7f1;
-  --status-brown: #f7ede7;
-  --status-primary-1: #9690f1;
-  --status-primary-2: #f4eefb;
+  --border-1: #cbd5e1;
+
+  --table: #f1f5f9;
+  --table-odd: #ffffff;
+
+  --status-green: #e0fce3;
+  --status-red: #ffe4e6;
+  --status-yellow: #fef9c3;
+  --status-gray: #f1f5f9;
+  --status-blue: #dbeafe;
+  --status-purple: #f3e8ff;
+  --status-orange: #ffedd5;
+  --status-pink: #fce7f3;
+  --status-brown: #ede0d4;
+  --status-primary-1: #7dd3fc;
+  --status-primary-2: #ecfeff;
 }
 
 section {
@@ -138,11 +135,11 @@ section {
 }
 .light .section_row {
   grid-template-rows: auto auto auto 1fr;
-  background-color: #ffffff;
+  background-color: #f9f9f9;
 }
 .dark .section_row {
   grid-template-rows: auto auto auto 1fr;
-  background-color: #151515;
+  background-color: #10111c;
 }
 .dark input {
   font-family: "Lexend Deca", sans-serif;

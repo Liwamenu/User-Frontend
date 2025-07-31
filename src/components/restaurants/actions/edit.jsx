@@ -34,6 +34,7 @@ import {
   resetUpdateRestaurant,
 } from "../../../redux/restaurants/updateRestaurantSlice";
 import { getCities } from "../../../redux/data/getCitiesSlice";
+import CustomFileInput from "../../common/customFileInput";
 
 const EditRestaurant = ({ restaurant, onSuccess }) => {
   const { setPopupContent } = usePopup();
@@ -74,6 +75,21 @@ function EditRestaurantPopup({ restaurant, onSuccess }) {
     isActive,
   } = restaurant;
 
+  const initialRestData = {
+    restaurantId,
+    dealerId,
+    userId,
+    name,
+    phoneNumber: "90" + phoneNumber,
+    latitude,
+    longitude,
+    city: { label: city, value: city, id: null },
+    district: { label: district, value: district, id: null },
+    neighbourhood: { label: neighbourhood, value: neighbourhood, id: null },
+    address,
+    isActive,
+  };
+
   const { loading, success, error } = useSelector(
     (state) => state.restaurants.updateRestaurant
   );
@@ -101,42 +117,14 @@ function EditRestaurantPopup({ restaurant, onSuccess }) {
     location: null,
     before: null,
   });
-  const [isMapOpen, setIsMapOpen] = useState(false);
   const [cities, setCities] = useState([]);
-  const [districts, setDistricts] = useState([]);
   const [neighs, setNeighs] = useState([]);
-  const [restaurantDataBefore, setRestaurantDataBefore] = useState({
-    restaurantId,
-    dealerId,
-    userId,
-    name,
-    phoneNumber: "90" + phoneNumber,
-    latitude,
-    longitude,
-    city: { label: city, value: city, id: null },
-    district: { label: district, value: district, id: null },
-    neighbourhood: { label: neighbourhood, value: neighbourhood, id: null },
-    address,
-    isActive,
-  });
-  const [restaurantData, setRestaurantData] = useState({
-    restaurantId,
-    dealerId,
-    userId,
-    name,
-    phoneNumber: "9" + phoneNumber,
-    latitude,
-    longitude,
-    city: { label: city, value: city, id: null },
-    district: { label: district, value: district, id: null },
-    neighbourhood: { label: neighbourhood, value: neighbourhood, id: null },
-    address,
-    isActive,
-  });
-
-  const closeForm = () => {
-    setPopupContent(null);
-  };
+  const [document, setDocument] = useState("");
+  const [districts, setDistricts] = useState([]);
+  const [isMapOpen, setIsMapOpen] = useState(false);
+  const [restaurantDataBefore, setRestaurantDataBefore] =
+    useState(initialRestData);
+  const [restaurantData, setRestaurantData] = useState(initialRestData);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -145,7 +133,24 @@ function EditRestaurantPopup({ restaurant, onSuccess }) {
       toast("Hiç bir değişiklik yapmadınız.");
       return;
     }
-    dispatch(updateRestaurant({ ...restaurantData }));
+
+    const formData = new FormData();
+
+    formData.append("RestaurantId", restaurantData.restaurantId);
+    formData.append("DealerId", restaurantData.dealerId);
+    formData.append("UserId", restaurantData.userId);
+    formData.append("Name", restaurantData.name);
+    formData.append("PhoneNumber", restaurantData.phoneNumber);
+    formData.append("Latitude", restaurantData.latitude);
+    formData.append("Longitude", restaurantData.longitude);
+    formData.append("City", restaurantData.city.value);
+    formData.append("District", restaurantData.district.value);
+    formData.append("Neighbourhood", restaurantData.neighbourhood.value);
+    formData.append("Address", restaurantData.address);
+    formData.append("IsActive", restaurantData.isActive);
+    formData.append("Image", document);
+
+    dispatch(updateRestaurant(formData));
     // console.log(restaurantData);
   };
 
@@ -170,15 +175,10 @@ function EditRestaurantPopup({ restaurant, onSuccess }) {
       toastId.current = toast.loading("İşleniyor 🤩...");
     }
     if (error) {
-      toastId.current && toast.dismiss(toastId.current);
-      if (error?.message_TR) {
-        toast.error(error.message_TR + "🙁");
-      } else {
-        toast.error("Something went wrong");
-      }
+      toast.dismiss(toastId.current);
       dispatch(resetUpdateRestaurant());
     } else if (success) {
-      toastId.current && toast.dismiss(toastId.current);
+      toast.dismiss(toastId.current);
       onSuccess();
       setPopupContent(null);
       toast.success("Restoran başarıyla güncelendi 🥳🥳");
@@ -369,7 +369,7 @@ function EditRestaurantPopup({ restaurant, onSuccess }) {
         <div className="absolute -top-6 right-3 z-[50]">
           <div
             className="text-[--primary-2] p-2 border border-solid border-[--primary-2] rounded-full cursor-pointer hover:bg-[--primary-2] hover:text-[--white-1] transition-colors"
-            onClick={closeForm}
+            onClick={() => setPopupContent(null)}
           >
             <CancelI />
           </div>
@@ -563,6 +563,16 @@ function EditRestaurantPopup({ restaurant, onSuccess }) {
                   readOnly={true}
                 />
               </div>
+            </div>
+
+            <div className="mt-4">
+              <CustomFileInput
+                className="h-[8rem] p-4"
+                value={document}
+                onChange={setDocument}
+                accept={"image/png, image/jpeg"}
+                required
+              />
             </div>
 
             <div className="w-full flex justify-end mt-10">

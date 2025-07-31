@@ -52,39 +52,16 @@ const updateRestaurantSlice = createSlice({
 
 export const updateRestaurant = createAsyncThunk(
   "Restaurants/UpdateRestaurant",
-  async (
-    {
-      restaurantId,
-      dealerId,
-      userId,
-      name,
-      phoneNumber,
-      city,
-      district,
-      neighbourhood,
-      address,
-      latitude,
-      longitude,
-      isActive,
-    },
-    { rejectWithValue }
-  ) => {
+  async (formmData, { rejectWithValue }) => {
     try {
       const res = await api.put(
         `${baseURL}Restaurants/UpdateRestaurant`,
+        formmData,
         {
-          dealerId,
-          name,
-          phoneNumber,
-          city: city.value,
-          district: district.value,
-          neighbourhood: neighbourhood.value,
-          address,
-          latitude,
-          longitude,
-          isActive,
-        },
-        { params: { restaurantId, userId } }
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
 
       // console.log(res);
