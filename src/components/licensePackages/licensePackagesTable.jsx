@@ -1,5 +1,5 @@
 //
-import { getPriceWithKDV } from "../../utils/utils";
+// import { getPriceWithKDV } from "../../utils/utils";
 import LicensePackagesActions from "./actions/licensePackageActions";
 
 //COMP
@@ -42,14 +42,16 @@ const LicensePackagesTable = ({
                   {data.time} Yıllık
                 </div>
                 <div className="w-44 text-[--black-2] flex items-center justify-center">
-                  {kdvData?.useKDV
+                  {data.userPrice}
+                  {/* {kdvData?.useKDV
                     ? getPriceWithKDV(data.userPrice, kdvData)
-                    : data.userPrice}
+                    : data.userPrice} */}
                 </div>
                 <div className="w-44 text-[--black-2] flex items-center justify-center">
-                  {kdvData?.useKDV
+                  {data.dealerPrice}
+                  {/* {kdvData?.useKDV
                     ? getPriceWithKDV(data.dealerPrice, kdvData)
-                    : data.dealerPrice}
+                    : data.dealerPrice} */}
                 </div>
                 <div className="w-28 text-[--black-2] flex items-center justify-start">
                   {data.description}
