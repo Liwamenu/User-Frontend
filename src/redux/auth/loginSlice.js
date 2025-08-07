@@ -58,7 +58,10 @@ export const login = createAsyncThunk(
       return res.data.sessionId;
     } catch (err) {
       console.log(err);
-      const errorMessage = err?.response?.data?.message || err.message;
+      const errorMessage =
+        err?.response?.data?.message_TR ||
+        err?.response?.data?.message ||
+        err.message;
       const statusCode =
         err?.status || err?.response?.status || err?.response?.data?.statusCode;
       return rejectWithValue({ message: errorMessage, statusCode });

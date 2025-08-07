@@ -1,0 +1,84 @@
+//MODULES
+import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+
+//REDUX
+import { resetVerifyEmail, verifyEmail } from "../redux/auth/verifyEmailSlice";
+import {
+  resetSendVerification,
+  sendVerificationCode,
+} from "../redux/auth/sendVerificationSlice";
+
+const VerifyEmail = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const { success, error, loading } = useSelector(
+    (state) => state.auth.verifyEmail
+  );
+  const {
+    error: sendErr,
+    success: sendSucc,
+    loading: sendLoad,
+  } = useSelector((state) => state.auth.sendVerification);
+
+  const [credentials, setCredentials] = useState(null);
+
+  //TAKE THE CREDS FROM PARAMS AND VERIFY
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const email = searchParams.get("email");
+    const token = searchParams.get("token");
+
+    if (email && token) {
+      setCredentials({ email, token });
+      dispatch(
+        verifyEmail({
+          email,
+          token,
+        })
+      );
+    }
+  }, [location]);
+
+  //TOAST
+  useEffect(() => {
+    if (loading) toast.loading("İşleniyor...", { id: "verify/send" });
+    if (success) navigate("/login");
+    if (error) {
+      toast.error(error.message, { id: "verify/send" });
+      dispatch(resetVerifyEmail());
+      dispatch(sendVerificationCode(credentials));
+    }
+  }, [loading, success, error]);
+
+  //SEND THE CODE
+  useEffect(() => {
+    if (sendLoad) {
+      toast.loading("Onay Kodu Tekrar Gönderiliyor...", { id: "verify/send" });
+    }
+    if (sendSucc) {
+      toast.dismiss();
+      toast.success("Onay Kodu Epostanıza Gönderildi.", { id: "verify/send" });
+      dispatch(resetSendVerification());
+      navigate("/login");
+    }
+    if (sendErr) {
+      toast.dismiss();
+      toast.error(sendErr.message, { id: "verify/send" });
+      dispatch(resetSendVerification());
+      navigate("/login");
+    }
+  }, [sendErr, sendLoad, sendSucc]);
+
+  return (
+    <section>
+      <div></div>
+    </section>
+  );
+};
+
+export default VerifyEmail;

@@ -7,7 +7,8 @@ import logoutSlice from "./logoutSlice";
 import registerSlice from "./registerSlice";
 import forgotPasswordSlice from "./forgotPasswordSlice";
 import changePasswordSlice from "./changePasswordSlice";
-import userVerificationSlice from "./userVerificationSlice";
+import sendVerificationSlice from "./sendVerificationSlice";
+import verifyEmailSlice from "./verifyEmailSlice";
 
 const authSlice = combineReducers({
   login: loginSlice,
@@ -15,8 +16,9 @@ const authSlice = combineReducers({
   register: registerSlice,
   forgotPassword: forgotPasswordSlice,
   changePassword: changePasswordSlice,
-  verifyUser: userVerificationSlice,
+  sendVerification: sendVerificationSlice,
   verifyCode: verifyCodeSlice,
+  verifyEmail: verifyEmailSlice,
 });
 
 export default authSlice;

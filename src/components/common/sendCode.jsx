@@ -10,20 +10,20 @@ import CustomPhoneInput from "./customPhoneInput";
 
 // ASSETS
 import {
-  resetUserVerification,
-  sendUserVerificationCode,
+  resetSendVerification,
+  sendVerificationCode,
 } from "../../redux/auth/userVerificationSlice";
 
 const SendCode = ({ phoneNumber, setPhoneNumber, setToVerify }) => {
   const dispatch = useDispatch();
 
   const { success, loading, error } = useSelector(
-    (state) => state.auth.verifyUser
+    (state) => state.auth.sendVerification
   );
 
   function handleSubmit(e) {
     e.preventDefault();
-    dispatch(sendUserVerificationCode({ phoneNumber: phoneNumber.slice(1) }));
+    dispatch(sendVerificationCode({ phoneNumber: phoneNumber.slice(1) }));
   }
 
   //TOAST AND ACTION FOR SEND CODE
@@ -31,12 +31,12 @@ const SendCode = ({ phoneNumber, setPhoneNumber, setToVerify }) => {
     if (success) {
       toast.success("Doğrulama Kodu Gönderildi");
       setToVerify(true);
-      dispatch(resetUserVerification());
+      dispatch(resetSendVerification());
     }
     if (error) {
       toast.dismiss();
       toast.error(error.message);
-      dispatch(resetUserVerification());
+      dispatch(resetSendVerification());
     }
   }, [success, error, loading]);
 

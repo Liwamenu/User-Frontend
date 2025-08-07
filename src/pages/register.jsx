@@ -121,7 +121,7 @@ const Register = () => {
       toast.success("Doğrulama Kodu Gönderildi");
       dispatch(resetRgisterState());
     } else if (error) {
-      toast.dismiss();
+      toast.dismiss(toastId.current);
       toast.error(error.message);
       dispatch(resetRgisterState());
     }
@@ -262,7 +262,7 @@ const Register = () => {
                   className3="top-[25%]"
                   className5="text-[var(--white-1)]"
                   letIcon={true}
-                  minLength={4}
+                  minLength={6}
                   maxLength={20}
                 />
                 <CustomInput

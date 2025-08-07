@@ -1,0 +1,1 @@
+http://localhost:9006/verify-email?email

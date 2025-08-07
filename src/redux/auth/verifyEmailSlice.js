@@ -7,20 +7,13 @@ const initialState = {
   loading: false,
   success: false,
   error: null,
-  data: null,
 };
 
-const registerSlice = createSlice({
-  name: "registerUser",
+const verifyEmailSlice = createSlice({
+  name: "VerifyEmailSlice",
   initialState: initialState,
   reducers: {
-    resetRgister: (state) => {
-      state.loading = false;
-      state.success = false;
-      state.error = null;
-      state.data = null;
-    },
-    resetRgisterState: (state) => {
+    resetVerifyEmail: (state) => {
       state.loading = false;
       state.success = false;
       state.error = null;
@@ -28,34 +21,30 @@ const registerSlice = createSlice({
   },
   extraReducers: (build) => {
     build
-      .addCase(registerUser.pending, (state) => {
+      .addCase(verifyEmail.pending, (state) => {
         state.loading = true;
         state.success = false;
         state.error = null;
-        state.data = null;
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
+      .addCase(verifyEmail.fulfilled, (state) => {
         state.loading = false;
         state.success = true;
         state.error = null;
-        state.data = action.payload;
       })
-      .addCase(registerUser.rejected, (state, action) => {
+      .addCase(verifyEmail.rejected, (state, action) => {
         state.loading = false;
         state.success = false;
         state.error = action.payload;
-        state.data = null;
       });
   },
 });
 
-export const registerUser = createAsyncThunk(
-  "Auth/register",
+export const verifyEmail = createAsyncThunk(
+  "Auth/verify-email",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.post(`${baseURL}Auth/register`, data);
-
-      return res.data;
+      const res = await api.post(`${baseURL}Auth/verify-email`, data);
+      return data;
     } catch (err) {
       console.log(err);
       const errorMessage = err.response.data.message_TR || err.message;
@@ -64,5 +53,5 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-export const { resetRgister, resetRgisterState } = registerSlice.actions;
-export default registerSlice.reducer;
+export const { resetVerifyEmail } = verifyEmailSlice.actions;
+export default verifyEmailSlice.reducer;

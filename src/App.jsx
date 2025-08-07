@@ -11,6 +11,7 @@ import Popup from "./components/common/popup";
 // import PaymentFailed from "./pages/paymentFailed";
 // import PrivacyPolicy from "./pages/privacyPolicy";
 import ProtectedRoute from "./components/protect";
+import VerifyEmail from "./pages/verifyEmail";
 // import SetNewPassword from "./pages/setNewPassword";
 // import ForgotPassword from "./pages/forgotPassword";
 // import PaymentSuccess from "./pages/paymentSuccess";
@@ -29,6 +30,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify-email/*" element={<VerifyEmail />} />
         {/*  <Route path="/setNewPassword" element={<SetNewPassword />} />
           <Route path="/forgotPassword" element={<ForgotPassword />} />
           <Route path="/verify" element={<Verify />} />
