@@ -174,23 +174,18 @@ const RestaurantsPage = () => {
     }
   }, [loading, success, error, restaurants]);
 
-  // TOAST AND SET MERGED USERS
+  // TOAST AND GET MERGED USERS
   useEffect(() => {
-    if (mergedUsersError) {
-      if (mergedUsersError?.message_TR) {
-        toast.error(mergedUsersError.message_TR);
-      } else {
-        toast.error("Something went wrong");
-      }
-      dispatch(resetGetMergedUsers());
-    }
-
-    if (mergedUsersSucc && users) {
-      setRestaurantsData(users);
-      dispatch(resetGetMergedUsers());
+    if (error) {
       dispatch(resetGetRestaurantsState());
     }
-  }, [mergedUsersSucc, mergedUsersError]);
+
+    if (success && restaurants) {
+      setTotalItems(restaurants.totalCount);
+      setRestaurantsData(restaurants.data);
+      dispatch(resetGetRestaurantsState());
+    }
+  }, [success, error, restaurants]);
 
   // GET AND SET CITIES
   useEffect(() => {

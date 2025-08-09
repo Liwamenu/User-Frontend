@@ -7,15 +7,13 @@ import Header from "../components/header/header";
 import Sidebar from "../components/sidebar/sidebar";
 
 //PAGES
+import Users from "./users";
 import NotFound from "./404";
 import TestPage from "./test";
-import Users from "./users";
-// import DashboardPage from "./dashboard";
-import Restourants from "./restourants";
+import Profile from "./profile";
 import Licenses from "./licenses";
-// import Parameters from "./parameters";
-import LicensePackages from "./licensePackages";
-// import Profile from "./profile";
+import Restourants from "./restourants";
+// import DashboardPage from "./dashboard";
 // import Messages from "./messages";
 // import Templates from "./templates";
 // import Accounts from "./accounts";
@@ -35,20 +33,14 @@ const Home = () => {
         <Route path="/users/*" element={<Users />} />
         <Route path="/restaurants/*" element={<Restourants />} />
         <Route path="/licenses/*" element={<Licenses />} />
-        <Route path="/license-packages/*" element={<LicensePackages />} />
+        <Route path="/profile/*" element={<Profile />} />
         {/*
         <Route path="/*" element={<DashboardPage />} />
         <Route path="/dashboard/*" element={<DashboardPage />} />
         <Route path="/temp-users/*" element={<TempUsers />} />
         <Route path="/accounts/*" element={<Accounts />} />
         <Route path="/parameters/*" element={<Parameters />} />
-        <Route path="/profile/*" element={<Profile />} />
-        <Route path="/payments/*" element={<Payments />} />
         <Route path="/messages/*" element={<Messages />} />
-        <Route path="/templates/*" element={<Templates />} />
-        <Route path="/ys-mail-waiters" element={<MailWaiters />} />
-        <Route path="/roles" element={<Roles />} />
-        <Route path="/managers" element={<Managers />} />
         */}
         <Route path="/test" element={<TestPage />} />
         <Route path="*" element={<NotFound />} />

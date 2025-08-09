@@ -47,7 +47,10 @@ const VerifyEmail = () => {
   //TOAST
   useEffect(() => {
     if (loading) toast.loading("İşleniyor...", { id: "verify/send" });
-    if (success) navigate("/login");
+    if (success) {
+      toast.dismiss();
+      navigate("/login");
+    }
     if (error) {
       toast.error(error.message, { id: "verify/send" });
       dispatch(resetVerifyEmail());

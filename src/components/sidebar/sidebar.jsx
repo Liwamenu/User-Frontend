@@ -23,6 +23,7 @@ import {
   WaitI,
   ManagerI,
   TempUsersI,
+  BoxInI,
 } from "../../assets/icon/index";
 
 //COMP
@@ -33,23 +34,11 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
   const sidebarRef = useRef();
   const { showPopup, contentRef, setContentRef } = usePopup();
   const sidebarItems = [
-    {
-      icon: <DashboardI />,
-      text: "Gösterge Paneli",
-      to: "/dashboard",
-      path: "dashboard",
-    },
-    {
-      icon: <UsersI />,
-      text: "Kullanıcılar",
-      to: "/users",
-      path: "users",
-    },
     // {
-    //   icon: <DebitI />,
-    //   text: "Borçlu Müşteriler",
-    //   to: "/accounts",
-    //   path: "accounts",
+    //   icon: <DashboardI />,
+    //   text: "Gösterge Paneli",
+    //   to: "/dashboard",
+    //   path: "dashboard",
     // },
     {
       icon: <RestourantI />,
@@ -64,46 +53,10 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
       path: "licenses",
     },
     {
-      icon: <PackagesI />,
-      text: "Lisans Paketleri",
-      to: "/license-packages",
-      path: "license-packages",
-    },
-    // {
-    //   icon: <MessagesI />,
-    //   text: "Mesajlar",
-    //   to: "/messages",
-    //   path: "messages",
-    // },
-    // {
-    //   icon: <LogI />,
-    //   text: "İşlem Kayıtları",
-    //   to: "/activity-logs",
-    //   path: "activity-logs",
-    // },
-    {
-      icon: <UserPlusI />,
-      text: "Roller",
-      to: "/roles",
-      path: "roles",
-    },
-    {
-      icon: <ManagerI />,
-      text: "Yetkililer",
-      to: "/managers",
-      path: "managers",
-    },
-    {
-      icon: <PaymentI />,
-      text: "Ödemeler",
-      to: "/payments",
-      path: "payments",
-    },
-    {
-      icon: <ParamsI />,
-      text: "Parametreler",
-      to: "/parameters",
-      path: "parameters",
+      icon: <BoxInI />,
+      text: "Siparişler",
+      to: "/orders",
+      path: "orders",
     },
   ];
 
