@@ -8,13 +8,12 @@ import { useDispatch, useSelector } from "react-redux";
 import PaymentCard from "../../payment/card/card";
 import BackButton from "../stepsAssets/backButton";
 import PayTRForm from "../../payment/form/PayTRForm";
-// import { getPriceWithKDV } from "../../../utils/utils";
 import { usePopup } from "../../../context/PopupContext";
 import ForwardButton from "../stepsAssets/forwardButton";
-import { PaymentLoader } from "../stepsAssets/paymentLoader";
 import PaymentCardForm from "../../payment/form/PaymentCardForm";
 
 // REDUX
+import { clearCart } from "../../../redux/cart/cartSlice";
 import {
   addByOnlinePay,
   resetAddByOnlinePay,
@@ -23,6 +22,7 @@ import {
   extendByOnlinePay,
   resetExtendByOnlinePay,
 } from "../../../redux/licenses/extendLicense/extendByOnlinePaySlice";
+import { PaymentLoader } from "../stepsAssets/paymentLoader";
 
 const OnlinePayment = ({
   step,
@@ -36,6 +36,7 @@ const OnlinePayment = ({
   const dispatch = useDispatch();
   const location = useLocation();
   const { setPopupContent } = usePopup();
+
   const { currentLicense } = location?.state || {};
   const isPageExtend = actionType === "extend-license";
 
@@ -51,39 +52,30 @@ const OnlinePayment = ({
     success: extendSuccess,
   } = useSelector((state) => state.licenses.extendByPay);
 
-  const { loading: updateInvLoading } = useSelector(
-    (state) => state.users.updateInvoice
-  );
-
-  const { loading: addInvLoading } = useSelector(
-    (state) => state.users.addInvoice
-  );
-
   const cartItems = useSelector((state) => state.cart.items);
 
   const [flip, setFlip] = useState(false);
   const [cardData, setCardData] = useState({
-    userName: "", // "PAYTR TEST",
-    cardNumber: "", // "4355 0843 5508 4358",
-    month: "", // "12",
-    year: "", // "24",
-    cvv: "", // "000",
+    userName: "PAYTR TEST",
+    cardNumber: "4355 0843 5508 4358",
+    month: "12",
+    year: "24",
+    cvv: "000",
   });
 
   function handleSubmit(e) {
     e.preventDefault();
+
     if (addLoading || extendLoading) return;
 
     const { userName, cardNumber, month, year, cvv } = cardData;
-    const { email, fullName, phoneNumber, id } = userData;
-    const address = `${userInvData.city}/${userInvData.district}/${userInvData.neighbourhood}`;
+    const { email, fullName, phoneNumber } = userData;
+    const address = `${userData?.city}/${userData?.district}/${userInvData?.neighbourhood}`;
 
     const paymentAmount = cartItems.reduce(
       (acc, item) => acc + parseFloat(item.price),
-      // acc + parseFloat(getPriceWithKDV(item.price, item.kdvData)),
       0
     );
-
     const addLicenseBasket = cartItems.reduce((result, item) => {
       const existingRestaurant = result.find(
         (restaurant) => restaurant.restaurantId === item.restaurantId
@@ -101,6 +93,7 @@ const OnlinePayment = ({
       return result;
     }, []);
 
+    console.log(cartItems);
     const { licensePackageId, restaurantId } = cartItems[0];
     const extendLicenseBasket = {
       licensePackageId,
@@ -109,7 +102,6 @@ const OnlinePayment = ({
     };
 
     const data = {
-      userId: id,
       userName: fullName,
       userEmail: email,
       userPhoneNumber: phoneNumber,
@@ -131,7 +123,6 @@ const OnlinePayment = ({
     } else {
       dispatch(addByOnlinePay(data));
     }
-    //NOTE: the step changer function based on the response is in the "addLicensePage".
   }
 
   // ADD TOAST
@@ -150,6 +141,12 @@ const OnlinePayment = ({
       toast.remove(toastId.current);
       dispatch(resetAddByOnlinePay());
     }
+
+    return () => {
+      if (cartItems) {
+        dispatch(clearCart());
+      }
+    };
   }, [addLoading, addSuccess, addError, dispatch]);
 
   // EXTEND TOAST
@@ -168,6 +165,12 @@ const OnlinePayment = ({
       toast.remove(toastId.current);
       dispatch(resetExtendByOnlinePay());
     }
+
+    return () => {
+      if (cartItems) {
+        dispatch(clearCart());
+      }
+    };
   }, [extendLoading, extendSuccess, extendError, dispatch]);
 
   //LOADING ANIMATION
@@ -190,23 +193,20 @@ const OnlinePayment = ({
           />
         </div>
       </div>
+
       {/* BTNS */}
-      <div className="flex gap-3 absolute -bottom-16 -right-0 h-12">
+      <div className="flex gap-3 absolute -bottom-20 -right-0 h-12">
         <BackButton
           text="Geri"
           letIcon={true}
-          onClick={() => setStep(step - 1)}
-          disabled={
-            addLoading || extendLoading || updateInvLoading || addInvLoading
-          }
+          onClick={() => setStep(step - 2)}
+          disabled={addLoading || extendLoading}
         />
         <ForwardButton
           text="Devam"
           letIcon={true}
           type="submit"
-          disabled={
-            addLoading || extendLoading || updateInvLoading || addInvLoading
-          }
+          disabled={addLoading || extendLoading}
         />
       </div>
 

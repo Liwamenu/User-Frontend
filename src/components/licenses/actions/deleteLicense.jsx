@@ -1,19 +1,33 @@
-//MODULES
-import toast from "react-hot-toast";
-import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { CancelI, DeleteI } from "../../../assets/icon";
 import { usePopup } from "../../../context/PopupContext";
+import { CancelI, DeleteI } from "../../../assets/icon";
 
-//COMP
+// IMAGES
+import Getiryemek from "../../../assets/img/packages/Getiryemek.png";
+import MigrosYemek from "../../../assets/img/packages/MigrosYemek.png";
+import Siparisim from "../../../assets/img/packages/Siparisim.png";
+import TrendyolYemek from "../../../assets/img/packages/TrendyolYemek.png";
+import GoFody from "../../../assets/img/packages/GoFody.png";
+import Yemeksepeti from "../../../assets/img/packages/Yemeksepeti.png";
 import CustomCheckbox from "../../common/customCheckbox";
+import { useEffect, useRef, useState } from "react";
 import Button from "../../common/button";
+import toast from "react-hot-toast";
 
 import {
   deleteLicense,
   resetDeleteLicense,
 } from "../../../redux/licenses/deleteLicenseSlice";
 import ActionButton from "../../common/actionButton";
+
+const imageSRCs = [
+  Getiryemek,
+  MigrosYemek,
+  TrendyolYemek,
+  Yemeksepeti,
+  GoFody,
+  Siparisim,
+];
 
 const DeleteLicense = ({ licenseData, setOpenMenu, onSuccess }) => {
   const { setPopupContent } = usePopup();
@@ -93,7 +107,11 @@ const DeleteLicensePopup = ({ data, onSuccess }) => {
         <div className="flex justify-center gap-4 sm:gap-10 px-1 sm:px-14 mt-9 w-full text-center">
           <div className="w-max flex flex-col justify-center gap-3 items-center">
             <p className="">Pazaryeri</p>
-            <img src="" alt="MarketPlacePhoto" className="w-32" />
+            <img
+              src={imageSRCs[data.marketplaceId]}
+              alt="MarketPlacePhoto"
+              className="w-32"
+            />
           </div>
 
           <div className="flex flex-col justify-between">

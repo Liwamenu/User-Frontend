@@ -5,13 +5,13 @@ import { useDispatch, useSelector } from "react-redux";
 
 //COMP
 import BackButton from "../stepsAssets/backButton";
-// import InvoiceData from "../stepsAssets/invoiceData";
 import ForwardButton from "../stepsAssets/forwardButton";
+// import InvoiceData from "../stepsAssets/invoiceData";
 
 //REDUX
 import { getUser, resetGetUserState } from "../../../redux/user/getUserSlice";
 
-const ThirdStep = ({
+const SecondStep = ({
   step,
   setStep,
   userData,
@@ -40,6 +40,8 @@ const ThirdStep = ({
   //SUBMIT
   function handleSubmit(e) {
     e.preventDefault();
+    if (addInvLoading || updateInvLoading) return;
+
     if (
       openFatura &&
       (!invoiceBeforeAfter ||
@@ -111,4 +113,4 @@ const ThirdStep = ({
   );
 };
 
-export default ThirdStep;
+export default SecondStep;

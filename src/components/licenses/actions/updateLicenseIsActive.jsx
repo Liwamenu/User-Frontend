@@ -11,17 +11,16 @@ import CustomCheckbox from "../../common/customCheckbox";
 
 //REDUX
 import {
-  updateLicenseIsActive,
   resetUpdateLicenseIsActiveState,
+  updateLicenseIsActive,
 } from "../../../redux/licenses/updateLicenseIsActiveSlice";
 
 const EditLicenseIsActive = ({ licenseData, onSuccess }) => {
   const { setPopupContent } = usePopup();
 
   const handleClick = () => {
-    setPopupContent(
-      <EditLicenseIsActivesPopup onSuccess={onSuccess} license={licenseData} />
-    );
+    setPopupContent();
+    // <EditLicenseIsActivesPopup onSuccess={onSuccess} license={licenseData} />
   };
 
   return (
@@ -40,12 +39,12 @@ const EditLicenseIsActive = ({ licenseData, onSuccess }) => {
 
 export default EditLicenseIsActive;
 
-/***/
+///*** *///
 /////////////
 // EDIT licenseData POPUP
 function EditLicenseIsActivesPopup({ onSuccess, license }) {
-  const toastId = useRef();
   const dispatch = useDispatch();
+  const toastId = useRef();
   const licenseDataIsActiveRef = useRef();
 
   const { setPopupContent } = usePopup();

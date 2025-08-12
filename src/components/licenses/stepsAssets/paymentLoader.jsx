@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react";
 export function PaymentLoader({ type }) {
   return (
     <div className="fixed inset-0 bg-black backdrop-blur-md flex items-center justify-center z-50">
-      <div className="bg-[--white-1] backdrop-blur rounded-3xl p-10 shadow-2xl max-w-md w-full mx-4 relative overflow-hidden">
+      <div className="bg-white backdrop-blur rounded-3xl p-10 shadow-2xl max-w-md w-full mx-4 relative overflow-hidden">
         <div className="relative z-10">
           <div className="mb-8">
             {type == 1 ? <PaymentBank /> : <PaymentCard />}
@@ -53,7 +53,7 @@ function PaymentCard() {
               {[...Array(4)].map((_, i) => (
                 <div
                   key={i}
-                  className="w-1 h-1 bg-[--white-1]/70 rounded-full animate-pulse"
+                  className="w-1 h-1 bg-white/70 rounded-full animate-pulse"
                   style={{ animationDelay: `${i * 200}ms` }}
                 />
               ))}

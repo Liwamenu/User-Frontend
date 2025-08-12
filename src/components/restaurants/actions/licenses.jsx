@@ -20,7 +20,7 @@ const UserRestaurantLicenses = ({ restaurant }) => {
 
   return (
     <ActionButton
-      element={<LicenseI className="w-5" strokeWidth="1.8" />}
+      element={<LicenseI className="w-4" strokeWidth="2" />}
       element2="Lisanslar"
       onClick={handleClick}
     />

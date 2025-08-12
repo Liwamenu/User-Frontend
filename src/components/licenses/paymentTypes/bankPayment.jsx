@@ -10,13 +10,19 @@ import BackButton from "../stepsAssets/backButton";
 import { usePopup } from "../../../context/PopupContext";
 import ForwardButton from "../stepsAssets/forwardButton";
 import CustomFileInput from "../../common/customFileInput";
-import { PaymentLoader } from "../stepsAssets/paymentLoader";
-import {
-  // getPriceWithKDV,
-  groupByRestaurantId,
-} from "../../../utils/utils";
+import { groupByRestaurantId } from "../../../utils/utils";
+
+//IMAGES
+import Getiryemek from "../../../assets/img/packages/Getiryemek.png";
+import MigrosYemek from "../../../assets/img/packages/MigrosYemek.png";
+import Siparisim from "../../../assets/img/packages/Siparisim.png";
+import TrendyolYemek from "../../../assets/img/packages/TrendyolYemek.png";
+import GoFody from "../../../assets/img/packages/GoFody.png";
+import Yemeksepeti from "../../../assets/img/packages/Yemeksepeti.png";
+import Autoronics from "../../../assets/img/packages/Autoronics.png";
 
 //REDUX
+import { clearCart } from "../../../redux/cart/cartSlice";
 import {
   addByBankPay,
   resetAddByBankPay,
@@ -25,26 +31,31 @@ import {
   extendByBankPay,
   resetExtendByBankPay,
 } from "../../../redux/licenses/extendLicense/extendByBankPaySlice";
+import { PaymentLoader } from "../stepsAssets/paymentLoader";
 
-const BankPayment = ({
-  step,
-  setStep,
-  user,
-  userInvData,
-  setPaymentStatus,
-}) => {
+const imageSRCs = [
+  { src: Getiryemek, name: "Getiryemek" },
+  { src: MigrosYemek, name: "MigrosYemek" },
+  { src: TrendyolYemek, name: "TrendyolYemek" },
+  { src: Yemeksepeti, name: "Yemeksepeti" },
+  { src: GoFody, name: "GoFody" },
+  { src: Siparisim, name: "Siparisim" },
+  { src: Autoronics, name: "Autoronics" },
+];
+
+const BankPayment = ({ user, step, setStep, setPaymentStatus }) => {
   const toastId = useRef();
   const dispatch = useDispatch();
   const location = useLocation();
   const { setPopupContent } = usePopup();
-  const { currentLicense } = location?.state || {};
-
   const pathArray = location.pathname.split("/");
   const actionType = pathArray[pathArray.length - 1];
+  const { currentLicense } = location?.state || {};
 
   const isPageExtend = actionType === "extend-license";
 
   const cartItems = useSelector((state) => state.cart.items);
+
   const {
     error: addError,
     loading: addLoading,
@@ -64,11 +75,9 @@ const BankPayment = ({
   function handleSubmit(e) {
     e.preventDefault();
     if (addLoading || extendLoading) return;
-
-    const { city, district, neighbourhood } = userInvData;
+    const { city, district, neighbourhood } = user.userInvoiceAddressDTO;
     const paymentAmount = cartItems.reduce(
       (acc, item) => acc + parseFloat(item.price),
-      // acc + parseFloat(getPriceWithKDV(item.price, item.kdvData)),
       0
     );
     const addLicenseBasket = cartItems.reduce((result, item) => {
@@ -97,7 +106,7 @@ const BankPayment = ({
 
     // Create a FormData object
     const formData = new FormData();
-    formData.append("UserId", user.id);
+    // formData.append("UserId", user.id);
     formData.append("UserName", user.fullName);
     formData.append("UserEmail", user.email);
     formData.append("UserPhoneNumber", user.phoneNumber);
@@ -137,6 +146,12 @@ const BankPayment = ({
       setPaymentStatus("failure");
       dispatch(resetAddByBankPay());
     }
+
+    return () => {
+      if (cartItems) {
+        dispatch(clearCart());
+      }
+    };
   }, [addLoading, addSuccess, addError]);
 
   // EXTEND SUCCESS
@@ -156,6 +171,12 @@ const BankPayment = ({
       setPaymentStatus("failure");
       dispatch(resetExtendByBankPay());
     }
+
+    return () => {
+      if (cartItems) {
+        dispatch(clearCart());
+      }
+    };
   }, [extendLoading, extendSuccess, extendError, dispatch]);
 
   //LOADING ANIMATION
@@ -183,6 +204,9 @@ const BankPayment = ({
                 <div className="flex flex-wrap gap-x-4 gap-y-2 pb-2">
                   {pkg.map((item, i) => (
                     <div key={i} className="flex text-sm">
+                      <p className="mt-1 pr-2">
+                        {imageSRCs[item.licenseTypeId]?.name}
+                      </p>
                       <p className="mt-1">
                         {item.time} Yıllık{i < pkg.length - 1 && ","}
                       </p>
@@ -210,7 +234,7 @@ const BankPayment = ({
             value={document}
             onChange={setDocument}
             accept={"image/png, image/jpeg, application/pdf"}
-            required
+            required={!document}
           />
         </div>
 

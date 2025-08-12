@@ -1,5 +1,4 @@
 //MODULES
-import toast from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -22,10 +21,7 @@ import {
 import { getCities } from "../../../redux/data/getCitiesSlice";
 import { getNeighs } from "../../../redux/data/getNeighsSlice";
 import { getDistricts } from "../../../redux/data/getDistrictsSlice";
-import {
-  getMergedUsers,
-  resetGetMergedUsers,
-} from "../../../redux/users/getUserByIdSlice";
+import RestaurantsCard from "../restaurantsCard";
 
 const RestaurantsPage = () => {
   const dispatch = useDispatch();
@@ -33,11 +29,6 @@ const RestaurantsPage = () => {
   const { loading, success, error, restaurants } = useSelector(
     (state) => state.restaurants.getRestaurants
   );
-  const {
-    success: mergedUsersSucc,
-    error: mergedUsersError,
-    users,
-  } = useSelector((state) => state.users.getUser.mergedUsers);
 
   const { cities: citiesData } = useSelector((state) => state.data.getCities);
 
@@ -161,18 +152,6 @@ const RestaurantsPage = () => {
       );
     }
   }, [restaurantsData]);
-
-  // TOAST AND GET MERGED USERS
-  useEffect(() => {
-    if (error) {
-      dispatch(resetGetRestaurantsState());
-    }
-
-    if (restaurants && success) {
-      setTotalItems(restaurants.totalCount);
-      dispatch(getMergedUsers(restaurants.data));
-    }
-  }, [loading, success, error, restaurants]);
 
   // TOAST AND GET MERGED USERS
   useEffect(() => {
@@ -426,7 +405,7 @@ const RestaurantsPage = () => {
 
       {/* TABLE */}
       {restaurantsData ? (
-        <RestaurantsTable
+        <RestaurantsCard
           inData={restaurantsData}
           Actions={RestaurantActions}
           totalItems={restaurantsData.length}

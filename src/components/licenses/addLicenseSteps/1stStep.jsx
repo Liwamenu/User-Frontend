@@ -1,5 +1,6 @@
-//MOD
+//MODULES
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -7,14 +8,15 @@ import { useDispatch, useSelector } from "react-redux";
 import CustomSelect from "../../common/customSelector";
 import ForwardButton from "../stepsAssets/forwardButton";
 
-//FUNC
+//UTILS
 import {
   formatToPrice,
+  // getPriceWithKDV,
   formatSelectorData,
   groupedLicensePackages,
 } from "../../../utils/utils";
 
-// REDUX
+//REDUX
 import {
   getLicensePackages,
   resetGetLicensePackages,
@@ -24,20 +26,17 @@ import {
   addItemToCart,
   removeItemFromCart,
 } from "../../../redux/cart/cartSlice";
-import { getUser, resetGetUser } from "../../../redux/users/getUserByIdSlice";
-import { getUserRestaurants } from "../../../redux/restaurants/getUserRestaurantsSlice";
 // import {
 //   getKDVParameters,
 //   resetGetKDVParameters,
 // } from "../../../redux/generalVars/KDVParameters/getKDVParametersSlice";
 
 const FirstStep = ({
+  setStep,
+  licenses,
+  restaurant,
   restaurantData,
   setRestaurantData,
-  setStep,
-  restaurant,
-  paramsUser,
-  licenses,
 }) => {
   const dispatch = useDispatch();
 
@@ -48,19 +47,13 @@ const FirstStep = ({
     (state) => state.restaurants.getRestaurants
   );
 
-  const { restaurants: userRestaurants } = useSelector(
-    (state) => state.restaurants.getUserRestaurants
-  );
-
   // const { KDVParameters, error: kdvError } = useSelector(
   //   (state) => state.generalVars.getKDVParams
   // );
 
-  const { user } = useSelector((state) => state.users.getUser);
-
   const cartItems = useSelector((state) => state.cart.items);
 
-  const [kdvData, setKdvData] = useState(null);
+  // const [kdvData, setKdvData] = useState(null);
   const [restaurantsData, setRestaurantsData] = useState(null);
   const [licensePackagesData, setLicensePackagesData] = useState(null);
 
@@ -85,89 +78,62 @@ const FirstStep = ({
     }
   }, [licensePackagesData]);
 
-  // TOAST AND GET KDV PARAMS
-  useEffect(() => {
-    if (error) {
-      dispatch(resetGetLicensePackages());
-    }
-
-    if (success) {
-      setLicensePackagesData(groupedLicensePackages(licensePackages.data));
-      dispatch(resetGetLicensePackages());
-      // dispatch(getKDVParameters());
-    }
-  }, [success, error]);
-
-  //TOAST AND SET VALUES
+  // // TOAST AND GET KDV PARAMS
   // useEffect(() => {
-  //   if (kdvError) {
-  //     dispatch(resetGetKDVParameters());
+  //   if (error) {
+  //     dispatch(resetGetLicensePackages());
   //   }
 
-  //   if (KDVParameters && success) {
-  //     setKdvData(KDVParameters);
-  //     setLicensePackagesData(groupedLicensePackages(licensePackages.data));
-  //     dispatch(resetGetLicensePackages());
-  //     dispatch(resetGetKDVParameters());
+  //   if (success) {
+  //     dispatch(getKDVParameters());
   //   }
-  // }, [kdvError, KDVParameters]);
+  // }, [success, error]);
+
+  //GET KDV AND SET VALUE
+  useEffect(() => {
+    // if (kdvError) {
+    //   dispatch(resetGetKDVParameters());
+    // }
+
+    if (/* KDVParameters && */ success) {
+      const updatedData = licensePackages.data
+        .filter((P) => P.isActive)
+        .map((pkg) => {
+          return {
+            ...pkg,
+            price: pkg.userPrice,
+            // kdvPrice: getPriceWithKDV(pkg.userPrice, KDVParameters).replace(
+            //   ".00",
+            //   ""
+            // ),
+          };
+        });
+      // setKdvData(KDVParameters);
+      setLicensePackagesData(groupedLicensePackages(updatedData));
+      dispatch(resetGetLicensePackages());
+      // dispatch(resetGetKDVParameters());
+    }
+  }, [, /* kdvError, KDVParameters */ success]);
 
   // GET RESTAURANTS
   useEffect(() => {
     if (!restaurant && !restaurantsData) {
-      if (paramsUser) {
-        dispatch(getUserRestaurants({ userId: paramsUser.id }));
-      } else {
-        dispatch(getRestaurants({}));
-      }
+      dispatch(getRestaurants({}));
     }
-  }, [restaurant, restaurantsData, paramsUser]);
+  }, [restaurant, restaurantsData]);
 
   //SET RESTAURANTS
   useEffect(() => {
     if (restaurants) {
-      setRestaurantsData(formatSelectorData(restaurants.data, false, true));
+      setRestaurantsData(formatSelectorData(restaurants.data, false));
     }
-    if (userRestaurants) {
-      console.log(userRestaurants);
-      setRestaurantsData(formatSelectorData(userRestaurants.data, false, true));
-    }
-  }, [restaurants, userRestaurants]);
-
-  //SET USER IN RESTAURANT DATA
-  useEffect(() => {
-    if (user && restaurantData.userId) {
-      setRestaurantData({
-        ...restaurantData,
-        fullName: user.fullName,
-        isDealer: user.isDealer,
-        label:
-          restaurantData.label.replace(user.fullName, "") + " " + user.fullName,
-        name: restaurantData.label,
-        user: user,
-      });
-      dispatch(resetGetUser());
-    }
-  }, [user, restaurantData]);
-
-  //GET USER FOR READY SET RESTAURANT
-  useEffect(() => {
-    if (restaurant) {
-      setRestaurantData({
-        label: restaurant?.name,
-        value: restaurant?.id,
-        userId: restaurant?.userId,
-        id: restaurant.id,
-      });
-      dispatch(getUser({ userId: restaurant.userId }));
-    }
-  }, [restaurant]);
+  }, [restaurants]);
 
   function handleSubmit(e) {
     e.preventDefault();
     if (!cartItems?.length) {
       toast.error("Lütfen en az bir tane lisans paketi seçin", {
-        id: "first_step",
+        id: "add-licese",
       });
       return;
     }
@@ -176,23 +142,15 @@ const FirstStep = ({
 
   const handleAddToCart = (pkg) => {
     if (!pkg.restaurantId) {
-      toast.error("Lütfen restoran seçın 😊", { id: "first_step" });
-      return;
-    }
-    if (!licenses) return;
-    const existingLicenses = licenses.filter(
-      (license) => license.restaurantId === pkg.restaurantId
-    );
-    const marketPlaceExistes = existingLicenses.some(
-      (license) => license.licenseTypeId === pkg.licenseTypeId
-    );
-    if (marketPlaceExistes) {
-      toast(
-        `${pkg.restaurantName} restoranına ${pkg.name} lisansı var. Uzatmak isterseniz uzatma sayfasından uzatabılırsınız.`,
-        { id: "first_step" }
+      toast.error(
+        "Lütfen restoran seçın 😊",
+        { id: "choose_restaurant" },
+        { id: "add-licese" }
       );
       return;
     }
+
+    if (!licenses) return;
     const existingPackage = cartItems.find(
       (item) =>
         item.licenseTypeId === pkg.licenseTypeId &&
@@ -213,22 +171,28 @@ const FirstStep = ({
         return;
     }
 
-    const data = kdvData ? kdvData : {};
+    if (
+      cartItems.some((C) => C.isCourier) &&
+      pkg.isCourier /* ||
+      isCourierInLicenses */
+    ) {
+      toast.error("Aynı anda birden fazla kurye lisansı alınamaz.", {
+        id: "isCourier",
+      });
+      return;
+    }
+
+    const data = /* kdvData ? kdvData : */ {};
     dispatch(addItemToCart({ ...pkg, ...data }));
-    const toastComp = (
-      <div>
-        {pkg.time} Yıllık{" "}
-        <span className="text-[--primary-1]">{pkg.marketPlaceName}</span> lisans
-        sepete eklendi
-      </div>
-    );
-    toast.success(toastComp, { id: "first_step" });
+    toast.success(`${pkg.time} Yıllık lısans sepete eklendi`, {
+      id: "add-licese",
+    });
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="min-h-full flex flex-col justify-between mb-7"
+      className="min-h-full flex flex-col justify-between pb-7"
     >
       <div className="w-full h-full sm:px-4">
         <div className="w-full flex justify-center pt-2">
@@ -241,7 +205,6 @@ const FirstStep = ({
             options={restaurantsData}
             onChange={(selectedOption) => {
               setRestaurantData(selectedOption);
-              dispatch(getUser({ userId: selectedOption.userId }));
             }}
           />
           <div className="flex px-6 gap-4">
@@ -270,48 +233,28 @@ const FirstStep = ({
                     return (
                       <div
                         key={pkg.id}
-                        className="flex items-center text-[12px] leading-snug"
+                        className="flex items-center text-[12px] leading-snug text-white"
                       >
                         <div
-                          className={`flex flex-col justify-center py-1.5 px-6 rounded cursor-pointer ${
+                          className={`flex flex-col justify-center py-1.5 px-6 rounded cursor-pointer text-[--black-1] ${
                             isSelected
                               ? "bg-[--primary-1] text-white"
-                              : "bg-[--light-3]"
+                              : "bg-[--light-5]"
                           }`}
                           onClick={() =>
                             handleAddToCart({
                               ...pkg,
-                              kdvData: kdvData,
-                              price:
-                                restaurantData.isDealer === true
-                                  ? pkg.dealerPrice
-                                  : restaurantData.isDealer === false &&
-                                    pkg.userPrice,
                               restaurantId: restaurantData.id,
-                              restaurantName: restaurantData.name,
-                              userId: restaurantData?.userId,
-                              user: restaurantData.user,
+                              restaurantName: restaurantData.label,
                             })
                           }
                         >
-                          <div>
-                            <span className="whitespace-nowrap">
-                              {pkg.time} Yıllık{" "}
-                            </span>
-                            <span
-                              className={`whitespace-nowrap ${
-                                isSelected && "text-white"
-                              }`}
-                            >
-                              {restaurantData.isDealer === true
-                                ? pkg.dealerPrice
-                                : restaurantData.isDealer === false &&
-                                  pkg.userPrice}{" "}
-                              tl
-                            </span>
+                          <div className="whitespace-nowrap">
+                            <span>{pkg.time} Yıllık </span>
+                            <span>{pkg.price} tl</span>
                           </div>
                           <div>
-                            <span className="font-normal whitespace-nowrap">
+                            <span className="font-normal">
                               {pkg.description}
                             </span>
                           </div>

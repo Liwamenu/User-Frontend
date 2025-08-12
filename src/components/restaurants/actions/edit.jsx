@@ -46,7 +46,7 @@ const EditRestaurant = ({ restaurant, onSuccess }) => {
 
   return (
     <ActionButton
-      element={<EditI className="w-5" strokeWidth="1.8" />}
+      element={<EditI className="w-4" strokeWidth="2" />}
       element2="Düzenle"
       onClick={handleClick}
     />

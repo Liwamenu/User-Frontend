@@ -1,15 +1,12 @@
-// MODULES
+//MODULES
 import { useEffect, useRef, useState } from "react";
 
-//COMP
-import DeleteLicense from "./deleteLicense";
-import ExtendLicense from "./extendLicense";
-import TransferLicense from "./tranferLicense";
-import EditLicenseDate from "./editLicenseDate";
-
-// UTILS
-import MenuI from "../../../assets/icon/menu";
+//CONTEXT
 import { usePopup } from "../../../context/PopupContext";
+
+//COMP
+import MenuI from "../../../assets/icon/menu";
+import ExtendLicense from "./extendLicense";
 
 const LicensesActions = ({ index, licenseData, itemsPerPage, onSuccess }) => {
   const licenseDatasMenuRef = useRef();
@@ -47,16 +44,12 @@ const LicensesActions = ({ index, licenseData, itemsPerPage, onSuccess }) => {
         />
       </div>
       <div
-        className={`absolute right-10 border-2 border-solid border-[--light-3] rounded-sm z-10 shadow-lg overflow-hidden ${
-          index >= itemsPerPage / 2 && itemsPerPage > 5 ? "bottom-5" : "top-5"
+        className={`absolute right-12 border-2 border-solid border-[--light-3] rounded-sm z-10 shadow-lg overflow-hidden ${
+          index < itemsPerPage / 2 ? "top-5" : "bottom-5"
         } ${openMenu !== index && "invisible"}`}
       >
-        <ul className="bg-[--white-1] text-[--gr-1] w-[18rem]">
+        <ul className="bg-[--white-1] text-[--gr-1] w-48">
           <ExtendLicense licenseData={licenseData} onSuccess={onSuccess} />
-          <TransferLicense licenseData={licenseData} onSuccess={onSuccess} />
-          <EditLicenseDate licenseData={licenseData} onSuccess={onSuccess} />
-
-          <DeleteLicense licenseData={licenseData} onSuccess={onSuccess} />
         </ul>
       </div>
     </>

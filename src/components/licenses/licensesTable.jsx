@@ -1,6 +1,6 @@
-import LicensesActions from "../licenses/actions/licensesActions";
+import LicensesActions from "./actions/licensesActions";
 import { formatDateString, getRemainingDays } from "../../utils/utils";
-import EditLicenseIsActive from "../licenses/actions/updateLicenseIsActive";
+import EditLicenseIsActive from "./actions/updateLicenseIsActive";
 
 const LicensesTable = ({ inData, totalItems, onSuccess }) => {
   return (
@@ -8,11 +8,8 @@ const LicensesTable = ({ inData, totalItems, onSuccess }) => {
       <div className="min-h-[30rem] border border-solid border-[--light-4] rounded-lg min-w-[60rem] overflow-hidden">
         <table className="w-full text-sm font-light">
           <thead>
-            <tr className="bg-[--light-3] h-8 text-left text-[--black-1]">
+            <tr className="bg-[--light-3] h-8 text-left">
               <th className="pl-4 font-normal">Restoran</th>
-              {inData[0]?.userName && (
-                <th className="font-normal">Kullanıcı</th>
-              )}
               <th className="font-normal">Bitiş Tarihi</th>
               <th className="font-normal">Kalan Gün</th>
               <th className="font-normal">Durum</th>
@@ -31,13 +28,9 @@ const LicensesTable = ({ inData, totalItems, onSuccess }) => {
                 <td className="whitespace-nowrap text-[--black-2] pl-4 font-normal">
                   {data.restaurantName}
                 </td>
-                {inData[0]?.userName && (
-                  <td className="whitespace-nowrap text-[--black-2] font-light">
-                    {data.userName}
-                  </td>
-                )}
+
                 <td className="whitespace-nowrap text-[--black-2] font-light">
-                  {formatDateString(data.endDateTime)}
+                  {formatDateString({ dateString: data.endDateTime })}
                 </td>
                 <td className="whitespace-nowrap text-[--black-2] font-light">
                   {getRemainingDays(data.endDateTime) > 0 ? (

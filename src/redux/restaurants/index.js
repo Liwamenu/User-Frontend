@@ -8,6 +8,7 @@ import deleteRestaurantSlice from "./deleteRestaurantSlice";
 import updateRestaurantSlice from "./updateRestaurantSlice";
 import addRestaurantSlice from "./addRestaurantSlice";
 import restaurantTransferSlice from "./restaurantTransferSlice";
+import getRestaurantsMapSlice from "./getRestaurantsMapSlice";
 
 const restaurantsSlice = combineReducers({
   getRestaurant: getRestaurantSlice,
@@ -17,6 +18,7 @@ const restaurantsSlice = combineReducers({
   updateRestaurant: updateRestaurantSlice,
   addRestaurant: addRestaurantSlice,
   restaurantTransfer: restaurantTransferSlice,
+  getRestaurantsMap: getRestaurantsMapSlice,
 });
 
 export default restaurantsSlice;

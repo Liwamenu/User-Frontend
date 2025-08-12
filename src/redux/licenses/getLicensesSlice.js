@@ -51,7 +51,7 @@ export const getLicenses = createAsyncThunk(
   "Licenses/GetLicenses",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.get(`${baseURL}Licenses/GetLicenses`, {
+      const res = await api.get(`${baseURL}Licenses/GetmyLicenses`, {
         params: data,
       });
 

@@ -3,7 +3,7 @@
 //COMP
 import SixthStepOnlinePayment from "./6thStepOnlinePayment";
 
-const SixthStep = ({ step, paymentMethod, paymentStatus }) => {
+const SixthStep = ({ step, setStep, paymentMethod, paymentStatus }) => {
   const value = paymentMethod.selectedOption.value;
   return (
     step === 6 && (

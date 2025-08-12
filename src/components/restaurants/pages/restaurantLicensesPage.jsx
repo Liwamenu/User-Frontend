@@ -1,7 +1,6 @@
 //MODULES
 import toast from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 
 //COMPONENTS
@@ -10,13 +9,14 @@ import CustomInput from "../../common/customInput";
 import CustomSelect from "../../common/customSelector";
 import TableSkeleton from "../../common/tableSkeleton";
 import CustomPagination from "../../common/pagination";
+import LicensesTable from "../../common/licensesTable";
 import { usePopup } from "../../../context/PopupContext";
 import AddLicense from "../../licenses/actions/addLicense";
 import DoubleArrowRI from "../../../assets/icon/doubleArrowR";
 import licenseFilterDates from "../../../enums/licenseFilterDates";
-import LicensesTable from "../../../components/common/licensesTable";
 
 // REDUX
+import { useDispatch, useSelector } from "react-redux";
 import {
   getRestaurant,
   resetGetRestaurantState,
@@ -25,15 +25,12 @@ import {
   getRestaurantLicenses,
   resetGetRestaurantLicenses,
 } from "../../../redux/licenses/getRestaurantLicensesSlice";
-import { getUser, resetGetUser } from "../../../redux/users/getUserByIdSlice";
 
 const RestaurantLicensesPage = () => {
   const dispatch = useDispatch();
   const params = useParams();
   const location = useLocation();
   const restaurantId = params.id;
-  const isUserPath = location.pathname.includes("users");
-  const isRestaurantPath = location.pathname.includes("restaurants");
   const { user: userInData, restaurant: restaurantInData } =
     location.state || {};
 
@@ -44,29 +41,36 @@ const RestaurantLicensesPage = () => {
   const {
     restaurant,
     error: restaurantError,
-    success: restaurantSuccess,
     loading: restaurantLoading,
+    success: restaurantSuccess,
   } = useSelector((state) => state.restaurants.getRestaurant);
 
-  const {
-    user,
-    error: userError,
-    success: userSucc,
-    loading: userLoading,
-  } = useSelector((state) => state.users.getUser);
-
-  const [searchVal, setSearchVal] = useState("");
   const [filter, setFilter] = useState({});
-
-  const [restaurantData, setRestaurantData] = useState(restaurantInData);
-  const [licensesData, setLicensesData] = useState(null);
+  const [searchVal, setSearchVal] = useState("");
   const [openFilter, setOpenFilter] = useState(false);
+  const [licensesData, setLicensesData] = useState(null);
+  const [restaurantData, setRestaurantData] = useState(restaurantInData);
 
-  const [userData, setUserData] = useState(userInData);
+  const [userData, setuserData] = useState(userInData);
 
-  const itemsPerPage = import.meta.env.VITE_ROWS_PER_PAGE;
+  const itemsPerPage = 8;
   const [pageNumber, setPageNumber] = useState(1);
   const [totalItems, setTotalItems] = useState(null);
+
+  function handlePageChange(number) {
+    dispatch(
+      getRestaurantLicenses({
+        restaurantId,
+        pageNumber: number,
+        pageSize: itemsPerPage,
+        searchKey: searchVal,
+        active: filter?.status?.value,
+        city: filter?.city?.value,
+        district: filter?.district?.value,
+        neighbourhood: filter?.neighbourhood?.value,
+      })
+    );
+  }
 
   //SEARCH
   function handleSearch(e) {
@@ -76,12 +80,12 @@ const RestaurantLicensesPage = () => {
       getRestaurantLicenses({
         restaurantId,
         pageNumber: 1,
-        pageSize: itemsPerPage,
         searchKey: searchVal,
+        pageSize: itemsPerPage,
         isActive: filter?.status?.value,
-        isSettingsAdded: filter?.isSettingsAdded?.value,
-        licenseTypeId: filter?.licenseTypeId?.id,
         dateRange: filter?.dateRange?.value,
+        licenseTypeId: filter?.licenseTypeId?.id,
+        isSettingsAdded: filter?.isSettingsAdded?.value,
       })
     );
     setPageNumber(1);
@@ -93,7 +97,6 @@ const RestaurantLicensesPage = () => {
       const filterData = {
         restaurantId,
         pageNumber: 1,
-        searchKey: searchVal,
         pageSize: itemsPerPage,
         isActive: filter?.status?.value,
         isSettingsAdded: filter?.isSettingsAdded?.value,
@@ -104,8 +107,8 @@ const RestaurantLicensesPage = () => {
     } else {
       dispatch(
         getRestaurantLicenses({
-          restaurantId,
           pageNumber,
+          restaurantId,
           pageSize: itemsPerPage,
         })
       );
@@ -120,52 +123,25 @@ const RestaurantLicensesPage = () => {
     setSearchVal("");
     dispatch(
       getRestaurantLicenses({
-        restaurantId,
         pageNumber,
-        pageSize: itemsPerPage,
         searchKey: null,
-        isActive: filter?.status?.value,
-        isSettingsAdded: filter?.isSettingsAdded?.value,
-        licenseTypeId: filter?.licenseTypeId?.id,
-        dateRange: filter?.dateRange?.value,
-      })
-    );
-  }
-
-  function handlePageChange(number) {
-    dispatch(
-      getRestaurantLicenses({
-        restaurantId,
-        pageNumber: number,
         pageSize: itemsPerPage,
-        searchKey: searchVal,
+        restaurantId: restaurant.id,
         isActive: filter?.status?.value,
-        isSettingsAdded: filter?.isSettingsAdded?.value,
-        licenseTypeId: filter?.licenseTypeId?.id,
         dateRange: filter?.dateRange?.value,
+        licenseTypeId: filter?.licenseTypeId?.id,
+        isSettingsAdded: filter?.isSettingsAdded?.value,
       })
     );
   }
 
-  function insertRestaurantsToLicenses(inRestaurant) {
-    if (!restaurantLicenses) return;
-    const updatedData = restaurantLicenses.data.map((license) => {
-      return {
-        ...license,
-        restaurantId: inRestaurant?.id,
-        restaurantName: inRestaurant?.name,
-        userName: user ? user.fullName : userData?.fullName,
-      };
+  function insertRestaurantToLicenses(restaurantName) {
+    return restaurantLicenses.data.map((ent) => {
+      return { ...ent, restaurantName };
     });
-    setLicensesData(updatedData);
-    setRestaurantData(inRestaurant);
-    setTotalItems(restaurantLicenses.totalCount);
-    dispatch(resetGetUser());
-    dispatch(resetGetRestaurantState());
-    dispatch(resetGetRestaurantLicenses());
   }
 
-  // GET LICENSES WITH RESTAURANT
+  // GET LICENSES
   useEffect(() => {
     if (!licensesData) {
       dispatch(
@@ -183,51 +159,44 @@ const RestaurantLicensesPage = () => {
     }
   }, [licensesData]);
 
-  //TOAST AND SET LICENSES OR GET RESTAURANT DATA
+  //TOAST AND SET LICENSES
   useEffect(() => {
     if (success) {
-      console.log(userInData);
       if (!restaurantInData) {
         dispatch(getRestaurant({ restaurantId }));
-      } else if (!userInData && (isUserPath || isRestaurantPath)) {
-        dispatch(getUser({ userId: restaurantInData.userId }));
       } else {
-        insertRestaurantsToLicenses(restaurantInData);
+        const licensesWithRestaurantName = insertRestaurantToLicenses(
+          restaurantData?.name
+        );
+        setLicensesData(licensesWithRestaurantName);
+        setTotalItems(restaurantLicenses.totalCount);
+        dispatch(resetGetRestaurantLicenses());
       }
     }
 
     if (error) {
+      toast.error(error.message);
       dispatch(resetGetRestaurantLicenses());
     }
   }, [success, restaurantInData]);
 
-  //TOAST AND SET RESTAURANT DATA OR GET USER DATA
   useEffect(() => {
     if (restaurantError) {
+      toast.error(restaurantError.message);
       dispatch(resetGetRestaurantState());
     }
 
     if (restaurantSuccess) {
-      if (!userInData && isUserPath) {
-        dispatch(getUser({ userId: restaurant.userId }));
-      } else {
-        insertRestaurantsToLicenses(restaurant);
-      }
+      setRestaurantData(restaurant);
+      const licensesWithRestaurantName = insertRestaurantToLicenses(
+        restaurant.name
+      );
+      setLicensesData(licensesWithRestaurantName);
+      setTotalItems(restaurantLicenses.totalCount);
+      dispatch(resetGetRestaurantState());
+      dispatch(resetGetRestaurantLicenses());
     }
   }, [restaurantError, restaurantSuccess, restaurant]);
-
-  //CALL INSERT AND SET USER DATA
-  useEffect(() => {
-    if (userSucc) {
-      setUserData(user);
-      const rest = restaurantInData ? restaurantInData : restaurant;
-      insertRestaurantsToLicenses(rest);
-    }
-
-    if (userError) {
-      dispatch(resetGetUser());
-    }
-  }, [userSucc, userError, user]);
 
   //HIDE POPUP
   const { contentRef, setContentRef } = usePopup();
@@ -255,16 +224,6 @@ const RestaurantLicensesPage = () => {
           className="flex items-center gap-1"
           onClick={() => window.history.back()}
         >
-          {isUserPath &&
-            (userData ? (
-              <>
-                {userData.fullName} <DoubleArrowRI className="size-3" />
-              </>
-            ) : (
-              <>
-                Kullanıcılar <DoubleArrowRI className="size-3" />
-              </>
-            ))}
           {restaurantData ? (
             <>
               {restaurantData.name} <DoubleArrowRI className="size-3" />
@@ -304,9 +263,10 @@ const RestaurantLicensesPage = () => {
           <div className="flex gap-2 max-sm:order-1 ">
             <div>
               <AddLicense
+                onSuccess={() => setLicensesData(null)}
+                user={userData}
                 restaurant={restaurantData}
                 licenses={licensesData}
-                onSuccess={() => setLicensesData(null)}
               />
             </div>
 
@@ -319,7 +279,7 @@ const RestaurantLicensesPage = () => {
               </button>
 
               <div
-                className={`absolute right-[-60px] sm:right-0 top-12 px-4 pb-3 flex flex-col bg-[--white-1] w-[22rem] border border-solid border-[--light-3] rounded-lg drop-shadow-md -drop-shadow-md ${
+                className={`absolute right-[-60px] sm:right-0 top-12 px-4 pb-3 flex flex-col bg-[--white-1] w-[22rem] border border-solid border-[--light-3] rounded-lg drop-shadow-md -drop-shadow-md z-50 ${
                   openFilter ? "visible" : "hidden"
                 }`}
               >
@@ -350,36 +310,9 @@ const RestaurantLicensesPage = () => {
                   />
 
                   <CustomSelect
-                    label="Ayarlar"
-                    style={{ padding: "1px 0px" }}
-                    className="text-sm"
-                    options={[
-                      { value: null, label: "Hepsi" },
-                      { value: true, label: "Eklenmiş" },
-                      { value: false, label: "Eklenmemiş" },
-                    ]}
-                    optionStyle={{ fontSize: ".8rem" }}
-                    value={
-                      filter?.isSettingsAdded
-                        ? filter.isSettingsAdded
-                        : { value: null, label: "Hepsi" }
-                    }
-                    onChange={(selectedOption) => {
-                      setFilter((prev) => {
-                        return {
-                          ...prev,
-                          isSettingsAdded: selectedOption,
-                        };
-                      });
-                    }}
-                  />
-                </div>
-
-                <div className="flex gap-6">
-                  <CustomSelect
                     label="Bitiş Zamanı"
-                    className2="sm:mt-[.75rem] mt-1"
-                    className="text-sm sm:mt-[.25rem]"
+                    className="text-sm sm:mt-1"
+                    className2="sm:mt-3"
                     isSearchable={false}
                     style={{ padding: "0 !important" }}
                     optionStyle={{ fontSize: ".8rem" }}
@@ -405,13 +338,13 @@ const RestaurantLicensesPage = () => {
 
                 <div className="w-full flex gap-2 justify-center pt-10">
                   <button
-                    className="text-white bg-[--red-1] py-2 px-12 rounded-lg hover:opacity-90"
+                    className="text-[--white-1] bg-[--red-1] py-2 px-12 rounded-lg hover:opacity-90"
                     onClick={() => handleFilter(false)}
                   >
                     Temizle
                   </button>
                   <button
-                    className="text-white bg-[--primary-1] py-2 px-12 rounded-lg hover:opacity-90"
+                    className="text-[--white-1] bg-[--primary-1] py-2 px-12 rounded-lg hover:opacity-90"
                     onClick={() => handleFilter(true)}
                   >
                     Uygula
@@ -424,12 +357,12 @@ const RestaurantLicensesPage = () => {
       </div>
 
       {/* TABLE */}
-      {licensesData && !loading && !restaurantLoading && !userLoading ? (
+      {licensesData && !loading && !restaurantLoading ? (
         <LicensesTable
           inData={licensesData}
           onSuccess={() => setLicensesData(null)}
         />
-      ) : loading || restaurantLoading || userLoading ? (
+      ) : loading || restaurantLoading ? (
         <TableSkeleton />
       ) : null}
 

@@ -1,4 +1,4 @@
-//MODULE
+//MODULES
 import toast from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,27 +7,22 @@ import { useDispatch, useSelector } from "react-redux";
 import AddLicense from "../actions/addLicense";
 import CloseI from "../../../assets/icon/close";
 import CustomInput from "../../common/customInput";
-import TableSkeleton from "../../common/tableSkeleton";
-import CustomPagination from "../../common/pagination";
-import CustomSelect from "../../common/customSelector";
 import LicensesTable from "../../common/licensesTable";
+import CustomPagination from "../../common/pagination";
+import TableSkeleton from "../../common/tableSkeleton";
+import CustomSelect from "../../common/customSelector";
 import { usePopup } from "../../../context/PopupContext";
 import licenseFilterDates from "../../../enums/licenseFilterDates";
 
 // REDUX
 import {
-  getMergedUsers,
-  resetGetMergedUsers,
-} from "../../../redux/users/getUserByIdSlice";
-import {
   getLicenses,
-  resetGetLicenses,
   resetGetLicensesState,
 } from "../../../redux/licenses/getLicensesSlice";
 import {
-  getLicensesRestaurant,
-  resetGetLicensesRestaurant,
-} from "../../../redux/restaurants/getRestaurantSlice";
+  getRestaurantsMap,
+  resetGetRestaurantsMap,
+} from "../../../redux/restaurants/getRestaurantsMapSlice";
 
 const LicensesPage = () => {
   const dispatch = useDispatch();
@@ -35,34 +30,40 @@ const LicensesPage = () => {
   const { loading, success, error, licenses } = useSelector(
     (state) => state.licenses.getLicenses
   );
+
   const {
-    error: withRestaurantError,
-    success: withRestaurantSucc,
-    loading: withRestaurantLoad,
-    licenses: licensesWithRestaurant,
-  } = useSelector(
-    (state) => state.restaurants.getRestaurant.licensesRestaurant
-  );
-  const {
-    users,
-    error: mergedUsersError,
-    success: mergedUsersSucc,
-    loading: mergedUsersLoad,
-  } = useSelector((state) => state.users.getUser.mergedUsers);
+    loading: restaurantsLoading,
+    error: restaurantsError,
+    entities,
+  } = useSelector((state) => state.restaurants.getRestaurantsMap);
 
   const [searchVal, setSearchVal] = useState("");
   const [filter, setFilter] = useState({});
   const [licensesData, setLicensesData] = useState(null);
   const [openFilter, setOpenFilter] = useState(false);
 
-  const itemsPerPage = import.meta.env.VITE_ROWS_PER_PAGE;
+  const itemsPerPage = 8;
   const [pageNumber, setPageNumber] = useState(1);
   const [totalItems, setTotalItems] = useState(null);
+
+  function handlePageChange(number) {
+    dispatch(
+      getLicenses({
+        pageNumber: number,
+        pageSize: itemsPerPage,
+        isActive: filter?.status?.value,
+        isSettingsAdded: filter?.isSettingsAdded?.value,
+        licenseTypeId: filter?.licenseTypeId?.id,
+        dateRange: filter?.dateRange?.value,
+      })
+    );
+  }
 
   //SEARCH
   function handleSearch(e) {
     e.preventDefault();
     if (!searchVal) return;
+    console.log(searchVal);
     dispatch(
       getLicenses({
         pageNumber: 1,
@@ -82,7 +83,6 @@ const LicensesPage = () => {
     if (bool) {
       const filterData = {
         pageNumber: 1,
-        searchKey: searchVal,
         pageSize: itemsPerPage,
         isActive: filter?.status?.value,
         isSettingsAdded: filter?.isSettingsAdded?.value,
@@ -119,19 +119,6 @@ const LicensesPage = () => {
     );
   }
 
-  function handlePageChange(number) {
-    dispatch(
-      getLicenses({
-        pageNumber: number,
-        pageSize: itemsPerPage,
-        isActive: filter?.status?.value,
-        isSettingsAdded: filter?.isSettingsAdded?.value,
-        licenseTypeId: filter?.licenseTypeId?.id,
-        dateRange: filter?.dateRange?.value,
-      })
-    );
-  }
-
   // GET LICENSES
   useEffect(() => {
     if (!licensesData) {
@@ -139,67 +126,35 @@ const LicensesPage = () => {
         getLicenses({
           pageNumber,
           pageSize: itemsPerPage,
-          searchKey: null,
-          active: null,
-          city: null,
-          district: null,
-          neighbourhood: null,
         })
       );
     }
   }, [licensesData]);
 
-  // TOAST GET AND SET LICENSES OR LICENSES RESTAURANT
+  // TOAST AND GET LICENSES
   useEffect(() => {
     if (error) {
+      toast.error(error.message);
       dispatch(resetGetLicensesState());
     }
     if (success) {
-      dispatch(getLicensesRestaurant({ licenses: licenses.data }));
+      setTotalItems(licenses.totalCount);
+      dispatch(getRestaurantsMap(licenses.data));
+      dispatch(resetGetLicensesState());
     }
   }, [success, error, licenses]);
 
-  // TOAST AND GET MERGED USERS
+  // TOAST GET AND SET RESTAURANTS
   useEffect(() => {
-    if (withRestaurantError) {
-      if (withRestaurantError?.message_TR) {
-        toast.error(withRestaurantError.message_TR);
-      } else {
-        toast.error("Something went wrong");
-      }
-      dispatch(resetGetLicensesRestaurant());
+    if (restaurantsError) {
+      toast.error(restaurantsError.message);
+      dispatch(resetGetRestaurantsMap());
     }
-    if (withRestaurantSucc) {
-      setTotalItems(licenses.totalCount);
-      dispatch(resetGetLicensesRestaurant());
-      dispatch(getMergedUsers(licensesWithRestaurant));
+    if (entities) {
+      setLicensesData(entities);
+      dispatch(resetGetRestaurantsMap());
     }
-  }, [
-    withRestaurantSucc,
-    withRestaurantError,
-    licensesWithRestaurant,
-    licenses,
-  ]);
-
-  //SET MERGED USERS
-  useEffect(() => {
-    if (mergedUsersError) {
-      if (mergedUsersError?.message_TR) {
-        toast.error(mergedUsersError.message_TR);
-      } else {
-        toast.error("Something went wrong");
-      }
-      dispatch(resetGetMergedUsers());
-    }
-    if (mergedUsersSucc) {
-      // console.log(users);
-      setLicensesData(users);
-      dispatch(resetGetLicenses());
-      dispatch(resetGetMergedUsers());
-      dispatch(resetGetLicensesState());
-      dispatch(resetGetLicensesRestaurant());
-    }
-  }, [mergedUsersError, mergedUsersSucc]);
+  }, [entities, restaurantsError, licenses]);
 
   //HIDE POPUP
   const { contentRef, setContentRef } = usePopup();
@@ -220,9 +175,9 @@ const LicensesPage = () => {
   }, [filterLicense]);
 
   return (
-    <section className="lg:ml-[280px] pt-16 sm:pt-16 px-[4%] pb-4 grid grid-cols-1 section_row">
+    <section className="lg:ml-[280px] pt-16 px-[4%] pb-4 grid grid-cols-1 section_row">
       {/* TITLE */}
-      <div className="w-full text-[--black-2] pt-2 text-2xl font-semibold">
+      <div className="w-full text-[--black-2] py-4 text-2xl font-semibold">
         <h2>Lisanslar</h2>
       </div>
 
@@ -237,7 +192,7 @@ const LicensesPage = () => {
               }}
               value={searchVal}
               placeholder="Ara..."
-              className2="mt-[0px] w-full sm:mt-[0]"
+              className2="mt-[0px] w-full"
               className="mt-[0px] py-[.7rem] w-[100%] focus:outline-none"
               icon={<CloseI className="w-4 text-[--red-1]" />}
               className4={`top-[20px] right-2 hover:bg-[--light-4] rounded-full px-2 py-1 ${
@@ -256,6 +211,7 @@ const LicensesPage = () => {
                 onSuccess={() => setLicensesData(null)}
               />
             </div>
+
             <div className="w-full relative" ref={filterLicense}>
               <button
                 className="w-full h-11 flex items-center justify-center text-[--primary-2] px-3 rounded-md text-sm font-normal border-[1.5px] border-solid border-[--primary-2]"
@@ -296,36 +252,9 @@ const LicensesPage = () => {
                   />
 
                   <CustomSelect
-                    label="Ayarlar"
-                    style={{ padding: "1px 0px" }}
-                    className="text-sm"
-                    options={[
-                      { value: null, label: "Hepsi" },
-                      { value: true, label: "Eklenmiş" },
-                      { value: false, label: "Eklenmemiş" },
-                    ]}
-                    optionStyle={{ fontSize: ".8rem" }}
-                    value={
-                      filter?.isSettingsAdded
-                        ? filter.isSettingsAdded
-                        : { value: null, label: "Hepsi" }
-                    }
-                    onChange={(selectedOption) => {
-                      setFilter((prev) => {
-                        return {
-                          ...prev,
-                          isSettingsAdded: selectedOption,
-                        };
-                      });
-                    }}
-                  />
-                </div>
-
-                <div className="flex gap-6">
-                  <CustomSelect
                     label="Bitiş Zamanı"
-                    className2="sm:mt-[.75rem] mt-1"
-                    className="text-sm sm:mt-[.25rem]"
+                    className="text-sm sm:mt-1"
+                    className2="sm:mt-3"
                     isSearchable={false}
                     style={{ padding: "0 !important" }}
                     optionStyle={{ fontSize: ".8rem" }}
@@ -351,13 +280,13 @@ const LicensesPage = () => {
 
                 <div className="w-full flex gap-2 justify-center pt-10">
                   <button
-                    className="text-white bg-[--red-1] py-2 px-12 rounded-lg hover:opacity-90"
+                    className="text-[--white-1] bg-[--red-1] py-2 px-12 rounded-lg hover:opacity-90"
                     onClick={() => handleFilter(false)}
                   >
                     Temizle
                   </button>
                   <button
-                    className="text-white bg-[--primary-1] py-2 px-12 rounded-lg hover:opacity-90"
+                    className="text-[--white-1] bg-[--primary-1] py-2 px-12 rounded-lg hover:opacity-90"
                     onClick={() => handleFilter(true)}
                   >
                     Uygula
@@ -370,18 +299,18 @@ const LicensesPage = () => {
       </div>
 
       {/* TABLE */}
-      {licensesData && !loading && !withRestaurantLoad && !mergedUsersLoad ? (
+      {licensesData && !loading && !restaurantsLoading ? (
         <LicensesTable
           inData={licensesData}
           onSuccess={() => setLicensesData(null)}
         />
-      ) : loading || withRestaurantLoad || mergedUsersLoad ? (
+      ) : loading || restaurantsLoading ? (
         <TableSkeleton />
       ) : null}
 
       {/* PAGINATION */}
       {licensesData && typeof totalItems === "number" && (
-        <div className="w-full self-end flex justify-center pt-2 text-[--black-2]">
+        <div className="w-full self-end flex justify-center pt-4 text-[--black-2]">
           <CustomPagination
             pageNumber={pageNumber}
             setPageNumber={setPageNumber}

@@ -18,7 +18,7 @@ const FailurePage = ({ currentPath, actionType }) => {
       <div className="w-full flex justify-center pt-4">
         <Link
           to={currentPath?.replace(`/${actionType}`, "")}
-          className="flex items-center py-2.5 whitespace-nowrap px-4 rounded-md text-sm border-[1.5px] disabled:cursor-not-allowed justify-center text-white bg-[--primary-1] border-[--primary-1] group border-none"
+          className="flex items-center py-2.5 whitespace-nowrap px-4 rounded-md text-sm border-[1.5px] disabled:cursor-not-allowed justify-center text-[--white-1] bg-[--primary-1] border-[--primary-1] group border-none"
         >
           Lisanslara git
         </Link>

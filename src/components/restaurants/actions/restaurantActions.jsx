@@ -1,12 +1,15 @@
+//MODULES
 import { useEffect, useRef, useState } from "react";
-import MenuI from "../../../assets/icon/menu";
-import UserRestaurantLicenses from "./licenses";
-import { usePopup } from "../../../context/PopupContext";
+
+//COMP
 import EditRestaurant from "./edit";
 import DeleteRetaurant from "./delete";
 import TransferRestaurant from "./transfer";
+import MenuI from "../../../assets/icon/menu";
+import UserRestaurantLicenses from "./licenses";
+import { usePopup } from "../../../context/PopupContext";
 
-const RestaurantActions = ({ index, restaurant, totalItems, onSuccess }) => {
+const RestaurantActions = ({ index, restaurant, onSuccess }) => {
   const outRef = useRef();
   const userRestaurantMenuRef = useRef();
   const { contentRef, setContentRef } = usePopup();
@@ -35,8 +38,8 @@ const RestaurantActions = ({ index, restaurant, totalItems, onSuccess }) => {
   return (
     <>
       <div
-        className="cursor-pointer"
         onClick={handleClick}
+        className="cursor-pointer"
         ref={userRestaurantMenuRef}
       >
         <MenuI
@@ -45,14 +48,15 @@ const RestaurantActions = ({ index, restaurant, totalItems, onSuccess }) => {
       </div>
       {openMenu === index && (
         <div
-          className={`absolute right-10 border-2 border-solid border-[--light-3] rounded-sm z-10 shadow-lg overflow-hidden ${
+          className={`text-sm absolute right-4 border-2 border-solid border-[--light-3] rounded-sm z-10 shadow-lg overflow-hidden ${
             index < 5 ? "top-5" : "bottom-5"
           }`}
           ref={outRef}
+          style={{ fontFamily: "Lexend Deca" }}
         >
           <ul className="bg-[--white-1] text-[--gr-1] w-48">
             <UserRestaurantLicenses restaurant={restaurant} />
-            <TransferRestaurant restaurant={restaurant} onSuccess={onSuccess} />
+            {/* <TransferRestaurant restaurant={restaurant} onSuccess={onSuccess} /> */}
             <EditRestaurant restaurant={restaurant} onSuccess={onSuccess} />
             <DeleteRetaurant restaurant={restaurant} onSuccess={onSuccess} />
           </ul>

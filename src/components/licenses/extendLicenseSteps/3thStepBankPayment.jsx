@@ -1,11 +1,11 @@
 import BackButton from "../stepsAssets/backButton";
 import ForwardButton from "../stepsAssets/forwardButton";
 
-const FourthStepBankPayment = ({ step, setStep }) => {
+const ThirdStepBankPayment = ({ step, setStep }) => {
   //SUBMIT
   function handleSubmit(e) {
     e.preventDefault();
-    setStep(5);
+    setStep(4);
   }
 
   return (
@@ -48,4 +48,4 @@ const FourthStepBankPayment = ({ step, setStep }) => {
   );
 };
 
-export default FourthStepBankPayment;
+export default ThirdStepBankPayment;

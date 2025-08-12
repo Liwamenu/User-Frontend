@@ -7,7 +7,6 @@ import Header from "../components/header/header";
 import Sidebar from "../components/sidebar/sidebar";
 
 //PAGES
-import Users from "./users";
 import NotFound from "./404";
 import TestPage from "./test";
 import Profile from "./profile";
@@ -30,12 +29,11 @@ const Home = () => {
       <Header openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
       <Sidebar openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
       <Routes>
-        <Route path="/users/*" element={<Users />} />
         <Route path="/restaurants/*" element={<Restourants />} />
         <Route path="/licenses/*" element={<Licenses />} />
         <Route path="/profile/*" element={<Profile />} />
+        <Route path="/*" element={<Restourants />} />
         {/*
-        <Route path="/*" element={<DashboardPage />} />
         <Route path="/dashboard/*" element={<DashboardPage />} />
         <Route path="/temp-users/*" element={<TempUsers />} />
         <Route path="/accounts/*" element={<Accounts />} />

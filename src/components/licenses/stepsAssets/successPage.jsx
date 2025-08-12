@@ -37,7 +37,7 @@ const SuccessPage = ({ step, currentPath, actionType }) => {
     <main className="w-full h-full flex justify-center">
       <div className="w-[325px] overflow-visible relative">
         <div className="w-full bg-[--white-1] flex justify-center items-center relative overflow-visible">
-          <div className="absolute w-full top-0 left-0 z-[999]">
+          <div className="absolute w-full top-0 left-0">
             {playAnimation && (
               <Lottie animationData={congraAnim} loop={false} />
             )}
@@ -59,7 +59,7 @@ const SuccessPage = ({ step, currentPath, actionType }) => {
         <div className="w-full flex justify-center pb-8">
           <Link
             to={currentPath?.replace(`/${actionType}`, "")}
-            className="flex items-center py-2.5 whitespace-nowrap px-4 rounded-md text-sm border-[1.5px] disabled:cursor-not-allowed justify-center text-white bg-[--primary-1] border-[--primary-1] group border-none"
+            className="flex items-center py-2.5 whitespace-nowrap px-4 rounded-md text-sm border-[1.5px] disabled:cursor-not-allowed justify-center text-[--white-1] bg-[--primary-1] border-[--primary-1] group border-none z-[999]"
           >
             Lisanslara git
           </Link>

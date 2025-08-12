@@ -64,7 +64,7 @@ export const getRestaurants = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const res = await api.get(`${baseURL}Restaurants/GetRestaurants`, {
+      const res = await api.get(`${baseURL}Restaurants/GetmyRestaurants`, {
         params: {
           pageNumber,
           pageSize,

@@ -2,7 +2,6 @@ import { combineReducers } from "@reduxjs/toolkit";
 
 // Slices
 import getUsersSlice from "./getUsersSlice";
-import getUserByIdSlice from "./getUserByIdSlice";
 import addUserSlice from "./addUserSlice";
 import deleteUserSlice from "./deleteUserSlice";
 import updateUserDataByIdSlice from "./updateUserDataByIdSlice";
@@ -16,7 +15,6 @@ import transferDealerSlice from "./transferDealerSlice";
 
 const usersSlice = combineReducers({
   getUsers: getUsersSlice,
-  getUser: getUserByIdSlice,
   addUser: addUserSlice,
   delete: deleteUserSlice,
   updateUser: updateUserDataByIdSlice,

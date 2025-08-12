@@ -3,16 +3,18 @@ import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 //HOOKS
-import { useEditUserInvoiceById } from "../../../../hooks/useEditUserInvoiceById";
+import { useEditUserInvoice } from "../../../../hooks/useEditUserInvoice";
+
+//COMP
+import EditUserInvoice from "../../invoice/editUserInvoice";
 
 //REDUX
-import { getUser } from "../../../redux/users/getUserByIdSlice";
-import EditUserInvoiceById from "../../invoice/editUserInvoiceById";
+import { getUser } from "../../../redux/user/getUserSlice";
 
 const InvoiceData = ({
-  user,
-  onSubmit,
   title,
+  onSubmit,
+  userData,
   openFatura,
   userInvData,
   setOpenFatura,
@@ -22,11 +24,11 @@ const InvoiceData = ({
   const dispatcher = useRef();
   const dispatch = useDispatch();
   const { error: updateInvError, success: updateInvSucc } = useSelector(
-    (state) => state.users.updateInvoice
+    (state) => state.user.updateInvoice
   );
 
   const { error: addInvError, success: addInvSucc } = useSelector(
-    (state) => state.users.addInvoice
+    (state) => state.user.addInvoice
   );
 
   const {
@@ -37,10 +39,10 @@ const InvoiceData = ({
     setUserInvoice,
     userInvoiceBefore,
     handleSubmit,
-  } = useEditUserInvoiceById(dispatcher, user);
+  } = useEditUserInvoice(dispatcher, userData);
 
   useEffect(() => {
-    if (userInvoice) {
+    if (userInvData) {
       const city = userInvoice.city?.label;
       const district = userInvoice.district?.label;
       const neighbourhood = userInvoice.neighbourhood?.label;
@@ -48,6 +50,7 @@ const InvoiceData = ({
     } else {
       setOpenFatura(true);
     }
+
     setInvoiceBeforeAfter({ userInvoice, userInvoiceBefore });
     onSubmit(handleSubmit);
   }, [userInvoice]);
@@ -63,7 +66,7 @@ const InvoiceData = ({
       const district = userInvoice.district?.label;
       const neighbourhood = userInvoice.neighbourhood?.label;
       setUserInvData({ ...userInvoice, city, district, neighbourhood });
-      dispatch(getUser({ userId: user.id }));
+      dispatch(getUser());
     }
   }, [addInvError, updateInvError, addInvSucc, updateInvSucc]);
 
@@ -76,7 +79,7 @@ const InvoiceData = ({
             <button
               type="button"
               onClick={() => setOpenFatura(true)}
-              className="p-2 mt-3 bg-[--primary-2] text-[--white-1] rounded-md hover:text-[--primary-2] hover:bg-[--white-1] transition-colors duration-300 ease-in-out border border-[--primary-2]"
+              className="p-2 mt-3 bg-[--primary-2] text-white rounded-md hover:text-[--primary-2] hover:bg-[--white-1] transition-colors duration-300 ease-in-out border border-[--primary-2]"
             >
               Düzenle
             </button>
@@ -87,7 +90,7 @@ const InvoiceData = ({
       {userInvData && !openFatura ? (
         <div className="w-[325px] flex justify-start mt-4">
           <div>
-            {user && user.fullName}, {userInvData && userInvData.title}
+            {userData && userData.fullName}, {userInvData && userInvData.title}
             <p className="pt-1">{userInvData.taxNumber},</p>
             <p>{userInvData.taxOffice},</p>
             <p>
@@ -104,7 +107,7 @@ const InvoiceData = ({
         </div>
       ) : (
         <div className="w-full px-4">
-          <EditUserInvoiceById
+          <EditUserInvoice
             cities={cities ? cities : []}
             districts={districts}
             neighs={neighs}

@@ -23,7 +23,6 @@ const RestaurantsTable = ({ inData, Actions, totalItems, onSuccess }) => {
           <thead>
             <tr className="bg-[--light-3] h-8 text-left text-[--black-1]">
               <th className="first:pl-4 font-normal">Restoran</th>
-              <th className="font-normal">Kullanıcı </th>
               <th className="font-normal">Telefon</th>
               <th className="font-normal">İl</th>
               <th className="font-normal">Durum</th>
@@ -44,12 +43,6 @@ const RestaurantsTable = ({ inData, Actions, totalItems, onSuccess }) => {
                   className="whitespace-nowrap text-[--black-2] pl-4 font-normal cursor-pointer"
                 >
                   {data.name}
-                </td>
-                <td
-                  onClick={() => handleClick(data)}
-                  className="whitespace-nowrap text-[--black-2] font-light cursor-pointer"
-                >
-                  {data.userName}
                 </td>
                 <td
                   onClick={() =>

@@ -31,7 +31,7 @@ const TransferRestaurant = ({ restaurant, onSuccess }) => {
 
   return (
     <ActionButton
-      element={<TransferI className="w-5" strokeWidth="1.8" />}
+      element={<TransferI className="w-4" strokeWidth="2" />}
       element2="Restoran Transfer"
       onClick={handleClick}
     />

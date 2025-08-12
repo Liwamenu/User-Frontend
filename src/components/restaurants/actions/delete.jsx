@@ -1,19 +1,24 @@
+//MODULES
+import toast from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
-import LoadingI from "../../../assets/anim/loading";
+import { useDispatch, useSelector } from "react-redux";
+
+//COMP
 import { DeleteI } from "../../../assets/icon";
+import LoadingI from "../../../assets/anim/loading";
+import ActionButton from "../../common/actionButton";
 import { usePopup } from "../../../context/PopupContext";
 import CustomCheckbox from "../../common/customCheckbox";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getRestaurantLicenses,
-  resetGetRestaurantLicenses,
-} from "../../../redux/licenses/getRestaurantLicensesSlice";
+
+//REDUX
 import {
   deleteRestaurant,
   resetDeleteRestaurant,
 } from "../../../redux/restaurants/deleteRestaurantSlice";
-import toast from "react-hot-toast";
-import ActionButton from "../../common/actionButton";
+import {
+  getRestaurantLicenses,
+  resetGetRestaurantLicenses,
+} from "../../../redux/licenses/getRestaurantLicensesSlice";
 
 const DeleteRetaurant = ({ restaurant, onSuccess }) => {
   const dispatch = useDispatch();
@@ -28,7 +33,7 @@ const DeleteRetaurant = ({ restaurant, onSuccess }) => {
   return (
     <ActionButton
       className="text-[--red-1]"
-      element={<DeleteI className="w-[1.1rem]" />}
+      element={<DeleteI className="w-4" strokeWidth={2} />}
       element2="Sil"
       onClick={handleClick}
     />
