@@ -12,6 +12,7 @@ import TestPage from "./test";
 import Profile from "./profile";
 import Licenses from "./licenses";
 import Restourants from "./restourants";
+import RestaurantHome from "./restaurantHome";
 // import DashboardPage from "./dashboard";
 // import Messages from "./messages";
 // import Templates from "./templates";
@@ -23,12 +24,28 @@ import Restourants from "./restourants";
 // import TempUsers from "./tempUsers";
 
 const Home = () => {
-  const [openSidebar, setOpenSidebar] = useState(false);
+  const [showS1, setShowS1] = useState(true);
+  const [openS1, setOpenS1] = useState(false);
+  const [openS2, setOpenS2] = useState(false);
   return (
     <section className="bg-[--white-1]">
-      <Header openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
-      <Sidebar openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
+      <Header
+        openSidebar={showS1 ? openS1 : openS2}
+        setOpenSidebar={showS1 ? setOpenS1 : setOpenS2}
+      />
+      {showS1 && <Sidebar openSidebar={openS1} setOpenSidebar={setOpenS1} />}
       <Routes>
+        <Route
+          path="/restaurant/*"
+          element={
+            <RestaurantHome
+              showS1={showS1}
+              setShowS1={setShowS1}
+              openSidebar={openS2}
+              setOpenSidebar={setOpenS2}
+            />
+          }
+        />
         <Route path="/restaurants/*" element={<Restourants />} />
         <Route path="/licenses/*" element={<Licenses />} />
         <Route path="/profile/*" element={<Profile />} />

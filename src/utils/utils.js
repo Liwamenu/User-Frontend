@@ -287,7 +287,7 @@ export function googleMap(lat, lng, setLat, setLng, boundaryCoords, zoom = 15) {
   const map = new google.maps.Map(document.getElementById("map"), {
     zoom,
     center: position,
-    mapId: "VITE_PENTEGRASYON_MAP_ID",
+    mapId: "VITE_LIWAMENU_MAP_ID",
   });
 
   // Define the boundary polygon
