@@ -97,7 +97,7 @@ const Register = () => {
       dispatch(
         registerUser({
           email,
-          tel: phoneNumber.slice(1),
+          phoneNumber,
           password,
           firstName,
           lastName,
