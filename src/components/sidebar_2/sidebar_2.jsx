@@ -26,6 +26,7 @@ import { usePopup } from "../../context/PopupContext";
 function Sidebar({ openSidebar, setOpenSidebar }) {
   const param = useParams();
   const sidebarRef = useRef();
+  const id = param["*"].split("/")[1];
   const { showPopup, contentRef, setContentRef } = usePopup();
   const sidebarItems = [
     {
@@ -37,55 +38,55 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
     {
       icon: <EditI />,
       text: "Restoranı Düzenle",
-      to: "/restaurant/edit",
+      to: `/restaurant/edit/${id}`,
       path: "edit",
     },
     {
       icon: <WaitI />,
       text: "Çalışma Saatleri",
-      to: "/restaurant/hours",
+      to: `/restaurant/hours/${id}`,
       path: "hours",
     },
     {
       icon: <BellI />,
       text: "Sosyal Medya",
-      to: "/restaurant/social",
+      to: `/restaurant/social/${id}`,
       path: "social",
     },
     {
       icon: <DebitI />,
       text: "Ödeme Yontemler",
-      to: "/restaurant/payments",
+      to: `/restaurant/payments/${id}`,
       path: "payments",
     },
     {
       icon: <ParamsI />,
       text: "Katagoriler",
-      to: "/restaurant/categories",
+      to: `/restaurant/categories/${id}`,
       path: "categories",
     },
     {
       icon: <PaymentI />,
       text: "Ürünler",
-      to: "/restaurant/products",
+      to: `/restaurant/products/${id}`,
       path: "products",
     },
     {
       icon: <LicenseI />,
       text: "Etiketler",
-      to: "/restaurant/tags",
+      to: `/restaurant/tags/${id}`,
       path: "tags",
     },
     {
       icon: <TemplatesI />,
       text: "Temalar",
-      to: "/restaurant/themes",
+      to: `/restaurant/themes/${id}`,
       path: "themes",
     },
     {
       icon: <QRI />,
       text: "QR Kod",
-      to: "/restaurant/qr",
+      to: `/restaurant/qr/${id}`,
       path: "qr",
     },
   ];

@@ -16,6 +16,7 @@ const CustomDatePicker = ({
   popperClassName,
   calendarClassName = "custom-datepicker",
   dateFormat = "dd.MM.yyyy HH:mm",
+  timeOnly = false,
 }) => {
   //const { i18n } = useTranslation();
   registerLocale("tr", tr);
@@ -29,7 +30,8 @@ const CustomDatePicker = ({
         selected={value}
         onChange={onChange}
         showTimeSelect
-        dateFormat={dateFormat}
+        showTimeSelectOnly={timeOnly}
+        dateFormat={timeOnly ? "HH:mm" : dateFormat}
         timeFormat="HH:mm"
         placeholderText={placeholder}
         className={`px-4 sm:py-3 mt-1 sm:mt-2.5 border border-[--border-1] border-solid rounded-md bg-[--btn-txt] text-[--gr-1] font-[350] text-sm cursor-pointer ${className}`}

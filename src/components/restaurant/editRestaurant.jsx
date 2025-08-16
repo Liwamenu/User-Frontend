@@ -1,12 +1,18 @@
+//MODULES
 import { isEqual } from "lodash";
-import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCities } from "../../redux/data/getCitiesSlice";
-import {
-  getDistricts,
-  resetGetDistrictsState,
-} from "../../redux/data/getDistrictsSlice";
+
+//COMP
+import { googleMap } from "../../utils/utils";
+import CustomInput from "../common/customInput";
+import CustomSelect from "../common/customSelector";
+import CustomTextarea from "../common/customTextarea";
+import CustomFileInput from "../common/customFileInput";
+import CustomPhoneInput from "../common/customPhoneInput";
+
+//REDUX
 import {
   getNeighs,
   resetGetNeighsState,
@@ -15,48 +21,59 @@ import {
   getLocation,
   resetGetLocationState,
 } from "../../redux/data/getLocationSlice";
-import CustomInput from "../common/customInput";
-import CustomPhoneInput from "../common/customPhoneInput";
-import CustomSelect from "../common/customSelector";
-import CustomTextarea from "../common/customTextarea";
-import CustomFileInput from "../common/customFileInput";
-import { googleMap } from "../../utils/utils";
+import {
+  getDistricts,
+  resetGetDistrictsState,
+} from "../../redux/data/getDistrictsSlice";
 import {
   resetUpdateRestaurant,
   updateRestaurant,
 } from "../../redux/restaurants/updateRestaurantSlice";
+import { getCities } from "../../redux/data/getCitiesSlice";
 
 const EditRestaurant = ({ data: restaurant }) => {
   const dispatch = useDispatch();
   const toastId = useRef();
-  const {
-    id: restaurantId,
-    dealerId,
-    userId,
-    name,
-    phoneNumber,
-    latitude,
-    longitude,
-    city,
-    district,
-    neighbourhood,
-    address,
-    isActive,
-  } = restaurant || {};
 
-  const initialRestData = {
-    restaurantId,
-    dealerId,
-    userId,
-    name,
-    phoneNumber: "90" + phoneNumber,
-    latitude,
-    longitude,
-    city: { label: city, value: city, id: null },
-    district: { label: district, value: district, id: null },
-    neighbourhood: { label: neighbourhood, value: neighbourhood, id: null },
-    address,
-    isActive,
+  // Derive formatted restaurant object
+  const formatRestaurant = (restaurant) => {
+    if (!restaurant) return null;
+
+    const {
+      id: restaurantId,
+      dealerId,
+      userId,
+      name,
+      phoneNumber,
+      latitude,
+      longitude,
+      lat,
+      lng,
+      city,
+      district,
+      neighbourhood,
+      address,
+      isActive,
+      imageAbsoluteUrl,
+    } = restaurant;
+
+    return {
+      restaurantId,
+      dealerId,
+      userId,
+      name,
+      phoneNumber: phoneNumber?.startsWith("90")
+        ? phoneNumber
+        : "90" + phoneNumber,
+      latitude: lat ? lat : latitude,
+      longitude: lng ? lng : longitude,
+      city: { label: city, value: city, id: null },
+      district: { label: district, value: district, id: null },
+      neighbourhood: { label: neighbourhood, value: neighbourhood, id: null },
+      address,
+      isActive,
+      imageAbsoluteUrl,
+    };
   };
 
   const { loading, success, error } = useSelector(
@@ -73,12 +90,9 @@ const EditRestaurant = ({ data: restaurant }) => {
     (state) => state.data.getNeighs
   );
 
-  const {
-    loading: locationLoading,
-    success: locationSuccess,
-    error: locationError,
-    location,
-  } = useSelector((state) => state.data.getLocation);
+  const { success: locationSuccess, location } = useSelector(
+    (state) => state.data.getLocation
+  );
 
   const [lat, setLat] = useState(restaurant?.latitude);
   const [lng, setLng] = useState(restaurant?.longitude);
@@ -88,13 +102,16 @@ const EditRestaurant = ({ data: restaurant }) => {
   });
   const [cities, setCities] = useState([]);
   const [neighs, setNeighs] = useState([]);
-  const [preview, setPreview] = useState(null);
   const [document, setDocument] = useState("");
   const [districts, setDistricts] = useState([]);
   const [isMapOpen, setIsMapOpen] = useState(false);
-  const [restaurantDataBefore, setRestaurantDataBefore] =
-    useState(initialRestData);
-  const [restaurantData, setRestaurantData] = useState(initialRestData);
+  const [restaurantDataBefore, setRestaurantDataBefore] = useState(
+    formatRestaurant(restaurant)
+  );
+  const [restaurantData, setRestaurantData] = useState(
+    formatRestaurant(restaurant)
+  );
+  const [preview, setPreview] = useState();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -139,6 +156,16 @@ const EditRestaurant = ({ data: restaurant }) => {
     setIsMapOpen(false);
   }
 
+  // REFRESH WHEN RESTAURANT CHANGES
+  useEffect(() => {
+    if (restaurant) {
+      const formatted = formatRestaurant(restaurant);
+      setRestaurantData(formatted);
+      setRestaurantDataBefore(formatted);
+      setPreview(formatted?.imageAbsoluteUrl);
+    }
+  }, [restaurant]);
+
   // TOAST
   useEffect(() => {
     if (loading) {
@@ -156,6 +183,7 @@ const EditRestaurant = ({ data: restaurant }) => {
 
   // GET AND SET CITIES IF THERE IS NO CITIES
   useEffect(() => {
+    if (!restaurantData) return;
     if (!citiesData) {
       dispatch(getCities());
     } else {
@@ -187,6 +215,7 @@ const EditRestaurant = ({ data: restaurant }) => {
 
   // GET DISTRICTS WHENEVER USER'S CITY CHANGES
   useEffect(() => {
+    if (!restaurantData) return;
     if (restaurantData.city?.id) {
       dispatch(getDistricts({ cityId: restaurantData.city.id }));
       setRestaurantData((prev) => {
@@ -196,10 +225,11 @@ const EditRestaurant = ({ data: restaurant }) => {
         };
       });
     }
-  }, [restaurantData.city]);
+  }, [restaurantData?.city]);
 
   // SET DISTRICTS
   useEffect(() => {
+    if (!restaurantData) return;
     if (districtsSuccess) {
       setDistricts(districtsData);
 
@@ -230,6 +260,7 @@ const EditRestaurant = ({ data: restaurant }) => {
 
   // GET NEIGHBOURHOODS WHENEVER THE INVOICE DISTRICT CHANGES
   useEffect(() => {
+    if (!restaurantData) return;
     if (restaurantData.district?.id && restaurantData.city?.id) {
       dispatch(
         getNeighs({
@@ -244,10 +275,11 @@ const EditRestaurant = ({ data: restaurant }) => {
         };
       });
     }
-  }, [restaurantData.district]);
+  }, [restaurantData?.district]);
 
   // SET NEIGHBOURHOODS
   useEffect(() => {
+    if (!restaurantData) return;
     if (neighsSuccess) {
       setNeighs(neighsData);
       if (!restaurantData.neighbourhood) {
@@ -277,6 +309,7 @@ const EditRestaurant = ({ data: restaurant }) => {
 
   // GET LOACTION IF THE NEIGH CHANGED
   useEffect(() => {
+    if (!restaurantData) return;
     const city = restaurantData.city;
     const district = restaurantData.district;
     const neighbourhood = restaurantData.neighbourhood;
@@ -293,10 +326,11 @@ const EditRestaurant = ({ data: restaurant }) => {
         });
       }
     }
-  }, [restaurantData.neighbourhood]);
+  }, [restaurantData?.neighbourhood]);
 
   // SET LOCATION
   useEffect(() => {
+    if (!restaurantData) return;
     if (locationSuccess) {
       const averageLat = (
         location.reduce((sum, loc) => sum + loc.lat, 0) / location.length
@@ -318,8 +352,8 @@ const EditRestaurant = ({ data: restaurant }) => {
         setLat(averageLat);
         setLng(averageLng);
       } else {
-        setLat(latitude);
-        setLng(longitude);
+        setLat(restaurantData.latitude);
+        setLng(restaurantData.longitude);
       }
       setLocationData((prev) => {
         return {
@@ -333,10 +367,7 @@ const EditRestaurant = ({ data: restaurant }) => {
 
   //PREVIEW
   useEffect(() => {
-    if (!document) {
-      setPreview(restaurant.imageAbsoluteUrl);
-      return;
-    }
+    if (!document) return;
 
     // Create a preview URL
     const objectUrl = URL.createObjectURL(document);
@@ -390,179 +421,181 @@ const EditRestaurant = ({ data: restaurant }) => {
           </div>
         </div>
 
-        <h1 className="self-center text-2xl font-bold">Restoran Düzenle</h1>
+        <h1 className="self-center text-2xl font-bold">Restoranı Düzenle</h1>
         <div className="flex flex-col px-4 sm:px-14 mt-9 w-full text-left">
-          <form onSubmit={handleSubmit}>
-            <div className="flex gap-4">
-              <CustomInput
-                required={true}
-                label="Ad"
-                placeholder="Ad"
-                className="py-[.45rem] text-sm"
-                value={restaurantData.name}
-                onChange={(e) => {
-                  setRestaurantData((prev) => {
-                    return {
-                      ...prev,
-                      name: e,
-                    };
-                  });
-                }}
-              />
-              <CustomPhoneInput
-                required={true}
-                label="Telefone"
-                placeholder="Telefone"
-                className="py-[.45rem] text-sm"
-                value={restaurantData.phoneNumber}
-                onChange={(phone) => {
-                  setRestaurantData((prev) => {
-                    return {
-                      ...prev,
-                      phoneNumber: phone,
-                    };
-                  });
-                }}
-                maxLength={14}
-              />
-            </div>
-
-            <div className="flex gap-4">
-              <CustomSelect
-                required={true}
-                label="Şehir"
-                placeholder="Ad"
-                style={{ padding: "1px 0px" }}
-                className="text-sm"
-                value={
-                  restaurantData.city
-                    ? restaurantData.city
-                    : { value: null, label: "Şehir seç" }
-                }
-                options={[{ value: null, label: "Şehir seç" }, ...cities]}
-                onChange={(selectedOption) => {
-                  setRestaurantData((prev) => {
-                    return {
-                      ...prev,
-                      city: selectedOption,
-                    };
-                  });
-                }}
-              />
-              <CustomSelect
-                required={true}
-                label="İlçe"
-                placeholder="Ad"
-                style={{ padding: "1px 0px" }}
-                className="text-sm"
-                value={
-                  restaurantData.district
-                    ? restaurantData.district
-                    : { value: null, label: "İlçe seç" }
-                }
-                options={[{ value: null, label: "İlçe seç" }, ...districts]}
-                onChange={(selectedOption) => {
-                  setRestaurantData((prev) => {
-                    return {
-                      ...prev,
-                      district: selectedOption,
-                    };
-                  });
-                }}
-              />
-            </div>
-
-            <div className="flex gap-4">
-              <CustomSelect
-                required={true}
-                label="Mahalle"
-                placeholder="Ad"
-                style={{ padding: "1px 0px" }}
-                className="text-sm"
-                value={
-                  restaurantData.neighbourhood
-                    ? restaurantData.neighbourhood
-                    : { value: null, label: "Mahalle Seç" }
-                }
-                options={[{ value: null, label: "Mahalle Seç" }, ...neighs]}
-                onChange={(selectedOption) => {
-                  setRestaurantData((prev) => {
-                    return {
-                      ...prev,
-                      neighbourhood: selectedOption,
-                    };
-                  });
-                }}
-              />
-
-              <CustomTextarea
-                required={true}
-                label="Adres"
-                placeholder="Adres"
-                className="text-sm h-14"
-                value={restaurantData.address}
-                onChange={(e) => {
-                  setRestaurantData((prev) => {
-                    return {
-                      ...prev,
-                      address: e.target.value,
-                    };
-                  });
-                }}
-              />
-            </div>
-
-            <div onClick={handleOpenMap}>
-              <div className="flex gap-4 pointer-events-none">
+          {restaurantData && (
+            <form onSubmit={handleSubmit}>
+              <div className="flex gap-4">
                 <CustomInput
                   required={true}
-                  label="Latitude"
-                  placeholder="Latitude"
+                  label="Ad"
+                  placeholder="Ad"
                   className="py-[.45rem] text-sm"
-                  className2="mt-[.5rem] sm:mt-[.5rem]"
-                  value={restaurantData.latitude}
-                  onChange={() => {}}
-                  onClick={() => {}}
-                  readOnly={true}
+                  value={restaurantData.name}
+                  onChange={(e) => {
+                    setRestaurantData((prev) => {
+                      return {
+                        ...prev,
+                        name: e,
+                      };
+                    });
+                  }}
                 />
-                <CustomInput
+                <CustomPhoneInput
                   required={true}
-                  label="Longitude"
-                  placeholder="Longitude"
+                  label="Telefone"
+                  placeholder="Telefone"
                   className="py-[.45rem] text-sm"
-                  className2="mt-[.5rem] sm:mt-[.5rem]"
-                  value={restaurantData.longitude}
-                  onChange={() => {}}
-                  onClick={() => {}}
-                  readOnly={true}
+                  value={restaurantData.phoneNumber}
+                  onChange={(phone) => {
+                    setRestaurantData((prev) => {
+                      return {
+                        ...prev,
+                        phoneNumber: phone,
+                      };
+                    });
+                  }}
+                  maxLength={14}
                 />
               </div>
-            </div>
 
-            <div className="mt-4 flex items-center">
-              <div className="w-full max-w-40">
-                <img src={preview} alt="preview_liwamenu" />
+              <div className="flex gap-4">
+                <CustomSelect
+                  required={true}
+                  label="Şehir"
+                  placeholder="Ad"
+                  style={{ padding: "1px 0px" }}
+                  className="text-sm"
+                  value={
+                    restaurantData.city
+                      ? restaurantData.city
+                      : { value: null, label: "Şehir seç" }
+                  }
+                  options={[{ value: null, label: "Şehir seç" }, ...cities]}
+                  onChange={(selectedOption) => {
+                    setRestaurantData((prev) => {
+                      return {
+                        ...prev,
+                        city: selectedOption,
+                      };
+                    });
+                  }}
+                />
+                <CustomSelect
+                  required={true}
+                  label="İlçe"
+                  placeholder="Ad"
+                  style={{ padding: "1px 0px" }}
+                  className="text-sm"
+                  value={
+                    restaurantData.district
+                      ? restaurantData.district
+                      : { value: null, label: "İlçe seç" }
+                  }
+                  options={[{ value: null, label: "İlçe seç" }, ...districts]}
+                  onChange={(selectedOption) => {
+                    setRestaurantData((prev) => {
+                      return {
+                        ...prev,
+                        district: selectedOption,
+                      };
+                    });
+                  }}
+                />
               </div>
-              <CustomFileInput
-                className="h-[8rem] p-4"
-                value={document}
-                onChange={setDocument}
-                accept={"image/png, image/jpeg"}
-              />
-            </div>
 
-            <div className="w-full flex justify-end mt-10">
-              <button
-                disabled={false}
-                className={`py-2 px-3 bg-[--primary-1] text-white rounded-lg ${
-                  isMapOpen && "invisible"
-                }`}
-                type="submit"
-              >
-                Kaydet
-              </button>
-            </div>
-          </form>
+              <div className="flex gap-4">
+                <CustomSelect
+                  required={true}
+                  label="Mahalle"
+                  placeholder="Ad"
+                  style={{ padding: "1px 0px" }}
+                  className="text-sm"
+                  value={
+                    restaurantData.neighbourhood
+                      ? restaurantData.neighbourhood
+                      : { value: null, label: "Mahalle Seç" }
+                  }
+                  options={[{ value: null, label: "Mahalle Seç" }, ...neighs]}
+                  onChange={(selectedOption) => {
+                    setRestaurantData((prev) => {
+                      return {
+                        ...prev,
+                        neighbourhood: selectedOption,
+                      };
+                    });
+                  }}
+                />
+
+                <CustomTextarea
+                  required={true}
+                  label="Adres"
+                  placeholder="Adres"
+                  className="text-sm h-14"
+                  value={restaurantData.address}
+                  onChange={(e) => {
+                    setRestaurantData((prev) => {
+                      return {
+                        ...prev,
+                        address: e.target.value,
+                      };
+                    });
+                  }}
+                />
+              </div>
+
+              <div onClick={handleOpenMap}>
+                <div className="flex gap-4 pointer-events-none">
+                  <CustomInput
+                    required={true}
+                    label="Latitude"
+                    placeholder="Latitude"
+                    className="py-[.45rem] text-sm"
+                    className2="mt-[.5rem] sm:mt-[.5rem]"
+                    value={restaurantData.latitude}
+                    onChange={() => {}}
+                    onClick={() => {}}
+                    readOnly={true}
+                  />
+                  <CustomInput
+                    required={true}
+                    label="Longitude"
+                    placeholder="Longitude"
+                    className="py-[.45rem] text-sm"
+                    className2="mt-[.5rem] sm:mt-[.5rem]"
+                    value={restaurantData.longitude}
+                    onChange={() => {}}
+                    onClick={() => {}}
+                    readOnly={true}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4 flex items-center">
+                <div className="w-full max-w-40">
+                  <img src={preview} alt="preview_liwamenu" />
+                </div>
+                <CustomFileInput
+                  className="h-[8rem] p-4"
+                  value={document}
+                  onChange={setDocument}
+                  accept={"image/png, image/jpeg"}
+                />
+              </div>
+
+              <div className="w-full flex justify-end mt-10">
+                <button
+                  disabled={false}
+                  className={`py-2 px-3 bg-[--primary-1] text-white rounded-lg ${
+                    isMapOpen && "invisible"
+                  }`}
+                  type="submit"
+                >
+                  Kaydet
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </div>

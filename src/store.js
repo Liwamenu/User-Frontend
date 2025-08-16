@@ -23,6 +23,7 @@ import cartSlice from "./redux/cart/cartSlice";
 // import managersSlice from "./redux/managers";
 import loadingSlice from "./redux/loadingSlice";
 import loadingMiddleware from "../middlewares/loadingMiddleware";
+import restaurantSlice from "./redux/restaurant";
 // import emailSlice from "./redux/email";
 // import smsSlice from "./redux/sms";
 // import tempUsersSlice from "./redux/tempUsers";
@@ -34,6 +35,7 @@ const store = configureStore({
     user: userSlice,
     users: usersSlice,
     // tempUsers: tempUsersSlice,
+    restaurant: restaurantSlice,
     restaurants: restaurantsSlice,
     licenses: licensesSlice,
     licensePackages: licensePackagesSlice,
