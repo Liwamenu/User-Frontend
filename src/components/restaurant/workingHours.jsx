@@ -192,7 +192,7 @@ const WorkingHours = () => {
               type="submit"
               className="w-full sm:w-auto px-6 py-3 rounded-md bg-[--primary-1] text-[--white-1] font-semibold"
             >
-              Save Hours
+              Kaydet
             </button>
           </div>
         </form>
