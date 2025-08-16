@@ -57,7 +57,7 @@ const WorkingHours = () => {
     return d;
   }
 
-  // initial fetch
+  // GET THE DATA
   useEffect(() => {
     dispatch(getWorkingHours({ restaurantId: id }));
   }, [dispatch, id]);
@@ -81,7 +81,7 @@ const WorkingHours = () => {
     dispatch(resetGetWorkingHours());
   }, [data, dispatch]);
 
-  // toasts
+  // TOAST AND RESET
   useEffect(() => {
     if (loading) toast.loading("İşleniyor...");
     if (success) {

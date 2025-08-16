@@ -17,6 +17,7 @@ import NotFound from "./404";
 import TestPage from "./test";
 import EditRestaurant from "../components/restaurant/editRestaurant";
 import WorkingHours from "../components/restaurant/workingHours";
+import SocialMedias from "../components/restaurant/socialMedias";
 
 const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   const location = useLocation();
@@ -59,6 +60,7 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
         <Routes>
           <Route path="/edit/:id" element={<EditRestaurant data={data} />} />
           <Route path="/hours/:id" element={<WorkingHours data={data} />} />
+          <Route path="/social/:id" element={<SocialMedias data={data} />} />
           <Route path="/test" element={<TestPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
