@@ -36,7 +36,7 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
       path: "restaurants",
     },
     {
-      icon: <EditI />,
+      icon: <EditI className="size-[1.3rem]" strokeWidth={2} />,
       text: "Restoranı Düzenle",
       to: `/restaurant/edit/${id}`,
       path: "edit",

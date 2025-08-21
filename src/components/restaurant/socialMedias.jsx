@@ -51,7 +51,7 @@ const SocialMedias = () => {
     if (loading) toast.loading("İşleniyor...");
     if (success) {
       toast.dismiss();
-      toast.success("Çalışma saatleri başarıyla güncellendi.");
+      toast.success("Sosyal medya linkleri güncellendi.");
       dispatch(resetSetSocialMedias());
     }
   }, [loading, success, dispatch]);

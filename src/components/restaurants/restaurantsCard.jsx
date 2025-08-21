@@ -15,8 +15,12 @@ const RestaurantsCard = ({ inData }) => {
             navigate(`/restaurant/edit/${r.id}`, { state: { restaurant: r } })
           }
         >
-          <div>
-            <img src={r.imageAbsoluteUrl} alt="liwamenu_restaurant_img" />
+          <div className="max-w-lg aspect-square overflow-hidden">
+            <img
+              src={r.imageAbsoluteUrl}
+              alt="liwamenu_restaurant_img"
+              className="w-full h-full object-cover"
+            />
           </div>
 
           <div className="w-full bg-[--light-5] py-2 px-2 flex flex-col gap-4 mt-2">
