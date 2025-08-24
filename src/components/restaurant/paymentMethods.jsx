@@ -42,8 +42,12 @@ const PaymentMethods = () => {
 
   function handleSubmit(e) {
     e.preventDefault();
+    // Build array of enabled method IDs
+    const enabledMethodIds = paymentMethodsData
+      .filter((method) => method.enabled)
+      .map((method) => method.id);
     dispatch(
-      setPaymentMethods({ restaurantId: id, methods: paymentMethodsData })
+      setPaymentMethods({ restaurantId: id, methodIds: enabledMethodIds })
     );
   }
 
