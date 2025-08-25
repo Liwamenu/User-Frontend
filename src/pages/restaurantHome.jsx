@@ -21,6 +21,7 @@ import SocialMedias from "../components/restaurant/socialMedias";
 import PaymentMethods from "../components/restaurant/paymentMethods";
 import RestaurantSettings from "../components/restaurant/restaurantSettings";
 import ProductCategories from "../components/restaurant/productCategories";
+import ProductTags from "../components/restaurant/productTags";
 
 const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   const location = useLocation();
@@ -76,6 +77,7 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
             path="/categories/:id"
             element={<ProductCategories data={data} />}
           />
+          <Route path="/tags/:id" element={<ProductTags data={data} />} />
           <Route path="/test" element={<TestPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
