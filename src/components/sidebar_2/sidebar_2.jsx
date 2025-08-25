@@ -18,6 +18,7 @@ import {
   LicenseI,
   DebitI,
   WaitI,
+  SettingsI,
 } from "../../assets/icon/index";
 
 //COMP
@@ -40,6 +41,12 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
       text: "Restoranı Düzenle",
       to: `/restaurant/edit/${id}`,
       path: "edit",
+    },
+    {
+      icon: <SettingsI className="size-[1.3rem]" strokeWidth={2} />,
+      text: "Ayarlar",
+      to: `/restaurant/settings/${id}`,
+      path: "settings",
     },
     {
       icon: <WaitI />,
