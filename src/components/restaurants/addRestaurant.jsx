@@ -264,7 +264,7 @@ function AddRestaurantPopup({ onSuccess }) {
   }, [locationSuccess]);
 
   return (
-    <div className=" w-full pt-12 pb-8 bg-[--white-1] rounded-lg border-2 border-solid border-[--border-1] text-[--black-2] text-base overflow-visible relative">
+    <div className=" w-full pt-12 pb-8 bg-[--white-1] rounded-lg border-2 border-solid border-[--border-1] text-[--black-2] text-base overflow-y-auto relative max-h-[95dvh]">
       <div className="flex flex-col bg-[--white-1] relative">
         <div className="absolute -top-6 right-3 z-[50]">
           <div

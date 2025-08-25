@@ -2,25 +2,48 @@ import { useNavigate } from "react-router-dom";
 
 const RestaurantsCard = ({ inData }) => {
   const navigate = useNavigate();
+
+  function licenseIsClicked(r) {
+    r.licenseId
+      ? navigate("/licenses/extend-license", {
+          state: {
+            restaurant: r,
+            currentLicense: {
+              restaurantName: r.name,
+              restaurantId: r.id,
+              userId: r.userId,
+              id: r.licenseId,
+            },
+          },
+        })
+      : navigate("/licenses/add-license", {
+          state: { restaurant: r },
+        });
+  }
+
   return (
     <main
-      className="flex justify-start gap-4 text-[--black-1]"
+      className="flex max-sm:flex-col justify-start gap-4 text-[--black-1] mb-8"
       style={{ fontFamily: "Poppins" }}
     >
       {inData.map((r) => (
         <div
-          className="w-full max-w-80 border border-[--border-1] rounded-md overflow-clip relative hover:scale-105 transition-all duration-200 cursor-pointer"
+          className="w-full max-w-80 border border-[--border-1] rounded-md overflow-clip relative "
           key={r.id}
-          onClick={() =>
-            navigate(`/restaurant/edit/${r.id}`, { state: { restaurant: r } })
-          }
         >
-          <div className="max-w-lg aspect-square overflow-hidden">
-            <img
-              src={r.imageAbsoluteUrl}
-              alt="liwamenu_restaurant_img"
-              className="w-full h-full object-cover"
-            />
+          <div
+            className="hover:scale-105 transition-all duration-200 cursor-pointer"
+            onClick={() =>
+              navigate(`/restaurant/edit/${r.id}`, { state: { restaurant: r } })
+            }
+          >
+            <div className="max-w-lg aspect-square overflow-hidden">
+              <img
+                src={r.imageAbsoluteUrl}
+                alt="liwamenu_restaurant_img"
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
 
           <div className="w-full bg-[--light-5] py-2 px-2 flex flex-col gap-4 mt-2">
@@ -30,24 +53,43 @@ const RestaurantsCard = ({ inData }) => {
 
           <div className="py-2 px-4 flex flex-col gap-1.5">
             <div className="flex items-center justify-between gap-4">
-              <p className="text-sm font-medium">Restaurant Status:</p>
-              <p className="text-xs text-[--green-1] border border-[--green-1] bg-[--light-green] rounded-md w-16 text-center py-1">
+              <p className="text-sm font-medium">Restoran Status:</p>
+              <p
+                className={`text-sm text-[--green-1] border rounded-md w-20 text-center py-2 ${
+                  r.isActive
+                    ? "border-[--green-1] bg-[--light-green]"
+                    : "border-[--red-1] bg-[--light-red]"
+                }`}
+              >
                 {r.isActive ? "Aktif" : "Pasif"}
               </p>
             </div>
 
             <div className="flex items-center justify-between gap-4">
-              <p className="text-sm font-medium">License Status:</p>
-              <p className="text-xs text-[--red-1] border border-[--red-1] bg-[--light-red] rounded-md w-16 text-center py-1">
-                Pasif
+              <p className="text-sm font-medium">Lisans Status:</p>
+              <p
+                className={`text-sm border rounded-md w-20 text-center py-2 ${
+                  r.licenseIsActive
+                    ? "border-[--green-1] bg-[--light-green] text-[--green-1]"
+                    : "border-[--red-1] bg-[--light-red] text-[--red-1]"
+                }`}
+              >
+                {r.licenseIsActive ? "Aktif" : "Pasif"}
               </p>
             </div>
 
-            <div className="flex items-center justify-between gap-4">
-              <p className="text-sm font-medium">License:</p>
-              <p className="text-xs text-[--white-1] border border-[--primary-1] bg-[--primary-1] rounded-md w-16 text-center py-1">
-                Buy
-              </p>
+            <div className="flex items-center justify-between gap-4 text-sm ">
+              <p className="font-medium">Lisans:</p>
+              {r.licenseId && !r.licenseIsExpired ? (
+                <p>{r.licenseStart}</p>
+              ) : (
+                <button
+                  className="text-[--white-1] border border-[--primary-1] bg-[--primary-1] rounded-md w-20 py-2 text-center"
+                  onClick={() => licenseIsClicked(r)}
+                >
+                  {r.licenseIsExpired ? "Uzat" : "Lisans Al"}
+                </button>
+              )}
             </div>
           </div>
         </div>

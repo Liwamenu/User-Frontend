@@ -26,7 +26,7 @@ const AddLicensePage = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
 
-  const { user, restaurant, licenses } = location.state || {};
+  const { user, restaurant } = location.state || {};
   const currentPath = location.pathname;
 
   const [step, setStep] = useState(1);
@@ -123,7 +123,6 @@ const AddLicensePage = () => {
                     <FirstStep
                       key={0}
                       setStep={setStep}
-                      licenses={licenses}
                       restaurant={restaurant}
                       restaurantData={restaurantData}
                       setRestaurantData={setRestaurantData}

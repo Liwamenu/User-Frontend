@@ -20,6 +20,7 @@ import WorkingHours from "../components/restaurant/workingHours";
 import SocialMedias from "../components/restaurant/socialMedias";
 import PaymentMethods from "../components/restaurant/paymentMethods";
 import RestaurantSettings from "../components/restaurant/restaurantSettings";
+import ProductCategories from "../components/restaurant/productCategories";
 
 const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   const location = useLocation();
@@ -70,6 +71,10 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
           <Route
             path="/settings/:id"
             element={<RestaurantSettings data={data} />}
+          />
+          <Route
+            path="/categories/:id"
+            element={<ProductCategories data={data} />}
           />
           <Route path="/test" element={<TestPage />} />
           <Route path="*" element={<NotFound />} />

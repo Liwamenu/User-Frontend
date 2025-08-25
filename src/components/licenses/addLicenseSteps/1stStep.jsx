@@ -33,7 +33,6 @@ import {
 
 const FirstStep = ({
   setStep,
-  licenses,
   restaurant,
   restaurantData,
   setRestaurantData,
@@ -150,7 +149,6 @@ const FirstStep = ({
       return;
     }
 
-    if (!licenses) return;
     const existingPackage = cartItems.find(
       (item) =>
         item.licenseTypeId === pkg.licenseTypeId &&
