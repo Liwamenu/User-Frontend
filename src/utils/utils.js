@@ -305,12 +305,12 @@ export function googleMap(lat, lng, setLat, setLng, boundaryCoords, zoom = 15) {
   boundaryPolygon.setMap(map);
 
   // Helper function to check if a position is within the allowed bounds
-  function isPositionWithinBounds(lat, lng) {
-    // eslint-disable-next-line no-undef
-    const point = new google.maps.LatLng(lat, lng);
-    // eslint-disable-next-line no-undef
-    return google.maps.geometry.poly.containsLocation(point, boundaryPolygon);
-  }
+  // function isPositionWithinBounds(lat, lng) {
+  //   // eslint-disable-next-line no-undef
+  //   const point = new google.maps.LatLng(lat, lng);
+  //   // eslint-disable-next-line no-undef
+  //   return google.maps.geometry.poly.containsLocation(point, boundaryPolygon);
+  // }
 
   // Create a marker when the map initially loads
   // eslint-disable-next-line no-undef
@@ -326,7 +326,8 @@ export function googleMap(lat, lng, setLat, setLng, boundaryCoords, zoom = 15) {
     const newLat = e.latLng.lat();
     const newLng = e.latLng.lng();
 
-    if (isPositionWithinBounds(newLat, newLng)) {
+    // if (isPositionWithinBounds(newLat, newLng)) {
+    if (true) {
       setLat(newLat.toFixed(6));
       setLng(newLng.toFixed(6));
       map.panTo({ lat: newLat, lng: newLng });
@@ -341,7 +342,8 @@ export function googleMap(lat, lng, setLat, setLng, boundaryCoords, zoom = 15) {
     const latitude = e.latLng.lat();
     const longitude = e.latLng.lng();
     //console.log(latitude, longitude);
-    if (isPositionWithinBounds(latitude, longitude)) {
+    // if (isPositionWithinBounds(latitude, longitude)) {
+    if (true) {
       if (marker) {
         marker.setMap(null);
       }

@@ -49,7 +49,6 @@ const Home = () => {
         <Route path="/restaurants/*" element={<Restourants />} />
         <Route path="/licenses/*" element={<Licenses />} />
         <Route path="/profile/*" element={<Profile />} />
-        <Route path="/*" element={<Restourants />} />
         {/*
         <Route path="/dashboard/*" element={<DashboardPage />} />
         <Route path="/temp-users/*" element={<TempUsers />} />
@@ -58,6 +57,7 @@ const Home = () => {
         <Route path="/messages/*" element={<Messages />} />
         */}
         <Route path="/test" element={<TestPage />} />
+        <Route path="/*" element={<Restourants />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </section>

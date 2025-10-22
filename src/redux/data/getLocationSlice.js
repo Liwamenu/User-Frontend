@@ -46,70 +46,9 @@ const getLoationSlice = createSlice({
   },
 });
 
-// export const getLocation = createAsyncThunk(
-//   "Route/GetLocation",
-//   async ({ address }, { rejectWithValue }) => {
-//     try {
-//       const res = await api.post(
-//         `${baseURL}Route/GetLocation`,
-//         {},
-//         {
-//           params: { address },
-//         }
-//       );
-
-//       console.log(res.data);
-//       return res.data.data;
-//     } catch (err) {
-//       console.log(err);
-//       if (err?.response?.data) {
-//         throw rejectWithValue(err.response.data);
-//       }
-//       throw rejectWithValue({ message_TR: err.message });
-//     }
-//   }
-// );
-
-// export const getLocation = createAsyncThunk(
-//   "Route/GetLocation",
-//   async ({ address }, { rejectWithValue }) => {
-//     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-//     const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-//       address
-//     )}&key=${apiKey}`;
-
-//     try {
-//       const response = await axios.get(geocodeUrl);
-//       const data = response.data;
-
-//       if (data.status === "OK") {
-//         const result = data.results[0];
-//         const viewport = result.geometry.viewport;
-
-//         const minLat = viewport.southwest.lat;
-//         const maxLat = viewport.northeast.lat;
-//         const minLng = viewport.southwest.lng;
-//         const maxLng = viewport.northeast.lng;
-
-//         const location = { minLat, maxLat, minLng, maxLng };
-//         console.log(location);
-//         return location;
-//       } else {
-//         throw new Error(`Geocode was not successful: ${data.status}`);
-//       }
-//     } catch (err) {
-//       console.log(err);
-//       if (err?.response?.data) {
-//         return rejectWithValue(err.response.data);
-//       }
-//       return rejectWithValue({ message_TR: err.message });
-//     }
-//   }
-// );
-
 export const getLocation = createAsyncThunk(
   "Route/GetLocation",
-  async ({ address }, { rejectWithValue }) => {
+  async (address, { rejectWithValue }) => {
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
       address

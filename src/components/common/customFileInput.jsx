@@ -81,8 +81,9 @@ const CustomFileInput = ({ onChange, value, accept, className, required }) => {
           <>
             <CloudUI className="size-[2.5rem]" strokeWidth={1.5} />
             <p className="mb-2 text-sm">
-              <span className="font-semibold">Yüklemek için tıklayın</span> veya
-              sürükleyip bırakın
+              Restoran Logosu Yüklemek için
+              <span className="font-semibold"> tıklayın</span> veya
+              <span className="font-semibold"> sürükleyip bırakın</span>
             </p>
             <p className="text-xs">
               {getReadableAcceptText(accept)} (MAX. 800x400px)
@@ -93,7 +94,8 @@ const CustomFileInput = ({ onChange, value, accept, className, required }) => {
             <p className="mb-2 text-sm">
               <span className="font-semibold">Seçilen dosya: </span>
               <span className="font-semibold text-[--primary-1]">
-                {value.name}
+                {value.name?.slice(0, 40)}
+                {value.name?.length > 40 && "..."}
               </span>
             </p>
             <p className="text-xs">

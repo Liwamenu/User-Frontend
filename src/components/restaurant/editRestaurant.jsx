@@ -317,7 +317,7 @@ const EditRestaurant = ({ data: restaurant }) => {
     if (city?.value && district?.value && neighbourhood?.value) {
       const address = `${city.value}, ${district.value}, ${neighbourhood.value}`;
       if (!isEqual(address, locationData.before)) {
-        dispatch(getLocation({ address }));
+        dispatch(getLocation(address));
         setLocationData((prev) => {
           return {
             ...prev,

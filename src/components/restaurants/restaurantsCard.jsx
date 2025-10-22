@@ -23,12 +23,12 @@ const RestaurantsCard = ({ inData }) => {
 
   return (
     <main
-      className="flex max-sm:flex-col justify-start gap-4 text-[--black-1] mb-8"
+      className="flex max-sm:flex-col flex-wrap justify-start gap-4 text-[--black-1] mb-8"
       style={{ fontFamily: "Poppins" }}
     >
       {inData.map((r) => (
         <div
-          className="w-full max-w-80 border border-[--border-1] rounded-md overflow-clip relative "
+          className="w-full max-w-80 min-w-60 border border-[--border-1] rounded-md overflow-clip relative "
           key={r.id}
         >
           <div

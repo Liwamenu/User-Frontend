@@ -2,9 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 
 //COMP
-import EditRestaurant from "./edit";
 import DeleteRetaurant from "./delete";
-import TransferRestaurant from "./transfer";
 import MenuI from "../../../assets/icon/menu";
 import UserRestaurantLicenses from "./licenses";
 import { usePopup } from "../../../context/PopupContext";
@@ -56,8 +54,6 @@ const RestaurantActions = ({ index, restaurant, onSuccess }) => {
         >
           <ul className="bg-[--white-1] text-[--gr-1] w-48">
             <UserRestaurantLicenses restaurant={restaurant} />
-            {/* <TransferRestaurant restaurant={restaurant} onSuccess={onSuccess} /> */}
-            <EditRestaurant restaurant={restaurant} onSuccess={onSuccess} />
             <DeleteRetaurant restaurant={restaurant} onSuccess={onSuccess} />
           </ul>
         </div>

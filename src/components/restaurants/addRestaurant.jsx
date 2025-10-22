@@ -13,7 +13,7 @@ import CustomTextarea from "../common/customTextarea";
 import { usePopup } from "../../context/PopupContext";
 import CustomFileInput from "../common/customFileInput";
 import CustomPhoneInput from "../common/customPhoneInput";
-import { formatSelectorData, googleMap } from "../../utils/utils";
+import { googleMap } from "../../utils/utils";
 
 // REDUX
 import {
@@ -33,6 +33,10 @@ import {
   resetAddRestaurantState,
 } from "../../redux/restaurants/addRestaurantSlice";
 import { getCities } from "../../redux/data/getCitiesSlice";
+import {
+  getUserAddress,
+  resetGetUserAddress,
+} from "../../redux/data/getUserAddressSlice";
 
 const AddRestaurant = ({ onSuccess }) => {
   const { setPopupContent } = usePopup();
@@ -74,6 +78,10 @@ function AddRestaurantPopup({ onSuccess }) {
     (state) => state.data.getNeighs
   );
 
+  const { address, error: addressErr } = useSelector(
+    (state) => state.data.getUserAddress
+  );
+
   const {
     error: locationError,
     loading: locationLoading,
@@ -88,11 +96,11 @@ function AddRestaurantPopup({ onSuccess }) {
     before: null,
   });
   const [isMapOpen, setIsMapOpen] = useState(false);
-  const [usersData, setUsersData] = useState([]);
   const [cities, setCities] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [neighs, setNeighs] = useState([]);
   const [document, setDocument] = useState("");
+  const [preview, setPreview] = useState(null);
   const [restaurantData, setRestaurantData] = useState({
     name: "",
     phoneNumber: "",
@@ -222,8 +230,9 @@ function AddRestaurantPopup({ onSuccess }) {
 
     if (city?.id && district?.id && neighbourhood?.id) {
       const address = `${city.value}, ${district.value}, ${neighbourhood.value}`;
+      console.log(address);
       if (!isEqual(address, locationData.before)) {
-        dispatch(getLocation({ address }));
+        dispatch(getLocation(address));
         setLocationData((prev) => {
           return {
             ...prev,
@@ -262,6 +271,67 @@ function AddRestaurantPopup({ onSuccess }) {
       dispatch(resetGetLocationState());
     }
   }, [locationSuccess]);
+
+  //GET THE USER LOC
+  useEffect(() => {
+    if (!restaurantData.city) {
+      dispatch(getUserAddress());
+    }
+  }, [restaurantData.city]);
+
+  //SET THE USER DATA
+  useEffect(() => {
+    if (address) {
+      const city_ = address.city;
+      const district_ = address.district;
+      const neigh_ = address.neighbourhood;
+
+      setRestaurantData((prev) => {
+        return {
+          ...prev,
+          city: { label: city_, value: city_, id: null },
+          district: {
+            label: district_,
+            value: district_,
+            id: null,
+          },
+          neighbourhood: {
+            label: neigh_,
+            value: neigh_,
+            id: null,
+          },
+          longitude: address.lng,
+          latitude: address.lat,
+          address: address.address,
+        };
+      });
+      setLocationData((prev) => {
+        return {
+          ...prev,
+          before: address.address,
+        };
+      });
+
+      const address_ = `${city_}, ${district_}, ${neigh_}`;
+      dispatch(getLocation(address_));
+      dispatch(resetGetUserAddress());
+    }
+    if (address || addressErr) {
+      dispatch(resetGetUserAddress());
+    }
+  }, [address, addressErr]);
+
+  //PREVIEW
+  useEffect(() => {
+    if (!document) return;
+
+    // Create a preview URL
+    const objectUrl = URL.createObjectURL(document);
+    setPreview(objectUrl);
+
+    // Free memory when the component unmounts or doc changes
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [document]);
 
   return (
     <div className=" w-full pt-12 pb-8 bg-[--white-1] rounded-lg border-2 border-solid border-[--border-1] text-[--black-2] text-base overflow-y-auto relative max-h-[95dvh]">
@@ -460,7 +530,13 @@ function AddRestaurantPopup({ onSuccess }) {
               </div>
             </div>
 
-            <div className="mt-4">
+            <div className="mt-4 flex items-center">
+              {preview && (
+                <div className="w-full max-w-40">
+                  <img src={preview} alt="preview_liwamenu" />
+                </div>
+              )}
+
               <CustomFileInput
                 className="h-[8rem] p-4"
                 value={document}
