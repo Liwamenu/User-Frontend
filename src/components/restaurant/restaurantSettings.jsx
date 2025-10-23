@@ -18,12 +18,12 @@ const RestaurantSettings = ({ data }) => {
       <div className="flex flex-col">
         <h1 className="self-center text-2xl font-bold">Ayarlar</h1>
 
-        <form onSubmit={handleSubmit} className="px-4 sm:px-14 mt-6 space-y-5">
+        <form onSubmit={handleSubmit} className="px-4 sm:px-14 mt-6 space-y-4">
           <div className="max-w-md">
             <CustomInput
               type="number"
-              label="Minimum Mesafe (KM)"
-              placeholder="Minimum mesafe giriniz"
+              label="Maksimum Mesafe (KM)"
+              placeholder="Maksimum mesafe giriniz"
               className="py-[.4rem] rounded-sm"
               value={restaurantData?.minDistance ?? ""}
               onChange={(e) =>
@@ -70,10 +70,36 @@ const RestaurantSettings = ({ data }) => {
           <div className="max-w-md">
             <CustomSelect
               type="text"
-              label="Varsayılan Dil"
+              label="Arayüz dil seçeneği"
               placeholder="Örn: tr, en"
               style={{ borderRadius: ".125rem", padding: "0.1rem 0px" }}
-              className="py-[.4rem] rounded-sm"
+              className="py-[.4rem] rounded-sm mt-[0] sm:mt-[0]"
+              className2="rounded-sm mt-[0] sm:mt-[0]"
+              value={
+                LanguagesEnums.find(
+                  (L) => L.value == (restaurantData?.defaultLang ?? null)
+                ) || { label: "Dil Seç" }
+              }
+              options={LanguagesEnums}
+              onChange={(selectedOption) =>
+                setRestaurantData((prev) => {
+                  return {
+                    ...prev,
+                    defaultLang: selectedOption.value,
+                  };
+                })
+              }
+            />
+          </div>
+
+          <div className="max-w-md">
+            <CustomSelect
+              type="text"
+              label="Menu Dili Seçeneği"
+              placeholder="Örn: tr, en"
+              style={{ borderRadius: ".125rem", padding: "0.1rem 0px" }}
+              className="py-[.4rem] rounded-sm mt-[0] sm:mt-[0]"
+              className2="rounded-sm mt-[0] sm:mt-[0]"
               value={
                 LanguagesEnums.find(
                   (L) => L.value == (restaurantData?.defaultLang ?? null)
