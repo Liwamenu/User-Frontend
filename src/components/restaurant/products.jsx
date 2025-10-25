@@ -1,13 +1,12 @@
-import { useState } from "react";
-import CustomSelect from "../components/common/customSelector";
-import CustomInput from "../components/common/customInput";
-import CustomFileInput from "../components/common/customFileInput";
-import { useEffect } from "react";
-import CustomToggle from "../components/common/customToggle";
-import { formatToPrice } from "../utils/utils";
-import { DeleteI } from "../assets/icon";
+import { useEffect, useState } from "react";
+import CustomSelect from "../common/customSelector";
+import CustomInput from "../common/customInput";
+import CustomFileInput from "../common/customFileInput";
+import CustomToggle from "../common/customToggle";
+import { copyToClipboard, formatToPrice } from "../../utils/utils";
+import { CopyI, DeleteI } from "../../assets/icon";
 
-const TestPage = () => {
+const ManageProducts = ({ data: restaurant }) => {
   const cats = [
     { value: "Corbalar", label: "Çorbalar", id: 0 },
     { value: "AnaYemekler", label: "Ana Yemekler", id: 1 },
@@ -477,12 +476,27 @@ const TestPage = () => {
           + Yeni Ürün Ekle
         </button>
 
-        <pre className="mt-6 bg-gray-100 p-3 rounded text-sm">
-          {JSON.stringify(prods, null, 2)}
-        </pre>
+        <div>
+          <div className="w-full mt-6 p-4 flex justify-end bg-gray-100 text-[--blue-2]">
+            <button
+              onClick={() =>
+                copyToClipboard({
+                  text: JSON.stringify(prods, null, 2),
+                  msg: "JSON kopyalandı!",
+                })
+              }
+              className="flex items-center gap-2"
+            >
+              <CopyI />
+            </button>
+          </div>
+          <pre className=" bg-gray-100 p-3 rounded text-sm">
+            {JSON.stringify(prods, null, 2)}
+          </pre>
+        </div>
       </div>
     </section>
   );
 };
 
-export default TestPage;
+export default ManageProducts;

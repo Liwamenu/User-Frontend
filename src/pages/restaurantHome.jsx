@@ -22,6 +22,7 @@ import PaymentMethods from "../components/restaurant/paymentMethods";
 import RestaurantSettings from "../components/restaurant/restaurantSettings";
 import ProductCategories from "../components/restaurant/productCategories";
 import ProductTags from "../components/restaurant/productTags";
+import ManageProducts from "../components/restaurant/products";
 
 const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   const location = useLocation();
@@ -78,6 +79,10 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
             element={<ProductCategories data={data} />}
           />
           <Route path="/tags/:id" element={<ProductTags data={data} />} />
+          <Route
+            path="/products/:id"
+            element={<ManageProducts data={data} />}
+          />
           <Route path="/test" element={<TestPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
