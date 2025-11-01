@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import imgUrl from "../../assets/img/pentegrasyon.png";
+import imgUrl from "../../assets/img/bg-4.png";
 
 const GlassFrame = ({ component, className, className2 }) => {
   return (
