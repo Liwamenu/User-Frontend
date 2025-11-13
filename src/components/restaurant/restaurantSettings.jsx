@@ -15,10 +15,14 @@ const RestaurantSettings = ({ data }) => {
 
   return (
     <div className="w-full py-5 mt-3 bg-[--white-1] rounded-lg text-[--black-2]">
-      <div className="flex flex-col">
-        <h1 className="self-center text-2xl font-bold">Ayarlar</h1>
+      <div className="flex flex-col px-4 sm:px-14 ">
+        <h1 className="text-2xl font-bold">
+          Ayarlar{" "}
+          <span className="text-[--primary-1]"> {restaurantData.name} </span>
+          Restoranı
+        </h1>
 
-        <form onSubmit={handleSubmit} className="px-4 sm:px-14 mt-6 space-y-4">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div className="max-w-md">
             <CustomInput
               type="number"

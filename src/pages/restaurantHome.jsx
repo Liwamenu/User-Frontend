@@ -22,7 +22,11 @@ import PaymentMethods from "../components/restaurant/paymentMethods";
 import RestaurantSettings from "../components/restaurant/restaurantSettings";
 import ProductCategories from "../components/restaurant/productCategories";
 import ProductTags from "../components/restaurant/productTags";
-import ManageProducts from "../components/restaurant/products";
+import AddProducts from "../components/restaurant/addProducts";
+import SubCategories from "../components/restaurant/subCategories";
+import ProductOptions from "../components/restaurant/productOptions";
+import EditProduct from "../components/restaurant/editProduct";
+import EditProducts from "../components/restaurant/editProducts";
 
 const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   const location = useLocation();
@@ -78,10 +82,20 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
             path="/categories/:id"
             element={<ProductCategories data={data} />}
           />
-          <Route path="/tags/:id" element={<ProductTags data={data} />} />
           <Route
-            path="/products/:id"
-            element={<ManageProducts data={data} />}
+            path="/sub_categories/:id"
+            element={<SubCategories data={data} />}
+          />
+          <Route path="/tags/:id" element={<ProductTags data={data} />} />
+          <Route path="/options/:id" element={<ProductOptions data={data} />} />
+          <Route path="/products/:id" element={<EditProducts data={data} />} />
+          <Route
+            path="/products/:id/add-product"
+            element={<AddProducts data={data} />}
+          />
+          <Route
+            path="/products/:id/edit/:prodId"
+            element={<EditProduct data={data} />}
           />
           <Route path="/test" element={<TestPage />} />
           <Route path="*" element={<NotFound />} />

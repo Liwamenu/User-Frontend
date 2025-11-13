@@ -17,7 +17,7 @@ import {
   resetSetPaymentMethods,
 } from "../../redux/restaurant/setPaymentMethodsSlice";
 
-const PaymentMethods = () => {
+const PaymentMethods = ({ data: restaurant }) => {
   const dispatch = useDispatch();
   const id = useParams()["*"].split("/")[1];
   const { data } = useSelector((s) => s.restaurant.getPaymentMethods);
@@ -78,8 +78,12 @@ const PaymentMethods = () => {
 
   return (
     <div className="w-full p-5 mt-3 bg-[--white-1] rounded-lg text-[--black-2]">
-      <div className="flex flex-col">
-        <h1 className="self-center text-2xl font-bold">Ödeme Yöntemleri</h1>
+      <div className="flex flex-col px-4 sm:px-14">
+        <h1 className="text-2xl font-bold">
+          Ödeme Yöntemleri{" "}
+          <span className="text-[--primary-1]"> {restaurant.name} </span>
+          Restoranı
+        </h1>
 
         {paymentMethodsData && (
           <div className="mt-10">
@@ -97,7 +101,7 @@ const PaymentMethods = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="px-4 sm:px-14 mt-6 space-y-5">
+        <form onSubmit={handleSubmit} className=" mt-6 space-y-5">
           {paymentMethodsData && (
             <div className="flex flex-col gap-2">
               {paymentMethodsData.map((M, i) => (

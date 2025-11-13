@@ -1,0 +1,16 @@
+export default [
+  { value: "Mercimek Çorbası", label: "Mercimek Çorbası" },
+  { value: "Ezogelin Çorbası", label: "Ezogelin Çorbası" },
+  { value: "Kuru Fasulye", label: "Kuru Fasulye" },
+  { value: "Et Sote", label: "Et Sote" },
+  { value: "Tavuk Şiş", label: "Tavuk Şiş" },
+  { value: "Bulgur Pilavı", label: "Bulgur Pilavı" },
+  { value: "İç Pilav", label: "İç Pilav" },
+  { value: "Nohutlu Pilav", label: "Nohutlu Pilav" },
+  { value: "Mantı", label: "Mantı" },
+  { value: "Gözleme", label: "Gözleme" },
+  { value: "Lahmacun", label: "Lahmacun" },
+  { value: "Baklava", label: "Baklava" },
+  { value: "Künefe", label: "Künefe" },
+  { value: "Sütlaç", label: "Sütlaç" },
+];

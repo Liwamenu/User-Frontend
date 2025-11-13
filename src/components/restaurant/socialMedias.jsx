@@ -1,7 +1,7 @@
 //MODULES
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 //COMP
@@ -19,7 +19,7 @@ import {
   resetSetSocialMedias,
 } from "../../redux/restaurant/setSocialMediasSlice";
 
-const SocialMedias = () => {
+const SocialMedias = ({ data: restaurant }) => {
   const dispatch = useDispatch();
   const id = useParams()["*"].split("/")[1];
   const { data } = useSelector((s) => s.restaurant.getSocialMedias);
@@ -58,14 +58,29 @@ const SocialMedias = () => {
 
   return (
     <div className="w-full py-5 mt-3 bg-[--white-1] rounded-lg text-[--black-2]">
-      <div className="flex flex-col">
-        <h1 className="self-center text-2xl font-bold">Sosyal Medya</h1>
+      <div className="flex flex-col px-4 sm:px-14 ">
+        <h1 className="text-2xl font-bold">
+          Sosyal Medya{" "}
+          <span className="text-[--primary-1]"> {restaurant.name} </span>
+          Restoranı
+        </h1>
 
-        <form onSubmit={handleSubmit} className="px-4 sm:px-14 mt-6 space-y-5">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-5">
           <div className="w-full space-y-5">
             <div className="flex items-center gap-2">
               <FiFacebook />
               <CustomInput
+                label={
+                  <a
+                    href={
+                      socialMediasData?.facebookUrl || "https://facebook.com"
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Facebook
+                  </a>
+                }
                 value={socialMediasData?.facebookUrl || ""}
                 className="mt-[0] sm:mt-[0]"
                 className2="mt-[0] sm:mt-[0]"
@@ -83,6 +98,17 @@ const SocialMedias = () => {
             <div className="flex items-center gap-2">
               <FiInstagram />
               <CustomInput
+                label={
+                  <a
+                    href={
+                      socialMediasData?.instagramUrl || "https://instagram.com"
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Instagram
+                  </a>
+                }
                 value={socialMediasData?.instagramUrl || ""}
                 className="mt-[0] sm:mt-[0]"
                 className2="mt-[0] sm:mt-[0]"
@@ -100,7 +126,16 @@ const SocialMedias = () => {
             <div className="flex items-center gap-2">
               <BsTiktok />
               <CustomInput
-                value={socialMediasData?.tiktokUrl || ""}
+                label={
+                  <a
+                    href={socialMediasData?.tiktokUrl || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    TikTok
+                  </a>
+                }
+                value={socialMediasData?.tiktokUrl || "https://tiktok.com"}
                 className="mt-[0] sm:mt-[0]"
                 className2="mt-[0] sm:mt-[0]"
                 placeholder="https://tiktok.com/sayfanız"
@@ -117,6 +152,15 @@ const SocialMedias = () => {
             <div className="flex items-center gap-2">
               <FiYoutube />
               <CustomInput
+                label={
+                  <a
+                    href={socialMediasData?.youtubeUrl || "https://youtube.com"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    YouTube
+                  </a>
+                }
                 value={socialMediasData?.youtubeUrl || ""}
                 className="mt-[0] sm:mt-[0]"
                 className2="mt-[0] sm:mt-[0]"
@@ -134,10 +178,22 @@ const SocialMedias = () => {
             <div className="flex items-center gap-2">
               <BsWhatsapp />
               <CustomInput
+                label={
+                  <a
+                    href={
+                      socialMediasData?.whatsappUrl ||
+                      "https://wa.me/" + restaurant.phoneNumber
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    WhatsApp
+                  </a>
+                }
                 value={socialMediasData?.whatsappUrl || ""}
                 className="mt-[0] sm:mt-[0]"
                 className2="mt-[0] sm:mt-[0]"
-                placeholder="https://whatsapp.com/sayfanız"
+                placeholder={"https://wa.me/" + restaurant.phoneNumber}
                 onChange={(e) =>
                   setSocialMediasData((prev) => {
                     return {

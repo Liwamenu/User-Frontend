@@ -28,7 +28,7 @@ const dayDefs = [
   { label: "Pazar", day: 7 },
 ];
 
-const WorkingHours = () => {
+const WorkingHours = ({ data: restaurant }) => {
   const dispatch = useDispatch();
   const id = useParams()["*"].split("/")[1];
 
@@ -130,10 +130,14 @@ const WorkingHours = () => {
 
   return (
     <div className="w-full py-5 mt-3 bg-[--white-1] rounded-lg text-[--black-2]">
-      <div className="flex flex-col">
-        <h1 className="self-center text-2xl font-bold">Çalışma Saatleri</h1>
+      <div className="flex flex-col px-4 sm:px-14 ">
+        <h1 className="text-2xl font-bold">
+          Çalışma Saatleri{" "}
+          <span className="text-[--primary-1]"> {restaurant.name} </span>
+          Restoranı
+        </h1>
 
-        <form onSubmit={handleSubmit} className="px-4 sm:px-14 mt-6 space-y-5">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-5">
           {dayDefs.map(({ label, day }) => {
             const row = rows.find((r) => r.day === day) || {};
             const disabled = row.isClosed;

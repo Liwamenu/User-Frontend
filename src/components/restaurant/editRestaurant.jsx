@@ -379,7 +379,7 @@ const EditRestaurant = ({ data: restaurant }) => {
 
   return (
     <div className=" w-full py-8 mt-7 bg-[--white-1] rounded-lg text-[--black-2] text-base overflow-visible relative">
-      <div className="flex flex-col bg-[--white-1] relative">
+      <div className="flex flex-col bg-[--white-1] px-4 sm:px-14 relative">
         <div
           className={`absolute bg-black/15 w-full -top-12 -bottom-8 z-[999] rounded-lg flex flex-col justify-start items-center ${
             !isMapOpen && "hidden"
@@ -421,8 +421,12 @@ const EditRestaurant = ({ data: restaurant }) => {
           </div>
         </div>
 
-        <h1 className="self-center text-2xl font-bold">Restoranı Düzenle</h1>
-        <div className="flex flex-col px-4 sm:px-14 mt-9 w-full text-left">
+        <h1 className="text-2xl font-bold">
+          Restoranı Düzenle
+          <span className="text-[--primary-1]"> {restaurantData.name} </span>
+          Restoranı
+        </h1>
+        <div className="flex flex-col mt-9 w-full text-left">
           {restaurantData && (
             <form onSubmit={handleSubmit}>
               <div className="flex gap-4">

@@ -8,7 +8,6 @@ import logo from "../../assets/img/logo.png";
 
 // ICONS
 import {
-  ParamsI,
   GobackI,
   EditI,
   TemplatesI,
@@ -19,10 +18,13 @@ import {
   DebitI,
   WaitI,
   SettingsI,
+  Bars4SubI,
+  ListI,
 } from "../../assets/icon/index";
 
 //COMP
 import { usePopup } from "../../context/PopupContext";
+import Bars4I from "../../assets/icon/bars4";
 
 function Sidebar({ openSidebar, setOpenSidebar }) {
   const param = useParams();
@@ -67,22 +69,34 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
       path: "payments",
     },
     {
-      icon: <ParamsI />,
+      icon: <Bars4I />,
       text: "Katagoriler",
       to: `/restaurant/categories/${id}`,
       path: "categories",
     },
     {
-      icon: <PaymentI />,
-      text: "Ürünler",
-      to: `/restaurant/products/${id}`,
-      path: "products",
+      icon: <Bars4SubI />,
+      text: "Alt Katagoriler",
+      to: `/restaurant/sub_categories/${id}`,
+      path: "sub_categories",
     },
     {
       icon: <LicenseI />,
       text: "Etiketler",
       to: `/restaurant/tags/${id}`,
       path: "tags",
+    },
+    {
+      icon: <LicenseI />,
+      text: "Seçimler",
+      to: `/restaurant/options/${id}`,
+      path: "options",
+    },
+    {
+      icon: <ListI />,
+      text: "Ürünler",
+      to: `/restaurant/products/${id}`,
+      path: "products",
     },
     {
       icon: <TemplatesI />,
