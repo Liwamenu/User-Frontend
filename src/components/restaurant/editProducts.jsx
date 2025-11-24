@@ -3,7 +3,8 @@ import CustomToggle from "../common/customToggle";
 import CustomInput from "../common/customInput";
 import { formatToPrice } from "../../utils/utils";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import products from "../../assets/json/products";
+import Products from "../../assets/js/Products.json";
+// /* before it was */ import Products from "../../assets/json/products.js";
 import isEqual from "lodash/isEqual";
 import { ArrowIR } from "../../assets/icon";
 
@@ -32,9 +33,11 @@ const EditProducts = ({ data: restaurant }) => {
   };
 
   useEffect(() => {
+    // Products.json exports an object { Products: [...] }
+    const productsList = Products?.Products || [];
     // initialize editable local copy
     setList(
-      (products || []).map((p) => ({
+      productsList.map((p) => ({
         ...p,
         portions: (p.portions || []).map((pt) => ({
           ...pt,
@@ -43,18 +46,20 @@ const EditProducts = ({ data: restaurant }) => {
         })),
       }))
     );
-  }, [products]);
+  }, [Products]);
 
-  // Submit: find changed products (deep compare with original products) and console them
+  // Submit: find changed Products (deep compare with original Products) and console them
   const handleSaveAll = () => {
+    const productsList = Products?.Products || [];
     const changed = list.filter((prod) => {
-      const orig = products.find((p) => p.id === prod.id);
+      const orig = productsList.find((p) => p.id === prod.id);
       // if no original (new product) consider changed
       if (!orig) return true;
       return !isEqual(prod, orig);
     });
 
-    console.log("Changed products:", changed);
+    console.log("Changed Products:", changed);
+    console.log("Original Products:", productsList);
   };
 
   // Fast navigation: Enter or ArrowDown => next input, ArrowUp => previous input
@@ -86,7 +91,7 @@ const EditProducts = ({ data: restaurant }) => {
       <div className="px-4 max-w-6xl mx-auto" ref={containerRef}>
         <h1 className="self-center text-2xl font-bold mb-4">
           Ürünleri Düzenle{" "}
-          <span className="text-[--primary-1]"> {restaurant.name} </span>
+          <span className="text-[--primary-1]"> {restaurant?.name} </span>
           Restoranı
         </h1>
 

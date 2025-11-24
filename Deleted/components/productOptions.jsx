@@ -46,7 +46,7 @@ const ProductOptions = ({ data: restaurant, optsData }) => {
       <div className="flex flex-col px-4 sm:px-14">
         <h1 className="text-2xl font-bold">
           Ürün Seçenekler{" "}
-          <span className="text-[--primary-1]"> {restaurant.name} </span>
+          <span className="text-[--primary-1]"> {restaurant?.name} </span>
           Restoranı
         </h1>
 

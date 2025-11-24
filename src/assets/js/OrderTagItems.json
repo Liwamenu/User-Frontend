@@ -1,0 +1,53 @@
+{
+  "orderTagItems": [
+    {
+      "id": "some-ordertagitem-id-1",
+      "orderTagId": "some-ordertag-id-3",
+      "name": "Cappy (330 ml)",
+      "price": 5.0,
+      "maxQuantity": 1
+    },
+    {
+      "id": "some-ordertagitem-id-2",
+      "orderTagId": "some-ordertag-id-3",
+      "name": "Turk Kahvesi",
+      "price": 7.0,
+      "maxQuantity": 1
+    },
+    {
+      "id": "some-ordertagitem-id-3",
+      "orderTagId": "some-ordertag-id-3",
+      "name": "Cay",
+      "price": 3.0,
+      "maxQuantity": 1
+    },
+    {
+      "id": "some-ordertagitem-id-4",
+      "orderTagId": "some-ordertag-id-1",
+      "name": "Acı Biber",
+      "price": 0.0,
+      "maxQuantity": 1
+    },
+    {
+      "id": "some-ordertagitem-id-5",
+      "orderTagId": "some-ordertag-id-1",
+      "name": "Tatlı Biber",
+      "price": 0.0,
+      "maxQuantity": 1
+    },
+    {
+      "id": "some-ordertagitem-id-6",
+      "orderTagId": "some-ordertag-id-2",
+      "name": "Domates Sosu",
+      "price": 0.0,
+      "maxQuantity": 1
+    },
+    {
+      "id": "some-ordertagitem-id-7",
+      "orderTagId": "some-ordertag-id-2",
+      "name": "Sarımsaklı Sos",
+      "price": 0.0,
+      "maxQuantity": 1
+    }
+  ]
+}

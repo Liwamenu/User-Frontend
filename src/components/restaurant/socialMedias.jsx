@@ -61,7 +61,7 @@ const SocialMedias = ({ data: restaurant }) => {
       <div className="flex flex-col px-4 sm:px-14 ">
         <h1 className="text-2xl font-bold">
           Sosyal Medya{" "}
-          <span className="text-[--primary-1]"> {restaurant.name} </span>
+          <span className="text-[--primary-1]"> {restaurant?.name} </span>
           Restoranı
         </h1>
 
@@ -72,6 +72,7 @@ const SocialMedias = ({ data: restaurant }) => {
               <CustomInput
                 label={
                   <a
+                    className="text-[--primary-1]"
                     href={
                       socialMediasData?.facebookUrl || "https://facebook.com"
                     }
@@ -100,6 +101,7 @@ const SocialMedias = ({ data: restaurant }) => {
               <CustomInput
                 label={
                   <a
+                    className="text-[--primary-1]"
                     href={
                       socialMediasData?.instagramUrl || "https://instagram.com"
                     }
@@ -128,6 +130,7 @@ const SocialMedias = ({ data: restaurant }) => {
               <CustomInput
                 label={
                   <a
+                    className="text-[--primary-1]"
                     href={socialMediasData?.tiktokUrl || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -154,6 +157,7 @@ const SocialMedias = ({ data: restaurant }) => {
               <CustomInput
                 label={
                   <a
+                    className="text-[--primary-1]"
                     href={socialMediasData?.youtubeUrl || "https://youtube.com"}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -180,9 +184,10 @@ const SocialMedias = ({ data: restaurant }) => {
               <CustomInput
                 label={
                   <a
+                    className="text-[--primary-1]"
                     href={
                       socialMediasData?.whatsappUrl ||
-                      "https://wa.me/" + restaurant.phoneNumber
+                      "https://wa.me/" + restaurant?.phoneNumber
                     }
                     target="_blank"
                     rel="noopener noreferrer"
@@ -193,7 +198,7 @@ const SocialMedias = ({ data: restaurant }) => {
                 value={socialMediasData?.whatsappUrl || ""}
                 className="mt-[0] sm:mt-[0]"
                 className2="mt-[0] sm:mt-[0]"
-                placeholder={"https://wa.me/" + restaurant.phoneNumber}
+                placeholder={"https://wa.me/" + restaurant?.phoneNumber}
                 onChange={(e) =>
                   setSocialMediasData((prev) => {
                     return {
@@ -209,7 +214,7 @@ const SocialMedias = ({ data: restaurant }) => {
           <div className="w-full flex justify-end">
             <button
               type="submit"
-              className="w-full sm:w-auto px-6 py-3 rounded-md bg-[--primary-1] text-[--white-1] font-semibold"
+              className="w-full sm:w-auto px-6 py-3 rounded-md bg-[--primary-1] text-white font-semibold"
             >
               Kaydet
             </button>

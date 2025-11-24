@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Route, Routes, useLocation, useParams } from "react-router-dom";
 
 //COMP
-import Sidebar from "../components/sidebar_2/sidebar_2";
+import Sidebar from "../components/subSidebar/subSidebar";
 
 //REDUX
 import {
@@ -20,13 +20,14 @@ import WorkingHours from "../components/restaurant/workingHours";
 import SocialMedias from "../components/restaurant/socialMedias";
 import PaymentMethods from "../components/restaurant/paymentMethods";
 import RestaurantSettings from "../components/restaurant/restaurantSettings";
-import ProductCategories from "../components/restaurant/productCategories";
-import ProductTags from "../components/restaurant/productTags";
+import ProductCategories from "../components/restaurant/categories";
 import AddProducts from "../components/restaurant/addProducts";
-import SubCategories from "../components/restaurant/subCategories";
-import ProductOptions from "../components/restaurant/productOptions";
 import EditProduct from "../components/restaurant/editProduct";
 import EditProducts from "../components/restaurant/editProducts";
+import EditSubCategories from "../components/restaurant/editSubCategories";
+import AddSubCategories from "../components/restaurant/addSubCategories";
+import EditOrderTagsAndItems from "../components/restaurant/editOrderTagsAndItems";
+import AddOrderTagsAndItems from "../components/restaurant/addOrderTagsAndItems";
 
 const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   const location = useLocation();
@@ -83,11 +84,21 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
             element={<ProductCategories data={data} />}
           />
           <Route
-            path="/sub_categories/:id"
-            element={<SubCategories data={data} />}
+            path="/sub_categories/:id/edit"
+            element={<EditSubCategories data={data} />}
           />
-          <Route path="/tags/:id" element={<ProductTags data={data} />} />
-          <Route path="/options/:id" element={<ProductOptions data={data} />} />
+          <Route
+            path="/sub_categories/:id/add"
+            element={<AddSubCategories data={data} />}
+          />
+          <Route
+            path="/tags/:id/edit"
+            element={<EditOrderTagsAndItems data={data} />}
+          />
+          <Route
+            path="/tags/:id/add"
+            element={<AddOrderTagsAndItems data={data} />}
+          />
           <Route path="/products/:id" element={<EditProducts data={data} />} />
           <Route
             path="/products/:id/add-product"

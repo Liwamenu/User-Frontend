@@ -8,10 +8,7 @@ import { GobackI } from "../../assets/icon";
 import MinuteCountdown from "./minuteCountdown";
 import LoadingI from "../../assets/anim/loading";
 import VerificationInputs from "./customVerificationInputs";
-import { EmailUserMessage, PhoneUserMessage } from "./messages";
-
-//FUNC
-import { spacePhoneNumber } from "../../utils/utils";
+import { EmailUserMessage } from "./messages";
 
 //REDUX
 import {

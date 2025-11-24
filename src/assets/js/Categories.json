@@ -1,0 +1,64 @@
+{
+  "categories": [
+    {
+      "name": "Corbalar",
+      "id": "xncd-sfsfsfs-gsgg23-skroewt",
+      "image": "",
+      "sortOrder": 0
+    },
+    {
+      "name": "AnaYemekler",
+      "id": "xncd-sfsfsfs-gsgg23-skroethgh",
+      "image": "",
+      "sortOrder": 1
+    },
+    {
+      "name": "Pilavlar",
+      "id": "xncd-fdfvf-3ffxd5h-fdfdf5",
+      "image": "",
+      "sortOrder": 2
+    },
+    {
+      "name": "HamurIsleri",
+      "id": "xncd-ffdf656-dd89fd-ffdfv1",
+      "image": "",
+      "sortOrder": 3
+    },
+    {
+      "name": "DenizUrunleri",
+      "id": "xncd-ffdf656-dd89fd-ffdfv2",
+      "image": "",
+      "sortOrder": 4
+    },
+    {
+      "name": "Zeytinyaglilar",
+      "id": "xncd-ffdf656-dd89fd-ffdfv3",
+      "image": "",
+      "sortOrder": 5
+    },
+    {
+      "name": "Tatlilar",
+      "id": "xncd-ffdf656-dd89fd-ffdfv4",
+      "image": "",
+      "sortOrder": 6
+    },
+    {
+      "name": "Salatalar",
+      "id": "xncd-ffdf656-dd89fd-ffdfv5",
+      "image": "",
+      "sortOrder": 7
+    },
+    {
+      "name": "Mezeler",
+      "id": "xncd-ffdf656-dd89fd-ffdfv6",
+      "image": "",
+      "sortOrder": 8
+    },
+    {
+      "name": "Icecekler",
+      "id": "xncd-ffdf656-dd89fd-ffdfv7",
+      "image": "",
+      "sortOrder": 9
+    }
+  ]
+}

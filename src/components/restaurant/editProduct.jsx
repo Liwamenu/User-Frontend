@@ -1,44 +1,44 @@
+//MODULES
 import { useEffect, useState } from "react";
-import CustomSelect from "../common/customSelector";
-import CustomInput from "../common/customInput";
-import CustomFileInput from "../common/customFileInput";
-import CustomToggle from "../common/customToggle";
-import { formatToPrice } from "../../utils/utils";
-import { ArrowIL, DeleteI } from "../../assets/icon";
-import subCats from "../../assets/json/subcats";
-import cats from "../../assets/json/categories";
-import etikets from "../../assets/json/etikets";
-import options from "../../assets/json/options";
-import burger from "../../assets/img/burger.jpg";
 import { Link, useLocation, useParams } from "react-router-dom";
+
+//COMP
+import CustomInput from "../common/customInput";
+import CustomToggle from "../common/customToggle";
+import CustomSelect from "../common/customSelector";
+import { ArrowIL, DeleteI } from "../../assets/icon";
 import CustomTextarea from "../common/customTextarea";
+import CustomFileInput from "../common/customFileInput";
+
+//FUNC
+import { formatToPrice } from "../../utils/utils";
+
+//DUMMy DATA
+import categories from "../../assets/js/Categories.json";
+import subCategories from "../../assets/js/SubCategories.json";
+import orderTags from "../../assets/js/OrderTags.json";
+import orderTagItems from "../../assets/js/OrderTagItems.json";
 
 const EditProduct = ({ data: restaurant }) => {
   const [preview, setPreview] = useState(null);
   const { id, prodId } = useParams();
   const location = useLocation();
   const product = location.state?.product;
-  // console.log(prodId);
+  console.log(product);
   // console.log(id);
+  const formattedCatsForSelect = categories.categories.map((cat) => ({
+    value: cat.id,
+    label: cat.name,
+    ...cat,
+  }));
 
-  const [prodData, setProdData] = useState(
-    product || {
-      url: burger,
-      category: "Çorbalar",
-      subCategory: "Et Sote",
-      name: "Burger",
-      description: "This is a delicious burger",
-      recommendation: false,
-      hide: false,
-      portions: [
-        {
-          name: "Normal",
-          price: 2,
-          orderTags: [],
-        },
-      ],
-    }
-  );
+  const formattedOrderTagsForSelect = orderTags.orderTags.map((tag) => ({
+    value: tag.id,
+    label: tag.name,
+    ...tag,
+  }));
+
+  const [prodData, setProdData] = useState(product);
 
   // ---- PORTIONS ----
   const addPortion = () => {
@@ -130,7 +130,7 @@ const EditProduct = ({ data: restaurant }) => {
 
         <h1 className="self-center text-2xl font-bold">
           Ürün Düzenle{" "}
-          <span className="text-[--primary-1]"> {restaurant.name} </span>
+          <span className="text-[--primary-1]"> {restaurant?.name} </span>
           Restoranı
         </h1>
 
@@ -165,31 +165,44 @@ const EditProduct = ({ data: restaurant }) => {
                     style={{ padding: "1px 0px" }}
                     className2="py-[.45rem] text-sm mt-[0] sm:mt-[0]"
                     value={{
-                      value: prodData.category,
-                      label: prodData.category,
+                      value: prodData.categoryId,
+                      label: prodData.categoryName,
                     }}
-                    options={cats}
+                    options={formattedCatsForSelect}
                     onChange={(e) => {
                       const updated = { ...prodData };
-                      updated.category = e.label;
+                      updated.categoryId = e.value;
+                      updated.categoryName = e.label;
+                      // Reset sub-category when category changes
+                      updated.subCategoryId = "";
+                      updated.subCategoryName = "";
                       setProdData(updated);
                     }}
                   />
 
                   <CustomSelect
-                    required
+                    // required
                     label="Alt Kategory"
                     placeholder="Alt Kategory"
                     style={{ padding: "1px 0px" }}
                     className2="py-[.45rem] text-sm mt-[0] sm:mt-[0]"
                     value={{
-                      value: prodData.subCategory,
-                      label: prodData.subCategory,
+                      value: prodData.subCategoryId,
+                      label: prodData.subCategoryName,
                     }}
-                    options={subCats}
+                    options={subCategories.subCategories
+                      .filter(
+                        (subCat) => subCat.categoryId === prodData.categoryId
+                      )
+                      .map((subCat) => ({
+                        value: subCat.id,
+                        label: subCat.name,
+                        ...subCat,
+                      }))}
                     onChange={(e) => {
                       const updated = { ...prodData };
-                      updated.subCategory = e.value;
+                      updated.subCategoryId = e.value;
+                      updated.subCategoryName = e.label;
                       setProdData(updated);
                     }}
                   />
@@ -254,15 +267,6 @@ const EditProduct = ({ data: restaurant }) => {
               {/* Portions */}
               <div>
                 <h3 className="font-semibold mt-4 mb-2">Porsiyonlar</h3>
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={addPortion}
-                    className="text-sm mb-2 text-blue-600"
-                  >
-                    + Porsiyon Ekle
-                  </button>
-                </div>
 
                 {prodData.portions.map((portion, pIndex) => (
                   <div key={pIndex} className="border p-3 rounded mb-2">
@@ -288,7 +292,7 @@ const EditProduct = ({ data: restaurant }) => {
                         placeholder="Porsiyon Fiyatı"
                         className="py-[.45rem] text-sm "
                         className2="py-[.45rem] text-sm mt-[0] sm:mt-[0]"
-                        value={formatToPrice(portion.price)}
+                        value={formatToPrice(portion.price) ?? 0}
                         onChange={(e) => {
                           const updated = { ...prodData };
                           updated.portions[pIndex].price = e;
@@ -300,7 +304,7 @@ const EditProduct = ({ data: restaurant }) => {
                         className="text-sm text-[--red-1] flex items-center text-nowrap cursor-pointer pt-6"
                         onClick={() => deletePortion(pIndex)}
                       >
-                        {pIndex !== 0 && (
+                        {prodData.portions.length > 1 && (
                           <div className="flex items-center gap-1">
                             <p>Porsiyonu Sil</p>
                             <DeleteI className=" size-[1rem]" />
@@ -323,29 +327,55 @@ const EditProduct = ({ data: restaurant }) => {
                           key={tIndex}
                           className="border mt-2 ml-4 px-2 rounded"
                         >
-                          <div className="flex w-full justify-between">
+                          <div className="flex w-full justify-between gap-2">
                             <CustomSelect
                               required
                               label="Etiket Adı (ör: Baharat Seçimi)"
                               placeholder="Etiket Adı (ör: Baharat Seçimi)"
-                              style={{ padding: "1px 0px" }}
-                              className2="py-[.45rem] text-sm mt-[0] sm:mt-[0]  max-w-64"
+                              style={{ padding: "0px 0px" }}
+                              className={"mt-[0.3rem] sm:mt-[0.3rem]"}
+                              className2="text-sm mt-[0] sm:mt-[0]  max-w-64"
                               value={{
                                 value: tag.name || null,
                                 label: tag.name || "Alt Kategory Seç",
                               }}
-                              options={etikets}
+                              options={formattedOrderTagsForSelect}
                               onChange={(e) => {
                                 const updated = { ...prodData };
-                                updated.portions[pIndex].orderTags[
-                                  tIndex
-                                ].name = e.label;
+                                updated.portions[pIndex].orderTags[tIndex] = {
+                                  id: e.value,
+                                  name: e.label,
+                                  minSelected: e.minSelected,
+                                  maxSelected: e.maxSelected,
+                                  orderTagItems: [],
+                                };
                                 setProdData(updated);
                               }}
                             />
 
+                            <div>
+                              <CustomInput
+                                readOnly
+                                label="Min Seçim"
+                                placeholder="Min Seçim"
+                                className="mt-[0.3rem] sm:mt-[0.3rem] py-[.5rem] border-none cursor-not-allowed"
+                                className2="text-sm mt-[0] sm:mt-[0]"
+                                value={tag.minSelected}
+                              />
+                            </div>
+                            <div>
+                              <CustomInput
+                                readOnly
+                                label="Max Seçim"
+                                placeholder="Max Seçim"
+                                className="mt-[0.3rem] sm:mt-[0.3rem] py-[.5rem] border-none cursor-not-allowed"
+                                className2="text-sm mt-[0] sm:mt-[0]"
+                                value={tag.maxSelected}
+                              />
+                            </div>
+
                             <div
-                              className="text-sm text-[--red-1] flex items-center text-nowrap cursor-pointer"
+                              className="text-sm text-[--red-1] flex items-start text-nowrap cursor-pointer"
                               onClick={() => deleteOrderTag(pIndex, tIndex)}
                             >
                               <div className="flex items-center gap-1">
@@ -369,40 +399,50 @@ const EditProduct = ({ data: restaurant }) => {
                               "border border-[--border-1]"
                             } px-1 mb-1 rounded ml-4`}
                           >
-                            {tag.orderTagItems.map((item, iIndex) => (
+                            {tag?.orderTagItems?.map((item, iIndex) => (
                               <div key={iIndex} className="flex gap-2 my-1">
+                                <CustomSelect
+                                  required
+                                  label={iIndex === 0 ? "Seçenek Adı" : ""}
+                                  placeholder="Seçenek Adı"
+                                  style={{ padding: "1px 0px" }}
+                                  className="text-sm mt-[0] sm:mt-[0]"
+                                  className2="py-[0] text-sm mt-[0] sm:mt-[0]"
+                                  value={{
+                                    value: item.id || null,
+                                    label: item.name || "Seçenek Seç",
+                                  }}
+                                  options={orderTagItems.orderTagItems
+                                    .filter(
+                                      (otItem) => otItem.orderTagId === tag.id
+                                    )
+                                    .map((otItem) => ({
+                                      value: otItem.id,
+                                      label: otItem.name,
+                                      ...otItem,
+                                    }))}
+                                  onChange={(e) => {
+                                    const updated = { ...prodData };
+                                    updated.portions[pIndex].orderTags[
+                                      tIndex
+                                    ].orderTagItems[iIndex] = {
+                                      id: e.value,
+                                      name: e.label,
+                                      price: e.price,
+                                      maxQuantity: e.maxQuantity,
+                                    };
+                                    setProdData(updated);
+                                  }}
+                                />
                                 <div className="w-full flex gap-2 max-sm:flex-col">
-                                  <CustomSelect
-                                    required
-                                    // label="Seçenek Adı"
-                                    placeholder="Seçenek Adı"
-                                    style={{ padding: "1px 0px" }}
-                                    className="text-sm mt-[0] sm:mt-[0]"
-                                    className2="py-[0] text-sm mt-[0] sm:mt-[0]"
-                                    value={{
-                                      value: item.name || null,
-                                      label: item.name || "Seçenek Seç",
-                                    }}
-                                    options={options}
-                                    onChange={(e) => {
-                                      const updated = { ...prodData };
-                                      updated.portions[pIndex].orderTags[
-                                        tIndex
-                                      ].orderTagItems[iIndex].name = e.label;
-                                      updated.portions[pIndex].orderTags[
-                                        tIndex
-                                      ].orderTagItems[iIndex].price = e.price;
-                                      setProdData(updated);
-                                    }}
-                                  />
-
                                   <CustomInput
                                     readOnly
                                     type="number"
+                                    label={iIndex === 0 ? "Fiyat" : ""}
                                     placeholder="Fiyat"
-                                    className="py-[.45rem] text-sm mt-[0] sm:mt-[0] cursor-not-allowed"
+                                    className="py-[.45rem] text-sm mt-[0] sm:mt-[0] border-none cursor-not-allowed"
                                     className2="py-[0] text-sm mt-[0] sm:mt-[0]"
-                                    value={formatToPrice(item.price)}
+                                    value={formatToPrice(item.price) || "0.00"}
                                     onChange={(e) => {
                                       const updated = { ...prodData };
                                       updated.portions[pIndex].orderTags[
@@ -411,39 +451,22 @@ const EditProduct = ({ data: restaurant }) => {
                                       setProdData(updated);
                                     }}
                                   />
-                                </div>
-
-                                <div className="w-full flex gap-2 max-sm:flex-col">
                                   <CustomInput
+                                    readOnly
                                     type="number"
-                                    placeholder="En Az Seçimi"
-                                    className="py-[.45rem] text-sm mt-[0] sm:mt-[0]"
+                                    label={iIndex === 0 ? "Maks Seçimi" : ""}
+                                    placeholder="Maksimum Seçimi"
+                                    className="py-[.45rem] text-sm mt-[0] sm:mt-[0] border-none cursor-not-allowed"
                                     className2="py-[0] text-sm mt-[0] sm:mt-[0]"
-                                    value={item.minSelectedItems}
+                                    value={item.maxQuantity}
                                     onChange={(e) => {
                                       const updated = { ...prodData };
                                       updated.portions[pIndex].orderTags[
                                         tIndex
-                                      ].orderTagItems[iIndex].minSelectedItems =
-                                        e;
+                                      ].orderTagItems[iIndex].maxQuantity = e;
                                       setProdData(updated);
                                     }}
-                                  />
-                                  <CustomInput
-                                    type="number"
-                                    placeholder="En Fazla Seçimi"
-                                    className="py-[.45rem] text-sm mt-[0] sm:mt-[0]"
-                                    className2="py-[0] text-sm mt-[0] sm:mt-[0]"
-                                    value={item.maxSelectedItems}
-                                    onChange={(e) => {
-                                      const updated = { ...prodData };
-                                      updated.portions[pIndex].orderTags[
-                                        tIndex
-                                      ].orderTagItems[iIndex].maxSelectedItems =
-                                        e;
-                                      setProdData(updated);
-                                    }}
-                                  />
+                                  />{" "}
                                 </div>
 
                                 <div
@@ -465,6 +488,16 @@ const EditProduct = ({ data: restaurant }) => {
                     </div>
                   </div>
                 ))}
+
+                <div className="flex justify-start">
+                  <button
+                    type="button"
+                    onClick={addPortion}
+                    className="text-sm mb-2 text-blue-600"
+                  >
+                    + Porsiyon Ekle
+                  </button>
+                </div>
               </div>
             </main>
           )}

@@ -133,7 +133,7 @@ const WorkingHours = ({ data: restaurant }) => {
       <div className="flex flex-col px-4 sm:px-14 ">
         <h1 className="text-2xl font-bold">
           Çalışma Saatleri{" "}
-          <span className="text-[--primary-1]"> {restaurant.name} </span>
+          <span className="text-[--primary-1]"> {restaurant?.name} </span>
           Restoranı
         </h1>
 
@@ -194,7 +194,7 @@ const WorkingHours = ({ data: restaurant }) => {
           <div className="w-full flex justify-end">
             <button
               type="submit"
-              className="w-full sm:w-auto px-6 py-3 rounded-md bg-[--primary-1] text-[--white-1] font-semibold"
+              className="w-full sm:w-auto px-6 py-3 rounded-md bg-[--primary-1] text-white font-semibold"
             >
               Kaydet
             </button>

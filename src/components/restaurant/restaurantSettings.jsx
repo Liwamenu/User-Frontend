@@ -17,12 +17,15 @@ const RestaurantSettings = ({ data }) => {
     <div className="w-full py-5 mt-3 bg-[--white-1] rounded-lg text-[--black-2]">
       <div className="flex flex-col px-4 sm:px-14 ">
         <h1 className="text-2xl font-bold">
-          Ayarlar{" "}
+          Ayarlar
           <span className="text-[--primary-1]"> {restaurantData.name} </span>
           Restoranı
         </h1>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-2 max-lg:grid-cols-1 gap-x-4 gap-y-1"
+        >
           <div className="max-w-md">
             <CustomInput
               type="number"
@@ -78,7 +81,7 @@ const RestaurantSettings = ({ data }) => {
               placeholder="Örn: tr, en"
               style={{ borderRadius: ".125rem", padding: "0.1rem 0px" }}
               className="py-[.4rem] rounded-sm mt-[0] sm:mt-[0]"
-              className2="rounded-sm mt-[0] sm:mt-[0]"
+              className2="rounded-sm"
               value={
                 LanguagesEnums.find(
                   (L) => L.value == (restaurantData?.defaultLang ?? null)
@@ -102,8 +105,8 @@ const RestaurantSettings = ({ data }) => {
               label="Menu Dili Seçeneği"
               placeholder="Örn: tr, en"
               style={{ borderRadius: ".125rem", padding: "0.1rem 0px" }}
-              className="py-[.4rem] rounded-sm mt-[0] sm:mt-[0]"
-              className2="rounded-sm mt-[0] sm:mt-[0]"
+              className="py-[.4rem] rounded-sm  mt-[0] sm:mt-[0]"
+              className2="rounded-sm"
               value={
                 LanguagesEnums.find(
                   (L) => L.value == (restaurantData?.defaultLang ?? null)
@@ -126,7 +129,7 @@ const RestaurantSettings = ({ data }) => {
               type="text"
               label="Slogan 1"
               placeholder="Slogan 1 giriniz"
-              className="py-[.4rem] rounded-sm"
+              className="py-[.4rem] rounded-sm  mt-[0] sm:mt-[0]"
               value={restaurantData?.slogan1 ?? ""}
               onChange={(e) =>
                 setRestaurantData((prev) => {
@@ -144,7 +147,7 @@ const RestaurantSettings = ({ data }) => {
               type="text"
               label="Slogan 2"
               placeholder="Slogan 1 giriniz"
-              className="py-[.4rem] rounded-sm"
+              className="py-[.4rem] rounded-sm  mt-[0] sm:mt-[0]"
               value={restaurantData?.slogan2 ?? ""}
               onChange={(e) =>
                 setRestaurantData((prev) => {
@@ -157,7 +160,7 @@ const RestaurantSettings = ({ data }) => {
             />
           </div>
 
-          <div className="flex justify-between items-center max-w-md">
+          <div className="flex justify-between items-center max-w-md mt-4">
             <label className="font-medium">Masada Sipariş</label>
             <CustomToggle
               checked={restaurantData?.inPersonOrder}
@@ -172,7 +175,7 @@ const RestaurantSettings = ({ data }) => {
             />
           </div>
 
-          <div className="flex justify-between items-center max-w-md">
+          <div className="flex justify-between items-center max-w-md mt-4">
             <label className="font-medium">Online Sipariş</label>
             <CustomToggle
               checked={restaurantData?.onlineOrder}
@@ -187,7 +190,42 @@ const RestaurantSettings = ({ data }) => {
             />
           </div>
 
-          {/* Hide */}
+          <div className="max-w-md">
+            <CustomInput
+              type="text"
+              label="Masada Sipariş İskonto"
+              placeholder="Masada Sipariş İskonto giriniz"
+              className="py-[.4rem] rounded-sm mt-[0] sm:mt-[0]"
+              value={restaurantData?.table_order_discount_rate ?? ""}
+              onChange={(e) =>
+                setRestaurantData((prev) => {
+                  return {
+                    ...prev,
+                    table_order_discount_rate: e,
+                  };
+                })
+              }
+            />
+          </div>
+
+          <div className="max-w-md">
+            <CustomInput
+              type="text"
+              label="Online Sipariş İskonto"
+              placeholder="Online Sipariş İskonto giriniz"
+              className="py-[.4rem] rounded-sm mt-[0] sm:mt-[0]"
+              value={restaurantData?.online_order_discount_rate ?? ""}
+              onChange={(e) =>
+                setRestaurantData((prev) => {
+                  return {
+                    ...prev,
+                    online_order_discount_rate: e,
+                  };
+                })
+              }
+            />
+          </div>
+
           <div className="flex justify-between items-center max-w-md">
             <label className="font-medium">Restoranı Gizle</label>
             <CustomToggle

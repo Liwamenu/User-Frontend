@@ -77,20 +77,14 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
     {
       icon: <Bars4SubI />,
       text: "Alt Katagoriler",
-      to: `/restaurant/sub_categories/${id}`,
+      to: `/restaurant/sub_categories/${id}/edit`,
       path: "sub_categories",
     },
     {
       icon: <LicenseI />,
       text: "Etiketler",
-      to: `/restaurant/tags/${id}`,
+      to: `/restaurant/tags/${id}/edit`,
       path: "tags",
-    },
-    {
-      icon: <LicenseI />,
-      text: "Seçimler",
-      to: `/restaurant/options/${id}`,
-      path: "options",
     },
     {
       icon: <ListI />,

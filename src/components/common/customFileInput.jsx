@@ -4,7 +4,14 @@ import toast from "react-hot-toast";
 
 //image/png, image/jpeg, image/gif, application/pdf
 
-const CustomFileInput = ({ onChange, value, accept, className, required }) => {
+const CustomFileInput = ({
+  onChange,
+  value,
+  accept = "image/png, image/jpeg, image/gif, application/pdf",
+  className,
+  required,
+  msg,
+}) => {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = (event) => {
@@ -76,19 +83,21 @@ const CustomFileInput = ({ onChange, value, accept, className, required }) => {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <div className="flex flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center cursor-pointer">
         {!value ? (
-          <>
-            <CloudUI className="size-[2.5rem]" strokeWidth={1.5} />
-            <p className="mb-2 text-sm">
-              Restoran Logosu Yüklemek için
-              <span className="font-semibold"> tıklayın</span> veya
-              <span className="font-semibold"> sürükleyip bırakın</span>
-            </p>
-            <p className="text-xs">
-              {getReadableAcceptText(accept)} (MAX. 800x400px)
-            </p>
-          </>
+          msg || (
+            <>
+              <CloudUI className="size-[2.5rem]" strokeWidth={1.5} />
+              <p className="mb-2 text-sm">
+                Restoran Logosu Yüklemek için
+                <span className="font-semibold"> tıklayın</span> veya
+                <span className="font-semibold"> sürükleyip bırakın</span>
+              </p>
+              <p className="text-xs">
+                {getReadableAcceptText(accept)} (MAX. 800x400px)
+              </p>
+            </>
+          )
         ) : (
           <>
             <p className="mb-2 text-sm">

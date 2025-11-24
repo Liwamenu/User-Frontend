@@ -13,7 +13,7 @@ import Popup from "./components/common/popup";
 import ProtectedRoute from "./components/protect";
 import VerifyEmail from "./pages/verifyEmail";
 // import SetNewPassword from "./pages/setNewPassword";
-// import ForgotPassword from "./pages/forgotPassword";
+import ForgotPassword from "./pages/forgotPassword";
 // import PaymentSuccess from "./pages/paymentSuccess";
 // import SlideBar from "./components/common/slideBar";
 
@@ -31,8 +31,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verify-email/*" element={<VerifyEmail />} />
+        <Route path="/forgotPassword" element={<ForgotPassword />} />
         {/*  <Route path="/setNewPassword" element={<SetNewPassword />} />
-          <Route path="/forgotPassword" element={<ForgotPassword />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/privacyPolicy" element={<PrivacyPolicy />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />

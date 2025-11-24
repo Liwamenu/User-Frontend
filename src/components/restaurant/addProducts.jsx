@@ -1,52 +1,98 @@
+//MODULES
 import { useEffect, useState } from "react";
-import CustomSelect from "../common/customSelector";
-import CustomInput from "../common/customInput";
-import CustomFileInput from "../common/customFileInput";
-import CustomToggle from "../common/customToggle";
-import { formatToPrice } from "../../utils/utils";
-import { DeleteI } from "../../assets/icon";
-import subCats from "../../assets/json/subcats";
-import cats from "../../assets/json/categories";
-import etikets from "../../assets/json/etikets";
-import options from "../../assets/json/options";
 import { Link, useParams } from "react-router-dom";
+
+//COMP
+import { DeleteI } from "../../assets/icon";
+import CustomInput from "../common/customInput";
+import CustomToggle from "../common/customToggle";
+import CustomSelect from "../common/customSelector";
+import CustomFileInput from "../common/customFileInput";
+
+//FUNC
+import { formatToPrice } from "../../utils/utils";
+
+//DUMMy DATA
+import categories from "../../assets/js/Categories.json";
+import subCategories from "../../assets/js/SubCategories.json";
+import orderTags from "../../assets/js/OrderTags.json";
+import orderTagItems from "../../assets/js/OrderTagItems.json";
 
 const AddProducts = ({ data: restaurant }) => {
   const { id } = useParams();
   const [previews, setPreviews] = useState([]);
-  const [prods, setProds] = useState([
+  const [prodsData, setProdsData] = useState([
     {
-      image: "",
-      category: "",
-      subCategory: "",
+      // match Products.json fields for a new product
+      id: undefined,
+      sortOrder: 0,
       name: "",
+      image: null, // File
+      url: "", // optional url
       description: "",
-      recommendation: "",
-      hide: "",
+      recommendation: false,
+      hide: false,
+      categoryId: "",
+      categoryName: "",
+      categoryImage: "",
+      categorySortOrder: 0,
+      subCategoryId: "",
+      subCategoryName: "",
+      subCategorySortOrder: 0,
       portions: [
         {
+          id: undefined,
+          productId: undefined,
           name: "Normal",
-          price: "",
+          price: 0,
           orderTags: [],
         },
       ],
     },
   ]);
 
+  // prepare select options
+  const formattedCatsForSelect = (categories?.categories || []).map((cat) => ({
+    value: cat.id,
+    label: cat.name,
+    ...cat,
+  }));
+
+  const formattedOrderTagsForSelect = orderTags.orderTags.map((tag) => ({
+    value: tag.id,
+    label: tag.name,
+    ...tag,
+  }));
+
+  const getSubcatOptions = (categoryId) =>
+    (subCategories?.subCategories || [])
+      .filter((s) => s.categoryId === categoryId)
+      .map((sc) => ({ value: sc.id, label: sc.name, ...sc }));
+
   // ---- PRODUCT LEVEL ----
   const addProduct = () => {
-    setProds([
-      ...prods,
+    setProdsData([
+      ...prodsData,
       {
-        image: "",
-        category: "",
-        subCategory: "",
+        id: undefined,
+        sortOrder: 0,
         name: "",
+        image: null,
+        url: "",
         description: "",
         recommendation: false,
         hide: false,
+        categoryId: "",
+        categoryName: "",
+        categoryImage: "",
+        categorySortOrder: 0,
+        subCategoryId: "",
+        subCategoryName: "",
+        subCategorySortOrder: 0,
         portions: [
           {
+            id: undefined,
+            productId: undefined,
             name: "Normal",
             price: 0,
             orderTags: [],
@@ -57,60 +103,69 @@ const AddProducts = ({ data: restaurant }) => {
   };
 
   const deleteProduct = (index) => {
-    const updated = [...prods];
+    const updated = [...prodsData];
     updated.splice(index, 1);
-    setProds(updated);
+    setProdsData(updated);
   };
 
   // ---- PORTIONS ----
   const addPortion = (pIndex) => {
-    const updated = [...prods];
-    updated[pIndex].portions.push({ name: "", price: "", orderTags: [] });
-    setProds(updated);
+    const updated = [...prodsData];
+    updated[pIndex].portions.push({
+      id: undefined,
+      productId: undefined,
+      name: "",
+      price: 0,
+      orderTags: [],
+    });
+    setProdsData(updated);
   };
 
   const deletePortion = (pIndex, portionIndex) => {
-    const updated = [...prods];
+    const updated = [...prodsData];
     updated[pIndex].portions.splice(portionIndex, 1);
-    setProds(updated);
+    setProdsData(updated);
   };
 
   // ---- ORDER TAGS ----
   const addOrderTag = (pIndex, portionIndex) => {
-    const updated = [...prods];
+    const updated = [...prodsData];
     updated[pIndex].portions[portionIndex].orderTags.push({
+      id: undefined,
       name: "",
+      minSelected: 0,
+      maxSelected: 0,
       orderTagItems: [],
     });
-    setProds(updated);
+    setProdsData(updated);
   };
 
   const deleteOrderTag = (pIndex, portionIndex, tagIndex) => {
-    const updated = [...prods];
+    const updated = [...prodsData];
     updated[pIndex].portions[portionIndex].orderTags.splice(tagIndex, 1);
-    setProds(updated);
+    setProdsData(updated);
   };
 
   // ---- ORDER TAG ITEMS ----
   const addOrderTagItem = (pIndex, portionIndex, tagIndex) => {
-    const updated = [...prods];
+    const updated = [...prodsData];
     updated[pIndex].portions[portionIndex].orderTags[
       tagIndex
     ].orderTagItems.push({
+      id: undefined,
       name: "",
       price: "",
-      minSelectedItems: "",
-      maxSelectedItems: "",
+      maxQuantity: "",
     });
-    setProds(updated);
+    setProdsData(updated);
   };
 
   const deleteOrderTagItem = (pIndex, portionIndex, tagIndex, itemIndex) => {
-    const updated = [...prods];
+    const updated = [...prodsData];
     updated[pIndex].portions[portionIndex].orderTags[
       tagIndex
     ].orderTagItems.splice(itemIndex, 1);
-    setProds(updated);
+    setProdsData(updated);
   };
 
   // -- Handle Submit ---
@@ -120,20 +175,41 @@ const AddProducts = ({ data: restaurant }) => {
     try {
       const formData = new FormData();
       // Convert products array to JSON string and append it
-      const productsData = prods.map((product) => {
-        // Create a copy of the product without the image field
-        const { image, ...productWithoutImage } = product;
-        return productWithoutImage;
+      // Map internal product shape to Products.json-like payload (exclude File in image)
+      const productsData = prodsData.map((product) => {
+        const {
+          image, // File
+          url,
+          ...rest
+        } = product;
+
+        // ensure portions have numeric price
+        const portions = (rest.portions || []).map((pt) => ({
+          id: pt.id,
+          productId: pt.productId,
+          name: pt.name,
+          price: Number(pt.price) || 0,
+          orderTags: pt.orderTags || [],
+        }));
+
+        return {
+          ...rest,
+          image: url || null, // if you want to upload file, api should accept file separately
+          portions,
+        };
       });
 
       formData.append("productsData", JSON.stringify(productsData));
 
-      // Append each image separately with index
-      prods.forEach((product, index) => {
+      // Append each image file separately with index
+      prodsData.forEach((product, index) => {
         if (product.image) {
           formData.append(`image_${index}`, product.image);
         }
       });
+
+      // debug: show payload
+      console.log(productsData);
     } catch (error) {
       console.error("Error preparing form data:", error);
     }
@@ -141,28 +217,28 @@ const AddProducts = ({ data: restaurant }) => {
 
   //PREVIEW
   useEffect(() => {
-    const addProdsPeviews = prods.map((p) =>
-      p.image ? URL.createObjectURL(p.image) : null
+    const addProdsPeviews = prodsData.map((p) =>
+      p.image ? URL.createObjectURL(p.image) : p.url || null
     );
 
     setPreviews(addProdsPeviews);
     return () =>
       addProdsPeviews.forEach((url) => url && URL.revokeObjectURL(url));
-  }, [prods]);
+  }, [prodsData]);
 
   return (
     <section className="w-full py-4 bg-[--white-1] rounded-lg text-[--black-2]">
       <div className="px-4 max-w-6xl mx-auto">
         <h1 className="self-center text-2xl font-bold">
           Ürünler{" "}
-          <span className="text-[--primary-1]"> {restaurant.name} </span>
+          <span className="text-[--primary-1]"> {restaurant?.name} </span>{" "}
           Restoranı
         </h1>
 
         <div className="flex gap-2 my-3">
           <Link
             to={`/restaurant/products/${id}`}
-            className="text-white p-2 bg-[--light-3]"
+            className="text-[--black-1] p-2 bg-[--light-3]"
           >
             Ürünleri Düzenle
           </Link>
@@ -170,13 +246,13 @@ const AddProducts = ({ data: restaurant }) => {
         </div>
 
         <form onSubmit={handleProductsSubmit}>
-          {prods.map((product, index) => (
+          {prodsData.map((product, index) => (
             <main
               key={index}
               className="border border-[--primary-1] rounded p-4 mb-2"
             >
               {/* Delete product */}
-              {prods.length > 1 && (
+              {prodsData.length > 1 && (
                 <div
                   className="flex justify-end text-[--red-1] text-sm cursor-pointer mb-2"
                   onClick={() => deleteProduct(index)}
@@ -197,10 +273,12 @@ const AddProducts = ({ data: restaurant }) => {
                     required
                     className="h-[8rem] p-4"
                     value={product.image}
-                    onChange={(e) => {
-                      const updated = [...prods];
-                      updated[index].image = e;
-                      setProds(updated);
+                    onChange={(file) => {
+                      const updated = [...prodsData];
+                      updated[index].image = file;
+                      // clear url when user uploads file
+                      updated[index].url = "";
+                      setProdsData(updated);
                     }}
                     accept={"image/png, image/jpeg"}
                   />
@@ -209,37 +287,49 @@ const AddProducts = ({ data: restaurant }) => {
                 <div className="flex flex-col w-full max-w-80">
                   <CustomSelect
                     required
-                    label="Kategory"
-                    placeholder="Kategory"
+                    label="Kategori"
+                    placeholder="Kategori"
                     style={{ padding: "1px 0px" }}
                     className2="py-[.45rem] text-sm mt-[0] sm:mt-[0]"
-                    value={{ value: product.category, label: product.category }}
-                    options={[{ value: null, label: "Kategory Seç" }, ...cats]}
+                    value={
+                      product.categoryId
+                        ? {
+                            value: product.categoryId,
+                            label: product.categoryName,
+                          }
+                        : { value: "", label: "Kategori Seç" }
+                    }
+                    options={formattedCatsForSelect}
                     onChange={(e) => {
-                      const updated = [...prods];
-                      updated[index].category = e.label;
-                      setProds(updated);
+                      const updated = [...prodsData];
+                      updated[index].categoryId = e.value;
+                      updated[index].categoryName = e.label;
+                      // reset subcategory
+                      updated[index].subCategoryId = "";
+                      updated[index].subCategoryName = "";
+                      setProdsData(updated);
                     }}
                   />
 
                   <CustomSelect
-                    required
-                    label="Alt Kategory"
-                    placeholder="Alt Kategory"
+                    label="Alt Kategori"
+                    placeholder="Alt Kategori"
                     style={{ padding: "1px 0px" }}
                     className2="py-[.45rem] text-sm mt-[0] sm:mt-[0]"
-                    value={{
-                      value: product.subCategory,
-                      label: product.subCategory,
-                    }}
-                    options={[
-                      { value: null, label: "Alt Kategory Seç" },
-                      ...subCats,
-                    ]}
+                    value={
+                      product.subCategoryId
+                        ? {
+                            value: product.subCategoryId,
+                            label: product.subCategoryName,
+                          }
+                        : { value: "", label: "Alt Kategori Seç" }
+                    }
+                    options={getSubcatOptions(product.categoryId)}
                     onChange={(e) => {
-                      const updated = [...prods];
-                      updated[index].subCategory = e.value;
-                      setProds(updated);
+                      const updated = [...prodsData];
+                      updated[index].subCategoryId = e.value;
+                      updated[index].subCategoryName = e.label;
+                      setProdsData(updated);
                     }}
                   />
 
@@ -251,9 +341,9 @@ const AddProducts = ({ data: restaurant }) => {
                     className2="py-[.45rem] text-sm mt-[0] sm:mt-[0]"
                     value={product.name}
                     onChange={(e) => {
-                      const updated = [...prods];
+                      const updated = [...prodsData];
                       updated[index].name = e;
-                      setProds(updated);
+                      setProdsData(updated);
                     }}
                   />
 
@@ -265,22 +355,22 @@ const AddProducts = ({ data: restaurant }) => {
                     className2="py-[.45rem] text-sm mt-[0] sm:mt-[0]"
                     value={product.description}
                     onChange={(e) => {
-                      const updated = [...prods];
+                      const updated = [...prodsData];
                       updated[index].description = e;
-                      setProds(updated);
+                      setProdsData(updated);
                     }}
                   />
                   <div className="flex flex-col gap-2 mt-2">
                     <div className="flex justify-between items-center max-w-md">
-                      <label className="font-medium">Shef tavsiyesi</label>
+                      <label className="font-medium">Şef tavsiyesi</label>
                       <CustomToggle
                         checked={product.recommendation}
                         className="scale-[0.8]"
                         onChange={() => {
-                          const updated = [...prods];
+                          const updated = [...prodsData];
                           updated[index].recommendation =
                             !updated[index].recommendation;
-                          setProds(updated);
+                          setProdsData(updated);
                         }}
                       />
                     </div>
@@ -291,9 +381,9 @@ const AddProducts = ({ data: restaurant }) => {
                         checked={product.hide}
                         className="scale-[0.8]"
                         onChange={() => {
-                          const updated = [...prods];
+                          const updated = [...prodsData];
                           updated[index].hide = !updated[index].hide;
-                          setProds(updated);
+                          setProdsData(updated);
                         }}
                       />
                     </div>
@@ -325,9 +415,9 @@ const AddProducts = ({ data: restaurant }) => {
                         className2="py-[.45rem] text-sm mt-[0] sm:mt-[0]"
                         value={portion.name}
                         onChange={(e) => {
-                          const updated = [...prods];
+                          const updated = [...prodsData];
                           updated[index].portions[pIndex].name = e;
-                          setProds(updated);
+                          setProdsData(updated);
                         }}
                       />
 
@@ -338,11 +428,11 @@ const AddProducts = ({ data: restaurant }) => {
                         placeholder="Porsiyon Fiyatı"
                         className="py-[.45rem] text-sm "
                         className2="py-[.45rem] text-sm mt-[0] sm:mt-[0]"
-                        value={formatToPrice(portion.price)}
+                        value={formatToPrice(portion.price) || "0"}
                         onChange={(e) => {
-                          const updated = [...prods];
+                          const updated = [...prodsData];
                           updated[index].portions[pIndex].price = e;
-                          setProds(updated);
+                          setProdsData(updated);
                         }}
                       />
 
@@ -381,18 +471,46 @@ const AddProducts = ({ data: restaurant }) => {
                               style={{ padding: "1px 0px" }}
                               className2="py-[.45rem] text-sm mt-[0] sm:mt-[0]  max-w-64"
                               value={{
-                                value: tag.name || null,
-                                label: tag.name || "Alt Kategory Seç",
+                                value: tag.id || null,
+                                label: tag.name || "Etiket Seç",
                               }}
-                              options={etikets}
+                              options={formattedOrderTagsForSelect}
                               onChange={(e) => {
-                                const updated = [...prods];
+                                const updated = [...prodsData];
+                                // set minimal tag structure
                                 updated[index].portions[pIndex].orderTags[
                                   tIndex
-                                ].name = e.label;
-                                setProds(updated);
+                                ] = {
+                                  id: e.value,
+                                  name: e.label,
+                                  minSelected: e.minSelected || 0,
+                                  maxSelected: e.maxSelected || 0,
+                                  orderTagItems: [],
+                                };
+                                setProdsData(updated);
                               }}
                             />
+
+                            <div>
+                              <CustomInput
+                                readOnly
+                                label="Min Seçim"
+                                placeholder="Min Seçim"
+                                className="mt-[0.3rem] sm:mt-[0.3rem] py-[.5rem] border-none cursor-not-allowed"
+                                className2="text-sm mt-[0] sm:mt-[0]"
+                                value={tag.minSelected}
+                              />
+                            </div>
+                            <div>
+                              <CustomInput
+                                readOnly
+                                label="Max Seçim"
+                                placeholder="Max Seçim"
+                                className="mt-[0.3rem] sm:mt-[0.3rem] py-[.5rem] border-none cursor-not-allowed"
+                                className2="text-sm mt-[0] sm:mt-[0]"
+                                value={tag.maxSelected}
+                              />
+                            </div>
 
                             <div
                               className="text-sm text-[--red-1] flex items-center text-nowrap cursor-pointer"
@@ -425,79 +543,70 @@ const AddProducts = ({ data: restaurant }) => {
                           >
                             {tag.orderTagItems.map((item, iIndex) => (
                               <div key={iIndex} className="flex gap-2 my-1">
-                                <div className="w-full flex gap-2 max-sm:flex-col">
-                                  <CustomSelect
-                                    required
-                                    placeholder="Seçenek Adı"
-                                    style={{ padding: "1px 0px" }}
-                                    className="text-sm mt-[0] sm:mt-[0]"
-                                    className2="py-[0] text-sm mt-[0] sm:mt-[0]"
-                                    value={{
-                                      value: item.name || null,
-                                      label: item.name || "Seçenek Seç",
-                                    }}
-                                    options={options}
-                                    onChange={(e) => {
-                                      const updated = [...prods];
-                                      updated[index].portions[pIndex].orderTags[
-                                        tIndex
-                                      ].orderTagItems[iIndex].name = e.label;
-                                      updated[index].portions[pIndex].orderTags[
-                                        tIndex
-                                      ].orderTagItems[iIndex].price = e.price;
-                                      setProds(updated);
-                                    }}
-                                  />
+                                <CustomSelect
+                                  required
+                                  placeholder="Seçenek Adı"
+                                  style={{ padding: "1px 0px" }}
+                                  className="text-sm mt-[0] sm:mt-[0]"
+                                  className2="py-[0] text-sm mt-[0] sm:mt-[0]"
+                                  value={{
+                                    value: item.id || null,
+                                    label: item.name || "Seçenek Seç",
+                                  }}
+                                  options={orderTagItems.orderTagItems
+                                    .filter(
+                                      (otItem) => otItem.orderTagId === tag.id
+                                    )
+                                    .map((otItem) => ({
+                                      value: otItem.id,
+                                      label: otItem.name,
+                                      ...otItem,
+                                    }))}
+                                  onChange={(e) => {
+                                    const updated = [...prodsData];
+                                    updated[index].portions[pIndex].orderTags[
+                                      tIndex
+                                    ].orderTagItems[iIndex] = {
+                                      id: e.value,
+                                      name: e.label,
+                                      price: e.price,
+                                      maxQuantity: e.maxQuantity,
+                                    };
+                                    setProdsData(updated);
+                                  }}
+                                />
 
+                                <div className="w-full flex gap-2 max-sm:flex-col">
                                   <CustomInput
                                     readOnly
-                                    required
                                     type="number"
+                                    label={iIndex === 0 ? "Fiyat" : ""}
                                     placeholder="Fiyat"
-                                    className="py-[.45rem] text-sm mt-[0] sm:mt-[0] cursor-not-allowed"
+                                    className="py-[.45rem] text-sm mt-[0] sm:mt-[0] border-none cursor-not-allowed"
                                     className2="py-[0] text-sm mt-[0] sm:mt-[0]"
-                                    value={formatToPrice(item.price)}
+                                    value={formatToPrice(item.price) || "0.00"}
                                     onChange={(e) => {
-                                      const updated = [...prods];
+                                      const updated = [...prodsData];
                                       updated[index].portions[pIndex].orderTags[
                                         tIndex
                                       ].orderTagItems[iIndex].price = e;
-                                      setProds(updated);
-                                    }}
-                                  />
-                                </div>
-
-                                <div className="w-full flex gap-2 max-sm:flex-col">
-                                  <CustomInput
-                                    type="number"
-                                    required
-                                    placeholder="En Az Seçimi"
-                                    className="py-[.45rem] text-sm mt-[0] sm:mt-[0]"
-                                    className2="py-[0] text-sm mt-[0] sm:mt-[0]"
-                                    value={item.minSelectedItems}
-                                    onChange={(e) => {
-                                      const updated = [...prods];
-                                      updated[index].portions[pIndex].orderTags[
-                                        tIndex
-                                      ].orderTagItems[iIndex].minSelectedItems =
-                                        e;
-                                      setProds(updated);
+                                      setProdsData(updated);
                                     }}
                                   />
                                   <CustomInput
+                                    readOnly
                                     type="number"
-                                    required
-                                    placeholder="En Fazla Seçimi"
-                                    className="py-[.45rem] text-sm mt-[0] sm:mt-[0]"
+                                    label={iIndex === 0 ? "Maks Seçimi" : ""}
+                                    placeholder="Maksimum Seçimi"
+                                    className="py-[.45rem] text-sm mt-[0] sm:mt-[0] border-none cursor-not-allowed"
                                     className2="py-[0] text-sm mt-[0] sm:mt-[0]"
-                                    value={item.maxSelectedItems}
+                                    value={item.maxQuantity}
                                     onChange={(e) => {
-                                      const updated = [...prods];
+                                      const updated = [...prodsData];
                                       updated[index].portions[pIndex].orderTags[
                                         tIndex
-                                      ].orderTagItems[iIndex].maxSelectedItems =
-                                        e;
-                                      setProds(updated);
+                                      ].orderTagItems[iIndex].maxQuantity = e;
+                                      setProdsData(updated);
                                     }}
                                   />
                                 </div>
@@ -539,7 +648,7 @@ const AddProducts = ({ data: restaurant }) => {
               + Yeni Ürün Ekle
             </button>
 
-            {prods?.length && (
+            {prodsData?.length && (
               <button
                 type="submit"
                 className="mt-4 text-[--white-1] bg-[--primary-1] text-sm border border-[--primary-1] px-3 py-1 rounded"

@@ -1,0 +1,357 @@
+{
+  "Products": [
+    {
+      "id": 1001,
+      "sortOrder": 10,
+      "name": "Mercimek Çorbası",
+      "image": "https://cdn.liwasoft.com/products/mercimek.jpg",
+      "description": "Kırmızı mercimekten yapılan geleneksel çorba.",
+      "recommendation": false,
+      "hide": false,
+      "categoryId": "xncd-sfsfsfs-gsgg23-skroewt",
+      "categoryName": "Corbalar",
+      "categoryImage": "",
+      "categorySortOrder": 0,
+      "subCategoryId": null,
+      "subCategoryName": null,
+      "subCategoryImage": "https://cdn.liwasoft.com/products/mercimek-sub.jpg",
+      "subCategorySortOrder": 0,
+      "portions": [
+        {
+          "id": 1,
+          "productId": 1001,
+          "name": "Normal",
+          "price": 45,
+          "orderTags": [
+            {
+              "id": "some-ordertag-id-1",
+              "name": "Baharat Seçimi",
+              "minSelected": 0,
+              "maxSelected": 2,
+              "orderTagItems": [
+                {
+                  "id": "some-ordertagitem-id-4",
+                  "name": "Acı Biber",
+                  "price": 0.0,
+                  "maxQuantity": 1
+                },
+                {
+                  "id": "some-ordertagitem-id-5",
+                  "name": "Tatlı Biber",
+                  "price": 0.0,
+                  "maxQuantity": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": 1002,
+      "sortOrder": 11,
+      "name": "Ezogelin Çorbası",
+      "image": "https://cdn.liwasoft.com/products/ezogelin.jpg",
+      "description": "Geleneksel, baharatlı ezogelin çorbası.",
+      "recommendation": false,
+      "hide": false,
+      "categoryId": "xncd-sfsfsfs-gsgg23-skroewt",
+      "categoryName": "Corbalar",
+      "categoryImage": "",
+      "categorySortOrder": 0,
+      "subCategoryId": null,
+      "subCategoryName": null,
+      "subCategoryImage": "https://cdn.liwasoft.com/products/ezogelin-sub.jpg",
+      "subCategorySortOrder": 0,
+      "portions": [
+        {
+          "id": 2,
+          "productId": 1002,
+          "name": "Kase",
+          "price": 50,
+          "orderTags": [
+            {
+              "id": "some-ordertag-id-1",
+              "name": "Baharat Seçimi",
+              "minSelected": 0,
+              "maxSelected": 2,
+              "orderTagItems": [
+                {
+                  "id": "some-ordertagitem-id-4",
+                  "name": "Acı Biber",
+                  "price": 0.0,
+                  "maxQuantity": 1
+                },
+                {
+                  "id": "some-ordertagitem-id-5",
+                  "name": "Tatlı Biber",
+                  "price": 0.0,
+                  "maxQuantity": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": 2001,
+      "sortOrder": 10,
+      "name": "Kuzu Tandır",
+      "image": "https://cdn.liwasoft.com/products/kuzu-tandir.jpg",
+      "description": "Fırında pişen yumuşacık kuzu tandır.",
+      "recommendation": true,
+      "hide": false,
+      "categoryId": "xncd-sfsfsfs-gsgg23-skroethgh",
+      "categoryName": "AnaYemekler",
+      "categoryImage": "",
+      "categorySortOrder": 1,
+      "subCategoryId": null,
+      "subCategoryName": null,
+      "subCategoryImage": "https://cdn.liwasoft.com/products/kuzu-tandir-sub.jpg",
+      "subCategorySortOrder": 0,
+      "portions": [
+        {
+          "id": 3,
+          "productId": 2001,
+          "name": "Porsiyon",
+          "price": 180,
+          "orderTags": [
+            {
+              "id": "some-ordertag-id-2",
+              "name": "Sos Seçimi",
+              "minSelected": 0,
+              "maxSelected": 3,
+              "orderTagItems": [
+                {
+                  "id": "some-ordertagitem-id-6",
+                  "name": "Domates Sosu",
+                  "price": 0.0,
+                  "maxQuantity": 1
+                },
+                {
+                  "id": "some-ordertagitem-id-7",
+                  "name": "Sarımsaklı Sos",
+                  "price": 0.0,
+                  "maxQuantity": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": 2002,
+      "sortOrder": 11,
+      "name": "Tavuk Sote",
+      "image": "https://cdn.liwasoft.com/products/tavuk-sote.jpg",
+      "description": "Sebzeli tavuk sote.",
+      "recommendation": false,
+      "hide": false,
+      "categoryId": "xncd-sfsfsfs-gsgg23-skroethgh",
+      "categoryName": "AnaYemekler",
+      "categoryImage": "",
+      "categorySortOrder": 1,
+      "subCategoryId": null,
+      "subCategoryName": null,
+      "subCategoryImage": "https://cdn.liwasoft.com/products/tavuk-sote-sub.jpg",
+      "subCategorySortOrder": 0,
+      "portions": [
+        {
+          "id": 4,
+          "productId": 2002,
+          "name": "Porsiyon",
+          "price": 130,
+          "orderTags": [
+            {
+              "id": "some-ordertag-id-2",
+              "name": "Sos Seçimi",
+              "minSelected": 0,
+              "maxSelected": 3,
+              "orderTagItems": [
+                {
+                  "id": "some-ordertagitem-id-6",
+                  "name": "Domates Sosu",
+                  "price": 0.0,
+                  "maxQuantity": 1
+                },
+                {
+                  "id": "some-ordertagitem-id-7",
+                  "name": "Sarımsaklı Sos",
+                  "price": 0.0,
+                  "maxQuantity": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": 3001,
+      "sortOrder": 10,
+      "name": "Pirinç Pilavı",
+      "image": "https://cdn.liwasoft.com/products/pilav.jpg",
+      "description": "Tereyağlı pirinç pilavı.",
+      "recommendation": false,
+      "hide": false,
+      "categoryId": "xncd-fdfvf-3ffxd5h-fdfdf5",
+      "categoryName": "Pilavlar",
+      "categoryImage": "",
+      "categorySortOrder": 2,
+      "subCategoryId": null,
+      "subCategoryName": null,
+      "subCategoryImage": "https://cdn.liwasoft.com/products/pilav-sub.jpg",
+      "subCategorySortOrder": 0,
+      "portions": [
+        {
+          "id": 5,
+          "productId": 3001,
+          "name": "Porsiyon",
+          "price": 35,
+          "orderTags": []
+        }
+      ]
+    },
+
+    {
+      "id": 4001,
+      "sortOrder": 10,
+      "name": "Lahmacun",
+      "image": "https://cdn.liwasoft.com/products/lahmacun.jpg",
+      "description": "İnce hamur, bol malzemeli lahmacun.",
+      "recommendation": true,
+      "hide": false,
+      "categoryId": "xncd-ffdf656-dd89fd-ffdfv1",
+      "categoryName": "HamurIsleri",
+      "categoryImage": "",
+      "categorySortOrder": 3,
+      "subCategoryId": null,
+      "subCategoryName": null,
+      "subCategoryImage": "https://cdn.liwasoft.com/products/lahmacun-sub.jpg",
+      "subCategorySortOrder": 0,
+      "portions": [
+        {
+          "id": 6,
+          "productId": 4001,
+          "name": "Adet",
+          "price": 40,
+          "orderTags": []
+        }
+      ]
+    },
+
+    {
+      "id": 5001,
+      "sortOrder": 10,
+      "name": "Izgara Levrek",
+      "image": "https://cdn.liwasoft.com/products/levrek.jpg",
+      "description": "Taze ızgarada pişmiş levrek.",
+      "recommendation": true,
+      "hide": false,
+      "categoryId": "xncd-ffdf656-dd89fd-ffdfv2",
+      "categoryName": "DenizUrunleri",
+      "categoryImage": "",
+      "categorySortOrder": 4,
+      "subCategoryId": null,
+      "subCategoryName": null,
+      "subCategoryImage": "https://cdn.liwasoft.com/products/levrek-sub.jpg",
+      "subCategorySortOrder": 0,
+      "portions": [
+        {
+          "id": 7,
+          "productId": 5001,
+          "name": "Porsiyon",
+          "price": 220,
+          "orderTags": []
+        }
+      ]
+    },
+
+    {
+      "id": 6001,
+      "sortOrder": 10,
+      "name": "Zeytinyağlı Yaprak Sarma",
+      "image": "https://cdn.liwasoft.com/products/yaprak-sarma.jpg",
+      "description": "Zeytinyağlı nefis yaprak sarma.",
+      "recommendation": false,
+      "hide": false,
+      "categoryId": "xncd-ffdf656-dd89fd-ffdfv3",
+      "categoryName": "Zeytinyaglilar",
+      "categoryImage": "",
+      "categorySortOrder": 5,
+      "subCategoryId": null,
+      "subCategoryName": null,
+      "subCategoryImage": "https://cdn.liwasoft.com/products/yaprak-sarma-sub.jpg",
+      "subCategorySortOrder": 0,
+      "portions": [
+        {
+          "id": 8,
+          "productId": 6001,
+          "name": "100 gr",
+          "price": 60,
+          "orderTags": []
+        }
+      ]
+    },
+
+    {
+      "id": 7001,
+      "sortOrder": 10,
+      "name": "Künefe",
+      "image": "https://cdn.liwasoft.com/products/kunefe.jpg",
+      "description": "Sıcak, şerbetli künefe.",
+      "recommendation": true,
+      "hide": false,
+      "categoryId": "xncd-ffdf656-dd89fd-ffdfv4",
+      "categoryName": "Tatlilar",
+      "categoryImage": "",
+      "categorySortOrder": 6,
+      "subCategoryId": null,
+      "subCategoryName": null,
+      "subCategoryImage": "https://cdn.liwasoft.com/products/kunefe-sub.jpg",
+      "subCategorySortOrder": 0,
+      "portions": [
+        {
+          "id": 9,
+          "productId": 7001,
+          "name": "Porsiyon",
+          "price": 70,
+          "orderTags": []
+        }
+      ]
+    },
+
+    {
+      "id": 9001,
+      "sortOrder": 10,
+      "name": "Cappy (330 ml)",
+      "image": "https://cdn.liwasoft.com/products/cappy.jpg",
+      "description": "330 ml meyve suyu.",
+      "recommendation": false,
+      "hide": false,
+      "categoryId": "xncd-ffdf656-dd89fd-ffdfv7",
+      "categoryName": "Icecekler",
+      "categoryImage": "",
+      "categorySortOrder": 9,
+      "subCategoryId": null,
+      "subCategoryName": null,
+      "subCategoryImage": "https://cdn.liwasoft.com/products/cappy-sub.jpg",
+      "subCategorySortOrder": 0,
+      "portions": [
+        {
+          "id": 10,
+          "productId": 9001,
+          "name": "330 ml",
+          "price": 5,
+          "orderTags": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "orderTags": [
+    {
+      "id": "some-ordertag-id-1",
+      "name": "Baharat Seçimi",
+      "minSelected": 0,
+      "maxSelected": 2
+    },
+    {
+      "id": "some-ordertag-id-2",
+      "name": "Sos Seçimi",
+      "minSelected": 0,
+      "maxSelected": 3
+    },
+    {
+      "id": "some-ordertag-id-3",
+      "name": "İçecek Seçimi",
+      "minSelected": 1,
+      "maxSelected": 2
+    }
+  ]
+}

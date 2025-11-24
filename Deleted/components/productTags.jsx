@@ -46,7 +46,7 @@ const ProductTags = ({ data: restaurant, tgsData }) => {
       <div className="flex flex-col px-4 sm:px-14">
         <h1 className="text-2xl font-bold">
           Ürün Etiketler{" "}
-          <span className="text-[--primary-1]"> {restaurant.name} </span>
+          <span className="text-[--primary-1]"> {restaurant?.name} </span>
           Restoranı
         </h1>
 

@@ -1,30 +1,28 @@
 //MODULES
 import { useState } from "react";
-import EmojiPicker from "emoji-picker-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 //COMP
 import CustomInput from "../common/customInput";
-import { MenuI } from "../../assets/icon";
+import CustomFileInput from "../common/customFileInput";
+import { CloudUI, MenuI } from "../../assets/icon";
+
+//DEMO DATA
+import demoCategories from "../../assets/js/Categories.json";
 
 const ProductCategories = ({ data: restaurant, catData }) => {
   const [categories, setCategories] = useState([
-    { name: "", icon: "", index: 0 },
+    { name: "", image: null, sortOrder: 0 },
   ]);
-  const [categoriesData, setCategoriesData] = useState(
-    catData || [
-      { name: "test", icon: "🍽️", index: 0 },
-      { name: "test 2", icon: "🍽️", index: 1 },
-    ]
-  );
+  const sourceCategories = catData || demoCategories.categories;
+  const [categoriesData, setCategoriesData] = useState(sourceCategories);
   const [isEdit, setIsEdit] = useState(true);
-  const [activePicker, setActivePicker] = useState(null);
 
   // Add a new blank category row
   const addCategory = () => {
     setCategories((prev) => [
       ...prev,
-      { name: "", icon: "", index: prev.length },
+      { name: "", image: null, sortOrder: prev.length },
     ]);
   };
 
@@ -43,10 +41,14 @@ const ProductCategories = ({ data: restaurant, catData }) => {
   const removeCategory = (index) => {
     isEdit
       ? setCategoriesData((prev) =>
-          prev.filter((_, i) => i !== index).map((c, i) => ({ ...c, index: i }))
+          prev
+            .filter((_, i) => i !== index)
+            .map((c, i) => ({ ...c, sortOrder: i }))
         )
       : setCategories((prev) =>
-          prev.filter((_, i) => i !== index).map((c, i) => ({ ...c, index: i }))
+          prev
+            .filter((_, i) => i !== index)
+            .map((c, i) => ({ ...c, sortOrder: i }))
         );
   };
 
@@ -59,7 +61,7 @@ const ProductCategories = ({ data: restaurant, catData }) => {
     items.splice(result.destination.index, 0, reorderedItem);
 
     // Update the index values after reorder
-    const updated = items.map((item, i) => ({ ...item, index: i }));
+    const updated = items.map((item, i) => ({ ...item, sortOrder: i }));
 
     isEdit ? setCategoriesData(updated) : setCategories(updated);
   };
@@ -67,10 +69,41 @@ const ProductCategories = ({ data: restaurant, catData }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log(isEdit ? "It's Edit" : "It's Add", {
-      restaurantId: restaurant.id,
-      categories: isEdit ? categoriesData : categories,
-    });
+    try {
+      const formData = new FormData();
+
+      const payloadCategories = (isEdit ? categoriesData : categories).map(
+        (cat) => {
+          const { image, ...rest } = cat;
+          return rest;
+        }
+      );
+
+      formData.append("restaurantId", restaurant?.id);
+      formData.append("categoriesData", JSON.stringify(payloadCategories));
+
+      (isEdit ? categoriesData : categories).forEach((cat, index) => {
+        if (cat.image) {
+          formData.append(`image_${index}`, cat.image);
+        }
+      });
+
+      // Example: send formData via fetch
+      // fetch('/api/categories', { method: 'POST', body: formData });
+
+      // for debugging, log FormData entries (files won't be stringified)
+      for (const pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+        console.log(pair);
+      }
+
+      isEdit
+        ? console.log("IT'S EDIT", categoriesData)
+        : console.log("IT'S ADD", categories);
+      console.log(formData);
+    } catch (error) {
+      console.error("Error preparing form data:", error);
+    }
   };
 
   return (
@@ -78,7 +111,7 @@ const ProductCategories = ({ data: restaurant, catData }) => {
       <div className="flex flex-col px-4 sm:px-14 ">
         <h1 className="text-2xl font-bold">
           Kategoriler{" "}
-          <span className="text-[--primary-1]"> {restaurant.name} </span>
+          <span className="text-[--primary-1]"> {restaurant?.name} </span>
           Restoranı
         </h1>
 
@@ -113,22 +146,22 @@ const ProductCategories = ({ data: restaurant, catData }) => {
           <div className="flex gap-4 max-sm:gap-2 items-end mb-4">
             <p className="w-8"></p>
             <p className="w-[19rem]">Kategori Adı</p>
-            <p className="w-full">Kategori İkonu</p>
+            <p className="w-full">Kategori Görseli</p>
           </div>
 
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="categories">
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef}>
-                  {categoriesData.map((cat, index) => (
+                  {(isEdit ? categoriesData : categories).map((cat, index) => (
                     <Draggable
-                      key={cat.id || `temp-${index}`}
-                      draggableId={cat.id || `temp-${index}`}
-                      index={index}
+                      key={cat.id || `temp-${cat.sortOrder}`}
+                      draggableId={cat.id || `temp-${cat.sortOrder}`}
+                      index={cat.sortOrder}
                     >
                       {(provided, snapshot) => (
                         <div
-                          className={`flex gap-4 max-sm:gap-2 items-end mb-4 ${
+                          className={`flex gap-4 max-sm:gap-2 items-ennd mb-4 ${
                             snapshot.isDragging ? "bg-[--light-1]" : ""
                           }`}
                           ref={provided.innerRef}
@@ -136,53 +169,51 @@ const ProductCategories = ({ data: restaurant, catData }) => {
                         >
                           <div
                             {...provided.dragHandleProps}
-                            className="w-8 flex justify-center pb-3 cursor-move"
+                            className="w-8 cursor-move flex"
                           >
                             <MenuI className="text-gray-400 text-xl" />
                           </div>
 
-                          <div className="flex gap-4 max-sm:gap-1">
-                            <CustomInput
-                              required
-                              type="text"
-                              value={cat.name}
-                              className="mt-[0] sm:mt-[0]"
-                              className2="mt-[0] sm:mt-[0]"
-                              placeholder="Kategori adı giriniz"
-                              onChange={(e) => updateCategory(index, "name", e)}
-                            />
-
-                            <div
-                              className="border rounded p-2 cursor-pointer text-xl w-16 flex items-end justify-center"
-                              onClick={() =>
-                                setActivePicker(
-                                  activePicker === index ? null : index
-                                )
-                              }
-                            >
-                              <p>{cat.icon || "🍽️"}</p>
+                          <div className="flex gap-4 max-sm:gap-1 w-full">
+                            <div className="flex-1 max-w-md">
+                              <CustomInput
+                                required
+                                type="text"
+                                value={cat.name}
+                                className="mt-[0] sm:mt-[0]"
+                                className2="mt-[0] sm:mt-[0]"
+                                placeholder="Kategori adı giriniz"
+                                onChange={(e) =>
+                                  updateCategory(index, "name", e)
+                                }
+                              />
                             </div>
 
-                            {activePicker === index && (
-                              <div className="absolute z-50 mt-2">
-                                <EmojiPicker
-                                  onEmojiClick={(emojiData) => {
-                                    updateCategory(
-                                      index,
-                                      "icon",
-                                      emojiData.emoji
-                                    );
-                                    setActivePicker(null);
-                                  }}
-                                />
-                              </div>
-                            )}
+                            <div className="w-72 cursor-pointer">
+                              <CustomFileInput
+                                msg={
+                                  <div className="flex items-center text-xs">
+                                    <CloudUI
+                                      className="size-[1.5rem] mt-2"
+                                      strokeWidth={1.5}
+                                    />
+                                    <p>Kategori görseli yükleyin</p>
+                                  </div>
+                                }
+                                value={cat.image}
+                                onChange={(file) =>
+                                  updateCategory(index, "image", file)
+                                }
+                                accept={"image/png, image/jpeg"}
+                                className="h-[3rem]"
+                              />
+                            </div>
                           </div>
 
                           <button
                             type="button"
                             onClick={() => removeCategory(index)}
-                            className="text-[--red-1] font-semibold"
+                            className="flex text-[--red-1] font-semibold"
                           >
                             Sil
                           </button>

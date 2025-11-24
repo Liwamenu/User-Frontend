@@ -377,8 +377,10 @@ const EditRestaurant = ({ data: restaurant }) => {
     return () => URL.revokeObjectURL(objectUrl);
   }, [document]);
 
+  console.log(restaurantData);
+
   return (
-    <div className=" w-full py-8 mt-7 bg-[--white-1] rounded-lg text-[--black-2] text-base overflow-visible relative">
+    <div className=" w-full py-8 mt-1 bg-[--white-1] rounded-lg text-[--black-2] text-base overflow-visible relative">
       <div className="flex flex-col bg-[--white-1] px-4 sm:px-14 relative">
         <div
           className={`absolute bg-black/15 w-full -top-12 -bottom-8 z-[999] rounded-lg flex flex-col justify-start items-center ${
@@ -429,7 +431,7 @@ const EditRestaurant = ({ data: restaurant }) => {
         <div className="flex flex-col mt-9 w-full text-left">
           {restaurantData && (
             <form onSubmit={handleSubmit}>
-              <div className="flex gap-4">
+              <div className="flex max-sm:flex-col gap-4">
                 <CustomInput
                   required={true}
                   label="Ad"
@@ -463,7 +465,7 @@ const EditRestaurant = ({ data: restaurant }) => {
                 />
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex max-sm:flex-col gap-4">
                 <CustomSelect
                   required={true}
                   label="Şehir"
@@ -508,7 +510,7 @@ const EditRestaurant = ({ data: restaurant }) => {
                 />
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex max-sm:flex-col gap-4">
                 <CustomSelect
                   required={true}
                   label="Mahalle"
@@ -549,7 +551,7 @@ const EditRestaurant = ({ data: restaurant }) => {
               </div>
 
               <div onClick={handleOpenMap}>
-                <div className="flex gap-4 pointer-events-none">
+                <div className="flex max-sm:flex-col gap-4 pointer-events-none">
                   <CustomInput
                     required={true}
                     label="Latitude"
@@ -575,7 +577,7 @@ const EditRestaurant = ({ data: restaurant }) => {
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center">
+              <div className="mt-4 flex max-sm:flex-col items-center">
                 <div className="w-full max-w-40">
                   <img src={preview} alt="preview_liwamenu" />
                 </div>
