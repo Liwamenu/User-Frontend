@@ -28,10 +28,36 @@ const RestaurantSettings = ({ data }) => {
         >
           <div className="max-w-md">
             <CustomInput
+              type="text"
+              label={
+                <span>
+                  Tenant (Örn:{" "}
+                  <span className="text-[--primary-1]">
+                    {restaurantData?.name}
+                  </span>
+                  .liwamenu.com)
+                </span>
+              }
+              placeholder={`Tenant giriniz (Örn: ${restaurantData?.name}.liwamenu.com)`}
+              className="py-[.4rem]"
+              value={restaurantData?.tenant ?? ""}
+              onChange={(e) =>
+                setRestaurantData((prev) => {
+                  return {
+                    ...prev,
+                    tenant: e,
+                  };
+                })
+              }
+            />
+          </div>
+
+          <div className="max-w-md">
+            <CustomInput
               type="number"
               label="Maksimum Mesafe (KM)"
               placeholder="Maksimum mesafe giriniz"
-              className="py-[.4rem] rounded-sm"
+              className="py-[.4rem]"
               value={restaurantData?.minDistance ?? ""}
               onChange={(e) =>
                 setRestaurantData((prev) => {
@@ -60,7 +86,7 @@ const RestaurantSettings = ({ data }) => {
                   websitesinden ulaşabilirsiniz.{" "}
                 </p>
               }
-              className="py-[.4rem] rounded-sm"
+              className="py-[.4rem]"
               placeholder="Google Analytics Measurement-ID'nizi yazınız"
               value={restaurantData?.googleAnalytics ?? ""}
               onChange={(e) =>
@@ -79,9 +105,8 @@ const RestaurantSettings = ({ data }) => {
               type="text"
               label="Arayüz dil seçeneği"
               placeholder="Örn: tr, en"
-              style={{ borderRadius: ".125rem", padding: "0.1rem 0px" }}
-              className="py-[.4rem] rounded-sm mt-[0] sm:mt-[0]"
-              className2="rounded-sm"
+              style={{ borderRadius: ".4rem", padding: "0.1rem 0px" }}
+              className="py-[.4rem] mt-[0] sm:mt-[0]"
               value={
                 LanguagesEnums.find(
                   (L) => L.value == (restaurantData?.defaultLang ?? null)
@@ -104,9 +129,8 @@ const RestaurantSettings = ({ data }) => {
               type="text"
               label="Menu Dili Seçeneği"
               placeholder="Örn: tr, en"
-              style={{ borderRadius: ".125rem", padding: "0.1rem 0px" }}
-              className="py-[.4rem] rounded-sm  mt-[0] sm:mt-[0]"
-              className2="rounded-sm"
+              style={{ borderRadius: ".4rem", padding: "0.1rem 0px" }}
+              className="py-[.4rem] mt-[0] sm:mt-[0]"
               value={
                 LanguagesEnums.find(
                   (L) => L.value == (restaurantData?.defaultLang ?? null)
@@ -129,7 +153,7 @@ const RestaurantSettings = ({ data }) => {
               type="text"
               label="Slogan 1"
               placeholder="Slogan 1 giriniz"
-              className="py-[.4rem] rounded-sm  mt-[0] sm:mt-[0]"
+              className="py-[.4rem]  mt-[0] sm:mt-[0]"
               value={restaurantData?.slogan1 ?? ""}
               onChange={(e) =>
                 setRestaurantData((prev) => {
@@ -147,7 +171,7 @@ const RestaurantSettings = ({ data }) => {
               type="text"
               label="Slogan 2"
               placeholder="Slogan 1 giriniz"
-              className="py-[.4rem] rounded-sm  mt-[0] sm:mt-[0]"
+              className="py-[.4rem]  mt-[0] sm:mt-[0]"
               value={restaurantData?.slogan2 ?? ""}
               onChange={(e) =>
                 setRestaurantData((prev) => {
@@ -175,6 +199,21 @@ const RestaurantSettings = ({ data }) => {
             />
           </div>
 
+          <div className="flex justify-between items-center max-w-md">
+            <label className="font-medium">Restoranı Gizle</label>
+            <CustomToggle
+              checked={restaurantData?.hide}
+              onChange={(e) =>
+                setRestaurantData((prev) => {
+                  return {
+                    ...prev,
+                    hide: !restaurantData.hide,
+                  };
+                })
+              }
+            />
+          </div>
+
           <div className="flex justify-between items-center max-w-md mt-4">
             <label className="font-medium">Online Sipariş</label>
             <CustomToggle
@@ -195,7 +234,7 @@ const RestaurantSettings = ({ data }) => {
               type="text"
               label="Masada Sipariş İskonto"
               placeholder="Masada Sipariş İskonto giriniz"
-              className="py-[.4rem] rounded-sm mt-[0] sm:mt-[0]"
+              className="py-[.4rem] mt-[0] sm:mt-[0]"
               value={restaurantData?.table_order_discount_rate ?? ""}
               onChange={(e) =>
                 setRestaurantData((prev) => {
@@ -213,28 +252,13 @@ const RestaurantSettings = ({ data }) => {
               type="text"
               label="Online Sipariş İskonto"
               placeholder="Online Sipariş İskonto giriniz"
-              className="py-[.4rem] rounded-sm mt-[0] sm:mt-[0]"
+              className="py-[.4rem] mt-[0] sm:mt-[0]"
               value={restaurantData?.online_order_discount_rate ?? ""}
               onChange={(e) =>
                 setRestaurantData((prev) => {
                   return {
                     ...prev,
                     online_order_discount_rate: e,
-                  };
-                })
-              }
-            />
-          </div>
-
-          <div className="flex justify-between items-center max-w-md">
-            <label className="font-medium">Restoranı Gizle</label>
-            <CustomToggle
-              checked={restaurantData?.hide}
-              onChange={(e) =>
-                setRestaurantData((prev) => {
-                  return {
-                    ...prev,
-                    hide: !restaurantData.hide,
                   };
                 })
               }
