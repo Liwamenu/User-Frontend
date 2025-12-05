@@ -1,30 +1,30 @@
 {
   "restaurantData": {
-    "restaurantId": "538ba1a1-bf0d-47eb-9b88-054856703452", //
-    "dealerId": null, //
-    "userId": "01988d47-b5f1-7a3a-a7ed-77738062b0c9", //
-    "name": "Popeyes", //
-    "phoneNumber": "905058433855", //
-    "latitude": 37.600327, //
-    "longitude": 36.860684, //
-    "city": "KAHRAMANMARAŞ", //
-    "district": "ONİKİŞUBAT", //
-    "neighbourhood": "SÜLEYMANŞAH MAHALLESİ", //
-    "address": "Marash", //
-    "isActive": true, //
-    "imageAbsoluteUrl": "http://localhost:5210/images/restaurants/538ba1a1-bf0d-47eb-9b88-054856703452.jpg", // as ImageContentType in db
-    "defaultLang": "1", // 1-Turkish, 2-English, 3-Arabic
-    "slogan1": "Lezzetin Adı", //
-    "slogan2": "Popeyes", //
-    "online_ordering": true, //
-    "table_ordering": true, //
-    "hide_restaurant": false, //
+    "restaurantId": "538ba1a1-bf0d-47eb-9b88-054856703452",
+    "dealerId": null,
+    "userId": "01988d47-b5f1-7a3a-a7ed-77738062b0c9",
+    "name": "Popeyes",
+    "phoneNumber": "905058433855",
+    "latitude": 37.600327,
+    "longitude": 36.860684,
+    "city": "KAHRAMANMARAŞ",
+    "district": "ONİKİŞUBAT",
+    "neighbourhood": "SÜLEYMANŞAH MAHALLESİ",
+    "address": "Marash",
+    "isActive": true,
+    "imageAbsoluteUrl": "http://localhost:5210/images/restaurants/538ba1a1-bf0d-47eb-9b88-054856703452.jpg",
+    "defaultLang": "1",
+    "slogan1": "Lezzetin Adı",
+    "slogan2": "Popeyes",
+    "onlineOrder": true,
+    "inPersonOrder": true,
+    "hide": false,
     "themeId": 1,
-    "max_distance_KM": 50,
-    "menu_language": "1",
-    "table_order_discount_rate": 0,
-    "online_order_discount_rate": 0,
-    "tenant": "popeyes",
+    "maxDistanceKM": 1, //currently its minDistance, change it to maxDistance
+    "menuLang": "1", // add this field
+    "table_order_discount_rate": 0, // add this field
+    "online_order_discount_rate": 0, // add this field
+    "tenant": "popeyes", // add this field
     "workingHours": [
       {
         "Day": 1,
@@ -71,13 +71,3 @@
     ]
   }
 }
-
-// ALTER TABLE "Restaurants"
-// ADD COLUMN "MaxDistanceKM" integer,
-// ADD COLUMN "MenuLanguage" integer,
-// ADD COLUMN "TableOrderDiscountRate" numeric(5,2) NOT NULL DEFAULT 0,
-// ADD COLUMN "OnlineOrderDiscountRate" numeric(5,2) NOT NULL DEFAULT 0,
-// ADD COLUMN "Tenant" text;
-
-// ALTER TABLE "Restaurants"
-// ALTER COLUMN "DefaultLang" TYPE integer USING ("DefaultLang"::integer);

@@ -7,6 +7,7 @@ import getSocialMediasSlice from "./getSocialMediasSlice";
 import setSocialMediasSlice from "./setSocialMediasSlice";
 import getPaymentMethodsSlice from "./getPaymentMethodsSlice";
 import setPaymentMethodsSlice from "./setPaymentMethodsSlice";
+import setRestaurantSettings from "./setRestaurantSettingsSlice";
 
 const restaurantSlice = combineReducers({
   getWorkingHours: getWorkingHoursSlice,
@@ -15,6 +16,7 @@ const restaurantSlice = combineReducers({
   setSocialMedias: setSocialMediasSlice,
   getPaymentMethods: getPaymentMethodsSlice,
   setPaymentMethods: setPaymentMethodsSlice,
+  setRestaurantSettings: setRestaurantSettings,
 });
 
 export default restaurantSlice;
