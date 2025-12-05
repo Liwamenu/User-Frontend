@@ -54,27 +54,9 @@ const RestaurantSettings = ({ data }) => {
 
           <div className="max-w-md">
             <CustomInput
-              type="number"
-              label="Maksimum Mesafe (KM)"
-              placeholder="Maksimum mesafe giriniz"
-              className="py-[.4rem]"
-              value={restaurantData?.minDistance ?? ""}
-              onChange={(e) =>
-                setRestaurantData((prev) => {
-                  return {
-                    ...prev,
-                    minDistance: e,
-                  };
-                })
-              }
-            />
-          </div>
-
-          <div className="max-w-md">
-            <CustomInput
               type="text"
               label={
-                <p>
+                <span>
                   {" "}
                   <a
                     href="https://analytics.google.com/analytics/web"
@@ -84,7 +66,7 @@ const RestaurantSettings = ({ data }) => {
                     Google Analytics
                   </a>{" "}
                   websitesinden ulaşabilirsiniz.{" "}
-                </p>
+                </span>
               }
               className="py-[.4rem]"
               placeholder="Google Analytics Measurement-ID'nizi yazınız"
@@ -133,7 +115,7 @@ const RestaurantSettings = ({ data }) => {
               className="py-[.4rem] mt-[0] sm:mt-[0]"
               value={
                 LanguagesEnums.find(
-                  (L) => L.value == (restaurantData?.defaultLang ?? null)
+                  (L) => L.value == (restaurantData?.menu_language ?? null)
                 ) || { label: "Dil Seç" }
               }
               options={LanguagesEnums}
@@ -141,7 +123,25 @@ const RestaurantSettings = ({ data }) => {
                 setRestaurantData((prev) => {
                   return {
                     ...prev,
-                    defaultLang: selectedOption.value,
+                    menu_language: selectedOption.value,
+                  };
+                })
+              }
+            />
+          </div>
+
+          <div className="max-w-md">
+            <CustomInput
+              type="number"
+              label="Maksimum Mesafe (KM)"
+              placeholder="Maksimum mesafe giriniz"
+              className="py-[.4rem] mt-[0] sm:mt-[0]"
+              value={restaurantData?.minDistance ?? ""}
+              onChange={(e) =>
+                setRestaurantData((prev) => {
+                  return {
+                    ...prev,
+                    minDistance: e,
                   };
                 })
               }
@@ -199,7 +199,7 @@ const RestaurantSettings = ({ data }) => {
             />
           </div>
 
-          <div className="flex justify-between items-center max-w-md">
+          <div className="flex justify-between items-center max-w-md mt-4">
             <label className="font-medium">Restoranı Gizle</label>
             <CustomToggle
               checked={restaurantData?.hide}
@@ -265,7 +265,9 @@ const RestaurantSettings = ({ data }) => {
             />
           </div>
 
-          <div className="w-full flex justify-end pt-4">
+          <div></div>
+
+          <div className="w-full flex justify-end pt-4 max-w-md">
             <button
               type="submit"
               className="px-6 py-3 rounded-md bg-[--primary-1] text-white font-semibold"

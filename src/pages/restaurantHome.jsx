@@ -20,7 +20,6 @@ import WorkingHours from "../components/restaurant/workingHours";
 import SocialMedias from "../components/restaurant/socialMedias";
 import PaymentMethods from "../components/restaurant/paymentMethods";
 import RestaurantSettings from "../components/restaurant/restaurantSettings";
-import ProductCategories from "../components/restaurant/categories";
 import AddProducts from "../components/restaurant/addProducts";
 import EditProduct from "../components/restaurant/editProduct";
 import EditProducts from "../components/restaurant/editProducts";
@@ -28,6 +27,8 @@ import EditSubCategories from "../components/restaurant/editSubCategories";
 import AddSubCategories from "../components/restaurant/addSubCategories";
 import EditOrderTagsAndItems from "../components/restaurant/editOrderTagsAndItems";
 import AddOrderTagsAndItems from "../components/restaurant/addOrderTagsAndItems";
+import AddCategories from "../components/restaurant/addCategories";
+import EditCategories from "../components/restaurant/editCategories";
 
 const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   const location = useLocation();
@@ -56,7 +57,6 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   useEffect(() => {
     if (success) {
       setData(stateRest);
-      console.log(data);
       dispatch(resetGetRestaurantState());
     }
   }, [success]);
@@ -80,13 +80,14 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
             element={<RestaurantSettings data={data} />}
           />
           <Route
-            path="/categories/:id"
-            element={<ProductCategories data={data} />}
+            path="/categories/:id/edit"
+            element={<EditCategories data={data} />}
           />
           <Route
-            path="/sub_categories/:id/edit"
-            element={<EditSubCategories data={data} />}
+            path="/categories/:id/add"
+            element={<AddCategories data={data} />}
           />
+          <Route element={<EditSubCategories data={data} />} />
           <Route
             path="/sub_categories/:id/add"
             element={<AddSubCategories data={data} />}

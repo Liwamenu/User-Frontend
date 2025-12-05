@@ -24,6 +24,7 @@ import cartSlice from "./redux/cart/cartSlice";
 import loadingSlice from "./redux/loadingSlice";
 import loadingMiddleware from "../middlewares/loadingMiddleware";
 import restaurantSlice from "./redux/restaurant";
+import categoriesSlice from "./redux/categories";
 // import emailSlice from "./redux/email";
 // import smsSlice from "./redux/sms";
 // import tempUsersSlice from "./redux/tempUsers";
@@ -40,6 +41,7 @@ const store = configureStore({
     licenses: licensesSlice,
     licensePackages: licensePackagesSlice,
     data: dataSlice,
+    categories: categoriesSlice,
     // generalVars: generalVariablesSlice,
     // getContext: getContextSlice,
     cart: cartSlice,
