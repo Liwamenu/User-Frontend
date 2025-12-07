@@ -115,7 +115,7 @@ const EditCategories = ({ data: restaurant }) => {
       const sorted = [...categories.data].sort(
         (a, b) => a.sortOrder - b.sortOrder
       );
-      console.log(sorted);
+      // console.log(sorted);
       setCategoriesData(sorted);
       setCategoriesDataBefore(sorted);
       dispatch(resetGetCategoriesState());

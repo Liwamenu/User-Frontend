@@ -15,6 +15,7 @@ const CustomFileInput = ({
   sliceNameAt = 40,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
+  const maxFileSizeMB = import.meta.env.VITE_MAX_FILE_SIZE_MB || 5;
 
   const handleDragOver = (event) => {
     event.preventDefault();
@@ -50,6 +51,10 @@ const CustomFileInput = ({
     const allowedTypes = accept.split(",").map((type) => type.trim());
     if (!allowedTypes.includes(fileType)) {
       toast.error("Invalid file type");
+      return;
+    }
+    if (file.size > maxFileSizeMB * 1024 * 1024) {
+      toast.error(`File size exceeds the maximum limit of ${maxFileSizeMB} MB`);
       return;
     }
     onChange(file);

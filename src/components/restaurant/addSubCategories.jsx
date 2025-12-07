@@ -1,21 +1,58 @@
-import { useState } from "react";
-import CustomInput from "../common/customInput";
-import CustomFileInput from "../common/customFileInput";
-import CustomSelect from "../common/customSelector";
-import dumyCategories from "../../assets/js/Categories.json";
+//MODULES
+import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
+//COMP
 import { CloudUI } from "../../assets/icon";
+import CustomInput from "../common/customInput";
+import CustomSelect from "../common/customSelector";
+import CustomFileInput from "../common/customFileInput";
+
+//REDUX
+import {
+  getCategories,
+  resetGetCategoriesState,
+} from "../../redux/categories/getCategoriesSlice";
+import {
+  addSubCategories,
+  resetAddSubCategories,
+} from "../../redux/subCategories/addSubCategoriesSlice";
 
 const AddSubCategories = ({ data: restaurant }) => {
-  const formattedCategoriesForSelect = dumyCategories.categories.map((cat) => ({
-    value: cat.id,
-    label: cat.name,
-    ...cat,
-  }));
+  const dispatch = useDispatch();
+  const { categories } = useSelector((state) => state.categories.get);
+  const { success, error } = useSelector((state) => state.subCategories.add);
+  const [formattedCategoriesData, setFormattedCategoriesData] = useState();
+
+  //GET CATEGORIES
+  useEffect(() => {
+    if (!formattedCategoriesData && restaurant) {
+      dispatch(getCategories({ restaurantId: restaurant?.id }));
+    }
+  }, [formattedCategoriesData, restaurant]);
+
+  //SET CATEGORIES WHEN FETCHED
+  useEffect(() => {
+    if (categories?.data) {
+      const sorted = [...categories.data].sort(
+        (a, b) => a.sortOrder - b.sortOrder
+      );
+
+      const formattedCats = sorted.map((cat) => ({
+        value: cat.id,
+        label: cat.name,
+        ...cat,
+      }));
+      setFormattedCategoriesData(formattedCats);
+      dispatch(resetGetCategoriesState());
+    }
+  }, [categories]);
 
   const [rows, setRows] = useState([
     {
-      categoryId: formattedCategoriesForSelect?.[0]?.value || "",
+      categoryId: formattedCategoriesData?.[0]?.value || "",
       name: "",
       image: null,
     },
@@ -25,7 +62,7 @@ const AddSubCategories = ({ data: restaurant }) => {
     setRows((prev) => [
       ...prev,
       {
-        categoryId: formattedCategoriesForSelect?.[0]?.value || "",
+        categoryId: formattedCategoriesData?.[0]?.value || "",
         name: "",
         image: null,
       },
@@ -44,35 +81,33 @@ const AddSubCategories = ({ data: restaurant }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("restaurantId", restaurant?.id ?? "");
-    formData.append(
-      "newSubCategories",
-      JSON.stringify(
-        rows.map((r, i) => ({
-          categoryId: r.categoryId,
-          name: r.name,
-          sortOrder: i,
-        }))
-      )
-    );
+
+    const payloadSubCats = rows.map((r, i) => ({
+      categoryId: r.categoryId,
+      name: r.name,
+      sortOrder: i,
+    }));
+
+    formData.append("restaurantId", restaurant?.id);
+    formData.append("CategoriesData", JSON.stringify(payloadSubCats));
 
     rows.forEach((r, i) => {
-      if (r.image) formData.append(`image_new_${i}`, r.image);
+      if (r.image) formData.append(`image_${i}`, r.image);
     });
 
-    // debug output
-    // for (const pair of formData.entries()) {
-    //   console.log(pair[0], pair[1]);
-    // }
-
-    console.log(
-      rows.map((r, i) => ({
-        categoryId: r.categoryId,
-        name: r.name,
-        sortOrder: i,
-      }))
-    );
+    dispatch(addSubCategories(formData));
   };
+
+  // TOAST
+  useEffect(() => {
+    if (success) {
+      toast.success("Alt Kategoriler başarıyla eklendi.", {
+        id: "sub_categories",
+      });
+      dispatch(resetAddSubCategories());
+    }
+    if (error) dispatch(resetAddSubCategories());
+  }, [success, error]);
 
   return (
     <div className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
@@ -109,12 +144,15 @@ const AddSubCategories = ({ data: restaurant }) => {
               <div className="w-full min-w-md">
                 <CustomSelect
                   required
-                  value={formattedCategoriesForSelect.find(
-                    (c) => c.value === row.categoryId
-                  )}
+                  value={
+                    formattedCategoriesData?.find(
+                      (c) => c.value === row.categoryId
+                    ) || { value: null, label: "Kategori Seç" }
+                  }
+                  disabled={!formattedCategoriesData}
                   classname="mt-[0] sm:mt-[0]"
                   className2="mt-[0] sm:mt-[0]"
-                  options={formattedCategoriesForSelect}
+                  options={formattedCategoriesData || []}
                   onChange={(sel) => updateRow(idx, "categoryId", sel.value)}
                   placeholder="Kategori seç"
                 />
