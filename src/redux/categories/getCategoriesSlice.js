@@ -48,12 +48,15 @@ const getCategoriesSlice = createSlice({
 });
 
 export const getCategories = createAsyncThunk(
-  "categories/getCategories",
+  "categories/GetCategoriesByRestaurantId",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.get(`${baseURL}categories/GetCategories`, {
-        params: data,
-      });
+      const res = await api.get(
+        `${baseURL}categories/GetCategoriesByRestaurantId`,
+        {
+          params: data,
+        }
+      );
 
       // console.log(res.data);
       return res.data;

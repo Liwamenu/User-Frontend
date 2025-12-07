@@ -11,6 +11,8 @@ const CustomFileInput = ({
   className,
   required,
   msg,
+  showFileDetails = true,
+  sliceNameAt = 40,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -84,34 +86,34 @@ const CustomFileInput = ({
       onDrop={handleDrop}
     >
       <div className="flex flex-col items-center justify-center cursor-pointer">
-        {!value ? (
-          msg || (
-            <>
-              <CloudUI className="size-[2.5rem]" strokeWidth={1.5} />
-              <p className="mb-2 text-sm">
-                Restoran Logosu Yüklemek için
-                <span className="font-semibold"> tıklayın</span> veya
-                <span className="font-semibold"> sürükleyip bırakın</span>
-              </p>
-              <p className="text-xs">
-                {getReadableAcceptText(accept)} (MAX. 800x400px)
-              </p>
-            </>
-          )
-        ) : (
-          <>
-            <p className="mb-2 text-sm">
-              <span className="font-semibold">Seçilen dosya: </span>
-              <span className="font-semibold text-[--primary-1]">
-                {value.name?.slice(0, 40)}
-                {value.name?.length > 40 && "..."}
-              </span>
-            </p>
-            <p className="text-xs">
-              Boyut: {(value.size / 1024).toFixed(2)} KB
-            </p>
-          </>
-        )}
+        {!value
+          ? msg || (
+              <>
+                <CloudUI className="size-[2.5rem]" strokeWidth={1.5} />
+                <p className="mb-2 text-sm">
+                  Restoran Logosu Yüklemek için
+                  <span className="font-semibold"> tıklayın</span> veya
+                  <span className="font-semibold"> sürükleyip bırakın</span>
+                </p>
+                <p className="text-xs">
+                  {getReadableAcceptText(accept)} (MAX. 800x400px)
+                </p>
+              </>
+            )
+          : showFileDetails && (
+              <div className="text-center flex flex-col justify-between">
+                <p className="text-sm">
+                  <span className="font-semibold">Seçilen dosya: </span>
+                  <span className="font-semibold text-[--primary-1]">
+                    {value.name?.slice(0, sliceNameAt)}
+                    {value.name?.length > sliceNameAt && "..."}
+                  </span>
+                </p>
+                <p className="text-xs">
+                  Boyut: {(value.size / 1024).toFixed(2)} KB
+                </p>
+              </div>
+            )}
       </div>
       <input
         type="file"

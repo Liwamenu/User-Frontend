@@ -1,55 +1,63 @@
 //MODULES
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 //COMP
 import CustomInput from "../common/customInput";
 import CustomToggle from "../common/customToggle";
 import CustomSelect from "../common/customSelector";
 import LanguagesEnums from "../../enums/languagesEnums";
-import { setRestaurantSettings } from "../../redux/restaurant/setRestaurantSettingsSlice";
+
+//REDUX
+import {
+  setRestaurantSettings,
+  resetSetRestaurantSettings,
+} from "../../redux/restaurant/setRestaurantSettingsSlice";
 
 const RestaurantSettings = ({ data }) => {
   const dispatch = useDispatch();
-  const {
-    id,
-    name,
-    tenant,
-    maxDistanceKM,
-    googleAnalytics,
-    defaultLang,
-    menuLang,
-    onlineOrder,
-    inPersonOrder,
-    hide,
-    slogan1,
-    slogan2,
-    online_order_discount_rate,
-    table_order_discount_rate,
-  } = data || {};
-  const [restaurantData, setRestaurantData] = useState({
-    restaurantId: id,
-    name,
-    tenant,
-    maxDistanceKM,
-    googleAnalytics,
-    defaultLang,
-    menuLang,
-    onlineOrder,
-    inPersonOrder,
-    hide,
-    slogan1,
-    slogan2,
-    online_order_discount_rate,
-    table_order_discount_rate,
-  });
+  const { success, error } = useSelector(
+    (state) => state.restaurant.setRestaurantSettings
+  );
+
+  const [restaurantData, setRestaurantData] = useState(data);
 
   function handleSubmit(e) {
     e.preventDefault();
-    console.log("Submitted settings:", restaurantData);
 
-    dispatch(setRestaurantSettings(restaurantData));
+    const dataToSend = {
+      restaurantId: restaurantData?.id,
+      name: restaurantData?.name,
+      tenant: restaurantData?.tenant,
+      maxDistance: restaurantData?.maxDistance,
+      googleAnalytics: restaurantData?.googleAnalytics,
+      defaultLang: restaurantData?.defaultLang,
+      menuLang: restaurantData?.menuLang,
+      onlineOrder: restaurantData?.onlineOrder,
+      inPersonOrder: restaurantData?.inPersonOrder,
+      hide: restaurantData?.hide,
+      slogan1: restaurantData?.slogan1,
+      slogan2: restaurantData?.slogan2,
+      onlineOrderDiscountRate: restaurantData?.onlineOrderDiscountRate,
+      tableOrderDiscountRate: restaurantData?.tableOrderDiscountRate,
+    };
+    console.log("Submitted settings:", dataToSend);
+    dispatch(setRestaurantSettings(dataToSend));
   }
+
+  useEffect(() => {
+    if (data && !restaurantData) setRestaurantData(data);
+  }, [data, restaurantData]);
+
+  // TOAST SUCCESS
+  useEffect(() => {
+    if (success) {
+      toast.success("Restoran ayarları başarıyla güncellendi.");
+      dispatch(resetSetRestaurantSettings());
+    }
+    if (error) dispatch(resetSetRestaurantSettings());
+  }, [success]);
 
   return (
     <div className="w-full pb-8 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
@@ -109,12 +117,12 @@ const RestaurantSettings = ({ data }) => {
               }
               placeholder="Maksimum mesafe giriniz"
               className="py-[.4rem] mt-[0] sm:mt-[0]"
-              value={restaurantData?.maxDistanceKM ?? ""}
+              value={restaurantData?.maxDistance ?? ""}
               onChange={(e) =>
                 setRestaurantData((prev) => {
                   return {
                     ...prev,
-                    maxDistanceKM: e,
+                    maxDistance: e,
                   };
                 })
               }
@@ -244,12 +252,12 @@ const RestaurantSettings = ({ data }) => {
               label="Paket Sipariş İskonto"
               placeholder="Paket Sipariş İskonto giriniz"
               className="py-[.4rem] mt-[0] sm:mt-[0] rounded-r-none"
-              value={restaurantData?.online_order_discount_rate ?? ""}
+              value={restaurantData?.onlineOrderDiscountRate ?? ""}
               onChange={(e) =>
                 setRestaurantData((prev) => {
                   return {
                     ...prev,
-                    online_order_discount_rate: e,
+                    onlineOrderDiscountRate: e,
                   };
                 })
               }
@@ -314,12 +322,12 @@ const RestaurantSettings = ({ data }) => {
               label="Masada Sipariş İskonto"
               placeholder="Masada Sipariş İskonto giriniz"
               className="py-[.4rem] mt-[0] sm:mt-[0] rounded-r-none"
-              value={restaurantData?.table_order_discount_rate ?? ""}
+              value={restaurantData?.tableOrderDiscountRate ?? ""}
               onChange={(e) =>
                 setRestaurantData((prev) => {
                   return {
                     ...prev,
-                    table_order_discount_rate: e,
+                    tableOrderDiscountRate: e,
                   };
                 })
               }

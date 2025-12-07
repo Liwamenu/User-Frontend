@@ -34,7 +34,9 @@ const RestaurantsCard = ({ inData }) => {
           <div
             className="hover:scale-105 transition-all duration-200 cursor-pointer"
             onClick={() =>
-              navigate(`/restaurant/edit/${r.id}`, { state: { restaurant: r } })
+              navigate(`/restaurant/edit/${r.id}`, {
+                state: { restaurant: r },
+              })
             }
           >
             <div className="max-w-lg aspect-square overflow-hidden">

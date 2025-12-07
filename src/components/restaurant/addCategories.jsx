@@ -160,7 +160,7 @@ const AddCategories = ({ data: restaurant }) => {
                             <MenuI className="text-gray-400 text-xl" />
                           </div>
 
-                          <div className="flex gap-4 max-sm:gap-1 w-full">
+                          <div className="flex gap-4 max-sm:gap-1 w-full max-sm:flex-col">
                             <div className="flex-1 max-w-md">
                               <CustomInput
                                 required
@@ -175,7 +175,14 @@ const AddCategories = ({ data: restaurant }) => {
                               />
                             </div>
 
-                            <div className="w-72 cursor-pointer">
+                            <div className="flex-1 flex cursor-pointer">
+                              {cat.image && (
+                                <img
+                                  src={URL.createObjectURL(cat.image)}
+                                  alt={cat.name}
+                                  className="h-[3rem] object-cover rounded"
+                                />
+                              )}
                               <CustomFileInput
                                 msg={
                                   <div className="flex items-center text-xs">
@@ -185,6 +192,14 @@ const AddCategories = ({ data: restaurant }) => {
                                     />
                                     <p>Kategori görseli yükleyin</p>
                                   </div>
+                                }
+                                // showFileDetails={screen.width > 435}
+                                sliceNameAt={
+                                  screen.width < 435
+                                    ? 10
+                                    : screen.width < 1025
+                                    ? 20
+                                    : 40
                                 }
                                 value={cat.image}
                                 onChange={(file) =>

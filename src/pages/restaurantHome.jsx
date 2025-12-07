@@ -34,12 +34,19 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   const location = useLocation();
   const dispatch = useDispatch();
   const id = useParams()["*"].split("/")[1];
-  const { restaurant } = location?.state || {};
-  const [data, setData] = useState(restaurant);
+
+  const { restaurants } = useSelector(
+    (state) => state.restaurants.getRestaurants
+  );
+
   const { restaurant: stateRest, success } = useSelector(
     (state) => state.restaurants.getRestaurant
   );
+  const { restaurant } = location?.state || {};
+  const myRestaurant = restaurants?.data?.filter((r) => r.id === id)[0];
+  const [data, setData] = useState(restaurant || myRestaurant);
 
+  // Fetch restaurant if not in state
   useEffect(() => {
     if (!restaurant && !data) {
       dispatch(getRestaurant({ restaurantId: id }));
@@ -54,6 +61,7 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
     };
   }, []);
 
+  // Update data when fetched
   useEffect(() => {
     if (success) {
       setData(stateRest);

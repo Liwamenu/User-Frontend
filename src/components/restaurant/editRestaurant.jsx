@@ -377,8 +377,6 @@ const EditRestaurant = ({ data: restaurant }) => {
     return () => URL.revokeObjectURL(objectUrl);
   }, [document]);
 
-  console.log(restaurantData);
-
   return (
     <div className=" w-full pb-8 mt-1 bg-[--white-1] rounded-lg text-[--black-2] text-base overflow-visible relative">
       <div className="flex flex-col bg-[--white-1] px-4 sm:px-14 relative">

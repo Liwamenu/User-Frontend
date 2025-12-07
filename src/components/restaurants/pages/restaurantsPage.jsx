@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 //COMP
 import AddRestaurant from "../addRestaurant";
 import CloseI from "../../../assets/icon/close";
-import RestaurantsTable from "../restaurantsTable";
 import CustomInput from "../../common/customInput";
 import TableSkeleton from "../../common/tableSkeleton";
 import CustomSelect from "../../common/customSelector";
@@ -143,7 +142,7 @@ const RestaurantsPage = () => {
 
   // GET RESTAURANTS
   useEffect(() => {
-    if (!restaurantsData) {
+    if (!restaurantsData && !restaurants) {
       dispatch(
         getRestaurants({
           pageNumber,
@@ -151,7 +150,7 @@ const RestaurantsPage = () => {
         })
       );
     }
-  }, [restaurantsData]);
+  }, [restaurantsData, restaurants]);
 
   // TOAST AND GET MERGED USERS
   useEffect(() => {

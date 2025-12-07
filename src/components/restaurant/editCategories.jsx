@@ -8,11 +8,8 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 //COMP
 import CustomInput from "../common/customInput";
-import CustomFileInput from "../common/customFileInput";
 import { CloudUI, MenuI } from "../../assets/icon";
-
-//DEMO DATA
-import demoCategories from "../../assets/js/Categories.json";
+import CustomFileInput from "../common/customFileInput";
 
 //REDUX
 import {
@@ -24,18 +21,14 @@ import {
   resetGetCategoriesState,
 } from "../../redux/categories/getCategoriesSlice";
 
-const EditCategories = ({ data: restaurant, catData }) => {
+const EditCategories = ({ data: restaurant }) => {
   const dispatch = useDispatch();
-  const sourceCategories = catData || demoCategories.categories;
 
-  const { loading, success, error } = useSelector(
-    (state) => state.categories.edit
-  );
+  const { success, error } = useSelector((state) => state.categories.edit);
   const { categories } = useSelector((state) => state.categories.get);
 
-  const [categoriesData, setCategoriesData] = useState(sourceCategories);
-  const [categoriesDataBefore, setCategoriesDataBefore] =
-    useState(sourceCategories);
+  const [categoriesData, setCategoriesData] = useState(null);
+  const [categoriesDataBefore, setCategoriesDataBefore] = useState(null);
 
   // Update field in a category row
   const updateCategory = (index, key, value) => {
@@ -93,15 +86,15 @@ const EditCategories = ({ data: restaurant, catData }) => {
         }
       });
 
-      console.log("Editing categories:", categoriesData);
+      // console.log("Editing categories:", categoriesData);
 
-      if (deletedCategories.length > 0) {
-        console.log("Deleted categories:", deletedCategories);
-      }
+      // if (deletedCategories.length > 0) {
+      //   console.log("Deleted categories:", deletedCategories);
+      // }
 
-      for (const pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
+      // for (const pair of formData.entries()) {
+      //   console.log(pair[0], pair[1]);
+      // }
 
       dispatch(editCategories(formData));
     } catch (error) {
@@ -111,16 +104,20 @@ const EditCategories = ({ data: restaurant, catData }) => {
 
   //GET CATEGORIES
   useEffect(() => {
-    if (!categoriesData) {
+    if (!categoriesData && restaurant) {
       dispatch(getCategories({ restaurantId: restaurant?.id }));
     }
-  }, [categoriesData]);
+  }, [categoriesData, restaurant]);
 
   //SET CATEGORIES WHEN FETCHED
   useEffect(() => {
-    if (categories) {
-      setCategoriesData(categories);
-      setCategoriesDataBefore(categories);
+    if (categories?.data) {
+      const sorted = [...categories.data].sort(
+        (a, b) => a.sortOrder - b.sortOrder
+      );
+      console.log(sorted);
+      setCategoriesData(sorted);
+      setCategoriesDataBefore(sorted);
       dispatch(resetGetCategoriesState());
     }
   }, [categories]);
@@ -132,7 +129,8 @@ const EditCategories = ({ data: restaurant, catData }) => {
       setCategoriesDataBefore(categoriesData);
       dispatch(resetEditCategories());
     }
-  }, [success]);
+    if (error) dispatch(resetEditCategories());
+  }, [success, error]);
 
   return (
     <div className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
@@ -174,74 +172,94 @@ const EditCategories = ({ data: restaurant, catData }) => {
             <Droppable droppableId="categories">
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef}>
-                  {categoriesData.map((cat, index) => (
-                    <Draggable
-                      key={cat.id || `temp-${cat.sortOrder}`}
-                      draggableId={cat.id || `temp-${cat.sortOrder}`}
-                      index={cat.sortOrder}
-                    >
-                      {(provided, snapshot) => (
-                        <div
-                          className={`flex gap-4 max-sm:gap-2 items-end mb-4 ${
-                            snapshot.isDragging ? "bg-[--light-1]" : ""
-                          }`}
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                        >
+                  {categoriesData &&
+                    categoriesData.map((cat, index) => (
+                      <Draggable
+                        key={cat.id || `temp-${cat.sortOrder}`}
+                        draggableId={cat.id || `temp-${cat.sortOrder}`}
+                        index={cat.sortOrder}
+                      >
+                        {(provided, snapshot) => (
                           <div
-                            {...provided.dragHandleProps}
-                            className="w-8 cursor-move flex"
+                            className={`flex gap-4 max-sm:gap-2 items-end mb-4 ${
+                              snapshot.isDragging ? "bg-[--light-1]" : ""
+                            }`}
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
                           >
-                            <MenuI className="text-gray-400 text-xl" />
-                          </div>
-
-                          <div className="flex gap-4 max-sm:gap-1 w-full">
-                            <div className="flex-1 max-w-md">
-                              <CustomInput
-                                required
-                                type="text"
-                                value={cat.name}
-                                className="mt-[0] sm:mt-[0]"
-                                className2="mt-[0] sm:mt-[0]"
-                                placeholder="Kategori adı giriniz"
-                                onChange={(e) =>
-                                  updateCategory(index, "name", e)
-                                }
-                              />
+                            <div
+                              {...provided.dragHandleProps}
+                              className="w-8 cursor-move flex"
+                            >
+                              <MenuI className="text-gray-400 text-xl" />
                             </div>
 
-                            <div className="w-72 cursor-pointer">
-                              <CustomFileInput
-                                msg={
-                                  <div className="flex items-center text-xs">
-                                    <CloudUI
-                                      className="size-[1.5rem] mt-2"
-                                      strokeWidth={1.5}
-                                    />
-                                    <p>Kategori görseli yükleyin</p>
-                                  </div>
-                                }
-                                value={cat.image}
-                                onChange={(file) =>
-                                  updateCategory(index, "image", file)
-                                }
-                                accept={"image/png, image/jpeg"}
-                                className="h-[3rem]"
-                              />
-                            </div>
-                          </div>
+                            <div className="flex gap-4 max-sm:gap-1 w-full max-sm:flex-col">
+                              <div className="flex-1 max-w-md">
+                                <CustomInput
+                                  required
+                                  type="text"
+                                  value={cat.name}
+                                  className="mt-[0] sm:mt-[0]"
+                                  className2="mt-[0] sm:mt-[0]"
+                                  placeholder="Kategori adı giriniz"
+                                  onChange={(e) =>
+                                    updateCategory(index, "name", e)
+                                  }
+                                />
+                              </div>
 
-                          <button
-                            type="button"
-                            onClick={() => removeCategory(index)}
-                            className="flex text-[--red-1] font-semibold"
-                          >
-                            Sil
-                          </button>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
+                              <div className="flex-1 flex cursor-pointer">
+                                {(cat.image || cat.imageAbsoluteUrl) && (
+                                  <img
+                                    src={
+                                      cat.image
+                                        ? URL.createObjectURL(cat.image)
+                                        : cat.imageAbsoluteUrl
+                                    }
+                                    alt={cat.name}
+                                    className="h-[3rem] object-cover rounded"
+                                  />
+                                )}
+                                <CustomFileInput
+                                  msg={
+                                    <div className="flex items-center text-xs">
+                                      <CloudUI
+                                        className="size-[1.5rem] mt-2"
+                                        strokeWidth={1.5}
+                                      />
+                                      <p>Kategori görseli yükleyin</p>
+                                    </div>
+                                  }
+                                  // showFileDetails={screen.width > 435}
+                                  sliceNameAt={
+                                    screen.width < 435
+                                      ? 10
+                                      : screen.width < 1025
+                                      ? 20
+                                      : 40
+                                  }
+                                  value={cat.image}
+                                  onChange={(file) =>
+                                    updateCategory(index, "image", file)
+                                  }
+                                  accept={"image/png, image/jpeg"}
+                                  className="h-[3rem]"
+                                />
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => removeCategory(index)}
+                              className="flex text-[--red-1] font-semibold"
+                            >
+                              Sil
+                            </button>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
 
                   {provided.placeholder}
                 </div>
