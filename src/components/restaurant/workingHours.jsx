@@ -129,12 +129,10 @@ const WorkingHours = ({ data: restaurant }) => {
   };
 
   return (
-    <div className="w-full py-5 mt-3 bg-[--white-1] rounded-lg text-[--black-2]">
+    <div className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
       <div className="flex flex-col px-4 sm:px-14 ">
-        <h1 className="text-2xl font-bold">
-          Çalışma Saatleri{" "}
-          <span className="text-[--primary-1]"> {restaurant?.name} </span>
-          Restoranı
+        <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
+          Çalışma Saatleri {restaurant?.name} Restoranı
         </h1>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-5">

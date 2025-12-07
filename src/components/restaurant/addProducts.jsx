@@ -227,12 +227,10 @@ const AddProducts = ({ data: restaurant }) => {
   }, [prodsData]);
 
   return (
-    <section className="w-full py-4 bg-[--white-1] rounded-lg text-[--black-2]">
+    <section className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
       <div className="px-4 max-w-6xl mx-auto">
-        <h1 className="self-center text-2xl font-bold">
-          Ürünler{" "}
-          <span className="text-[--primary-1]"> {restaurant?.name} </span>{" "}
-          Restoranı
+        <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 px-4 sm:px-14 rounded-t-lg">
+          Ürünler {restaurant?.name} Restoranı
         </h1>
 
         <div className="flex gap-2 my-3">

@@ -190,9 +190,11 @@ const EditOrderTagsAndItems = ({ data: restaurant, onSubmit }) => {
   console.log(tags);
 
   return (
-    <section className="w-full py-5 mt-3 bg-[--white-1] rounded-lg text-[--black-2]">
+    <section className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
       <div className="flex flex-col px-4 md:px-14" ref={containerRef}>
-        <h2 className="text-2xl font-bold mb-4">Order Tags Düzenle</h2>
+        <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 md:-mx-14 px-4 sm:px-14 rounded-t-lg">
+          Order Tags Düzenle {restaurant?.name} Restoranı
+        </h1>
 
         <div className="flex gap-2 my-4">
           <Link
@@ -259,8 +261,8 @@ const EditOrderTagsAndItems = ({ data: restaurant, onSubmit }) => {
                 <div className="flex-1">
                   <CustomInput
                     value={t.name}
-                    label="Etiket Adı(ör: Baharat Seçimi)"
                     placeholder="Etiket adı"
+                    label="Etiket Adı(ör: Baharat Seçimi)"
                     onChange={(v) => updateTag(ti, "name", v)}
                   />
                 </div>
@@ -268,9 +270,9 @@ const EditOrderTagsAndItems = ({ data: restaurant, onSubmit }) => {
                 <div className="w-36">
                   <CustomInput
                     type="number"
+                    placeholder="Min"
                     label="En Az Seçim"
                     value={t.minSelected}
-                    placeholder="Min"
                     onChange={(v) =>
                       updateTag(ti, "minSelected", Number(v || 0))
                     }
@@ -280,9 +282,9 @@ const EditOrderTagsAndItems = ({ data: restaurant, onSubmit }) => {
                 <div className="w-36">
                   <CustomInput
                     type="number"
+                    placeholder="Max"
                     label="En Çok Seçim"
                     value={t.maxSelected}
-                    placeholder="Max"
                     onChange={(v) =>
                       updateTag(ti, "maxSelected", Number(v || 0))
                     }
@@ -318,25 +320,25 @@ const EditOrderTagsAndItems = ({ data: restaurant, onSubmit }) => {
                   >
                     <div className="flex-1">
                       <CustomInput
-                        label={ii === 0 ? "Seçenek Adı" : ""}
-                        className="mt-[0] sm:mt-[0] py-[.3rem]"
-                        className2="mt-[0] sm:mt-[0]"
                         value={it.name}
                         placeholder="Seçenek adı"
+                        className2="mt-[0] sm:mt-[0]"
+                        label={ii === 0 ? "Seçenek Adı" : ""}
+                        className="mt-[0] sm:mt-[0] py-[.3rem]"
                         onChange={(v) => updateItem(ti, ii, "name", v)}
                       />
                     </div>
 
                     <div className="w-36">
                       <CustomInput
-                        label={ii === 0 ? "Fiyat" : ""}
-                        className="mt-[0] sm:mt-[0] py-[.3rem]"
-                        className2="mt-[0] sm:mt-[0]"
                         type="number"
                         name="price"
                         value={it.price}
-                        placeholder="Fiyat"
                         data-price="true"
+                        placeholder="Fiyat"
+                        className2="mt-[0] sm:mt-[0]"
+                        label={ii === 0 ? "Fiyat" : ""}
+                        className="mt-[0] sm:mt-[0] py-[.3rem]"
                         onChange={(v) => updateItem(ti, ii, "price", v)}
                         onKeyDown={handleKeyDown}
                       />
@@ -344,12 +346,12 @@ const EditOrderTagsAndItems = ({ data: restaurant, onSubmit }) => {
 
                     <div className="w-36">
                       <CustomInput
-                        label={ii === 0 ? "Maksimum Adet" : ""}
-                        className="mt-[0] sm:mt-[0] py-[.3rem]"
-                        className2="mt-[0] sm:mt-[0]"
                         type="number"
                         value={it.maxQuantity}
                         placeholder="Max Adet"
+                        className2="mt-[0] sm:mt-[0]"
+                        label={ii === 0 ? "Maksimum Adet" : ""}
+                        className="mt-[0] sm:mt-[0] py-[.3rem]"
                         onChange={(v) =>
                           updateItem(ti, ii, "maxQuantity", Number(v || 0))
                         }

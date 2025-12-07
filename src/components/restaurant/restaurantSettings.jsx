@@ -13,6 +13,7 @@ const RestaurantSettings = ({ data }) => {
   const dispatch = useDispatch();
   const {
     id,
+    name,
     tenant,
     maxDistanceKM,
     googleAnalytics,
@@ -28,6 +29,7 @@ const RestaurantSettings = ({ data }) => {
   } = data || {};
   const [restaurantData, setRestaurantData] = useState({
     restaurantId: id,
+    name,
     tenant,
     maxDistanceKM,
     googleAnalytics,
@@ -50,12 +52,10 @@ const RestaurantSettings = ({ data }) => {
   }
 
   return (
-    <div className="w-full py-5 mt-3 bg-[--white-1] rounded-lg text-[--black-2]">
-      <div className="flex flex-col px-4 sm:px-14 ">
-        <h1 className="text-2xl font-bold">
-          Ayarlar
-          <span className="text-[--primary-1]"> {restaurantData?.name} </span>
-          Restoranı
+    <div className="w-full pb-8 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
+      <div className="flex flex-col px-4 sm:px-14">
+        <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
+          Ayarlar {restaurantData?.name} Restoranı
         </h1>
 
         <form
@@ -73,14 +73,14 @@ const RestaurantSettings = ({ data }) => {
             </label>
 
             <div className="max-w-md flex items-end">
-              <span className="bg-[--light-2] px-3 py-[7.5px] rounded-l-md">
+              <span className="bg-[--gr-4] px-3 py-[7.5px] rounded-l-md">
                 https://
               </span>
               <CustomInput
                 type="text"
                 placeholder="restoran"
-                className="py-[.4rem] rounded-none mt-0 sm:mt-0"
-                className2="mt-0 sm:mt-0"
+                className="py-[.4rem] rounded-none mt-[0] sm:mt-[0]"
+                className2="mt-[0] sm:mt-[0]"
                 value={restaurantData?.tenant ?? ""}
                 onChange={(e) =>
                   setRestaurantData((prev) => {
@@ -91,7 +91,7 @@ const RestaurantSettings = ({ data }) => {
                   })
                 }
               />
-              <span className="bg-[--light-2] px-3 py-[7.5px] rounded-r-md">
+              <span className="bg-[--gr-4] px-3 py-[7.5px] rounded-r-md">
                 .liwamenu.com
               </span>
             </div>
@@ -254,9 +254,7 @@ const RestaurantSettings = ({ data }) => {
                 })
               }
             />
-            <span className="bg-[--light-2] px-3 py-[7.5px] rounded-r-md">
-              %
-            </span>
+            <span className="bg-[--gr-4] px-3 py-[7.5px] rounded-r-md">%</span>
           </div>
 
           {/* SLOGAN 2 */}
@@ -326,9 +324,7 @@ const RestaurantSettings = ({ data }) => {
                 })
               }
             />
-            <span className="bg-[--light-2] px-3 py-[7.5px] rounded-r-md">
-              %
-            </span>
+            <span className="bg-[--gr-4] px-3 py-[7.5px] rounded-r-md">%</span>
           </div>
 
           <div></div>

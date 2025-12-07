@@ -87,7 +87,10 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
             path="/categories/:id/add"
             element={<AddCategories data={data} />}
           />
-          <Route element={<EditSubCategories data={data} />} />
+          <Route
+            path="/sub_categories/:id/edit"
+            element={<EditSubCategories data={data} />}
+          />
           <Route
             path="/sub_categories/:id/add"
             element={<AddSubCategories data={data} />}

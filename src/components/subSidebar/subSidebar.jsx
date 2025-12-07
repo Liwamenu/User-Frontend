@@ -71,7 +71,7 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
     {
       icon: <Bars4I />,
       text: "Katagoriler",
-      to: `/restaurant/categories/${id}`,
+      to: `/restaurant/categories/${id}/edit`,
       path: "categories",
     },
     {

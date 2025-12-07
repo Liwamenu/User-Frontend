@@ -117,8 +117,12 @@ const EditProduct = ({ data: restaurant }) => {
   }, [prodData]);
 
   return (
-    <section className="w-full py-4 bg-[--white-1] rounded-lg text-[--black-2]">
-      <div className="px-4 max-w-4xl mx-auto">
+    <section className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
+      <div className="px-4 max-w-6xl mx-auto">
+        <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 px-4 sm:px-14 rounded-t-lg">
+          Ürün Düzenle {restaurant?.name} Restoranı
+        </h1>
+
         <div>
           <Link
             to={`/restaurant/products/${id}`}
@@ -127,12 +131,6 @@ const EditProduct = ({ data: restaurant }) => {
             <ArrowIL className="size-[1.3rem]" /> Geri Dön
           </Link>
         </div>
-
-        <h1 className="self-center text-2xl font-bold">
-          Ürün Düzenle{" "}
-          <span className="text-[--primary-1]"> {restaurant?.name} </span>
-          Restoranı
-        </h1>
 
         <form onSubmit={handleProductSubmit}>
           {prodData && (

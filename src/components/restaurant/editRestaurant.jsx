@@ -380,7 +380,7 @@ const EditRestaurant = ({ data: restaurant }) => {
   console.log(restaurantData);
 
   return (
-    <div className=" w-full py-8 mt-1 bg-[--white-1] rounded-lg text-[--black-2] text-base overflow-visible relative">
+    <div className=" w-full pb-8 mt-1 bg-[--white-1] rounded-lg text-[--black-2] text-base overflow-visible relative">
       <div className="flex flex-col bg-[--white-1] px-4 sm:px-14 relative">
         <div
           className={`absolute bg-black/15 w-full -top-12 -bottom-8 z-[999] rounded-lg flex flex-col justify-start items-center ${
@@ -389,7 +389,7 @@ const EditRestaurant = ({ data: restaurant }) => {
         >
           <div id="map" className="size-full rounded-t-md"></div>
 
-          <div className="w-full px-2 py-1 pt-2 flex bg-[--light-1] rounded-b-md">
+          <div className="w-full px-2 py-1 pt-2 flex rounded-b-md">
             <div className="w-full gap-2 flex">
               <div className="text-sm">
                 <span className="text-xs text-[--gr-1]">latitude</span>
@@ -423,11 +423,10 @@ const EditRestaurant = ({ data: restaurant }) => {
           </div>
         </div>
 
-        <h1 className="text-2xl font-bold">
-          Restoranı Düzenle
-          <span className="text-[--primary-1]"> {restaurantData.name} </span>
-          Restoranı
+        <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
+          Restoranı Düzenle {restaurantData?.name} Restoranı
         </h1>
+
         <div className="flex flex-col mt-9 w-full text-left">
           {restaurantData && (
             <form onSubmit={handleSubmit}>

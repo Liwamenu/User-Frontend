@@ -111,9 +111,11 @@ const AddOrderTagsAndItems = ({ data: restaurant, onSubmit }) => {
   };
 
   return (
-    <section className="w-full py-5 mt-3 bg-[--white-1] rounded-lg text-[--black-2]">
+    <section className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
       <div className="flex flex-col px-4 md:px-14" ref={containerRef}>
-        <h2 className="text-2xl font-bold mb-4">Yeni Order Tag & Items Ekle</h2>
+        <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 md:-mx-14 px-4 sm:px-14 rounded-t-lg">
+          Yeni Order Tag & Items Ekle {restaurant?.name} Restoranı
+        </h1>
 
         <div className="flex gap-2 my-4">
           <Link
@@ -143,6 +145,7 @@ const AddOrderTagsAndItems = ({ data: restaurant, onSubmit }) => {
                     value={t.name}
                     className="mt-[0] sm:mt-[0]"
                     className2="mt-[0] sm:mt-[0]"
+                    label="Etiket Adı(ör: Baharat Seçimi)"
                     placeholder="Etiket adı (ör: Baharat Seçimi)"
                     onChange={(v) => updateTag(ti, "name", v)}
                   />
@@ -151,10 +154,11 @@ const AddOrderTagsAndItems = ({ data: restaurant, onSubmit }) => {
                 <div className="max-md:w-1/2">
                   <CustomInput
                     type="number"
+                    value={t.minSelected}
+                    label="En Az Seçim"
+                    placeholder="En Az Seçim"
                     className="mt-[0] sm:mt-[0]"
                     className2="mt-[0] sm:mt-[0]"
-                    value={t.minSelected}
-                    placeholder="Min"
                     onChange={(v) =>
                       updateTag(ti, "minSelected", Number(v || 0))
                     }
@@ -164,8 +168,9 @@ const AddOrderTagsAndItems = ({ data: restaurant, onSubmit }) => {
                 <div className="max-md:w-1/2">
                   <CustomInput
                     type="number"
+                    label="En Çok Seçim"
                     value={t.maxSelected}
-                    placeholder="Max"
+                    placeholder="En Çok Seçim"
                     className="mt-[0] sm:mt-[0]"
                     className2="mt-[0] sm:mt-[0]"
                     onChange={(v) =>
@@ -202,6 +207,7 @@ const AddOrderTagsAndItems = ({ data: restaurant, onSubmit }) => {
                         required
                         value={it.name}
                         placeholder="Seçenek adı"
+                        label={ii === 0 ? "Seçenek Adı" : ""}
                         className="mt-[0] sm:mt-[0] py-[.3rem]"
                         className2="mt-[0] sm:mt-[0]"
                         onChange={(v) => updateItem(ti, ii, "name", v)}
@@ -210,12 +216,13 @@ const AddOrderTagsAndItems = ({ data: restaurant, onSubmit }) => {
 
                     <div className="max-md:w-1/2">
                       <CustomInput
-                        data-price="true"
                         type="number"
+                        data-price="true"
                         value={it.price}
                         placeholder="Fiyat"
-                        className="mt-[0] sm:mt-[0] py-[.3rem]"
                         className2="mt-[0] sm:mt-[0]"
+                        label={ii === 0 ? "Fiyat" : ""}
+                        className="mt-[0] sm:mt-[0] py-[.3rem]"
                         onChange={(v) => updateItem(ti, ii, "price", v)}
                         onKeyDown={handleKeyDown}
                       />
@@ -226,8 +233,9 @@ const AddOrderTagsAndItems = ({ data: restaurant, onSubmit }) => {
                         type="number"
                         value={it.maxQuantity}
                         placeholder="Max Adet"
-                        className="mt-[0] sm:mt-[0] py-[.3rem]"
                         className2="mt-[0] sm:mt-[0]"
+                        className="mt-[0] sm:mt-[0] py-[.3rem]"
+                        label={ii === 0 ? "Maksimum Adet" : ""}
                         onChange={(v) =>
                           updateItem(ti, ii, "maxQuantity", Number(v || 0))
                         }
