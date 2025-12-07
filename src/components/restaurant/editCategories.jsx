@@ -111,11 +111,11 @@ const EditCategories = ({ data: restaurant }) => {
 
   //SET CATEGORIES WHEN FETCHED
   useEffect(() => {
-    if (categories?.data) {
+    if (categories?.data?.length > 0) {
       const sorted = [...categories.data].sort(
         (a, b) => a.sortOrder - b.sortOrder
       );
-      // console.log(sorted);
+      console.log(sorted);
       setCategoriesData(sorted);
       setCategoriesDataBefore(sorted);
       dispatch(resetGetCategoriesState());
@@ -161,7 +161,7 @@ const EditCategories = ({ data: restaurant }) => {
           </Link>
         </div>
 
-        {categoriesData && categoriesData.length > 0 ? (
+        {categoriesData ? (
           <form onSubmit={handleSubmit} className="py-3">
             <div className="flex gap-4 max-sm:gap-2 items-end mb-4">
               <p className="w-8"></p>
