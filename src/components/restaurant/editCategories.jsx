@@ -161,124 +161,165 @@ const EditCategories = ({ data: restaurant }) => {
           </Link>
         </div>
 
-        <form onSubmit={handleSubmit} className="py-3">
-          <div className="flex gap-4 max-sm:gap-2 items-end mb-4">
-            <p className="w-8"></p>
-            <p className="w-[19rem]">Kategori Adı</p>
-            <p className="w-full">Kategori Görseli</p>
-          </div>
+        {categoriesData && categoriesData.length > 0 ? (
+          <form onSubmit={handleSubmit} className="py-3">
+            <div className="flex gap-4 max-sm:gap-2 items-end mb-4">
+              <p className="w-8"></p>
+              <p className="w-[19rem]">Kategori Adı</p>
+              <p className="w-full">Kategori Görseli</p>
+            </div>
 
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="categories">
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef}>
-                  {categoriesData &&
-                    categoriesData.map((cat, index) => (
-                      <Draggable
-                        key={cat.id || `temp-${cat.sortOrder}`}
-                        draggableId={cat.id || `temp-${cat.sortOrder}`}
-                        index={cat.sortOrder}
-                      >
-                        {(provided, snapshot) => (
-                          <div
-                            className={`flex gap-4 max-sm:gap-2 items-end mb-4 ${
-                              snapshot.isDragging ? "bg-[--light-1]" : ""
-                            }`}
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                          >
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="categories">
+                {(provided) => (
+                  <div {...provided.droppableProps} ref={provided.innerRef}>
+                    {categoriesData &&
+                      categoriesData.map((cat, index) => (
+                        <Draggable
+                          key={cat.id || `temp-${cat.sortOrder}`}
+                          draggableId={cat.id || `temp-${cat.sortOrder}`}
+                          index={cat.sortOrder}
+                        >
+                          {(provided, snapshot) => (
                             <div
-                              {...provided.dragHandleProps}
-                              className="w-8 cursor-move flex"
+                              className={`flex gap-4 max-sm:gap-2 items-end mb-4 ${
+                                snapshot.isDragging ? "bg-[--light-1]" : ""
+                              }`}
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
                             >
-                              <MenuI className="text-gray-400 text-xl" />
-                            </div>
-
-                            <div className="flex gap-4 max-sm:gap-1 w-full max-sm:flex-col">
-                              <div className="flex-1 max-w-md">
-                                <CustomInput
-                                  required
-                                  type="text"
-                                  value={cat.name}
-                                  className="mt-[0] sm:mt-[0]"
-                                  className2="mt-[0] sm:mt-[0]"
-                                  placeholder="Kategori adı giriniz"
-                                  onChange={(e) =>
-                                    updateCategory(index, "name", e)
-                                  }
-                                />
+                              <div
+                                {...provided.dragHandleProps}
+                                className="w-8 cursor-move flex"
+                              >
+                                <MenuI className="text-gray-400 text-xl" />
                               </div>
 
-                              <div className="flex-1 flex cursor-pointer">
-                                {(cat.image || cat.imageAbsoluteUrl) && (
-                                  <img
-                                    src={
-                                      cat.image
-                                        ? URL.createObjectURL(cat.image)
-                                        : cat.imageAbsoluteUrl
+                              <div className="flex gap-4 max-sm:gap-1 w-full max-sm:flex-col">
+                                <div className="flex-1 max-w-md">
+                                  <CustomInput
+                                    required
+                                    type="text"
+                                    value={cat.name}
+                                    className="mt-[0] sm:mt-[0]"
+                                    className2="mt-[0] sm:mt-[0]"
+                                    placeholder="Kategori adı giriniz"
+                                    onChange={(e) =>
+                                      updateCategory(index, "name", e)
                                     }
-                                    alt={cat.name}
-                                    className="h-[3rem] object-cover rounded"
                                   />
-                                )}
-                                <CustomFileInput
-                                  msg={
-                                    <div className="flex items-center text-xs">
-                                      <CloudUI
-                                        className="size-[1.5rem] mt-2"
-                                        strokeWidth={1.5}
-                                      />
-                                      <p>Kategori görseli yükleyin</p>
-                                    </div>
-                                  }
-                                  // showFileDetails={screen.width > 435}
-                                  sliceNameAt={
-                                    screen.width < 435
-                                      ? 10
-                                      : screen.width < 1025
-                                      ? 20
-                                      : 40
-                                  }
-                                  value={cat.image}
-                                  onChange={(file) =>
-                                    updateCategory(index, "image", file)
-                                  }
-                                  accept={"image/png, image/jpeg"}
-                                  className="h-[3rem]"
-                                />
+                                </div>
+
+                                <div className="flex-1 flex cursor-pointer">
+                                  {(cat.image || cat.imageAbsoluteUrl) && (
+                                    <img
+                                      src={
+                                        cat.image
+                                          ? URL.createObjectURL(cat.image)
+                                          : cat.imageAbsoluteUrl
+                                      }
+                                      alt={cat.name}
+                                      className="h-[3rem] object-cover rounded"
+                                    />
+                                  )}
+                                  <CustomFileInput
+                                    msg={<CustomFileInputMsg />}
+                                    // showFileDetails={screen.width > 435}
+                                    sliceNameAt={
+                                      screen.width < 435
+                                        ? 10
+                                        : screen.width < 1025
+                                        ? 20
+                                        : 40
+                                    }
+                                    value={cat.image}
+                                    onChange={(file) =>
+                                      updateCategory(index, "image", file)
+                                    }
+                                    accept={"image/png, image/jpeg"}
+                                    className="h-[3rem]"
+                                  />
+                                </div>
                               </div>
+
+                              <button
+                                type="button"
+                                onClick={() => removeCategory(index)}
+                                className="flex text-[--red-1] font-semibold"
+                              >
+                                Sil
+                              </button>
                             </div>
+                          )}
+                        </Draggable>
+                      ))}
 
-                            <button
-                              type="button"
-                              onClick={() => removeCategory(index)}
-                              className="flex text-[--red-1] font-semibold"
-                            >
-                              Sil
-                            </button>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
 
-                  {provided.placeholder}
+            <div className="flex items-center pt-4 mt-6 justify-end">
+              <button
+                type="submit"
+                className="px-6 py-2 rounded-md bg-[--primary-1] text-white font-semibold"
+              >
+                Kaydet
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="flex flex-col items-center justify-center">
+            <div className="bg-[--light-4] rounded-2xl p-12 max-w-2xl w-full text-center shadow-sm border border-[--light-2]">
+              <div className="mb-6">
+                <div className="w-24 h-24 mx-auto bg-[--gr-4] rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-12 h-12 text-indigo-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
                 </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+              </div>
 
-          <div className="flex items-center pt-4 mt-6 justify-end">
-            <button
-              type="submit"
-              className="px-6 py-2 rounded-md bg-[--primary-1] text-white font-semibold"
-            >
-              Kaydet
-            </button>
+              <h3 className="text-2xl font-bold text-[--black-2] mb-3">
+                Henüz Kategori Yok
+              </h3>
+
+              <p className="text-[--gr-1] mb-8 leading-relaxed">
+                Bu restoranda henüz tanımlanmış kategori bulunmuyor. Kategoriler
+                menünüzü daha düzenli ve kullanıcı dostu hale getirmenize
+                yardımcı olur.
+              </p>
+
+              {/* <div className="mt-8 pt-8 border-t border-[--light-3]">
+                <p className="text-sm text-[--gr-1]">
+                  💡 <span className="font-medium">İpucu:</span>{" "}
+                </p>
+              </div> */}
+            </div>
           </div>
-        </form>
+        )}
       </div>
     </div>
   );
 };
 
 export default EditCategories;
+
+function CustomFileInputMsg() {
+  return (
+    <div className="flex items-center text-xs">
+      <CloudUI className="size-[1.5rem] mt-2" strokeWidth={1.5} />
+      <p>Kategori görseli yükleyin</p>
+    </div>
+  );
+}

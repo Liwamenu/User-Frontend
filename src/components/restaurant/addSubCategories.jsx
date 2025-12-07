@@ -141,43 +141,59 @@ const AddSubCategories = ({ data: restaurant }) => {
         <form onSubmit={handleSubmit} className="mt-6 py-3">
           {rows.map((row, idx) => (
             <div key={idx} className="flex gap-2 items-end">
-              <div className="w-full min-w-md">
-                <CustomSelect
-                  required
-                  value={
-                    formattedCategoriesData?.find(
-                      (c) => c.value === row.categoryId
-                    ) || { value: null, label: "Kategori Seç" }
-                  }
-                  disabled={!formattedCategoriesData}
-                  classname="mt-[0] sm:mt-[0]"
-                  className2="mt-[0] sm:mt-[0]"
-                  options={formattedCategoriesData || []}
-                  onChange={(sel) => updateRow(idx, "categoryId", sel.value)}
-                  placeholder="Kategori seç"
-                />
-              </div>
+              <div className="flex gap-4 max-sm:gap-1 w-full max-sm:flex-col">
+                <div className="flex-1 max-w-md">
+                  <CustomSelect
+                    required
+                    value={
+                      formattedCategoriesData?.find(
+                        (c) => c.value === row.categoryId
+                      ) || { value: null, label: "Kategori Seç" }
+                    }
+                    disabled={!formattedCategoriesData}
+                    className="mt-[0] sm:mt-[0]"
+                    className2="mt-[0] sm:mt-[0]"
+                    options={formattedCategoriesData || []}
+                    onChange={(sel) => updateRow(idx, "categoryId", sel.value)}
+                    placeholder="Kategori seç"
+                  />
+                </div>
 
-              <div className="w-full">
-                <CustomInput
-                  required
-                  type="text"
-                  value={row.name}
-                  placeholder="Alt kategori adı"
-                  onChange={(v) => updateRow(idx, "name", v)}
-                  className="mt-[0] sm:mt-[0]"
-                  className2="mt-[0] sm:mt-[0]"
-                />
-              </div>
+                <div className="flex-1 max-w-md">
+                  <CustomInput
+                    required
+                    type="text"
+                    value={row.name}
+                    placeholder="Alt kategori adı"
+                    onChange={(v) => updateRow(idx, "name", v)}
+                    className="mt-[0] sm:mt-[0]"
+                    className2="mt-[0] sm:mt-[0]"
+                  />
+                </div>
 
-              <div className="max-w-md w-full">
-                <CustomFileInput
-                  value={row.image}
-                  onChange={(file) => updateRow(idx, "image", file)}
-                  accept={"image/png, image/jpeg"}
-                  className="h-[3rem]"
-                  msg={<CustomFileInputMsg />}
-                />
+                <div className="flex-1 flex">
+                  {(row.image || row.imageAbsoluteUrl) && (
+                    <img
+                      src={
+                        row.image
+                          ? URL.createObjectURL(row.image)
+                          : row.imageAbsoluteUrl
+                      }
+                      alt={row.name}
+                      className="h-[3rem] object-cover rounded"
+                    />
+                  )}
+                  <CustomFileInput
+                    value={row.image}
+                    onChange={(file) => updateRow(idx, "image", file)}
+                    accept={"image/png, image/jpeg"}
+                    className="h-[3rem]"
+                    msg={<CustomFileInputMsg />}
+                    sliceNameAt={
+                      screen.width < 435 ? 10 : screen.width < 1025 ? 20 : 40
+                    }
+                  />
+                </div>
               </div>
 
               <button

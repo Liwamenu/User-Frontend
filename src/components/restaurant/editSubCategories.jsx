@@ -1,8 +1,10 @@
 //MODULES
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import _ from "lodash";
 import isEqual from "lodash/isEqual";
+import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 //COMP
 import { MenuI } from "../../assets/icon";
@@ -11,24 +13,87 @@ import { CustomFileInputMsg } from "./addSubCategories";
 import CustomFileInput from "../common/customFileInput";
 
 //DATA
-import dumyCategories from "../../assets/js/Categories.json";
-import dummySubCategories from "../../assets/js/SubCategories.json";
+import {
+  getCategories,
+  resetGetCategoriesState,
+} from "../../redux/categories/getCategoriesSlice";
+import {
+  getSubCategories,
+  resetGetSubCategories,
+} from "../../redux/subCategories/getSubCategoriesSlice";
+import {
+  editSubCategories,
+  resetEditSubCategories,
+} from "../../redux/subCategories/editSubCategoriesSlice";
+import toast from "react-hot-toast";
 
-const EditSubCategories = ({ data: restaurant, subCatData }) => {
-  // formattedCategories: { [categoryId]: [subCat...] }
-  const formattedCategoriesInit = dumyCategories.categories.reduce(
-    (acc, cat) => {
-      acc[cat.id] = (subCatData || dummySubCategories.subCategories)
+const EditSubCategories = ({ data: restaurant }) => {
+  const dispatch = useDispatch();
+  const { categories } = useSelector((s) => s.categories.get);
+  const { subCategories } = useSelector((s) => s.subCategories.get);
+  const { success, error } = useSelector((s) => s.subCategories.edit);
+
+  const [formattedCategoriesData, setFormattedCategoriesData] = useState();
+  const [subCategoriesData, setSubCategoriesData] = useState(null);
+  const [subCategoriesBefore, setSubCategoriesBefore] = useState(null);
+
+  //GET CATEGORIES
+  useEffect(() => {
+    if (!formattedCategoriesData && restaurant) {
+      dispatch(getCategories({ restaurantId: restaurant?.id }));
+    }
+  }, [formattedCategoriesData, restaurant]);
+
+  //SET CATEGORIES WHEN FETCHED
+  useEffect(() => {
+    if (categories?.data) {
+      const sorted = [...categories.data].sort(
+        (a, b) => a.sortOrder - b.sortOrder
+      );
+
+      const formattedCats = sorted.map((cat) => ({
+        value: cat.id,
+        label: cat.name,
+        ...cat,
+      }));
+      setFormattedCategoriesData(formattedCats);
+      dispatch(resetGetCategoriesState());
+    }
+  }, [categories]);
+
+  // FORMAT SUBCATEGORIES INTO { categoryId: [subCategories] } STRUCTURE
+  const formattedCategoriesInit = (formattedCategoriesData) => {
+    const outData = formattedCategoriesData.reduce((acc, cat) => {
+      const filteredSubs = (subCategories?.data || [])
         .filter((s) => s.categoryId === cat.id)
         .map((sc, idx) => ({ ...sc, sortOrder: sc.sortOrder ?? idx }));
-      return acc;
-    },
-    {}
-  );
 
-  const [subCategoriesData, setSubCategoriesData] = useState(
-    subCatData ? formattedCategoriesInit : formattedCategoriesInit
-  );
+      // Only add to acc if there are subcategories
+      if (filteredSubs.length > 0) {
+        acc[cat.id] = filteredSubs;
+      }
+
+      return acc;
+    }, {});
+
+    return outData;
+  };
+
+  //GET SUBCATEGORIES
+  useEffect(() => {
+    if (!subCategoriesData && restaurant) {
+      dispatch(getSubCategories({ restaurantId: restaurant?.id }));
+    }
+  }, [subCategoriesData, restaurant]);
+
+  //SET SUBCATEGORIES
+  useEffect(() => {
+    if (subCategories && formattedCategoriesData) {
+      setSubCategoriesData(formattedCategoriesInit(formattedCategoriesData));
+      setSubCategoriesBefore(formattedCategoriesInit(formattedCategoriesData));
+      dispatch(resetGetSubCategories());
+    }
+  }, [subCategories, formattedCategoriesData]);
 
   // update name or image for a subcategory within its category
   const updateSubCategory = (categoryId, index, key, value) => {
@@ -67,85 +132,71 @@ const EditSubCategories = ({ data: restaurant, subCatData }) => {
     });
   };
 
+  //SUBMIT
   const handleSubmit = (e) => {
-    //EXTRACT THE CHANGED ONES FROM ORIGINAL formattedCategoriesInit BEFORE CONVERTING TO FORMDATA AND SENDING
     e.preventDefault();
+    if (isEqual(subCategoriesData, subCategoriesBefore)) {
+      toast.error("Hiçbir değişiklik yapılmadı.", { id: "sub_categories" });
+      return;
+    }
 
-    // Build changed object by comparing current state with initial snapshot
-    const changed = {};
+    // Flatten ALL current subcategories into a single array for update
+    const allSubCategories = [];
+    let imageIndex = 0;
 
     Object.keys(subCategoriesData).forEach((categoryId) => {
-      const origList = formattedCategoriesInit[categoryId] || [];
       const currList = subCategoriesData[categoryId] || [];
-
-      const diffs = [];
-
-      // detect removed (present in orig, not in curr by id)
-      origList.forEach((orig) => {
-        if (orig?.id && !currList.find((c) => c.id === orig.id)) {
-          diffs.push({ ...orig, _action: "removed" });
-        }
-      });
-
-      // detect added or updated (match by id when possible, fallback to index)
       currList.forEach((curr, idx) => {
-        const orig = curr?.id
-          ? origList.find((o) => o.id === curr.id)
-          : origList[idx];
-
-        // helper: compare objects ignoring image file/url differences (compare non-image fields)
-        const equalIgnoringImage = (a, b) => {
-          if (!a || !b) return false;
-          const aa = { ...a };
-          const bb = { ...b };
-          delete aa.image;
-          delete bb.image;
-          return isEqual(aa, bb);
+        // Prepare subcategory object for update
+        const subCatObj = {
+          id: curr.id,
+          categoryId: curr.categoryId,
+          name: curr.name,
+          sortOrder: idx,
         };
 
-        if (!orig) {
-          // new item
-          diffs.push({ ...curr, _action: "added", sortOrder: idx });
-        } else {
-          // if non-image fields differ or sortOrder changed or image replaced -> updated
-          const imageChanged =
-            !!curr.image &&
-            curr.image !== orig.image &&
-            curr.image instanceof File;
-          const contentChanged =
-            !equalIgnoringImage(curr, orig) ||
-            curr.sortOrder !== orig.sortOrder;
-          if (imageChanged || contentChanged) {
-            diffs.push({ ...curr, _action: "updated", sortOrder: idx });
-          }
+        // Track image index if image is a File
+        if (curr.image && curr.image instanceof File) {
+          subCatObj._imageIndex = imageIndex++;
         }
-      });
 
-      if (diffs.length) changed[categoryId] = diffs;
+        allSubCategories.push(subCatObj);
+      });
     });
 
-    // prepare FormData with only changes
+    // Prepare FormData
     const formData = new FormData();
-    formData.append("restaurantId", restaurant?.id ?? "");
-    formData.append("subCategoriesChanges", JSON.stringify(changed));
+    formData.append("restaurantId", restaurant?.id);
 
-    // append image files for changed items when provided as File
-    Object.keys(changed).forEach((categoryId) => {
-      (changed[categoryId] || []).forEach((item, idx) => {
-        if (item.image && item.image instanceof File) {
-          // use id if available, else index
-          const key = `image_${categoryId}_${item.id ?? idx}`;
-          formData.append(key, item.image);
+    // Remove _imageIndex before sending
+    const payload = allSubCategories.map(({ _imageIndex, ...rest }) => rest);
+    formData.append("CategoriesData", JSON.stringify(payload));
+
+    // Append image files
+    imageIndex = 0;
+    Object.keys(subCategoriesData).forEach((categoryId) => {
+      const currList = subCategoriesData[categoryId] || [];
+      currList.forEach((curr) => {
+        if (curr.image && curr.image instanceof File) {
+          formData.append(`image_${imageIndex}`, curr.image);
+          imageIndex++;
         }
       });
     });
 
-    // debug output
-    console.log("Changed subCategories payload:", changed);
-    for (const pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
-    }
+    dispatch(editSubCategories(formData));
   };
+
+  // TOAST
+  useEffect(() => {
+    if (success) {
+      toast.success("Alt Kategoriler başarıyla düzenlendi.", {
+        id: "sub_categories",
+      });
+      dispatch(resetEditSubCategories());
+    }
+    if (error) dispatch(resetEditSubCategories());
+  }, [success, error]);
 
   return (
     <div className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
@@ -176,111 +227,180 @@ const EditSubCategories = ({ data: restaurant, subCatData }) => {
           </Link>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-6 py-3">
-          {Object.keys(subCategoriesData).map((categoryId) => (
-            <div key={categoryId} className="mb-6">
-              <h2 className="text-lg font-semibold mb-2">
-                {dumyCategories.categories.find((c) => c.id === categoryId)
-                  ?.name || "Bilinmeyen Kategori"}
-              </h2>
+        {!_.isEmpty(subCategoriesData) ? (
+          <form onSubmit={handleSubmit} className="mt-6 py-3">
+            {subCategoriesData &&
+              Object.keys(subCategoriesData).map((categoryId) => (
+                <div key={categoryId} className="mb-6">
+                  <h2 className="text-lg font-semibold mb-2">
+                    {formattedCategoriesData.find((c) => c.id === categoryId)
+                      ?.name || "Bilinmeyen Kategori"}
+                  </h2>
 
-              <DragDropContext
-                onDragEnd={(result) => handleDragEnd(categoryId, result)}
-              >
-                <Droppable droppableId={categoryId}>
-                  {(provided) => (
-                    <div {...provided.droppableProps} ref={provided.innerRef}>
-                      {(subCategoriesData[categoryId] || []).map(
-                        (subCat, index) => (
-                          <Draggable
-                            key={subCat.id || `temp-${categoryId}-${index}`}
-                            draggableId={
-                              subCat.id || `temp-${categoryId}-${index}`
-                            }
-                            index={index}
-                          >
-                            {(prov, snap) => (
-                              <div
-                                ref={prov.innerRef}
-                                {...prov.draggableProps}
-                                className={`flex gap-2 items-end mb-3 ${
-                                  snap.isDragging ? "bg-[--light-1]" : ""
-                                }`}
+                  <DragDropContext
+                    onDragEnd={(result) => handleDragEnd(categoryId, result)}
+                  >
+                    <Droppable droppableId={categoryId}>
+                      {(provided) => (
+                        <div
+                          {...provided.droppableProps}
+                          ref={provided.innerRef}
+                        >
+                          {(subCategoriesData[categoryId] || []).map(
+                            (subCat, index) => (
+                              <Draggable
+                                key={subCat.id || `temp-${categoryId}-${index}`}
+                                draggableId={
+                                  subCat.id || `temp-${categoryId}-${index}`
+                                }
+                                index={index}
                               >
-                                <div
-                                  {...prov.dragHandleProps}
-                                  className="w-8 flex justify-center pb-3 cursor-move"
-                                >
-                                  <MenuI className="text-gray-400 text-xl" />
-                                </div>
+                                {(prov, snap) => (
+                                  <div
+                                    ref={prov.innerRef}
+                                    {...prov.draggableProps}
+                                    className={`flex gap-2 items-end mb-3 ${
+                                      snap.isDragging ? "bg-[--light-1]" : ""
+                                    }`}
+                                  >
+                                    <div
+                                      {...prov.dragHandleProps}
+                                      className="w-8 flex justify-center pb-3 cursor-move"
+                                    >
+                                      <MenuI className="text-gray-400 text-xl" />
+                                    </div>
 
-                                <div className="w-full">
-                                  <CustomInput
-                                    required
-                                    type="text"
-                                    value={subCat.name}
-                                    placeholder="Alt kategori adı"
-                                    onChange={(v) =>
-                                      updateSubCategory(
-                                        categoryId,
-                                        index,
-                                        "name",
-                                        v
-                                      )
-                                    }
-                                    className="mt-[0] sm:mt-[0]"
-                                    className2="mt-[0] sm:mt-[0]"
-                                  />
-                                </div>
+                                    <div className="flex gap-4 max-sm:gap-1 w-full max-sm:flex-col">
+                                      <div className="flex-1 max-w-md">
+                                        <CustomInput
+                                          required
+                                          type="text"
+                                          value={subCat.name}
+                                          placeholder="Alt kategori adı"
+                                          onChange={(v) =>
+                                            updateSubCategory(
+                                              categoryId,
+                                              index,
+                                              "name",
+                                              v
+                                            )
+                                          }
+                                          className="mt-[0] sm:mt-[0]"
+                                          className2="mt-[0] sm:mt-[0]"
+                                        />
+                                      </div>
 
-                                <div className="max-w-md w-full">
-                                  <CustomFileInput
-                                    value={subCat.image}
-                                    onChange={(file) =>
-                                      updateSubCategory(
-                                        categoryId,
-                                        index,
-                                        "image",
-                                        file
-                                      )
-                                    }
-                                    accept={"image/png, image/jpeg"}
-                                    className="h-[3rem]"
-                                    msg={<CustomFileInputMsg />}
-                                  />
-                                </div>
+                                      <div className="flex-1 flex">
+                                        {(subCat.image ||
+                                          subCat.imageAbsoluteUrl) && (
+                                          <img
+                                            src={
+                                              subCat.image
+                                                ? URL.createObjectURL(
+                                                    subCat.image
+                                                  )
+                                                : subCat.imageAbsoluteUrl
+                                            }
+                                            alt={subCat.name}
+                                            className="h-[3rem] object-cover rounded"
+                                          />
+                                        )}
+                                        <CustomFileInput
+                                          value={subCat.image}
+                                          onChange={(file) =>
+                                            updateSubCategory(
+                                              categoryId,
+                                              index,
+                                              "image",
+                                              file
+                                            )
+                                          }
+                                          accept={"image/png, image/jpeg"}
+                                          className="h-[3rem]"
+                                          msg={<CustomFileInputMsg />}
+                                          sliceNameAt={
+                                            screen.width < 435
+                                              ? 10
+                                              : screen.width < 1025
+                                              ? 20
+                                              : 40
+                                          }
+                                        />
+                                      </div>
+                                    </div>
 
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    removeSubCategory(categoryId, index)
-                                  }
-                                  className="text-[--red-1] font-semibold"
-                                >
-                                  Sil
-                                </button>
-                              </div>
-                            )}
-                          </Draggable>
-                        )
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        removeSubCategory(categoryId, index)
+                                      }
+                                      className="text-[--red-1] font-semibold"
+                                    >
+                                      Sil
+                                    </button>
+                                  </div>
+                                )}
+                              </Draggable>
+                            )
+                          )}
+                          {provided.placeholder}
+                        </div>
                       )}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            </div>
-          ))}
+                    </Droppable>
+                  </DragDropContext>
+                </div>
+              ))}
 
-          <div className="flex justify-end mt-4">
-            <button
-              type="submit"
-              className="px-6 py-2 rounded-md bg-[--primary-1] text-white font-semibold"
-            >
-              Kaydet
-            </button>
+            <div className="flex justify-end mt-4">
+              <button
+                type="submit"
+                className="px-6 py-2 rounded-md bg-[--primary-1] text-white font-semibold"
+              >
+                Kaydet
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="flex flex-col items-center justify-center">
+            <div className="bg-[--light-4] rounded-2xl p-12 max-w-2xl w-full text-center shadow-sm border border-[--light-2]">
+              <div className="mb-6">
+                <div className="w-24 h-24 mx-auto bg-[--gr-4] rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-12 h-12 text-indigo-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              <h3 className="text-2xl font-bold text-[--black-2] mb-3">
+                Henüz Alt Kategori Yok
+              </h3>
+
+              <p className="text-[--gr-1] mb-8 leading-relaxed">
+                Bu restoranda henüz tanımlanmış alt kategori bulunmuyor. Alt
+                kategoriler menünüzü daha düzenli ve kullanıcı dostu hale
+                getirmenize yardımcı olur.
+              </p>
+
+              <div className="mt-8 pt-8 border-t border-[--light-3]">
+                <p className="text-sm text-[--gr-1]">
+                  💡 <span className="font-medium">İpucu:</span> Alt kategoriler
+                  ana kategorilerinizi daha detaylı gruplandırmanıza olanak
+                  tanır.
+                </p>
+              </div>
+            </div>
           </div>
-        </form>
+        )}
       </div>
     </div>
   );
