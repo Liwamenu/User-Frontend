@@ -111,7 +111,7 @@ const AddSubCategories = ({ data: restaurant }) => {
     Object.keys(grouped).forEach((categoryId) => {
       grouped[categoryId].forEach((r) => {
         if (r.image) {
-          formData.append(`image_${imageIndex}`, r.image);
+          formData.append(`${categoryId}_image_${imageIndex}`, r.image);
           imageIndex++;
         }
       });

@@ -178,7 +178,7 @@ const EditSubCategories = ({ data: restaurant }) => {
       const currList = subCategoriesData[categoryId] || [];
       currList.forEach((curr) => {
         if (curr.image && curr.image instanceof File) {
-          formData.append(`image_${imageIndex}`, curr.image);
+          formData.append(`${categoryId}_image_${imageIndex}`, curr.image);
           imageIndex++;
         }
       });
