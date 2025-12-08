@@ -19,6 +19,7 @@ import {
   addSubCategories,
   resetAddSubCategories,
 } from "../../redux/subCategories/addSubCategoriesSlice";
+import { set } from "lodash";
 
 const AddSubCategories = ({ data: restaurant }) => {
   const dispatch = useDispatch();
@@ -82,17 +83,38 @@ const AddSubCategories = ({ data: restaurant }) => {
     e.preventDefault();
     const formData = new FormData();
 
-    const payloadSubCats = rows.map((r, i) => ({
-      categoryId: r.categoryId,
-      name: r.name,
-      sortOrder: i,
-    }));
+    // Group rows by categoryId
+    const grouped = {};
+    rows.forEach((r) => {
+      if (!grouped[r.categoryId]) grouped[r.categoryId] = [];
+      grouped[r.categoryId].push(r);
+    });
+
+    // Build payload with sortOrder starting from 0 for each category
+    const payloadSubCats = [];
+    Object.keys(grouped).forEach((categoryId) => {
+      grouped[categoryId].forEach((r, idx) => {
+        payloadSubCats.push({
+          categoryId: r.categoryId,
+          name: r.name,
+          sortOrder: idx,
+        });
+      });
+    });
+    console.log(payloadSubCats);
 
     formData.append("restaurantId", restaurant?.id);
     formData.append("CategoriesData", JSON.stringify(payloadSubCats));
 
-    rows.forEach((r, i) => {
-      if (r.image) formData.append(`image_${i}`, r.image);
+    // Append images in the same order as payloadSubCats
+    let imageIndex = 0;
+    Object.keys(grouped).forEach((categoryId) => {
+      grouped[categoryId].forEach((r) => {
+        if (r.image) {
+          formData.append(`image_${imageIndex}`, r.image);
+          imageIndex++;
+        }
+      });
     });
 
     dispatch(addSubCategories(formData));
@@ -104,6 +126,13 @@ const AddSubCategories = ({ data: restaurant }) => {
       toast.success("Alt Kategoriler başarıyla eklendi.", {
         id: "sub_categories",
       });
+      setRows([
+        {
+          categoryId: "",
+          name: "",
+          image: null,
+        },
+      ]);
       dispatch(resetAddSubCategories());
     }
     if (error) dispatch(resetAddSubCategories());

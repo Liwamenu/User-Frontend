@@ -22,7 +22,7 @@ const CustomSelect = ({
   );
 
   return (
-    <div className={`flex flex-col mt-3 sm:mt-6 w-full relative ${className2}`}>
+    <div className={`flex flex-col w-full relative ${className2}`}>
       <label className="text-xs font-[600] tracking-wide text-[--gr-1] max-md:max-w-full text-left">
         {label}
       </label>
@@ -32,7 +32,7 @@ const CustomSelect = ({
         onChange={onChange}
         options={options}
         required={required}
-        className={`mt-1 sm:mt-2.5 text-base font-[350] ${className}`}
+        className={`text-base font-[350] ${className}`}
         isDisabled={disabled}
         isSearchable={isSearchable !== undefined ? isSearchable : true}
         formatOptionLabel={formatOptionLabel}

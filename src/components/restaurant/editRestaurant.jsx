@@ -427,11 +427,11 @@ const EditRestaurant = ({ data: restaurant }) => {
 
         <div className="flex flex-col mt-9 w-full text-left">
           {restaurantData && (
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
               <div className="flex max-sm:flex-col gap-4">
                 <CustomInput
                   required={true}
-                  label="Ad"
+                  label="Ad*"
                   placeholder="Ad"
                   className="py-[.45rem] text-sm"
                   value={restaurantData.name}
@@ -446,8 +446,8 @@ const EditRestaurant = ({ data: restaurant }) => {
                 />
                 <CustomPhoneInput
                   required={true}
-                  label="Telefone"
-                  placeholder="Telefone"
+                  label="Telefon*"
+                  placeholder="Telefon"
                   className="py-[.45rem] text-sm"
                   value={restaurantData.phoneNumber}
                   onChange={(phone) => {
@@ -465,7 +465,7 @@ const EditRestaurant = ({ data: restaurant }) => {
               <div className="flex max-sm:flex-col gap-4">
                 <CustomSelect
                   required={true}
-                  label="Şehir"
+                  label="Şehir*"
                   placeholder="Ad"
                   style={{ padding: "1px 0px" }}
                   className="text-sm"
@@ -486,8 +486,8 @@ const EditRestaurant = ({ data: restaurant }) => {
                 />
                 <CustomSelect
                   required={true}
-                  label="İlçe"
-                  placeholder="Ad"
+                  label="İlçe*"
+                  placeholder="İlçe"
                   style={{ padding: "1px 0px" }}
                   className="text-sm"
                   value={
@@ -510,8 +510,8 @@ const EditRestaurant = ({ data: restaurant }) => {
               <div className="flex max-sm:flex-col gap-4">
                 <CustomSelect
                   required={true}
-                  label="Mahalle"
-                  placeholder="Ad"
+                  label="Mahalle*"
+                  placeholder="Mahalle"
                   style={{ padding: "1px 0px" }}
                   className="text-sm"
                   value={
@@ -532,7 +532,7 @@ const EditRestaurant = ({ data: restaurant }) => {
 
                 <CustomTextarea
                   required={true}
-                  label="Adres"
+                  label="Adres*"
                   placeholder="Adres"
                   className="text-sm h-14"
                   value={restaurantData.address}
@@ -551,10 +551,9 @@ const EditRestaurant = ({ data: restaurant }) => {
                 <div className="flex max-sm:flex-col gap-4 pointer-events-none">
                   <CustomInput
                     required={true}
-                    label="Latitude"
-                    placeholder="Latitude"
+                    label="Enlem*"
+                    placeholder="Enlem"
                     className="py-[.45rem] text-sm"
-                    className2="mt-[.5rem] sm:mt-[.5rem]"
                     value={restaurantData.latitude}
                     onChange={() => {}}
                     onClick={() => {}}
@@ -562,10 +561,9 @@ const EditRestaurant = ({ data: restaurant }) => {
                   />
                   <CustomInput
                     required={true}
-                    label="Longitude"
-                    placeholder="Longitude"
+                    label="Boylam*"
+                    placeholder="Boylam"
                     className="py-[.45rem] text-sm"
-                    className2="mt-[.5rem] sm:mt-[.5rem]"
                     value={restaurantData.longitude}
                     onChange={() => {}}
                     onClick={() => {}}

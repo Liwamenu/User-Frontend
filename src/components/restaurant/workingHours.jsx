@@ -13,6 +13,7 @@ import {
   setWorkingHours,
   resetSetWorkingHours,
 } from "../../redux/restaurant/setWorkingHoursSlice";
+import { getWorkingHours } from "../../redux/restaurant/getWorkingHoursSlice";
 
 const dayDefs = [
   { label: "Pazartesi", day: 1 },
@@ -29,6 +30,9 @@ const WorkingHours = ({ data }) => {
   const id = useParams()["*"]?.split("/")[1];
 
   const { success, loading } = useSelector((s) => s.restaurant.setWorkingHours);
+  const { data: workingHours } = useSelector(
+    (s) => s.restaurant.getWorkingHours
+  );
 
   const [workingHoursData, setWorkingHoursData] = useState([]);
 
@@ -49,42 +53,26 @@ const WorkingHours = ({ data }) => {
     return `${hh}:${mm}`;
   }
 
-  // Initialize working hours data from props
+  //GET WORKING HOURS
   useEffect(() => {
-    if (data?.workingHours) {
-      try {
-        const parsed = JSON.parse(data.workingHours);
-        const mapped = parsed.map((item) => ({
-          Day: item.Day,
-          IsClosed: item.IsClosed,
-          Open: parseTimeToDate(item.Open),
-          Close: parseTimeToDate(item.Close),
-        }));
-        setWorkingHoursData(mapped);
-      } catch (error) {
-        console.error("Error parsing working hours:", error);
-        // Initialize with default closed days
-        setWorkingHoursData(
-          dayDefs.map((d) => ({
-            Day: d.day,
-            IsClosed: true,
-            Open: parseTimeToDate("00:00"),
-            Close: parseTimeToDate("23:59"),
-          }))
-        );
-      }
-    } else {
-      // Initialize with default closed days if no data
-      setWorkingHoursData(
-        dayDefs.map((d) => ({
-          Day: d.day,
-          IsClosed: true,
-          Open: parseTimeToDate("00:00"),
-          Close: parseTimeToDate("23:59"),
-        }))
-      );
+    if (!workingHoursData?.length) {
+      dispatch(getWorkingHours({ restaurantId: id }));
     }
-  }, [data]);
+  }, [workingHours, dispatch, id]);
+
+  // Update working hours data when fetched from server
+  useEffect(() => {
+    if (workingHours) {
+      const mapped = workingHours.days.map((item) => ({
+        Day: item.day,
+        IsClosed: item.isClosed,
+        Open: parseTimeToDate(item.open),
+        Close: parseTimeToDate(item.close),
+      }));
+      setWorkingHoursData(mapped);
+      dispatch(resetSetWorkingHours());
+    }
+  }, [workingHours]);
 
   // Toast notifications
   useEffect(() => {
@@ -147,7 +135,10 @@ const WorkingHours = ({ data }) => {
               const disabled = row.IsClosed;
 
               return (
-                <div key={day} className="w-full">
+                <div
+                  key={day}
+                  className="w-full flex items-center max-md:flex-col max-md:items-start"
+                >
                   <div className="w-28 font-semibold mb-2">{label}</div>
 
                   <div className="flex gap-3 items-center">
@@ -155,9 +146,9 @@ const WorkingHours = ({ data }) => {
                       <CustomToggle
                         label={
                           row.IsClosed ? (
-                            "Kapalı"
+                            <div className="w-14">Kapalı</div>
                           ) : (
-                            <span className="pr-3">Açık</span>
+                            <div className="w-14">Açık</div>
                           )
                         }
                         checked={!row.IsClosed}
