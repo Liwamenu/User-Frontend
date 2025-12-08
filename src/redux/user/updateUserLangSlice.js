@@ -1,5 +1,3 @@
-//https://api.pentegrasyon.net:9007/api/v1/user/getUserLock
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { privateApi } from "../api";
 
@@ -9,15 +7,15 @@ const baseURL = import.meta.env.VITE_BASE_URL;
 const initialState = {
   loading: false,
   success: false,
-  error: false,
+  error: null,
   data: null,
 };
 
-const getUserLockSlice = createSlice({
-  name: "getUserLock",
+const updateUserLangSlice = createSlice({
+  name: "updateUserLang",
   initialState: initialState,
   reducers: {
-    resetgetUserLock: (state) => {
+    resetUpdateUserLangSlice: (state) => {
       state.loading = false;
       state.success = false;
       state.error = null;
@@ -26,19 +24,19 @@ const getUserLockSlice = createSlice({
   },
   extraReducers: (build) => {
     build
-      .addCase(getUserLock.pending, (state) => {
+      .addCase(updateUserLang.pending, (state) => {
         state.loading = true;
         state.success = false;
-        state.error = false;
+        state.error = null;
         state.data = null;
       })
-      .addCase(getUserLock.fulfilled, (state, action) => {
+      .addCase(updateUserLang.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.error = false;
+        state.error = null;
         state.data = action.payload;
       })
-      .addCase(getUserLock.rejected, (state, action) => {
+      .addCase(updateUserLang.rejected, (state, action) => {
         state.loading = false;
         state.success = false;
         state.error = action.payload;
@@ -47,14 +45,14 @@ const getUserLockSlice = createSlice({
   },
 });
 
-export const getUserLock = createAsyncThunk(
-  "User/GetUserLock",
-  async (_, { rejectWithValue }) => {
+export const updateUserLang = createAsyncThunk(
+  "User/updateUserLang",
+  async (data, { rejectWithValue }) => {
     try {
-      const res = await api.get(`${baseURL}Users/GetUserLock`);
+      const res = await api.put(`${baseURL}Users/UpdateUserLang`, data);
 
-      //console.log(res);
-      return res?.data?.data;
+      // console.log(res.data);
+      return res.data;
     } catch (err) {
       const errorMessage = err.message;
       return rejectWithValue({ message: errorMessage });
@@ -62,5 +60,5 @@ export const getUserLock = createAsyncThunk(
   }
 );
 
-export const { resetgetUserLock } = getUserLockSlice.actions;
-export default getUserLockSlice.reducer;
+export const { resetUpdateUserLangSlice } = updateUserLangSlice.actions;
+export default updateUserLangSlice.reducer;

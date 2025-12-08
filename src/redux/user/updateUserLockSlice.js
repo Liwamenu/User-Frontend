@@ -46,7 +46,7 @@ const updateUserLockSlice = createSlice({
 });
 
 export const updateUserLock = createAsyncThunk(
-  "Users/UpdateUserLock",
+  "User/UpdateUserLock",
   async (data, { rejectWithValue }) => {
     try {
       const res = await api.put(

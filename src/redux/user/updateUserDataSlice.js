@@ -51,7 +51,7 @@ const updateUserDataSlice = createSlice({
 });
 
 export const updateUserData = createAsyncThunk(
-  "Users/UpdateUser",
+  "User/UpdateUser",
   async (
     { dealerId, email, phoneNumber, firstName, lastName, city, district },
     { rejectWithValue }

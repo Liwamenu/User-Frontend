@@ -51,7 +51,7 @@ const updateUserPasswordSlice = createSlice({
 });
 
 export const updateUserPassword = createAsyncThunk(
-  "Users/updateUserPassword",
+  "User/updateUserPassword",
   async ({ newPassword, newPasswordConfirm }, { rejectWithValue }) => {
     try {
       const res = await api.put(`${baseURL}Users/UpdateUserPasswordByUserId`, {

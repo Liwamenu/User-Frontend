@@ -50,6 +50,7 @@ import EyeI from "./eye";
 import Bars4 from "./bars4";
 import Bars4SubI from "./bars4sub";
 import ListI from "./list";
+import LangI from "./language";
 
 export {
   DashboardI,
@@ -102,4 +103,5 @@ export {
   Bars4,
   Bars4SubI,
   ListI,
+  LangI,
 };

@@ -51,7 +51,7 @@ const updateUserInvoiceSlice = createSlice({
 });
 
 export const updateUserInvoice = createAsyncThunk(
-  "Users/updateUserInvoice",
+  "User/updateUserInvoice",
   async (
     {
       taxOffice,

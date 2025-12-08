@@ -1,5 +1,6 @@
 //MODULES
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,26 +10,46 @@ import { usePopup } from "../../context/PopupContext";
 import { getTheme, setTheme } from "../../utils/localStorage";
 import { SettingsI, MenuI, SunI, MoonI } from "../../assets/icon";
 
+//ENUMS
+import LanguagesEnums from "../../enums/languagesEnums";
+
 //REDUX
 import { getAuth, clearAuth } from "../../redux/api";
 import { logout, resetLogoutState } from "../../redux/auth/logoutSlice";
+import {
+  resetUpdateUserLangSlice,
+  updateUserLang,
+} from "../../redux/user/updateUserLangSlice";
 
 function Header({ openSidebar, setOpenSidebar }) {
   const toastId = useRef();
+  const langRef = useRef();
   const param = useParams();
   const dispatch = useDispatch();
   const headerSettingsRef = useRef();
+  const { i18n } = useTranslation();
 
-  const { loading, success, error } = useSelector((state) => state.auth.logout);
-
+  const KEY = import.meta.env.VITE_LOCAL_KEY;
+  const userString = localStorage.getItem(KEY);
+  const { user } = JSON.parse(userString);
   const [open, setOpen] = useState(false);
 
+  const [langOpen, setLangOpen] = useState(false);
+  const [selectedLang, setSelectedLang] = useState(user?.defaultLang || "0");
+
+  const { loading, success, error } = useSelector((state) => state.auth.logout);
+  const { success: lngSucc, error: lngErr } = useSelector(
+    (s) => s.user.updateUserLang
+  );
+
+  //LOGOUT
   const handleLogout = () => {
     const userSessionId = getAuth().sessionId;
     setOpen(!open);
     dispatch(logout({ userSessionId }));
   };
 
+  //LOGOUT TOAST
   useEffect(() => {
     if (loading) {
       toastId.current = toast.loading("Çıkış Yapılıyor...");
@@ -47,8 +68,8 @@ function Header({ openSidebar, setOpenSidebar }) {
     }
   }, [success, loading, error]);
 
+  //REF
   const { contentRef, setContentRef } = usePopup();
-
   useEffect(() => {
     if (headerSettingsRef) {
       const refs = contentRef.filter((ref) => ref.id !== "headerSettings");
@@ -63,6 +84,38 @@ function Header({ openSidebar, setOpenSidebar }) {
       ]);
     }
   }, [headerSettingsRef, open]);
+
+  // Handle language change
+  const handleLangChange = (code, id) => {
+    setLangOpen(false);
+    setSelectedLang(code);
+
+    dispatch(updateUserLang({ defaultLang: code }));
+    i18n.changeLanguage(id);
+  };
+
+  useEffect(() => {
+    if (lngSucc) {
+      // window.location.reload();
+      dispatch(resetUpdateUserLangSlice());
+    }
+    lngErr && dispatch(resetUpdateUserLangSlice());
+  }, [lngSucc, lngErr]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (langRef.current && !langRef.current.contains(event.target)) {
+        setLangOpen(false);
+      }
+    }
+    if (langOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [langOpen]);
 
   return (
     <>
@@ -81,7 +134,39 @@ function Header({ openSidebar, setOpenSidebar }) {
             Liwamenu
           </p>
 
-          <div className="flex gap-4 max-sm:gap-2">
+          <div className="flex items-center gap-4 max-sm:gap-2">
+            {/* Language Selector */}
+            <div className="relative" ref={langRef}>
+              <div
+                className="text-[--black-1] cursor-pointer flex items-center"
+                onClick={() => setLangOpen((v) => !v)}
+              >
+                <span className="ml-1 text-xs font-semibold uppercase">
+                  {
+                    LanguagesEnums.filter((l) => l.value == selectedLang)[0]
+                      .label
+                  }
+                </span>
+              </div>
+              {langOpen && (
+                <div className="absolute right-0 mt-2 flex flex-col gap-1 px-4 py-1 bg-[--white-1] text-[--black-1] border border-[--border-1] rounded shadow z-50">
+                  {LanguagesEnums.map((lang) => (
+                    <div
+                      key={lang.value}
+                      className={`text-sm cursor-pointer hover:bg-[--light-3] ${
+                        selectedLang === lang.value
+                          ? "font-bold text-[--primary-1]"
+                          : ""
+                      }`}
+                      onClick={() => handleLangChange(lang.value, lang.id)}
+                    >
+                      {lang.label}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <button
               onClick={() => setTheme(getTheme() == "light" ? "dark" : "light")}
               className="flex justify-center items-center w-10 h-10 bg-[--light-1] text-[--primary-1] rounded-3xl"

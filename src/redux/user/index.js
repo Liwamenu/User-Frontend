@@ -8,10 +8,12 @@ import addUserInvoiceSlice from "./addUserInvoiceSlice";
 import updateUserPasswordSlice from "./updateUserPasswordSlice";
 import getUserLockSlice from "./getUserLockSlice";
 import updateUserLockSlice from "./updateUserLockSlice";
+import updateUserLangSlice from "./updateUserLangSlice";
 
 const userSlice = combineReducers({
   getUser: getUserSlice,
   updateUserData: updateUserDataSlice,
+  updateUserLang: updateUserLangSlice,
   updateInvoice: updateUserInvoiceSlice,
   addInvoice: addUserInvoiceSlice,
   updatePassword: updateUserPasswordSlice,

@@ -53,7 +53,7 @@ const getUserSlice = createSlice({
 });
 
 export const getUser = createAsyncThunk(
-  "Users/GetUser",
+  "User/GetUser",
   async (_, { rejectWithValue }) => {
     try {
       const res = await api.get(`${baseURL}Users/GetUser`);
