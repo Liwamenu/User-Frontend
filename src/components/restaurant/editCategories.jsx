@@ -8,7 +8,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 //COMP
 import CustomInput from "../common/customInput";
-import { CloudUI, MenuI } from "../../assets/icon";
+import { CloudUI, MenuI, WarnI } from "../../assets/icon";
 import CustomFileInput from "../common/customFileInput";
 
 //REDUX
@@ -18,11 +18,13 @@ import {
 } from "../../redux/categories/editCategoriesSlice";
 import {
   getCategories,
-  resetGetCategoriesState,
+  resetGetCategories,
 } from "../../redux/categories/getCategoriesSlice";
+import { usePopup } from "../../context/PopupContext";
 
 const EditCategories = ({ data: restaurant }) => {
   const dispatch = useDispatch();
+  const { setPopupContent } = usePopup();
 
   const { success, error } = useSelector((state) => state.categories.edit);
   const { categories } = useSelector((state) => state.categories.get);
@@ -39,9 +41,18 @@ const EditCategories = ({ data: restaurant }) => {
 
   // Remove a category row
   const removeCategory = (index) => {
-    setCategoriesData((prev) =>
-      prev.filter((_, i) => i !== index).map((c, i) => ({ ...c, sortOrder: i }))
+    setPopupContent(
+      <DeletetionWarning
+        index={index}
+        categoriesData={categoriesData}
+        setCategoriesData={setCategoriesData}
+        setPopupContent={setPopupContent}
+        handleSubmit={handleSubmit}
+      />
     );
+    // setCategoriesData((prev) =>
+    //   prev.filter((_, i) => i !== index).map((c, i) => ({ ...c, sortOrder: i }))
+    // );
   };
 
   // Handle drag end
@@ -57,44 +68,43 @@ const EditCategories = ({ data: restaurant }) => {
     setCategoriesData(updated);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isEqual(categoriesData, categoriesDataBefore)) {
-      toast.error("Değişiklik yapılmadı.");
+  const handleSubmit = (e, index) => {
+    e?.preventDefault();
+
+    if (isEqual(categoriesData, categoriesDataBefore) && index === undefined) {
+      toast.error("Değişiklik yapılmadı.", { id: "categories" });
       return;
     }
 
     try {
       const formData = new FormData();
+      let _categories = [...categoriesData];
+      if (index !== undefined)
+        _categories = _categories
+          .filter((_, i) => i !== index)
+          .map((c, i) => ({ ...c, sortOrder: i }));
+      setCategoriesData(_categories);
 
-      const payloadCategories = categoriesData.map((cat) => {
+      const payloadCategories = _categories.map((cat) => {
         const { image, ...rest } = cat;
         return rest;
       });
 
       const deletedCategories = categoriesDataBefore.filter(
-        (prevCat) => !categoriesData.some((cat) => cat.id === prevCat.id)
+        (prevCat) => !_categories.some((cat) => cat.id === prevCat.id)
       );
 
       formData.append("restaurantId", restaurant?.id);
       formData.append("categoriesData", JSON.stringify(payloadCategories));
       formData.append("deletedCategories", JSON.stringify(deletedCategories));
 
-      categoriesData.forEach((cat, index) => {
+      _categories.forEach((cat, index) => {
         if (cat.image) {
           formData.append(`image_${index}`, cat.image);
+        } else if (cat.imageAbsoluteUrl) {
+          formData.append(`imageUrl_${index}`, cat.imageAbsoluteUrl);
         }
       });
-
-      // console.log("Editing categories:", categoriesData);
-
-      // if (deletedCategories.length > 0) {
-      //   console.log("Deleted categories:", deletedCategories);
-      // }
-
-      // for (const pair of formData.entries()) {
-      //   console.log(pair[0], pair[1]);
-      // }
 
       dispatch(editCategories(formData));
     } catch (error) {
@@ -111,16 +121,16 @@ const EditCategories = ({ data: restaurant }) => {
 
   //SET CATEGORIES WHEN FETCHED
   useEffect(() => {
-    if (categories?.data?.length > 0) {
+    if (categories?.data) {
       const sorted = [...categories.data].sort(
         (a, b) => a.sortOrder - b.sortOrder
       );
       console.log(sorted);
       setCategoriesData(sorted);
       setCategoriesDataBefore(sorted);
-      dispatch(resetGetCategoriesState());
+      dispatch(resetGetCategories());
     }
-  }, [categories]);
+  }, [categories, categoriesData]);
 
   // TOAST
   useEffect(() => {
@@ -161,7 +171,7 @@ const EditCategories = ({ data: restaurant }) => {
           </Link>
         </div>
 
-        {categoriesData ? (
+        {categoriesData?.length ? (
           <form onSubmit={handleSubmit} className="py-3">
             <div className="flex gap-4 max-sm:gap-2 items-end mb-4">
               <p className="w-8"></p>
@@ -320,6 +330,47 @@ function CustomFileInputMsg() {
     <div className="flex items-center text-xs">
       <CloudUI className="size-[1.5rem] mt-2" strokeWidth={1.5} />
       <p>Kategori görseli yükleyin</p>
+    </div>
+  );
+}
+
+function DeletetionWarning({
+  index,
+  categoriesData,
+  setPopupContent,
+  handleSubmit,
+}) {
+  return (
+    <div className="bg-[--light-4] text-[--black-2] border border-[--light-2] p-4 rounded-md">
+      <div className=" flex justify-center">
+        <div className="w-20 text-[--red-1]">
+          <WarnI />
+        </div>
+      </div>
+      <h2 className="text-lg text-center font-bold mb-4">
+        Kategori Silme İşlemi
+      </h2>
+      <p className="mb-6 text-center">
+        Bu <span className="text-[--red-1]">{categoriesData[index]?.name}</span>{" "}
+        kategoriyi silmek istediğinize emin misiniz?
+      </p>
+      <div className="flex justify-end gap-4">
+        <button
+          onClick={() => setPopupContent(null)}
+          className="px-4 py-2 bg-[--gr-3] text-black rounded-md"
+        >
+          İptal
+        </button>
+        <button
+          onClick={() => {
+            handleSubmit(null, index);
+            setPopupContent(null);
+          }}
+          className="px-8 py-2 bg-[--red-1] text-white rounded-md"
+        >
+          Sil
+        </button>
+      </div>
     </div>
   );
 }

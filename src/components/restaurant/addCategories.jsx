@@ -95,6 +95,7 @@ const AddCategories = ({ data: restaurant }) => {
   useEffect(() => {
     if (success) {
       toast.success("Kategoriler başarıyla eklendi.", { id: "categories" });
+      setCategories([{ name: "", image: null, sortOrder: 0 }]);
       dispatch(resetAddCategories());
     }
   }, [success]);
