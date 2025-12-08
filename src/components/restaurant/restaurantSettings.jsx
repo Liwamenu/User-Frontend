@@ -2,6 +2,7 @@
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 //COMP
 import CustomInput from "../common/customInput";
@@ -16,6 +17,7 @@ import {
 } from "../../redux/restaurant/setRestaurantSettingsSlice";
 
 const RestaurantSettings = ({ data }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { success, error } = useSelector(
     (state) => state.restaurant.setRestaurantSettings
@@ -53,17 +55,17 @@ const RestaurantSettings = ({ data }) => {
   // TOAST SUCCESS
   useEffect(() => {
     if (success) {
-      toast.success("Restoran ayarları başarıyla güncellendi.");
+      toast.success(t("restaurantSettings.success"));
       dispatch(resetSetRestaurantSettings());
     }
     if (error) dispatch(resetSetRestaurantSettings());
-  }, [success]);
+  }, [success, error, dispatch]);
 
   return (
     <div className="w-full pb-8 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
       <div className="flex flex-col px-4 sm:px-14">
         <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
-          Ayarlar {restaurantData?.name} Restoranı
+          {t("restaurantSettings.title", { name: restaurantData?.name })}
         </h1>
 
         <form onSubmit={handleSubmit}>
@@ -72,10 +74,9 @@ const RestaurantSettings = ({ data }) => {
               {/* TENANT */}
               <div className="max-w-md">
                 <label className="text-xs font-semibold tracking-wide text-[--gr-1] max-md:max-w-full text-left">
-                  <span className="whitespace-nowrap">
-                    Tenant (Örn:{" "}
-                    <span className="text-[--primary-1]">restoran</span>
-                    .liwamenu.com)
+                  {t("restaurantSettings.tenant")}{" "}
+                  <span className="text-[--primary-1]">
+                    {t("restaurantSettings.tenant_note")}
                   </span>
                 </label>
 
@@ -85,16 +86,14 @@ const RestaurantSettings = ({ data }) => {
                   </span>
                   <CustomInput
                     type="text"
-                    placeholder="restoran"
+                    placeholder={t("restaurantSettings.tenant_placeholder")}
                     className="py-[.4rem] rounded-none"
                     value={restaurantData?.tenant ?? ""}
                     onChange={(e) =>
-                      setRestaurantData((prev) => {
-                        return {
-                          ...prev,
-                          tenant: e,
-                        };
-                      })
+                      setRestaurantData((prev) => ({
+                        ...prev,
+                        tenant: e,
+                      }))
                     }
                   />
                   <span className="bg-[--gr-4] px-3 py-[7.5px] rounded-r-md">
@@ -109,27 +108,26 @@ const RestaurantSettings = ({ data }) => {
                   type="text"
                   label={
                     <span>
-                      {" "}
                       <a
                         href="https://analytics.google.com/analytics/web"
                         target="_blank"
                         className="text-[--link-1]"
                       >
-                        Google Analytics
+                        {t("restaurantSettings.google_analytics")}
                       </a>{" "}
-                      websitesinden ulaşabilirsiniz.{" "}
+                      websitesinden ulaşabilirsiniz.
                     </span>
                   }
                   className="py-[.4rem]"
-                  placeholder="Google Analytics Measurement-ID'nizi yazınız"
+                  placeholder={t(
+                    "restaurantSettings.google_analytics_placeholder"
+                  )}
                   value={restaurantData?.googleAnalytics ?? ""}
                   onChange={(e) =>
-                    setRestaurantData((prev) => {
-                      return {
-                        ...prev,
-                        googleAnalytics: e,
-                      };
-                    })
+                    setRestaurantData((prev) => ({
+                      ...prev,
+                      googleAnalytics: e,
+                    }))
                   }
                 />
               </div>
@@ -138,22 +136,24 @@ const RestaurantSettings = ({ data }) => {
               <div className="max-w-md">
                 <CustomSelect
                   type="text"
-                  label="Menu Dili Seçeneği"
-                  placeholder="Örn: tr, en"
+                  label={t("restaurantSettings.menu_language")}
+                  placeholder={t(
+                    "restaurantSettings.menu_language_placeholder"
+                  )}
                   style={{ borderRadius: ".4rem", padding: "0rem 0px" }}
                   value={
                     LanguagesEnums.find(
                       (L) => L.value == (restaurantData?.menuLang ?? null)
-                    ) || { label: "Dil Seç" }
+                    ) || {
+                      label: t("restaurantSettings.menu_language_placeholder"),
+                    }
                   }
                   options={LanguagesEnums}
                   onChange={(selectedOption) =>
-                    setRestaurantData((prev) => {
-                      return {
-                        ...prev,
-                        menuLang: selectedOption.value,
-                      };
-                    })
+                    setRestaurantData((prev) => ({
+                      ...prev,
+                      menuLang: selectedOption.value,
+                    }))
                   }
                 />
               </div>
@@ -162,17 +162,15 @@ const RestaurantSettings = ({ data }) => {
               <div className="max-w-md">
                 <CustomInput
                   type="text"
-                  label="Slogan 1"
-                  placeholder="Slogan 1 giriniz"
+                  label={t("restaurantSettings.slogan1")}
+                  placeholder={t("restaurantSettings.slogan1_placeholder")}
                   className="py-[.4rem]"
                   value={restaurantData?.slogan1 ?? ""}
                   onChange={(e) =>
-                    setRestaurantData((prev) => {
-                      return {
-                        ...prev,
-                        slogan1: e,
-                      };
-                    })
+                    setRestaurantData((prev) => ({
+                      ...prev,
+                      slogan1: e,
+                    }))
                   }
                 />
               </div>
@@ -180,17 +178,15 @@ const RestaurantSettings = ({ data }) => {
               {/* SLOGAN 2 */}
               <div className="max-w-md">
                 <CustomInput
-                  label="Slogan 2"
-                  placeholder="Slogan 2 giriniz"
+                  label={t("restaurantSettings.slogan2")}
+                  placeholder={t("restaurantSettings.slogan2_placeholder")}
                   className="py-[.4rem]"
                   value={restaurantData?.slogan2 ?? ""}
                   onChange={(e) =>
-                    setRestaurantData((prev) => {
-                      return {
-                        ...prev,
-                        slogan2: e,
-                      };
-                    })
+                    setRestaurantData((prev) => ({
+                      ...prev,
+                      slogan2: e,
+                    }))
                   }
                 />
               </div>
@@ -198,16 +194,14 @@ const RestaurantSettings = ({ data }) => {
               {/* HIDE RESTAURANT */}
               <div className="flex justify-between items-center max-w-md border border-[--border-1] rounded-md p-1.5 mt-3">
                 <CustomToggle
-                  label={"Restoranı Gizle"}
+                  label={t("restaurantSettings.hide_restaurant")}
                   className2="font-medium"
                   checked={restaurantData?.hide}
-                  onChange={(e) =>
-                    setRestaurantData((prev) => {
-                      return {
-                        ...prev,
-                        hide: !restaurantData.hide,
-                      };
-                    })
+                  onChange={() =>
+                    setRestaurantData((prev) => ({
+                      ...prev,
+                      hide: !restaurantData.hide,
+                    }))
                   }
                 />
               </div>
@@ -217,22 +211,24 @@ const RestaurantSettings = ({ data }) => {
               {/* MAXIMUM DISTANCE */}
               <div>
                 <span className="text-xs font-semibold tracking-wide text-[--gr-1] max-md:max-w-full text-left ">
-                  Maksimum Mesafe (km){" "}
-                  <span className="text-[--primary-1]">Paket servisi için</span>
+                  {t("restaurantSettings.max_distance")}{" "}
+                  <span className="text-[--primary-1]">
+                    {t("restaurantSettings.max_distance_note")}
+                  </span>
                 </span>
                 <div className="max-w-md">
                   <CustomInput
                     type="number"
-                    placeholder="Maksimum mesafe giriniz"
+                    placeholder={t(
+                      "restaurantSettings.max_distance_placeholder"
+                    )}
                     className="py-[.4rem]"
                     value={restaurantData?.maxDistance ?? ""}
                     onChange={(e) =>
-                      setRestaurantData((prev) => {
-                        return {
-                          ...prev,
-                          maxDistance: e,
-                        };
-                      })
+                      setRestaurantData((prev) => ({
+                        ...prev,
+                        maxDistance: e,
+                      }))
                     }
                   />
                 </div>
@@ -241,16 +237,14 @@ const RestaurantSettings = ({ data }) => {
               {/* ONLINE ORDER */}
               <div className="flex justify-between items-center max-w-md border border-[--border-1] rounded-md p-1.5 mt-3">
                 <CustomToggle
-                  label={"Paket Sipariş"}
+                  label={t("restaurantSettings.online_order")}
                   className2="font-medium"
                   checked={restaurantData?.onlineOrder}
-                  onChange={(e) =>
-                    setRestaurantData((prev) => {
-                      return {
-                        ...prev,
-                        onlineOrder: !restaurantData.onlineOrder,
-                      };
-                    })
+                  onChange={() =>
+                    setRestaurantData((prev) => ({
+                      ...prev,
+                      onlineOrder: !restaurantData.onlineOrder,
+                    }))
                   }
                 />
               </div>
@@ -259,17 +253,17 @@ const RestaurantSettings = ({ data }) => {
               <div className="max-w-md flex items-end">
                 <CustomInput
                   type="number"
-                  label="Paket Sipariş İskonto"
-                  placeholder="Paket Sipariş İskonto giriniz"
+                  label={t("restaurantSettings.online_order_discount")}
+                  placeholder={t(
+                    "restaurantSettings.online_order_discount_placeholder"
+                  )}
                   className="py-[.4rem] rounded-r-none"
                   value={restaurantData?.onlineOrderDiscountRate ?? ""}
                   onChange={(e) =>
-                    setRestaurantData((prev) => {
-                      return {
-                        ...prev,
-                        onlineOrderDiscountRate: e,
-                      };
-                    })
+                    setRestaurantData((prev) => ({
+                      ...prev,
+                      onlineOrderDiscountRate: e,
+                    }))
                   }
                 />
                 <span className="bg-[--gr-4] px-3 py-[7.5px] rounded-r-md">
@@ -280,16 +274,14 @@ const RestaurantSettings = ({ data }) => {
               {/* IN PERSON ORDER */}
               <div className="flex justify-between items-center max-w-md border border-[--border-1] rounded-md p-1.5 mt-3">
                 <CustomToggle
-                  label={"Masada Sipariş"}
+                  label={t("restaurantSettings.in_person_order")}
                   className2="font-medium"
                   checked={restaurantData?.inPersonOrder}
-                  onChange={(e) =>
-                    setRestaurantData((prev) => {
-                      return {
-                        ...prev,
-                        inPersonOrder: !restaurantData.inPersonOrder,
-                      };
-                    })
+                  onChange={() =>
+                    setRestaurantData((prev) => ({
+                      ...prev,
+                      inPersonOrder: !restaurantData.inPersonOrder,
+                    }))
                   }
                 />
               </div>
@@ -298,17 +290,17 @@ const RestaurantSettings = ({ data }) => {
               <div className="max-w-md flex items-end">
                 <CustomInput
                   type="number"
-                  label="Masada Sipariş İskonto"
-                  placeholder="Masada Sipariş İskonto giriniz"
+                  label={t("restaurantSettings.table_order_discount")}
+                  placeholder={t(
+                    "restaurantSettings.table_order_discount_placeholder"
+                  )}
                   className="py-[.4rem] rounded-r-none"
                   value={restaurantData?.tableOrderDiscountRate ?? ""}
                   onChange={(e) =>
-                    setRestaurantData((prev) => {
-                      return {
-                        ...prev,
-                        tableOrderDiscountRate: e,
-                      };
-                    })
+                    setRestaurantData((prev) => ({
+                      ...prev,
+                      tableOrderDiscountRate: e,
+                    }))
                   }
                 />
                 <span className="bg-[--gr-4] px-3 py-[7.5px] rounded-r-md">
@@ -324,7 +316,7 @@ const RestaurantSettings = ({ data }) => {
               type="submit"
               className="px-6 py-3 rounded-md bg-[--primary-1] text-white font-semibold"
             >
-              Kaydet
+              {t("restaurantSettings.save")}
             </button>
           </div>
         </form>

@@ -1,60 +1,39 @@
 //MODULES
 import { useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next"; // <-- Add this import
 
 //ASSETS
 import UserProfile from "./userProfile";
 import logo from "../../assets/img/logo.png";
 
 // ICONS
-import {
-  DashboardI,
-  UsersI,
-  RestourantI,
-  LicenseI,
-  PackagesI,
-  MessagesI,
-  LogI,
-  PaymentI,
-  ParamsI,
-  UserPlusI,
-  TemplatesI,
-  DebitI,
-  WaitI,
-  ManagerI,
-  TempUsersI,
-  BoxInI,
-} from "../../assets/icon/index";
+import { RestourantI, LicenseI, BoxInI } from "../../assets/icon/index";
 
 //COMP
 import { usePopup } from "../../context/PopupContext";
 
 function Sidebar({ openSidebar, setOpenSidebar }) {
+  const { t } = useTranslation(); // <-- Add this line
   const param = useParams();
   const sidebarRef = useRef();
   const { showPopup, contentRef, setContentRef } = usePopup();
   const sidebarItems = [
-    // {
-    //   icon: <DashboardI />,
-    //   text: "Gösterge Paneli",
-    //   to: "/dashboard",
-    //   path: "dashboard",
-    // },
     {
       icon: <RestourantI />,
-      text: "Restoranlar",
+      text: t("sidebar.restaurants"),
       to: "/restaurants",
       path: "restaurants",
     },
     {
       icon: <LicenseI />,
-      text: "Lisanslar",
+      text: t("sidebar.licenses"),
       to: "/licenses",
       path: "licenses",
     },
     {
       icon: <BoxInI />,
-      text: "Siparişler",
+      text: t("sidebar.orders"),
       to: "/orders",
       path: "orders",
     },
@@ -86,14 +65,14 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
       ref={sidebarRef}
     >
       <div className="flex flex-col w-full relative">
-        <header className="flex items-center justify-center px-6 h-16 w-full text-xl font-[500] leading-7 text-[--black-2]">
+        <header className="flex items-center justify-center pr-6 h-16 w-full text-xl font-[500] leading-7 text-[--black-2]">
           <Link to="/" className="flex gap-1 w-max mr-6">
-            {/* <img
+            <img
               loading="lazy"
               src={logo}
               alt=""
-              className="shrink-0 w-7 aspect-square"
-            /> */}
+              className="shrink-0 w-7 aspect-square rounded-full"
+            />
             <p className="whitespace-nowrap">Liwamenu</p>
           </Link>
         </header>

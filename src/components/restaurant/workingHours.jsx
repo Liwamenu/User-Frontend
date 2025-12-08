@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 // COMP
 import CustomToggle from "../common/customToggle";
@@ -15,17 +16,8 @@ import {
 } from "../../redux/restaurant/setWorkingHoursSlice";
 import { getWorkingHours } from "../../redux/restaurant/getWorkingHoursSlice";
 
-const dayDefs = [
-  { label: "Pazartesi", day: 1 },
-  { label: "Salı", day: 2 },
-  { label: "Çarşamba", day: 3 },
-  { label: "Perşembe", day: 4 },
-  { label: "Cuma", day: 5 },
-  { label: "Cumartesi", day: 6 },
-  { label: "Pazar", day: 7 },
-];
-
 const WorkingHours = ({ data }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const id = useParams()["*"]?.split("/")[1];
 
@@ -76,9 +68,10 @@ const WorkingHours = ({ data }) => {
 
   // Toast notifications
   useEffect(() => {
-    if (loading) toast.loading("İşleniyor...", { id: "workingHours" });
+    if (loading)
+      toast.loading(t("workingHours.processing"), { id: "workingHours" });
     if (success) {
-      toast.success("Çalışma saatleri başarıyla güncellendi.", {
+      toast.success(t("workingHours.success"), {
         id: "workingHours",
       });
       dispatch(resetSetWorkingHours());
@@ -99,7 +92,7 @@ const WorkingHours = ({ data }) => {
       (r) => !r.IsClosed && (!r.Open || !r.Close)
     );
     if (invalid) {
-      toast.error("Açık olan günlerde açılış ve kapanış saatlerini seçin.");
+      toast.error(t("workingHours.select_time"));
       return;
     }
 
@@ -116,14 +109,24 @@ const WorkingHours = ({ data }) => {
     dispatch(setWorkingHours(payload));
   };
 
+  const dayDefs = [
+    { label: t("workingHours.monday"), day: 1 },
+    { label: t("workingHours.tuesday"), day: 2 },
+    { label: t("workingHours.wednesday"), day: 3 },
+    { label: t("workingHours.thursday"), day: 4 },
+    { label: t("workingHours.friday"), day: 5 },
+    { label: t("workingHours.saturday"), day: 6 },
+    { label: t("workingHours.sunday"), day: 7 },
+  ];
+
   return (
     <div className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
       <div className="flex flex-col px-4 sm:px-14">
         <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
-          Çalışma Saatleri {data?.name} Restoranı
+          {t("workingHours.title", { name: data?.name })}
         </h1>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+        <form onSubmit={handleSubmit} className="mt-16 space-y-5">
           {workingHoursData.length > 0 &&
             dayDefs.map(({ label, day }) => {
               const row = workingHoursData.find((r) => r.Day === day) || {
@@ -146,9 +149,11 @@ const WorkingHours = ({ data }) => {
                       <CustomToggle
                         label={
                           row.IsClosed ? (
-                            <div className="w-14">Kapalı</div>
+                            <div className="w-14">
+                              {t("workingHours.closed")}
+                            </div>
                           ) : (
-                            <div className="w-14">Açık</div>
+                            <div className="w-14">{t("workingHours.open")}</div>
                           )
                         }
                         checked={!row.IsClosed}
@@ -195,7 +200,7 @@ const WorkingHours = ({ data }) => {
               disabled={loading}
               className="w-full sm:w-auto px-6 py-3 rounded-md bg-[--primary-1] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Kaydet
+              {t("workingHours.save")}
             </button>
           </div>
         </form>

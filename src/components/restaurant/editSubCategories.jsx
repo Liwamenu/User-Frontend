@@ -1,15 +1,16 @@
 //MODULES
 import _ from "lodash";
 import isEqual from "lodash/isEqual";
+import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { useTranslation } from "react-i18next";
 
 //COMP
-import { MenuI } from "../../assets/icon";
 import CustomInput from "../common/customInput";
-import { CustomFileInputMsg } from "./addSubCategories";
+import { CloudUI, MenuI } from "../../assets/icon";
 import CustomFileInput from "../common/customFileInput";
 
 //DATA
@@ -25,9 +26,9 @@ import {
   editSubCategories,
   resetEditSubCategories,
 } from "../../redux/subCategories/editSubCategoriesSlice";
-import toast from "react-hot-toast";
 
 const EditSubCategories = ({ data: restaurant }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { categories } = useSelector((s) => s.categories.get);
   const { subCategories } = useSelector((s) => s.subCategories.get);
@@ -136,7 +137,7 @@ const EditSubCategories = ({ data: restaurant }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isEqual(subCategoriesData, subCategoriesBefore)) {
-      toast.error("Hiçbir değişiklik yapılmadı.", { id: "sub_categories" });
+      toast.error(t("editSubCategories.not_changed"), { id: "sub_categories" });
       return;
     }
 
@@ -181,9 +182,7 @@ const EditSubCategories = ({ data: restaurant }) => {
   // TOAST
   useEffect(() => {
     if (success) {
-      toast.success("Alt Kategoriler başarıyla düzenlendi.", {
-        id: "sub_categories",
-      });
+      toast.success(t("editSubCategories.success"), { id: "sub_categories" });
       dispatch(resetEditSubCategories());
     }
     if (error) dispatch(resetEditSubCategories());
@@ -193,13 +192,12 @@ const EditSubCategories = ({ data: restaurant }) => {
     <div className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
       <div className="flex flex-col px-4 sm:px-14">
         <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
-          Alt Kategorileri Düzenle {restaurant?.name} Restoranı
+          {t("editSubCategories.title", { name: restaurant?.name })}
         </h1>
 
         <div className="py-4">
           <p className="border border-[--border-1] p-2 rounded-md">
-            Mevcut alt kategorileri düzenleyebilir, yeniden sıralayabilir veya
-            silebilirsiniz. (Kategori değiştirme mümkün değildir.)
+            {t("editSubCategories.info")}
           </p>
         </div>
 
@@ -208,13 +206,13 @@ const EditSubCategories = ({ data: restaurant }) => {
             to={`/restaurant/sub_categories/${restaurant?.id}/edit`}
             className="bg-[--primary-1] text-white p-2"
           >
-            Alt Kategorileri Düzenle
+            {t("editSubCategories.edit")}
           </Link>
           <Link
             to={`/restaurant/sub_categories/${restaurant?.id}/add`}
             className="bg-[--light-3] p-2"
           >
-            Alt Kategori Ekle
+            {t("editSubCategories.add")}
           </Link>
         </div>
 
@@ -267,7 +265,9 @@ const EditSubCategories = ({ data: restaurant }) => {
                                           required
                                           type="text"
                                           value={subCat.name}
-                                          placeholder="Alt kategori adı"
+                                          placeholder={t(
+                                            "editSubCategories.subcategory_name"
+                                          )}
                                           onChange={(v) =>
                                             updateSubCategory(
                                               categoryId,
@@ -308,7 +308,16 @@ const EditSubCategories = ({ data: restaurant }) => {
                                           }
                                           accept={"image/png, image/jpeg"}
                                           className="h-[3rem]"
-                                          msg={<CustomFileInputMsg />}
+                                          msg={
+                                            <div className="flex items-center text-xs">
+                                              <CloudUI className="size-[1.5rem] mt-2" />
+                                              <p>
+                                                {t(
+                                                  "addSubCategories.upload_image"
+                                                )}
+                                              </p>
+                                            </div>
+                                          }
                                           sliceNameAt={
                                             screen.width < 435
                                               ? 10
@@ -327,7 +336,7 @@ const EditSubCategories = ({ data: restaurant }) => {
                                       }
                                       className="text-[--red-1] font-semibold"
                                     >
-                                      Sil
+                                      {t("editSubCategories.delete")}
                                     </button>
                                   </div>
                                 )}
@@ -347,7 +356,7 @@ const EditSubCategories = ({ data: restaurant }) => {
                 type="submit"
                 className="px-6 py-2 rounded-md bg-[--primary-1] text-white font-semibold"
               >
-                Kaydet
+                {t("editSubCategories.save")}
               </button>
             </div>
           </form>
@@ -373,20 +382,20 @@ const EditSubCategories = ({ data: restaurant }) => {
               </div>
 
               <h3 className="text-2xl font-bold text-[--black-2] mb-3">
-                Henüz Alt Kategori Yok
+                {t("editSubCategories.no_subcategories")}
               </h3>
 
               <p className="text-[--gr-1] mb-8 leading-relaxed">
-                Bu restoranda henüz tanımlanmış alt kategori bulunmuyor. Alt
-                kategoriler menünüzü daha düzenli ve kullanıcı dostu hale
-                getirmenize yardımcı olur.
+                {t("editSubCategories.no_subcategories_info")}
               </p>
 
               <div className="mt-8 pt-8 border-t border-[--light-3]">
                 <p className="text-sm text-[--gr-1]">
-                  💡 <span className="font-medium">İpucu:</span> Alt kategoriler
-                  ana kategorilerinizi daha detaylı gruplandırmanıza olanak
-                  tanır.
+                  💡{" "}
+                  <span className="font-medium">
+                    {t("editSubCategories.tip_title")}
+                  </span>{" "}
+                  {t("editSubCategories.tip_content")}
                 </p>
               </div>
             </div>

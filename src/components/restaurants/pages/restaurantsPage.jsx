@@ -1,6 +1,7 @@
 //MODULES
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next"; // <-- Add this
 
 //COMP
 import AddRestaurant from "../addRestaurant";
@@ -10,7 +11,6 @@ import TableSkeleton from "../../common/tableSkeleton";
 import CustomSelect from "../../common/customSelector";
 import CustomPagination from "../../common/pagination";
 import { usePopup } from "../../../context/PopupContext";
-import RestaurantActions from "../actions/restaurantActions";
 
 // REDUX
 import {
@@ -23,6 +23,7 @@ import { getDistricts } from "../../../redux/data/getDistrictsSlice";
 import RestaurantsCard from "../restaurantsCard";
 
 const RestaurantsPage = () => {
+  const { t } = useTranslation(); // <-- Add this
   const dispatch = useDispatch();
 
   const { loading, success, error, restaurants } = useSelector(
@@ -158,7 +159,7 @@ const RestaurantsPage = () => {
       dispatch(resetGetRestaurantsState());
     }
 
-    if (success && restaurants) {
+    if (restaurants) {
       setTotalItems(restaurants.totalCount);
       setRestaurantsData(restaurants.data);
       dispatch(resetGetRestaurantsState());
@@ -243,7 +244,7 @@ const RestaurantsPage = () => {
     <section className="lg:ml-[280px] pt-16 sm:pt-16 px-[4%] pb-4 grid grid-cols-1 section_row">
       {/* TITLE */}
       <div className="w-full text-[--black-2] pt-2 text-2xl font-semibold">
-        <h2>Restoranlar</h2>
+        <h2>{t("sidebar.restaurants")}</h2>
       </div>
 
       {/* ACTIONS/BUTTONS */}
@@ -256,7 +257,7 @@ const RestaurantsPage = () => {
                 !e && clearSearch();
               }}
               value={searchVal}
-              placeholder="Ara..."
+              placeholder={t("restaurants.search_placeholder")}
               className2="mt-[0px] w-full sm:mt-[0]"
               className="mt-[0px] py-[.7rem] w-[100%] focus:outline-none"
               icon={<CloseI className="w-4 text-[--red-1]" />}
@@ -275,7 +276,7 @@ const RestaurantsPage = () => {
                 className="w-full h-11 flex items-center justify-center text-[--primary-2] px-3 rounded-md text-sm font-normal border-[1.5px] border-solid border-[--primary-2]"
                 onClick={() => setOpenFilter(!openFilter)}
               >
-                Filtre
+                {t("restaurants.filter", "Filter")}
               </button>
 
               <div
@@ -285,19 +286,22 @@ const RestaurantsPage = () => {
               >
                 <div className="flex gap-6">
                   <CustomSelect
-                    label="Durum"
+                    label={t("restaurants.status", "Status")}
                     className="text-sm sm:mt-1"
                     className2="sm:mt-3"
                     style={{ padding: "0 !important" }}
                     options={[
-                      { value: null, label: "Hepsi" },
-                      { value: true, label: "Aktif" },
-                      { value: false, label: "Pasif" },
+                      { value: null, label: t("restaurants.all", "All") },
+                      { value: true, label: t("restaurants.active", "Active") },
+                      {
+                        value: false,
+                        label: t("restaurants.passive", "Passive"),
+                      },
                     ]}
                     value={
                       filter?.status
                         ? filter.status
-                        : { value: null, label: "Hepsi" }
+                        : { value: null, label: t("restaurants.all", "All") }
                     }
                     onChange={(selectedOption) => {
                       setFilter((prev) => {
@@ -310,15 +314,18 @@ const RestaurantsPage = () => {
                   />
 
                   <CustomSelect
-                    label="Şehir"
+                    label={t("restaurants.city", "City")}
                     style={{ padding: "1px 0px" }}
                     className="text-sm"
-                    options={[{ value: null, label: "Hepsi" }, ...cities]}
+                    options={[
+                      { value: null, label: t("restaurants.all", "All") },
+                      ...cities,
+                    ]}
                     optionStyle={{ fontSize: ".8rem" }}
                     value={
                       filter?.city
                         ? filter.city
-                        : { value: null, label: "Hepsi" }
+                        : { value: null, label: t("restaurants.all", "All") }
                     }
                     onChange={(selectedOption) => {
                       setFilter((prev) => {
@@ -333,17 +340,20 @@ const RestaurantsPage = () => {
 
                 <div className="flex gap-6">
                   <CustomSelect
-                    label="District"
+                    label={t("restaurants.district", "District")}
                     className2="sm:mt-[.75rem] mt-1"
                     className="text-sm sm:mt-[.25rem]"
                     isSearchable={false}
                     style={{ padding: "0 !important" }}
-                    options={[{ value: null, label: "Hepsi" }, ...districts]}
+                    options={[
+                      { value: null, label: t("restaurants.all", "All") },
+                      ...districts,
+                    ]}
                     optionStyle={{ fontSize: ".8rem" }}
                     value={
                       filter?.district
                         ? filter.district
-                        : { value: null, label: "Hepsi" }
+                        : { value: null, label: t("restaurants.all", "All") }
                     }
                     onChange={(selectedOption) => {
                       setFilter((prev) => {
@@ -355,17 +365,20 @@ const RestaurantsPage = () => {
                     }}
                   />
                   <CustomSelect
-                    label="neighbourhood"
+                    label={t("restaurants.neighbourhood", "Neighbourhood")}
                     className2="sm:mt-[.75rem] mt-1"
                     className="text-sm sm:mt-[.25rem]"
                     isSearchable={false}
                     style={{ padding: "0 !important" }}
-                    options={[{ value: null, label: "Hepsi" }, ...neighs]}
+                    options={[
+                      { value: null, label: t("restaurants.all", "All") },
+                      ...neighs,
+                    ]}
                     optionStyle={{ fontSize: ".8rem" }}
                     value={
                       filter?.neighbourhood
                         ? filter.neighbourhood
-                        : { value: null, label: "Hepsi" }
+                        : { value: null, label: t("restaurants.all", "All") }
                     }
                     onChange={(selectedOption) => {
                       setFilter((prev) => {
@@ -383,13 +396,13 @@ const RestaurantsPage = () => {
                     className="text-white bg-[--red-1] py-2 px-12 rounded-lg hover:opacity-90"
                     onClick={() => handleFilter(false)}
                   >
-                    Temizle
+                    {t("restaurants.clear", "Clear")}
                   </button>
                   <button
                     className="text-white bg-[--primary-1] py-2 px-12 rounded-lg hover:opacity-90"
                     onClick={() => handleFilter(true)}
                   >
-                    Uygula
+                    {t("restaurants.apply", "Apply")}
                   </button>
                 </div>
               </div>
@@ -406,7 +419,6 @@ const RestaurantsPage = () => {
       {restaurantsData ? (
         <RestaurantsCard
           inData={restaurantsData}
-          Actions={RestaurantActions}
           totalItems={restaurantsData.length}
           onSuccess={() => handleFilter(true)}
         />

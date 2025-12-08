@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { getAuth } from "../../redux/api";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 //COMP
 import { CancelI } from "../../assets/icon";
@@ -39,6 +40,7 @@ import {
 } from "../../redux/data/getUserAddressSlice";
 
 const AddRestaurant = ({ onSuccess }) => {
+  const { t } = useTranslation();
   const { setPopupContent } = usePopup();
   const handleClick = () => {
     setPopupContent(<AddRestaurantPopup onSuccess={onSuccess} />);
@@ -49,7 +51,7 @@ const AddRestaurant = ({ onSuccess }) => {
       className="h-11 whitespace-nowrap text-[--primary-2] px-3 rounded-md text-sm font-normal border-[1.5px] border-solid border-[--primary-2]"
       onClick={handleClick}
     >
-      Restoran Ekle
+      {t("restaurants.add")}
     </button>
   );
 };
@@ -58,6 +60,7 @@ export default AddRestaurant;
 
 // EDIT RESTAURANT POPUP
 function AddRestaurantPopup({ onSuccess }) {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const toastId = useRef();
   const localUser = getAuth()?.isManager;
@@ -355,14 +358,18 @@ function AddRestaurantPopup({ onSuccess }) {
           <div className="w-full px-2 py-1 pt-2 flex bg-[--light-1] rounded-b-md">
             <div className="w-full gap-2 flex">
               <div className="text-sm">
-                <span className="text-xs text-[--gr-1]">latitude</span>
+                <span className="text-xs text-[--gr-1]">
+                  {t("restaurants.latitude")}
+                </span>
                 <p className="border border-solid border-[--border-1]  px-2">
                   {lat}
                 </p>
               </div>
 
               <div className="text-sm">
-                <span className="text-xs text-[--gr-1]">longitude</span>
+                <span className="text-xs text-[--gr-1]">
+                  {t("restaurants.longitude")}
+                </span>
                 <p className="border border-solid border-[--border-1]  px-2">
                   {lng}
                 </p>
@@ -374,26 +381,28 @@ function AddRestaurantPopup({ onSuccess }) {
                 className="px-5 py-1 text-sm text-[--red-1] rounded-sm bg-[--status-red] border border-solid border-[--red-1]"
                 onClick={() => setIsMapOpen(false)}
               >
-                Kapat
+                {t("restaurants.map_close")}
               </button>
               <button
                 className="px-5 py-1 text-sm text-[--green-1] rounded-sm bg-[--status-green] border border-solid border-[--green-1]"
                 onClick={handleSetMap}
               >
-                Kaydet
+                {t("restaurants.map_save")}
               </button>
             </div>
           </div>
         </div>
 
-        <h1 className="self-center text-2xl font-bold">Restoran Ekle</h1>
+        <h1 className="self-center text-2xl font-bold">
+          {t("restaurants.add")}
+        </h1>
         <div className="flex flex-col px-4 sm:px-14 mt-9 w-full text-left">
           <form onSubmit={handleSubmit}>
-            <div className="flex max-sm:flex-col sm:gap-4">
+            <div className="grid sm:grid-cols-2 gap-4">
               <CustomInput
                 required
-                label="Restoran Adı"
-                placeholder="Restoran Adı"
+                label={t("restaurants.name")}
+                placeholder={t("restaurants.name")}
                 className="py-[.45rem] text-sm"
                 value={restaurantData.name}
                 onChange={(e) => {
@@ -407,8 +416,8 @@ function AddRestaurantPopup({ onSuccess }) {
               />
               <CustomPhoneInput
                 required
-                label="Telefone"
-                placeholder="Telefone"
+                label={t("restaurants.phone")}
+                placeholder={t("restaurants.phone")}
                 className="py-[.45rem] text-sm"
                 value={restaurantData.phoneNumber}
                 onChange={(phone) => {
@@ -421,20 +430,21 @@ function AddRestaurantPopup({ onSuccess }) {
                 }}
                 maxLength={14}
               />
-            </div>
 
-            <div className="grid sm:grid-cols-2 gap-x-4">
               <CustomSelect
                 required
-                label="Şehir"
+                label={t("restaurants.city")}
                 style={{ padding: "1px 0px" }}
                 className="text-sm"
                 value={
                   restaurantData.city
                     ? restaurantData.city
-                    : { value: null, label: "Şehir seç" }
+                    : { value: null, label: t("restaurants.city_select") }
                 }
-                options={[{ value: null, label: "Şehir seç" }, ...cities]}
+                options={[
+                  { value: null, label: t("restaurants.city_select") },
+                  ...cities,
+                ]}
                 onChange={(selectedOption) => {
                   setRestaurantData((prev) => {
                     return {
@@ -447,15 +457,21 @@ function AddRestaurantPopup({ onSuccess }) {
 
               <CustomSelect
                 required
-                label="İlçe"
+                label={t("restaurants.district")}
                 style={{ padding: "1px 0px" }}
                 className="text-sm"
                 value={
                   restaurantData.district
                     ? restaurantData.district
-                    : { value: null, label: "İlçe seç" }
+                    : {
+                        value: null,
+                        label: t("restaurants.district_select"),
+                      }
                 }
-                options={[{ value: null, label: "İlçe seç" }, ...districts]}
+                options={[
+                  { value: null, label: t("restaurants.district_select") },
+                  ...districts,
+                ]}
                 onChange={(selectedOption) => {
                   setRestaurantData((prev) => {
                     return {
@@ -465,17 +481,27 @@ function AddRestaurantPopup({ onSuccess }) {
                   });
                 }}
               />
+
               <CustomSelect
                 required
-                label="Mahalle"
+                label={t("restaurants.neighbourhood")}
                 style={{ padding: "1px 0px" }}
                 className="text-sm"
                 value={
                   restaurantData.neighbourhood
                     ? restaurantData.neighbourhood
-                    : { value: null, label: "Mahalle Seç" }
+                    : {
+                        value: null,
+                        label: t("restaurants.neighbourhood_select"),
+                      }
                 }
-                options={[{ value: null, label: "Mahalle Seç" }, ...neighs]}
+                options={[
+                  {
+                    value: null,
+                    label: t("restaurants.neighbourhood_select"),
+                  },
+                  ...neighs,
+                ]}
                 onChange={(selectedOption) => {
                   setRestaurantData((prev) => {
                     return {
@@ -487,8 +513,8 @@ function AddRestaurantPopup({ onSuccess }) {
               />
               <CustomTextarea
                 required
-                label="Adres"
-                placeholder="Adres"
+                label={t("restaurants.address")}
+                placeholder={t("restaurants.address")}
                 className={`text-sm max-sm:h-14 ${!localUser ? "h-14" : "h-9"}`}
                 className2={`${localUser && "col-span-full"}`}
                 value={restaurantData.address}
@@ -507,8 +533,8 @@ function AddRestaurantPopup({ onSuccess }) {
               <div className={`flex gap-4 pointer-events-none`}>
                 <CustomInput
                   required
-                  label="Latitude"
-                  placeholder="Latitude"
+                  label={t("restaurants.latitude")}
+                  placeholder={t("restaurants.latitude")}
                   className="py-[.45rem] text-sm"
                   className2="mt-[.5rem] sm:mt-[.5rem]"
                   value={restaurantData.latitude}
@@ -518,8 +544,8 @@ function AddRestaurantPopup({ onSuccess }) {
                 />
                 <CustomInput
                   required
-                  label="Longitude"
-                  placeholder="Longitude"
+                  label={t("restaurants.longitude")}
+                  placeholder={t("restaurants.longitude")}
                   className="py-[.45rem] text-sm"
                   className2="mt-[.5rem] sm:mt-[.5rem]"
                   value={restaurantData.longitude}
@@ -554,7 +580,7 @@ function AddRestaurantPopup({ onSuccess }) {
                 }`}
                 type="submit"
               >
-                Kaydet
+                {t("restaurants.save")}
               </button>
             </div>
           </form>

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { useTranslation } from "react-i18next";
 
 //COMP
 import CustomInput from "../common/customInput";
@@ -17,6 +18,7 @@ import {
 } from "../../redux/categories/addCategoriesSlice";
 
 const AddCategories = ({ data: restaurant }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { loading, success, error } = useSelector(
     (state) => state.categories.add
@@ -94,7 +96,7 @@ const AddCategories = ({ data: restaurant }) => {
   // TOAST
   useEffect(() => {
     if (success) {
-      toast.success("Kategoriler başarıyla eklendi.", { id: "categories" });
+      toast.success(t("addCategories.success"), { id: "categories" });
       setCategories([{ name: "", image: null, sortOrder: 0 }]);
       dispatch(resetAddCategories());
     }
@@ -104,13 +106,12 @@ const AddCategories = ({ data: restaurant }) => {
     <div className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
       <div className="flex flex-col px-4 sm:px-14">
         <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
-          Kategori Ekle {restaurant?.name} Restoranı
+          {t("addCategories.title", { name: restaurant?.name })}
         </h1>
 
         <div className="py-4">
           <p className="border border-[--border-1] p-2 rounded-md">
-            Yeni kategoriler eklemek için aşağıdaki formu kullanın. Kategorileri
-            sürükleyip bırakarak sıralayabilirsiniz.
+            {t("addCategories.info")}
           </p>
         </div>
 
@@ -119,21 +120,21 @@ const AddCategories = ({ data: restaurant }) => {
             to={`/restaurant/categories/${restaurant?.id}/edit`}
             className="bg-[--light-3] p-2"
           >
-            Kategorileri Düzenle
+            {t("addCategories.edit")}
           </Link>
           <Link
             to={`/restaurant/categories/${restaurant?.id}/add`}
             className="bg-[--primary-1] text-white p-2"
           >
-            Kategori Ekle
+            {t("addCategories.add")}
           </Link>
         </div>
 
         <form onSubmit={handleSubmit} className="py-3">
           <div className="flex gap-4 max-sm:gap-2 items-end mb-4">
             <p className="w-8"></p>
-            <p className="w-[19rem]">Kategori Adı</p>
-            <p className="w-full">Kategori Görseli</p>
+            <p className="w-[19rem]">{t("addCategories.category_name")}</p>
+            <p className="w-full">{t("addCategories.category_image")}</p>
           </div>
 
           <DragDropContext onDragEnd={handleDragEnd}>
@@ -169,7 +170,7 @@ const AddCategories = ({ data: restaurant }) => {
                                 value={cat.name}
                                 className="mt-[0] sm:mt-[0]"
                                 className2="mt-[0] sm:mt-[0]"
-                                placeholder="Kategori adı giriniz"
+                                placeholder={t("addCategories.category_name")}
                                 onChange={(e) =>
                                   updateCategory(index, "name", e)
                                 }
@@ -191,7 +192,7 @@ const AddCategories = ({ data: restaurant }) => {
                                       className="size-[1.5rem] mt-2"
                                       strokeWidth={1.5}
                                     />
-                                    <p>Kategori görseli yükleyin</p>
+                                    <p>{t("addCategories.upload_image")}</p>
                                   </div>
                                 }
                                 // showFileDetails={screen.width > 435}
@@ -217,7 +218,7 @@ const AddCategories = ({ data: restaurant }) => {
                             onClick={() => removeCategory(index)}
                             className="flex text-[--red-1] font-semibold"
                           >
-                            Sil
+                            {t("addCategories.delete")}
                           </button>
                         </div>
                       )}
@@ -236,7 +237,7 @@ const AddCategories = ({ data: restaurant }) => {
               onClick={addCategory}
               className="px-6 py-2 rounded-md bg-[--primary-2] text-white font-semibold"
             >
-              Ekle
+              {t("addCategories.add")}
             </button>
 
             <button
@@ -244,7 +245,7 @@ const AddCategories = ({ data: restaurant }) => {
               disabled={!categories?.length}
               className="px-6 py-2 rounded-md bg-[--primary-1] text-white font-semibold disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Kaydet
+              {t("addCategories.save")}
             </button>
           </div>
         </form>

@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 //COMP
 import CustomToggle from "../common/customToggle";
@@ -18,6 +19,7 @@ import {
 } from "../../redux/restaurant/setPaymentMethodsSlice";
 
 const PaymentMethods = ({ data: restaurant }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const id = useParams()["*"].split("/")[1];
   const { data } = useSelector((s) => s.restaurant.getPaymentMethods);
@@ -80,21 +82,21 @@ const PaymentMethods = ({ data: restaurant }) => {
     <div className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
       <div className="flex flex-col px-4 sm:px-14">
         <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
-          Ödeme Yöntemleri {restaurant.name} Restoranı
+          {t("paymentMethods.title", { name: restaurant?.name })}
         </h1>
 
         {paymentMethodsData && (
           <div className="mt-10">
-            <p>Restoranınız için ödeme yöntemlerini yapılandırın.</p>
+            <p>{t("paymentMethods.configure")}</p>
             <div className="flex gap-4 justify-between py-5">
-              <p>Tüm ödeme yöntemlerini etkinleştirin</p>
-              <CustomToggle checked={allEnabled} onChange={toggleAll} />
+              <p>{t("paymentMethods.enable_all")}</p>
+              <div>
+                <CustomToggle checked={allEnabled} onChange={toggleAll} />
+              </div>
             </div>
 
             <p className="border border-[--border-1] p-2 rounded-md">
-              Tüm ödeme yöntemlerini hızlıca etkinleştirmek veya devre dışı
-              bırakmak için yukarıdaki düğmeyi açın. Ayrıca aşağıdan tek tek
-              yöntemleri de açabilirsiniz.
+              {t("paymentMethods.enable_all_desc")}
             </p>
           </div>
         )}
@@ -113,16 +115,20 @@ const PaymentMethods = ({ data: restaurant }) => {
                     </p>
                     <p>{M.name}</p>
                   </div>
-                  <CustomToggle
-                    checked={M.enabled}
-                    onChange={() => {
-                      setPaymentMethodsData((prev) =>
-                        prev.map((pm) =>
-                          pm.id === M.id ? { ...pm, enabled: !pm.enabled } : pm
-                        )
-                      );
-                    }}
-                  />
+                  <div>
+                    <CustomToggle
+                      checked={M.enabled}
+                      onChange={() => {
+                        setPaymentMethodsData((prev) =>
+                          prev.map((pm) =>
+                            pm.id === M.id
+                              ? { ...pm, enabled: !pm.enabled }
+                              : pm
+                          )
+                        );
+                      }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -132,7 +138,7 @@ const PaymentMethods = ({ data: restaurant }) => {
               type="submit"
               className="sm:w-auto px-6 py-3 rounded-md bg-[--primary-1] text-white font-semibold"
             >
-              Kaydet
+              {t("paymentMethods.save")}
             </button>
           </div>
         </form>

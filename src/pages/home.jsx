@@ -1,6 +1,6 @@
 //MODULES
 import { useState } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
 //COMP
 import Header from "../components/header/header";
@@ -13,15 +13,6 @@ import Profile from "./profile";
 import Licenses from "./licenses";
 import Restourants from "./restourants";
 import RestaurantHome from "./restaurantHome";
-// import DashboardPage from "./dashboard";
-// import Messages from "./messages";
-// import Templates from "./templates";
-// import Accounts from "./accounts";
-// import Payments from "./payments";
-// import MailWaiters from "./mailWaiters";
-// import Roles from "./roles";
-// import Managers from "./managers";
-// import TempUsers from "./tempUsers";
 
 const Home = () => {
   const [showS1, setShowS1] = useState(true);
@@ -49,13 +40,6 @@ const Home = () => {
         <Route path="/restaurants/*" element={<Restourants />} />
         <Route path="/licenses/*" element={<Licenses />} />
         <Route path="/profile/*" element={<Profile />} />
-        {/*
-        <Route path="/dashboard/*" element={<DashboardPage />} />
-        <Route path="/temp-users/*" element={<TempUsers />} />
-        <Route path="/accounts/*" element={<Accounts />} />
-        <Route path="/parameters/*" element={<Parameters />} />
-        <Route path="/messages/*" element={<Messages />} />
-        */}
         <Route path="/test" element={<TestPage />} />
         <Route path="/*" element={<Restourants />} />
         <Route path="*" element={<NotFound />} />

@@ -1,6 +1,7 @@
 //MOD
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next"; // <-- Add this
 
 //COMP
 import EditUserProfile from "./pages/editUserProfile";
@@ -14,10 +15,8 @@ import { getAuth } from "../../redux/api";
 import { getCities } from "../../redux/data/getCitiesSlice";
 // import { getUser, resetGetUserState } from "../../redux/user/getUserSlice";
 
-//VAR
-const tabs = ["Profili Düzenle", "Güvenlik" /* , "Fatura Bilgileri" */];
-
 const ProfilePage = () => {
+  const { t } = useTranslation(); // <-- Add this
   const dispatch = useDispatch();
 
   const { cities } = useSelector((state) => state.data.getCities);
@@ -29,6 +28,13 @@ const ProfilePage = () => {
 
   const [selected, setSelected] = useState(0);
   const [userData, setUserData] = useState(/* user */ getAuth()?.user);
+
+  //VAR
+  const tabs = [
+    t("profilePage.edit_profile"),
+    t("profilePage.security"),
+    /* t("profilePage.invoice_info") */
+  ];
 
   // // GET THE USER
   // useEffect(() => {
@@ -60,7 +66,7 @@ const ProfilePage = () => {
   return (
     <section className="lg:ml-[280px] pt-16 sm:pt-16 px-[4%] pb-4 grid grid-cols-1 section_row">
       <div className="w-full text-[--black-2] py-4 text-2xl font-bold">
-        <h2>Profil</h2>
+        <h2>{t("profilePage.title")}</h2>
       </div>
 
       <nav className="flex flex-col items-start mt-5 w-full border-b border-[--border-1] max-w-[1050px]">

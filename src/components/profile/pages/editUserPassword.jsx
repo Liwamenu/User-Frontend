@@ -2,6 +2,7 @@
 import toast from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next"; // <-- Add this
 
 //COMP
 import CustomInput from "../../common/customInput";
@@ -13,6 +14,7 @@ import {
 } from "../../../redux/user/updateUserPasswordSlice";
 
 const EditUserPassword = ({ user }) => {
+  const { t } = useTranslation(); // <-- Add this
   const toastId = useRef();
   const dispatch = useDispatch();
 
@@ -27,12 +29,12 @@ const EditUserPassword = ({ user }) => {
 
   useEffect(() => {
     if (loading) {
-      toastId.current = toast.loading("İşleniyor...");
+      toastId.current = toast.loading(t("editUserPassword.processing"));
     } else if (error) {
       dispatch(resetUpdateUserPassword());
     } else if (success) {
       toast.dismiss(toastId.current);
-      toast.success("Şifrenız başarıyla güncelendi");
+      toast.success(t("editUserPassword.success"));
       setUserPassword({
         password: "",
         confirmPassword: "",
@@ -45,7 +47,7 @@ const EditUserPassword = ({ user }) => {
     e.preventDefault();
 
     if (userPassword.confirmPassword !== userPassword.password) {
-      toast.error("Şifreler aynı değil");
+      toast.error(t("editUserPassword.passwords_not_match"));
       return;
     }
 
@@ -63,8 +65,8 @@ const EditUserPassword = ({ user }) => {
         <div className="flex gap-4 mt-4 max-sm:flex-col">
           <CustomInput
             required
-            label="Şifre"
-            placeholder="Şifre"
+            label={t("editUserPassword.password")}
+            placeholder={t("editUserPassword.password_placeholder")}
             className="py-3.5 text-sm"
             letIcon={true}
             value={userPassword.password}
@@ -81,8 +83,8 @@ const EditUserPassword = ({ user }) => {
           />
           <CustomInput
             required
-            label="Şifreyi onayla"
-            placeholder="Şifre"
+            label={t("editUserPassword.confirm_password")}
+            placeholder={t("editUserPassword.confirm_password_placeholder")}
             className="py-3.5 text-sm"
             letIcon={true}
             value={userPassword.confirmPassword}
@@ -103,9 +105,9 @@ const EditUserPassword = ({ user }) => {
           <button
             type="submit"
             disabled={loading}
-            className="text-[--white-1] bg-[--primary-1] rounded-md px-5 py-2.5"
+            className="text-white bg-[--primary-1] rounded-md px-5 py-2.5"
           >
-            Kaydet
+            {t("editUserPassword.save")}
           </button>
         </div>
       </form>

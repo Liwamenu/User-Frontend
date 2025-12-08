@@ -1,10 +1,14 @@
 import WarnI from "../assets/icon/warn";
 import GobackI from "../assets/icon/goback";
+import { useTranslation } from "react-i18next";
 
 const NotFound = ({ showGoBack = true }) => {
+  const { t } = useTranslation();
+  
   const goBack = () => {
     window.history.back();
   };
+
   return (
     <section className="bg-[--white]">
       <div className="container flex pt-48 sm:pt-0 sm:items-center min-h-screen px-6 py-12 mx-auto">
@@ -13,10 +17,10 @@ const NotFound = ({ showGoBack = true }) => {
             <WarnI />
           </p>
           <h1 className="mt-3 text-2xl font-semibold text-[--black-1] md:text-3xl">
-            Sayfa bulunmadı
+            {t("notFound.title")}
           </h1>
           <p className="mt-4 text-[--gr-1] text-left">
-            Aradığınız sayfa bulunmamaktadır.
+            {t("notFound.description")}
           </p>
 
           <div className="flex items-center justify-center w-full mt-6 gap-x-3 shrink-0 sm:w-auto">
@@ -26,11 +30,11 @@ const NotFound = ({ showGoBack = true }) => {
                 className="flex items-center justify-center w-1/2 px-5 py-2 text-sm transition-colors duration-200 border rounded-lg gap-x-2 sm:w-auto text-[--gr-1] bg-[--white] hover:text-[--white-1] hover:bg-[--primary-1]"
               >
                 <GobackI />
-                <span>Gri dön</span>
+                <span>{t("notFound.go_back")}</span>
               </button>
             )}
             <button className="w-1/2 px-5 py-2 text-sm tracking-wide text-[--white-1] bg-[--primary-1] transition-colors duration-200 rounded-lg shrink-0 sm:w-auto hover:text-[--gr-1] hover:bg-[--white] border border-solid hover:border-[--light-4]">
-              <a href="/">Ana sayfa</a>
+              <a href="/">{t("notFound.home")}</a>
             </button>
           </div>
         </div>

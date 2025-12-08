@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { useTranslation } from "react-i18next";
 
 //COMP
 import { MenuI, CloudUI } from "../../assets/icon";
@@ -22,6 +23,7 @@ import {
 } from "../../redux/subCategories/addSubCategoriesSlice";
 
 const AddSubCategories = ({ data: restaurant }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { categories } = useSelector((state) => state.categories.get);
   const { success, error } = useSelector((state) => state.subCategories.add);
@@ -154,9 +156,7 @@ const AddSubCategories = ({ data: restaurant }) => {
   // TOAST
   useEffect(() => {
     if (success) {
-      toast.success("Alt Kategoriler başarıyla eklendi.", {
-        id: "sub_categories",
-      });
+      toast.success(t("addSubCategories.success"), { id: "sub_categories" });
       setRows([
         {
           categoryId: "",
@@ -176,28 +176,27 @@ const AddSubCategories = ({ data: restaurant }) => {
     <div className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
       <div className="flex flex-col px-4 sm:px-14">
         <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
-          Alt Kategori Ekle {restaurant?.name} Restoranı
+          {t("addSubCategories.title", { name: restaurant?.name })}
         </h1>
 
         <div className="py-4">
           <p className="border border-[--border-1] p-2 rounded-md">
-            Yeni alt kategori ekleyin. Önce kategori seçin, sonra ad ve görsel
-            girin. Alt kategorileri sürükleyip bırakarak sıralayabilirsiniz.
+            {t("addSubCategories.info")}
           </p>
         </div>
 
-        <div className=" flex gap-2 my-4">
+        <div className="flex gap-2 my-4">
           <Link
             to={`/restaurant/sub_categories/${restaurant?.id}/edit`}
             className="bg-[--light-3] p-2"
           >
-            Alt Kategorileri Düzenle
+            {t("addSubCategories.edit")}
           </Link>
           <Link
             to={`/restaurant/sub_categories/${restaurant?.id}/add`}
             className="bg-[--primary-1] text-white p-2"
           >
-            Alt Kategori Ekle
+            {t("addSubCategories.add")}
           </Link>
         </div>
 
@@ -276,7 +275,9 @@ const AddSubCategories = ({ data: restaurant }) => {
                                       required
                                       type="text"
                                       value={row.name}
-                                      placeholder="Alt kategori adı"
+                                      placeholder={t(
+                                        "addSubCategories.subcategory_name"
+                                      )}
                                       onChange={(v) =>
                                         updateRow(
                                           rows.findIndex(
@@ -322,7 +323,14 @@ const AddSubCategories = ({ data: restaurant }) => {
                                       }
                                       accept={"image/png, image/jpeg"}
                                       className="h-[3rem]"
-                                      msg={<CustomFileInputMsg />}
+                                      msg={
+                                        <div className="flex items-center text-xs">
+                                          <CloudUI className="size-[1.5rem] mt-2" />
+                                          <p>
+                                            {t("addSubCategories.upload_image")}
+                                          </p>
+                                        </div>
+                                      }
                                       sliceNameAt={
                                         screen.width < 435
                                           ? 10
@@ -347,7 +355,7 @@ const AddSubCategories = ({ data: restaurant }) => {
                                   }
                                   className="text-[--red-1] font-semibold"
                                 >
-                                  Sil
+                                  {t("addSubCategories.delete")}
                                 </button>
                               </div>
                             )}
@@ -367,14 +375,14 @@ const AddSubCategories = ({ data: restaurant }) => {
               onClick={addRow}
               className="px-6 py-2 rounded-md bg-[--primary-2] text-white font-semibold"
             >
-              Yeni Satır Ekle
+              {t("addSubCategories.add")}
             </button>
 
             <button
               type="submit"
               className="px-6 py-2 rounded-md bg-[--primary-1] text-white font-semibold"
             >
-              Kaydet
+              {t("addSubCategories.save")}
             </button>
           </div>
         </form>
@@ -384,12 +392,3 @@ const AddSubCategories = ({ data: restaurant }) => {
 };
 
 export default AddSubCategories;
-
-export const CustomFileInputMsg = () => {
-  return (
-    <div className="flex items-center text-xs">
-      <CloudUI className="size-[1.5rem] mt-2" strokeWidth={1.5} />
-      <p>Kategori görseli yükleyin</p>
-    </div>
-  );
-};

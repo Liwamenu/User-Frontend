@@ -3,6 +3,7 @@ import { isEqual } from "lodash";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
@@ -24,6 +25,7 @@ import { usePopup } from "../../context/PopupContext";
 
 const EditCategories = ({ data: restaurant }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const { setPopupContent } = usePopup();
 
   const { success, error } = useSelector((state) => state.categories.edit);
@@ -146,13 +148,12 @@ const EditCategories = ({ data: restaurant }) => {
     <div className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
       <div className="flex flex-col px-4 sm:px-14">
         <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
-          Kategorileri Düzenle {restaurant?.name} Restoranı
+          {t("editCategories.title", { name: restaurant?.name })}
         </h1>
 
         <div className="py-4">
           <p className="border border-[--border-1] p-2 rounded-md">
-            Mevcut kategorilerinizi düzenlemek için aşağıdaki formu kullanın.
-            Kategorileri sürükleyip bırakarak sıralayabilirsiniz.
+            {t("editCategories.info")}
           </p>
         </div>
 
@@ -161,13 +162,13 @@ const EditCategories = ({ data: restaurant }) => {
             to={`/restaurant/categories/${restaurant?.id}/edit`}
             className="bg-[--primary-1] text-white p-2"
           >
-            Kategorileri Düzenle
+            {t("editCategories.edit")}
           </Link>
           <Link
             to={`/restaurant/categories/${restaurant?.id}/add`}
             className="bg-[--light-3] p-2"
           >
-            Kategori Ekle
+            {t("editCategories.add")}
           </Link>
         </div>
 
@@ -175,8 +176,8 @@ const EditCategories = ({ data: restaurant }) => {
           <form onSubmit={handleSubmit} className="py-3">
             <div className="flex gap-4 max-sm:gap-2 items-end mb-4">
               <p className="w-8"></p>
-              <p className="w-[19rem]">Kategori Adı</p>
-              <p className="w-full">Kategori Görseli</p>
+              <p className="w-[19rem]">{t("editCategories.category_name")}</p>
+              <p className="w-full">{t("editCategories.category_image")}</p>
             </div>
 
             <DragDropContext onDragEnd={handleDragEnd}>
@@ -257,7 +258,7 @@ const EditCategories = ({ data: restaurant }) => {
                                 onClick={() => removeCategory(index)}
                                 className="flex text-[--red-1] font-semibold"
                               >
-                                Sil
+                                {t("editCategories.delete")}
                               </button>
                             </div>
                           )}
@@ -275,7 +276,7 @@ const EditCategories = ({ data: restaurant }) => {
                 type="submit"
                 className="px-6 py-2 rounded-md bg-[--primary-1] text-white font-semibold"
               >
-                Kaydet
+                {t("editCategories.save")}
               </button>
             </div>
           </form>
@@ -301,13 +302,11 @@ const EditCategories = ({ data: restaurant }) => {
               </div>
 
               <h3 className="text-2xl font-bold text-[--black-2] mb-3">
-                Henüz Kategori Yok
+                {t("editCategories.no_categories")}
               </h3>
 
               <p className="text-[--gr-1] mb-8 leading-relaxed">
-                Bu restoranda henüz tanımlanmış kategori bulunmuyor. Kategoriler
-                menünüzü daha düzenli ve kullanıcı dostu hale getirmenize
-                yardımcı olur.
+                {t("editCategories.no_categories_info")}
               </p>
 
               {/* <div className="mt-8 pt-8 border-t border-[--light-3]">
@@ -348,18 +347,18 @@ function DeletetionWarning({
         </div>
       </div>
       <h2 className="text-lg text-center font-bold mb-4">
-        Kategori Silme İşlemi
+        {t("editCategories.delete_title")}
       </h2>
       <p className="mb-6 text-center">
-        Bu <span className="text-[--red-1]">{categoriesData[index]?.name}</span>{" "}
-        kategoriyi silmek istediğinize emin misiniz?
+        {t("editCategories.delete_confirm")}{" "}
+        <span className="text-[--red-1]">{categoriesData[index]?.name}</span>?
       </p>
       <div className="flex justify-end gap-4">
         <button
           onClick={() => setPopupContent(null)}
           className="px-4 py-2 bg-[--gr-3] text-black rounded-md"
         >
-          İptal
+          {t("editCategories.cancel")}
         </button>
         <button
           onClick={() => {
@@ -368,7 +367,7 @@ function DeletetionWarning({
           }}
           className="px-8 py-2 bg-[--red-1] text-white rounded-md"
         >
-          Sil
+          {t("editCategories.delete")}
         </button>
       </div>
     </div>

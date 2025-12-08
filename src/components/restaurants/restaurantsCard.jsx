@@ -1,6 +1,8 @@
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 const RestaurantsCard = ({ inData }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   function licenseIsClicked(r) {
@@ -55,41 +57,49 @@ const RestaurantsCard = ({ inData }) => {
 
           <div className="py-2 px-4 flex flex-col gap-1.5">
             <div className="flex items-center justify-between gap-4">
-              <p className="text-sm font-medium">Restoran Status:</p>
+              <p className="text-sm font-medium">{t("restaurants.status")}</p>
               <p
-                className={`text-sm text-[--green-1] border rounded-md w-20 text-center py-2 ${
+                className={`text-sm text-[--green-1] border rounded-md w-28 text-center py-2 ${
                   r.isActive
                     ? "border-[--green-1] bg-[--light-green]"
                     : "border-[--red-1] bg-[--light-red]"
                 }`}
               >
-                {r.isActive ? "Aktif" : "Pasif"}
+                {r.isActive
+                  ? t("restaurants.active")
+                  : t("restaurants.passive")}
               </p>
             </div>
 
             <div className="flex items-center justify-between gap-4">
-              <p className="text-sm font-medium">Lisans Status:</p>
+              <p className="text-sm font-medium">
+                {t("restaurants.license_status")}
+              </p>
               <p
-                className={`text-sm border rounded-md w-20 text-center py-2 ${
+                className={`text-sm border rounded-md w-28 text-center py-2 ${
                   r.licenseIsActive
                     ? "border-[--green-1] bg-[--light-green] text-[--green-1]"
                     : "border-[--red-1] bg-[--light-red] text-[--red-1]"
                 }`}
               >
-                {r.licenseIsActive ? "Aktif" : "Pasif"}
+                {r.licenseIsActive
+                  ? t("restaurants.active")
+                  : t("restaurants.passive")}
               </p>
             </div>
 
             <div className="flex items-center justify-between gap-4 text-sm ">
-              <p className="font-medium">Lisans:</p>
+              <p className="font-medium">{t("restaurants.license")}</p>
               {r.licenseId && !r.licenseIsExpired ? (
                 <p>{r.licenseStart}</p>
               ) : (
                 <button
-                  className="text-[--white-1] border border-[--primary-1] bg-[--primary-1] rounded-md w-20 py-2 text-center"
+                  className="text-white border border-[--primary-1] bg-[--primary-1] rounded-md w-28 py-2 text-center"
                   onClick={() => licenseIsClicked(r)}
                 >
-                  {r.licenseIsExpired ? "Uzat" : "Lisans Al"}
+                  {r.licenseIsExpired
+                    ? t("restaurants.license_extend")
+                    : t("restaurants.license_get")}
                 </button>
               )}
             </div>

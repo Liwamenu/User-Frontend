@@ -1,4 +1,4 @@
-// import logo from "../../assets/img/logo.png";
+import logo from "../../assets/img/logo.png";
 
 const CustomGeneralLoader = () => {
   return (
@@ -11,7 +11,11 @@ const CustomGeneralLoader = () => {
       </div>
 
       <div className="absolute top-0 bottom-0 left-0 right-0 flex justify-center items-center">
-        {/* <img src={logo} alt="Pentegrasyon_logo" className="size-6" /> */}
+        <img
+          src={logo}
+          alt="Pentegrasyon_logo"
+          className="size-6 rounded-full"
+        />
       </div>
 
       <style>

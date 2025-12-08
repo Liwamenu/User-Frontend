@@ -17,8 +17,8 @@ import LanguagesEnums from "../../enums/languagesEnums";
 import { getAuth, clearAuth } from "../../redux/api";
 import { logout, resetLogoutState } from "../../redux/auth/logoutSlice";
 import {
-  resetUpdateUserLangSlice,
   updateUserLang,
+  resetUpdateUserLangSlice,
 } from "../../redux/user/updateUserLangSlice";
 
 function Header({ openSidebar, setOpenSidebar }) {
@@ -31,7 +31,8 @@ function Header({ openSidebar, setOpenSidebar }) {
 
   const KEY = import.meta.env.VITE_LOCAL_KEY;
   const userString = localStorage.getItem(KEY);
-  const { user } = JSON.parse(userString);
+  const localData = (userString && JSON.parse(userString)) || {};
+  const user = localData.user;
   const [open, setOpen] = useState(false);
 
   const [langOpen, setLangOpen] = useState(false);
@@ -91,12 +92,16 @@ function Header({ openSidebar, setOpenSidebar }) {
     setSelectedLang(code);
 
     dispatch(updateUserLang({ defaultLang: code }));
-    i18n.changeLanguage(id);
+    i18n.changeLanguage(id.toLowerCase());
   };
 
   useEffect(() => {
     if (lngSucc) {
-      // window.location.reload();
+      const setData = JSON.stringify({
+        ...localData,
+        user: { ...user, defaultLang: selectedLang },
+      });
+      localStorage.setItem(KEY, setData);
       dispatch(resetUpdateUserLangSlice());
     }
     lngErr && dispatch(resetUpdateUserLangSlice());

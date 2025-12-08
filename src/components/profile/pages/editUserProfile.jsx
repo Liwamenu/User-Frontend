@@ -3,6 +3,7 @@ import { isEqual } from "lodash";
 import toast from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next"; // <-- Add this
 
 //COMP
 import Button from "../../common/button";
@@ -12,14 +13,15 @@ import CustomSelect from "../../common/customSelector";
 import CustomPhoneInput from "../../common/customPhoneInput";
 
 // REDUX
-import { getUser } from "../../../redux/user/getUserSlice";
 import {
   updateUserData,
   resetUpdateUserData,
 } from "../../../redux/user/updateUserDataSlice";
+import { getUser } from "../../../redux/user/getUserSlice";
 import { getDistricts } from "../../../redux/data/getDistrictsSlice";
 
 const EditUserProfile = ({ user, cities }) => {
+  const { t } = useTranslation(); // <-- Add this
   const toastId = useRef();
   const dispatch = useDispatch();
 
@@ -53,7 +55,7 @@ const EditUserProfile = ({ user, cities }) => {
   function handleSubmit(e) {
     e.preventDefault();
     if (isEqual(userDataBefore, userData)) {
-      toast.error("Hiç bir geğişiklik yapmadınız");
+      toast.error(t("editUserProfile.no_changes"));
     } else {
       dispatch(
         updateUserData({
@@ -67,7 +69,7 @@ const EditUserProfile = ({ user, cities }) => {
   // TOAST
   useEffect(() => {
     if (loading) {
-      toastId.current = toast.loading("İşleniyor...");
+      toastId.current = toast.loading(t("editUserProfile.processing"));
     }
     if (error) {
       dispatch(resetUpdateUserData());
@@ -76,7 +78,7 @@ const EditUserProfile = ({ user, cities }) => {
       dispatch(getUser());
       dispatch(resetUpdateUserData());
       toast.dismiss(toastId.current);
-      toast.success("Profiliniz başarıyla güncelendi");
+      toast.success(t("editUserProfile.success"));
     }
   }, [loading, success, error]);
 
@@ -173,9 +175,9 @@ const EditUserProfile = ({ user, cities }) => {
     <section className="flex flex-col items-start pt-3.5 pr-20 pl-6 mt-10 w-full bg-[--white-1] min-h-0 max-md:px-5">
       <form className="w-full" onSubmit={handleSubmit}>
         <>
-          <div className="w-full max-w-3xl flex max-sm:flex-col sm:gap-10 gap-2 max-sm:items-center">
+          <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-x-8 gap-y-4">
             <CustomInput
-              label="Ad"
+              label={t("editUserProfile.first_name")}
               required
               className="py-3.5"
               value={userData.firstName}
@@ -189,7 +191,7 @@ const EditUserProfile = ({ user, cities }) => {
               }}
             />
             <CustomInput
-              label="Soyad"
+              label={t("editUserProfile.last_name")}
               required
               className="rounded-2xl py-3.5"
               value={userData.lastName}
@@ -202,10 +204,8 @@ const EditUserProfile = ({ user, cities }) => {
                 });
               }}
             />
-          </div>
-          <div className="w-full max-w-3xl flex max-sm:flex-col sm:gap-10 gap-2 max-sm:items-center">
             <CustomPhoneInput
-              label="Telefon"
+              label={t("editUserProfile.phone")}
               required
               disabled
               className="py-3.5"
@@ -221,7 +221,7 @@ const EditUserProfile = ({ user, cities }) => {
             />
 
             <CustomInput
-              label="E-Posta"
+              label={t("editUserProfile.email")}
               required
               disabled
               className="py-3.5"
@@ -235,16 +235,18 @@ const EditUserProfile = ({ user, cities }) => {
                 });
               }}
             />
-          </div>
-          <div className="w-full max-w-3xl flex max-sm:flex-col sm:gap-10 gap-2 max-sm:items-center">
             <CustomSelect
-              label="İl"
+              label={t("editUserProfile.city")}
               required
               style={{
                 padding: ".5rem 0",
               }}
               options={citiesData}
-              value={userData?.city ? userData.city : { label: "Şehir seç" }}
+              value={
+                userData?.city
+                  ? userData.city
+                  : { label: t("editUserProfile.city_select") }
+              }
               onChange={(selectedOption) => {
                 setUserData((pre) => {
                   return {
@@ -255,14 +257,16 @@ const EditUserProfile = ({ user, cities }) => {
               }}
             />
             <CustomSelect
-              label="İlçe"
+              label={t("editUserProfile.district")}
               required
               style={{
                 padding: ".5rem 0",
               }}
               options={districtsData}
               value={
-                userData?.district ? userData.district : { label: "İlçe seç" }
+                userData?.district
+                  ? userData.district
+                  : { label: t("editUserProfile.district_select") }
               }
               onChange={(selectedOption) => {
                 setUserData((pre) => {
@@ -277,7 +281,7 @@ const EditUserProfile = ({ user, cities }) => {
         </>
         <div className="flex justify-end mt-16 sm:mt-52">
           <Button
-            text="Kaydet"
+            text={t("editUserProfile.save")}
             className="bg-[--primary-1] text-white text-lg rounded-xl py-[.8rem] sm:px-16 border-[0px]"
             type="submit"
             disabled={loading}
