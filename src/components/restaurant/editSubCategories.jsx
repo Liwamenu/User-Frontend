@@ -141,8 +141,7 @@ const EditSubCategories = ({ data: restaurant }) => {
     }
 
     // Flatten ALL current subcategories into a single array for update
-    const allSubCategories = [];
-    let imageIndex = 0;
+    const payload = [];
 
     Object.keys(subCategoriesData).forEach((categoryId) => {
       const currList = subCategoriesData[categoryId] || [];
@@ -155,12 +154,7 @@ const EditSubCategories = ({ data: restaurant }) => {
           sortOrder: idx,
         };
 
-        // Track image index if image is a File
-        if (curr.image && curr.image instanceof File) {
-          subCatObj._imageIndex = imageIndex++;
-        }
-
-        allSubCategories.push(subCatObj);
+        payload.push(subCatObj);
       });
     });
 
@@ -168,18 +162,15 @@ const EditSubCategories = ({ data: restaurant }) => {
     const formData = new FormData();
     formData.append("restaurantId", restaurant?.id);
 
-    // Remove _imageIndex before sending
-    const payload = allSubCategories.map(({ _imageIndex, ...rest }) => rest);
     formData.append("CategoriesData", JSON.stringify(payload));
 
     // Append image files
-    imageIndex = 0;
     Object.keys(subCategoriesData).forEach((categoryId) => {
       const currList = subCategoriesData[categoryId] || [];
       currList.forEach((curr) => {
         if (curr.image && curr.image instanceof File) {
-          formData.append(`${categoryId}_image_${imageIndex}`, curr.image);
-          imageIndex++;
+          console.log(curr);
+          formData.append(`${categoryId}_image_${curr.sortOrder}`, curr.image);
         }
       });
     });
