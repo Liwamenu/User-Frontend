@@ -1,0 +1,51 @@
+{
+  "menus": [
+    {
+      "id": 1,
+      "restaurantId": "538ba1a1-bf0d-47eb-9b88-054856703452",
+      "name": "Sabah Menüsü",
+      "plans": [
+        {
+          "id": "plan-1-1",
+          "days": [1, 2, 3, 4, 5],
+          "startTime": "07:00",
+          "endTime": "11:00"
+        },
+        {
+          "id": "plan-1-2",
+          "days": [5, 7],
+          "startTime": "08:00",
+          "endTime": "12:00"
+        }
+      ]
+    },
+
+    {
+      "id": 2,
+      "restaurantId": "538ba1a1-bf0d-47eb-9b88-054856703452",
+      "name": "Öğle Menüsü",
+      "plans": [
+        {
+          "id": "plan-2-1",
+          "days": [1, 2, 3, 4, 5],
+          "startTime": "11:30",
+          "endTime": "15:00"
+        }
+      ]
+    },
+
+    {
+      "id": 3,
+      "restaurantId": "538ba1a1-bf0d-47eb-9b88-054856703452",
+      "name": "Akşam Menüsü",
+      "plans": [
+        {
+          "id": "plan-3-1",
+          "days": [1, 2, 3, 4, 5, 6, 7],
+          "startTime": "17:00",
+          "endTime": "23:00"
+        }
+      ]
+    }
+  ]
+}

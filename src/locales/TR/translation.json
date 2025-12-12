@@ -40,7 +40,8 @@
     "license_status": "Lisans Durumu",
     "license": "Lisans",
     "license_extend": "Uzat",
-    "license_get": "Lisans Al"
+    "license_get": "Lisans Al",
+    "license_no": "Lisansı Yok"
   },
   "restaurantSettings": {
     "title": "{{name}} Restoranı için Ayarlar",
@@ -115,6 +116,7 @@
     "edit": "Kategorileri Düzenle",
     "add": "Kategori Ekle",
     "category_name": "Kategori Adı",
+    "category_desc": "Açıklama",
     "category_image": "Kategori Görseli",
     "delete": "Sil",
     "save": "Kaydet",
@@ -124,7 +126,9 @@
     "delete_confirm": "Bu kategoriyi silmek istediğinize emin misiniz?",
     "cancel": "İptal",
     "success": "Kategoriler başarıyla güncellendi.",
-    "not_changed": "Değişiklik yapılmadı."
+    "not_changed": "Değişiklik yapılmadı.",
+    "status": "Durum",
+    "featured": "Öne Çıkan"
   },
   "addCategories": {
     "title": "{{name}} Restoranı için Kategori Ekle",
@@ -136,7 +140,9 @@
     "upload_image": "Kategori görseli yükleyin",
     "delete": "Sil",
     "save": "Kaydet",
-    "success": "Kategoriler başarıyla eklendi."
+    "success": "Kategoriler başarıyla eklendi.",
+    "status": "Durum",
+    "featured": "Öne Çıkan"
   },
   "editSubCategories": {
     "title": "{{name}} Restoranı için Alt Kategorileri Düzenle",

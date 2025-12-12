@@ -7,6 +7,7 @@ const CustomToggle = ({
   className,
   className2,
   disabled,
+  swap,
 }) => {
   return (
     <label
@@ -14,7 +15,7 @@ const CustomToggle = ({
         disabled ? "cursor-not-allowed" : "cursor-pointer"
       } ${className1}`}
     >
-      <span className={`${className2}`}>{label}</span>
+      {!swap && <span className={`${className2}`}>{label}</span>}
       <input
         id={id}
         type="checkbox"
@@ -26,6 +27,8 @@ const CustomToggle = ({
       <div
         className={`relative w-[52.5px] h-[28px] bg-[--gr-1] rounded-full peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-[--white-1] after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-[--white-1] after:border-[--gr-1] after:border after:rounded-full after:h-6 after:w-6 transition-colors after:transition-transform duration-500 after:duration-500 ease-in-out after:ease-in-out peer-checked:bg-[--primary-1] ${className}`}
       ></div>
+
+      {swap && <span className={`${className2}`}>{label}</span>}
     </label>
   );
 };

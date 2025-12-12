@@ -40,7 +40,8 @@
     "license_status": "License Status",
     "license": "License",
     "license_extend": "Extend",
-    "license_get": "Get License"
+    "license_get": "Get License",
+    "license_no": "No License"
   },
   "restaurantSettings": {
     "title": "Settings for {{name}} Restaurant",
@@ -115,16 +116,19 @@
     "edit": "Edit Categories",
     "add": "Add Category",
     "category_name": "Category Name",
+    "category_desc": "Description",
     "category_image": "Category Image",
     "delete": "Delete",
     "save": "Save",
     "no_categories": "No Categories Yet",
     "no_categories_info": "There are no categories defined for this restaurant yet. Categories help make your menu more organized and user-friendly.",
     "delete_title": "Delete Category",
-    "delete_confirm": "Are you sure you want to delete the category",
+    "delete_confirm": "Are you sure you want to delete the category.",
     "cancel": "Cancel",
     "success": "Categories updated successfully.",
-    "not_changed": "No changes made."
+    "not_changed": "No changes made.",
+    "status": "Status",
+    "featured": "Featured"
   },
   "addCategories": {
     "title": "Add Category for {{name}} Restaurant",
@@ -136,7 +140,9 @@
     "upload_image": "Upload category image",
     "delete": "Delete",
     "save": "Save",
-    "success": "Categories added successfully."
+    "success": "Categories added successfully.",
+    "status": "Status",
+    "featured": "Featured"
   },
   "editSubCategories": {
     "title": "Edit Subcategories for {{name}} Restaurant",

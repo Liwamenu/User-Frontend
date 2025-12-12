@@ -51,6 +51,9 @@ import Bars4 from "./bars4";
 import Bars4SubI from "./bars4sub";
 import ListI from "./list";
 import LangI from "./language";
+import StackI from "./stack";
+import TurnLeftI from "./turnLeft";
+import DragI from "./drag";
 
 export {
   DashboardI,
@@ -104,4 +107,7 @@ export {
   Bars4SubI,
   ListI,
   LangI,
+  StackI,
+  TurnLeftI,
+  DragI,
 };

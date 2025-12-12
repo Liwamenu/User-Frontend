@@ -1,6 +1,11 @@
-import { useState } from "react";
-import { CloudUI } from "../../assets/icon";
+//MODULES
 import toast from "react-hot-toast";
+import { useRef, useState } from "react";
+import { CloudUI } from "../../assets/icon";
+
+//CONTEXT
+import { usePopup } from "../../context/PopupContext";
+import EditImageFile from "./editImageFile";
 
 //image/png, image/jpeg, image/gif, application/pdf
 
@@ -13,7 +18,11 @@ const CustomFileInput = ({
   msg,
   showFileDetails = true,
   sliceNameAt = 40,
+  editIfImage = true,
 }) => {
+  const { setCropImgPopup } = usePopup();
+
+  const inputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const maxFileSizeMB = import.meta.env.VITE_MAX_FILE_SIZE_MB || 5;
 
@@ -57,6 +66,14 @@ const CustomFileInput = ({
       toast.error(`File size exceeds the maximum limit of ${maxFileSizeMB} MB`);
       return;
     }
+
+    const isImage = fileType.startsWith("image/");
+    if (editIfImage && isImage) {
+      // Open editor modal and pass callbacks
+      setCropImgPopup(<EditImageFile file={file} onSave={onChange} />);
+      return;
+    }
+
     onChange(file);
   };
 
@@ -64,6 +81,11 @@ const CustomFileInput = ({
     const file = event.target.files[0];
     if (file) {
       handleFile(file);
+    }
+
+    // Reset using ref
+    if (inputRef.current) {
+      inputRef.current.value = "";
     }
   };
 
@@ -121,6 +143,7 @@ const CustomFileInput = ({
             )}
       </div>
       <input
+        ref={inputRef}
         type="file"
         id="dropzone-file"
         name="dropzone-file"

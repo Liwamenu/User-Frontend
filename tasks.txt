@@ -1,0 +1,28 @@
+- Add status(bool), featured(bool), productsNumber(int, to store number of poducts under it), description(string), menuId(id to related menu since every category will be under menu from now on) field to categories.
+- 
+
+
+/src/components/restaurant/
+
+/ProductManagement/
+    ProductManagement.jsx
+    ProductCard.jsx
+    ProductForm.jsx
+    PortionEditor.jsx
+    ProductDeleteModal.jsx
+
+/MenuManagement/
+    MenuManagement.jsx
+    MenuCard.jsx
+    MenuForm.jsx
+    MenuDeleteModal.jsx
+
+/CategoryManagement/
+    CategoryManagement.jsx
+    CategoryRow.jsx
+    CategoryForm.jsx
+    CategoryDeleteModal.jsx
+
+/PriceList/
+    PriceList.jsx
+    PriceListRow.jsx

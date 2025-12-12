@@ -83,8 +83,7 @@ const SocialMedias = ({ data: restaurant }) => {
                   </a>
                 }
                 value={socialMediasData?.facebookUrl || ""}
-                className="mt-[0] sm:mt-[0]"
-                className2="mt-[0] sm:mt-[0]"
+                className="bg-[--white-1]"
                 placeholder={t("socialMedias.facebook_placeholder")}
                 onChange={(e) =>
                   setSocialMediasData((prev) => {
@@ -112,8 +111,7 @@ const SocialMedias = ({ data: restaurant }) => {
                   </a>
                 }
                 value={socialMediasData?.instagramUrl || ""}
-                className="mt-[0] sm:mt-[0]"
-                className2="mt-[0] sm:mt-[0]"
+                className="bg-[--white-1]"
                 placeholder={t("socialMedias.instagram_placeholder")}
                 onChange={(e) =>
                   setSocialMediasData((prev) => {
@@ -139,8 +137,7 @@ const SocialMedias = ({ data: restaurant }) => {
                   </a>
                 }
                 value={socialMediasData?.tiktokUrl || ""}
-                className="mt-[0] sm:mt-[0]"
-                className2="mt-[0] sm:mt-[0]"
+                className="bg-[--white-1]"
                 placeholder={t("socialMedias.tiktok_placeholder")}
                 onChange={(e) =>
                   setSocialMediasData((prev) => {
@@ -166,8 +163,7 @@ const SocialMedias = ({ data: restaurant }) => {
                   </a>
                 }
                 value={socialMediasData?.youtubeUrl || ""}
-                className="mt-[0] sm:mt-[0]"
-                className2="mt-[0] sm:mt-[0]"
+                className="bg-[--white-1]"
                 placeholder={t("socialMedias.youtube_placeholder")}
                 onChange={(e) =>
                   setSocialMediasData((prev) => {
@@ -196,8 +192,7 @@ const SocialMedias = ({ data: restaurant }) => {
                   </a>
                 }
                 value={socialMediasData?.whatsappUrl || ""}
-                className="mt-[0] sm:mt-[0]"
-                className2="mt-[0] sm:mt-[0]"
+                className="bg-[--white-1]"
                 placeholder={t("socialMedias.whatsapp_placeholder", {
                   phone: restaurant?.phoneNumber,
                 })}

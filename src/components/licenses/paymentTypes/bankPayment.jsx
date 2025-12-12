@@ -75,7 +75,7 @@ const BankPayment = ({ user, step, setStep, setPaymentStatus }) => {
   function handleSubmit(e) {
     e.preventDefault();
     if (addLoading || extendLoading) return;
-    const { city, district, neighbourhood } = user.userInvoiceAddressDTO;
+    const { city, district, neighbourhood } = user.userInvoiceAddressDTO || {};
     const paymentAmount = cartItems.reduce(
       (acc, item) => acc + parseFloat(item.price),
       0

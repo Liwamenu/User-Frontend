@@ -21,7 +21,7 @@ body[class="light"] {
 }
 
 .dark {
-  --primary-1: #3b82f6;
+  --primary-1: #4f46e5 /* 3b82f6 */;
   --primary-2: #06b6d4;
 
   --gr-1: #64748b;
@@ -72,12 +72,12 @@ body[class="light"] {
   --status-orange: #b45309;
   --status-pink: #9d174d;
   --status-brown: #3e1b11;
-  --status-primary-1: #0284c7;
+  --status-primary-1: #a5b4fc;
   --status-primary-2: #0f172a;
 }
 
 .light {
-  --primary-1: #3b82f6;
+  --primary-1: #4f46e5;
   --primary-2: #06b6d4;
 
   --gr-1: #64748b;
@@ -129,7 +129,7 @@ body[class="light"] {
   --status-orange: #ffedd5;
   --status-pink: #fce7f3;
   --status-brown: #ede0d4;
-  --status-primary-1: #7dd3fc;
+  --status-primary-1: #e0e7ff;
   --status-primary-2: #ecfeff;
 }
 
@@ -146,16 +146,21 @@ section {
 }
 .dark input {
   font-family: "Lexend Deca", sans-serif;
-  background-color: #1b1a1e;
+  /* background-color: #1b1a1e; */
 }
 .light input {
   font-family: "Lexend Deca", sans-serif;
-  background-color: #ffffff;
+  /* background-color: #ffffff; */
 }
 
-.customInput input {
+.dark .customInput input {
   background-color: transparent !important;
   color: white;
+}
+
+.light .customInput input {
+  background-color: transparent !important;
+  color: black;
 }
 
 .stroke {
@@ -174,17 +179,6 @@ input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-/* Firefox */
-input[type="number"] {
-  -moz-appearance: textfield;
-}
-/* Chrome, Safari, Edge, Opera */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
 /* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;

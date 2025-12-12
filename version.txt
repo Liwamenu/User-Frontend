@@ -1,0 +1,18 @@
+Categories
+-Drag & Drop (reorder categories)
+-Add Category
+-Delete Category
+-Edit Category
+
+Products
+-Product List
+-Edit Product
+-Delete Product
+-Price List
+-Add Product
+
+Category – Product (Cat–Prod)
+-View Category's Product
+-Delete Product from Category
+-Edit Product from Category
+-Select Product to Category

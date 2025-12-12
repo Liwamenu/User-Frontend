@@ -3,20 +3,21 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 //COMP
-import { DeleteI } from "../../assets/icon";
-import CustomInput from "../common/customInput";
-import CustomToggle from "../common/customToggle";
-import CustomSelect from "../common/customSelector";
-import CustomFileInput from "../common/customFileInput";
+import { DeleteI } from "../../../assets/icon";
+import CustomInput from "../../common/customInput";
+import CustomToggle from "../../common/customToggle";
+import CustomSelect from "../../common/customSelector";
+import CustomFileInput from "../../common/customFileInput";
 
 //FUNC
-import { formatToPrice } from "../../utils/utils";
+import { formatToPrice } from "../../../utils/utils";
 
 //DUMMy DATA
-import categories from "../../assets/js/Categories.json";
-import subCategories from "../../assets/js/SubCategories.json";
-import orderTags from "../../assets/js/OrderTags.json";
-import orderTagItems from "../../assets/js/OrderTagItems.json";
+import categories from "../../../assets/js/Categories.json";
+import subCategories from "../../../assets/js/SubCategories.json";
+import orderTags from "../../../assets/js/OrderTags.json";
+import orderTagItems from "../../../assets/js/OrderTagItems.json";
+import ProductsHeader from "./header";
 
 const AddProducts = ({ data: restaurant }) => {
   const { id } = useParams();
@@ -233,15 +234,7 @@ const AddProducts = ({ data: restaurant }) => {
           Ürünler {restaurant?.name} Restoranı
         </h1>
 
-        <div className="flex gap-2 my-3">
-          <Link
-            to={`/restaurant/products/${id}`}
-            className="text-[--black-1] p-2 bg-[--light-3]"
-          >
-            Ürünleri Düzenle
-          </Link>
-          <Link className="bg-[--primary-1] text-white p-2">Ürün Ekle</Link>
-        </div>
+        <ProductsHeader />
 
         <form onSubmit={handleProductsSubmit}>
           {prodsData.map((product, index) => (

@@ -77,14 +77,16 @@ const RestaurantsCard = ({ inData }) => {
               </p>
               <p
                 className={`text-sm border rounded-md w-28 text-center py-2 ${
-                  r.licenseIsActive
+                  r.licenseIsActive && r.licenseId
                     ? "border-[--green-1] bg-[--light-green] text-[--green-1]"
                     : "border-[--red-1] bg-[--light-red] text-[--red-1]"
                 }`}
               >
                 {r.licenseIsActive
                   ? t("restaurants.active")
-                  : t("restaurants.passive")}
+                  : r.licenseId
+                  ? t("restaurants.passive")
+                  : t("restaurants.license_no")}
               </p>
             </div>
 

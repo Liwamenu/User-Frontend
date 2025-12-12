@@ -1,0 +1,464 @@
+// MODULES
+import { useMemo, useState } from "react";
+
+// COMP
+import CustomInput from "../../common/customInput";
+import CustomSelect from "../../common/customSelector";
+import CustomTextarea from "../../common/customTextarea";
+import CustomToggle from "../../common/customToggle";
+import CustomFileInput from "../../common/customFileInput";
+
+// DATA
+import categoriesJSON from "../../../assets/js/Categories.json";
+import subCategories from "../../../assets/js/SubCategories.json";
+
+// UTILS
+import { formatToPrice } from "../../../utils/utils";
+import ProductsHeader from "./header";
+import { CloudUI, DeleteI } from "../../../assets/icon";
+
+const emptyPortion = () => ({
+  id: undefined,
+  productId: undefined,
+  name: "",
+  price: 0,
+  discountedPrice: 0,
+  specialPrice: 0, // local optional “Özel” price
+});
+
+const defaultProduct = {
+  sortOrder: 0,
+  name: "",
+  image: null, // File
+  description: "",
+  recommendation: false,
+  hide: false,
+  categoryId: "",
+  categoryName: "",
+  subCategoryId: "",
+  subCategoryName: "",
+  portions: [emptyPortion()],
+};
+
+const AddProduct = ({ data: restaurant }) => {
+  const [preview, setPreview] = useState(null);
+  const [productData, setProductData] = useState(defaultProduct);
+
+  const categoryOptions = useMemo(
+    () =>
+      (categoriesJSON?.categories || []).map((c) => ({
+        value: c.id,
+        label: c.name,
+        ...c,
+      })),
+    []
+  );
+
+  const getSubcatOptions = (categoryId) =>
+    (subCategories?.subCategories || [])
+      .filter((s) => s.categoryId === categoryId)
+      .map((sc) => ({ value: sc.id, label: sc.name, ...sc }));
+
+  //handlers
+  const handleField = (key, value) => {
+    setProductData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleToggle = (key) => {
+    setProductData((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handlePortionChange = (idx, key, value) => {
+    setProductData((prev) => {
+      const next = { ...prev };
+      const portions = [...next.portions];
+      portions[idx] = { ...portions[idx], [key]: value };
+      next.portions = portions;
+      return next;
+    });
+  };
+
+  const addPortion = () => {
+    setProductData((prev) => ({
+      ...prev,
+      portions: [...prev.portions, emptyPortion()],
+    }));
+  };
+
+  const deletePortion = (idx) => {
+    setProductData((prev) => {
+      const portions = [...prev.portions];
+      portions.splice(idx, 1);
+      return { ...prev, portions };
+    });
+  };
+
+  const handleFileChange = (file) => {
+    const blobUrl = file ? URL.createObjectURL(file) : null;
+    setPreview(blobUrl);
+    setProductData((prev) => ({
+      ...prev,
+      image: file || null,
+    }));
+  };
+
+  const handleSave = () => {
+    const formData = new FormData();
+
+    // Append basic fields
+    formData.append("name", productData.name || "");
+    formData.append("description", productData.description || "");
+    formData.append("recommendation", productData.recommendation);
+    formData.append("hide", productData.hide);
+    formData.append("categoryId", productData.categoryId || "");
+    formData.append("subCategoryId", productData.subCategoryId || "");
+
+    // Append image file if present
+    if (productData.image instanceof File) {
+      formData.append("image", productData.image);
+    }
+
+    // Append portions as JSON string (or send separately based on API requirement)
+    const portions = productData.portions.map((p) => ({
+      id: p.id,
+      productId: p.productId,
+      name: p.name,
+      price: Number(p.price) || 0,
+      discountedPrice: Number(p.discountedPrice) || 0,
+      specialPrice: Number(p.specialPrice) || 0,
+    }));
+    formData.append("portions", JSON.stringify(portions));
+
+    // Log FormData entries for debugging
+    console.log("FormData payload:");
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+  };
+
+  return (
+    <form className="w-full mt-1 bg-[--white-1] rounded-lg text-[--black-2] shadow-2xl relative max-h-[97dvh] overflow-hidden">
+      <div className="px-4 max-w-6xl mx-auto max-h-[90dvh] overflow-y-auto pb-20">
+        <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 px-4 sm:px-14 rounded-t-lg">
+          Fiyat Listesi {restaurant?.name} Restoranı
+        </h1>
+
+        <div className="flex justify-between items-center">
+          <div>
+            <ProductsHeader />
+          </div>
+        </div>
+
+        <div className="w-full py-8 relative flex flex-col sm:px-8">
+          <div className="flex justify-between items-center mb-6 border-b border-[--border-1] pb-4">
+            <h3 className="text-2xl font-bold text-[--black-2]">Yeni Ürün</h3>
+          </div>
+
+          <div className="space-y-6 pr-2 flex-1">
+            {/* 2 Kolon */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Sol Kolon */}
+              <div className="space-y-2">
+                <CustomInput
+                  required
+                  label="Ürün Adı *"
+                  placeholder="Örn: Etli Ekmek"
+                  className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
+                  className2=""
+                  value={productData.name}
+                  onChange={(v) => handleField("name", v)}
+                />
+
+                <CustomSelect
+                  required
+                  label="Kategori *"
+                  placeholder="Kategori Seç"
+                  value={
+                    productData.categoryId
+                      ? {
+                          value: productData.categoryId,
+                          label: productData.categoryName,
+                        }
+                      : { value: "", label: "Kategori Seç" }
+                  }
+                  style={{ backgroundColor: "var(--light-1)" }}
+                  options={categoryOptions}
+                  onChange={(opt) =>
+                    setProductData((prev) => ({
+                      ...prev,
+                      categoryId: opt?.value || "",
+                      categoryName: opt?.label || "",
+                    }))
+                  }
+                  isSearchable={true}
+                  className="text-sm"
+                />
+
+                <CustomSelect
+                  label="Alt Kategori *"
+                  disabled={!productData.categoryId}
+                  placeholder="Alt Kategori"
+                  value={
+                    productData.subCategoryId
+                      ? {
+                          value: productData.subCategoryId,
+                          label: productData.subCategoryName,
+                        }
+                      : { value: "", label: "Alt Kategori Seç" }
+                  }
+                  style={{ backgroundColor: "var(--light-1)" }}
+                  options={getSubcatOptions(productData.categoryId)}
+                  onChange={(opt) =>
+                    setProductData((prev) => ({
+                      ...prev,
+                      subCategoryId: opt?.value || "",
+                      subCategoryName: opt?.label || "",
+                    }))
+                  }
+                  className="text-sm"
+                />
+
+                <div>
+                  <div className="flex justify-between items-center mb-1 py-2">
+                    <label className="block text-[--black-2] text-sm font-medium">
+                      Ürün Açıklaması
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => console.log("AI desc")}
+                      className="text-xs bg-purple-50 text-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-100 transition font-medium border border-purple-200 flex items-center shadow-sm"
+                    >
+                      <i className="fa-solid fa-wand-magic-sparkles mr-1.5" />
+                      Liwa AI ile Oluştur
+                    </button>
+                  </div>
+                  <CustomTextarea
+                    value={productData.description}
+                    onChange={(e) => handleField("description", e.target.value)}
+                    placeholder="Ürün hakkında kısa bilgi..."
+                    className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none resize-none text-sm"
+                  />
+                </div>
+
+                <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-indigo-200 transition-colors">
+                  <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
+                    Satış Durumu
+                  </span>
+                  <div className="flex items-center justify-between">
+                    <CustomToggle
+                      label="Satışa Açık"
+                      className1="text-sm"
+                      className="peer-checked:bg-[--green-1] bg-[--border-1] scale-[.9]"
+                      checked={!productData.hide}
+                      onChange={() => handleToggle("hide")}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-indigo-200 transition-colors">
+                  <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
+                    Tavsiye Durumu
+                  </span>
+                  <div className="flex items-center justify-between">
+                    <CustomToggle
+                      label="Şef Tavsiyesi"
+                      checked={productData.recommendation}
+                      className1="text-sm"
+                      className="peer-checked:bg-[--green-1] bg-[--border-1] scale-[.9]"
+                      onChange={() => handleToggle("recommendation")}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Sağ Kolon */}
+              <div className="space-y-2">
+                <span className="text-[--black-2] text-sm font-medium block">
+                  Ürün Görseli
+                </span>
+
+                <div className="bg-[--light-4] p-4 rounded-xl border border-[--border-1]">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
+                      <i className="fa-solid fa-palette mr-1" /> AI Görsel
+                      Stüdyosu
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => console.log("AI image")}
+                      id="ai-img-btn"
+                      className="text-xs bg-indigo-500 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-600 transition font-medium shadow-sm flex items-center"
+                    >
+                      <i className="fa-solid fa-wand-magic-sparkles mr-1.5" />
+                      Liwa AI ile Oluştur
+                    </button>
+                  </div>
+
+                  <CustomInput
+                    placeholder="Görsel detayı ekle (Örn: Ahşap masada, yanında ayran ile...)"
+                    className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none text-sm"
+                  />
+                </div>
+
+                <div className="group border-2 border-dashed border-[--border-1] rounded-xl p-6 text-center hover:border-indigo-400 hover:bg-[--light-2] transition-all relative cursor-pointer h-48 flex flex-col justify-center items-center">
+                  {preview ? (
+                    <div className="w-full h-full overflow-hidden flex justify-center items-center rounded-lg">
+                      <img
+                        src={preview}
+                        className="max-h-full w-auto object-contain rounded-md"
+                        alt="Ürün"
+                      />
+                    </div>
+                  ) : (
+                    <div className="group-hover:scale-110 transition-transform duration-300 pointer-events-none">
+                      <div className="w-12 h-12 bg-indigo-100 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <div className="pl-1 pt-1">
+                          <CloudUI />
+                        </div>
+                      </div>
+                      <p className="text-sm text-[--light-1]0 group-hover:text-indigo-600 font-medium">
+                        Görsel Seçmek İçin Tıklayın
+                      </p>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 opacity-0">
+                    <CustomFileInput
+                      required={false}
+                      value={productData.image}
+                      onChange={handleFileChange}
+                      accept={"image/png, image/jpeg"}
+                      className="h-full w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Alt Kısım */}
+            <div className="pt-4 border-t border-[--border-1]">
+              {/* <div className="bg-orange-50 p-4 rounded-xl border border-orange-100 mb-4">
+                <span className="text-xs font-semibold text-orange-600 uppercase tracking-wider mb-3 block">
+                  <i className="fa-solid fa-tag mr-1" /> Özel Fiyat Tanımı
+                  (Opsiyonel)
+                </span>
+                <CustomInput
+                  label="Etiket (Örn: Maliyet, VIP)"
+                  placeholder="Personel, Müdavim gibi . . ."
+                  className="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm text-[--black-1] outline-none focus:border-orange-400 bg-white"
+                  className2=""
+                  value={productData.customPriceLabel || ""}
+                  onChange={(v) => handleField("customPriceLabel", v)}
+                />
+                <p className="text-[10px] text-[--gr-1] mt-1 italic">
+                  Not: Bu etiket tüm porsiyonlardaki özel fiyatlar için geçerli
+                  olacaktır.
+                </p>
+              </div> */}
+
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <label className="block text-[--black-2] text-sm font-medium">
+                    Porsiyonlar ve Fiyatlar
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addPortion}
+                    className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition font-medium border border-indigo-200"
+                  >
+                    <i className="fa-solid fa-plus mr-1" /> Porsiyon Ekle
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-[1fr_80px_80px_80px_30px] gap-2 text-[10px] text-[--gr-1] uppercase font-semibold mb-2">
+                  <div>Porsiyon</div>
+                  <div className="text-center">Fiyat</div>
+                  <div className="text-center text-[--green-1]">Kampanya</div>
+                  <div className="text-center text-[--orange-1]">Özel</div>
+                  <div />
+                </div>
+
+                <div className="space-y-3">
+                  {productData.portions.map((portion, idx) => (
+                    <div
+                      key={idx}
+                      className="grid grid-cols-[1fr_80px_80px_80px_30px] gap-2 items-center"
+                    >
+                      <CustomInput
+                        required
+                        placeholder="Porsiyon Adı"
+                        className="py-[6px] text-sm bg-[--white-2]"
+                        value={portion.name}
+                        onChange={(v) => handlePortionChange(idx, "name", v)}
+                      />
+                      <CustomInput
+                        required
+                        type="number"
+                        placeholder="Fiyat"
+                        className="py-[6px] text-sm text-center bg-[--white-2]"
+                        value={formatToPrice(portion.price) || "0"}
+                        onChange={(v) => handlePortionChange(idx, "price", v)}
+                      />
+                      <CustomInput
+                        type="number"
+                        placeholder="Kampanya"
+                        className="py-[6px] text-sm text-end text-[--black-2] bg-green-400/30 border-green-300"
+                        value={formatToPrice(portion.discountedPrice) || "0"}
+                        onChange={(v) =>
+                          handlePortionChange(idx, "discountedPrice", v)
+                        }
+                      />
+                      <CustomInput
+                        type="number"
+                        placeholder="Özel"
+                        className="py-[6px] text-sm text-end text-[--black-2] bg-orange-400/30 border-orange-300"
+                        value={formatToPrice(portion.specialPrice) || "0"}
+                        onChange={(v) =>
+                          handlePortionChange(idx, "specialPrice", v)
+                        }
+                      />
+                      <div className="flex items-center justify-center">
+                        {productData.portions.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => deletePortion(idx)}
+                            className="text-[--red-1] text-xs"
+                            aria-label="Porsiyonu Sil"
+                          >
+                            <DeleteI
+                              strokeWidth={1}
+                              className="size-[1.3rem]"
+                            />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full flex items-center  absolute bottom-0 right-0 left-0">
+        <div className="w-full flex justify-end space-x-3 max-w-6xl mx-auto bg-[--white-1] py-4 px-6 border-t border-[--border-1] rounded-b-lg">
+          {/* <button
+            // onClick={() => setSecondPopupContent(null)}
+            className="px-6 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] hover:text-[--black-1] transition-all"
+          >
+            Vazgeç
+          </button> */}
+
+          <button
+            onClick={handleSave}
+            className="px-8 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg shadow-[--light-1] hover:bg-[--primary-2] transform hover:-translate-y-0.5 transition-all"
+          >
+            Kaydet
+          </button>
+        </div>
+      </div>
+    </form>
+  );
+};
+
+export default AddProduct;

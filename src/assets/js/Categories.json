@@ -4,61 +4,91 @@
       "name": "Corbalar",
       "id": "xncd-sfsfsfs-gsgg23-skroewt",
       "image": "",
-      "sortOrder": 0
+      "isActive": true,
+      "featured": false,
+      "sortOrder": 0,
+      "productCount": 3
     },
     {
       "name": "AnaYemekler",
       "id": "xncd-sfsfsfs-gsgg23-skroethgh",
       "image": "",
-      "sortOrder": 1
+      "isActive": true,
+      "featured": true,
+      "sortOrder": 1,
+      "productCount": 12
     },
     {
       "name": "Pilavlar",
       "id": "xncd-fdfvf-3ffxd5h-fdfdf5",
       "image": "",
-      "sortOrder": 2
+      "isActive": true,
+      "featured": true,
+      "sortOrder": 2,
+      "productCount": 5
     },
     {
       "name": "HamurIsleri",
       "id": "xncd-ffdf656-dd89fd-ffdfv1",
       "image": "",
-      "sortOrder": 3
+      "isActive": false,
+      "featured": true,
+      "sortOrder": 3,
+      "productCount": 8
     },
     {
       "name": "DenizUrunleri",
       "id": "xncd-ffdf656-dd89fd-ffdfv2",
       "image": "",
-      "sortOrder": 4
+      "isActive": true,
+      "featured": false,
+      "sortOrder": 4,
+      "productCount": 15
     },
     {
       "name": "Zeytinyaglilar",
       "id": "xncd-ffdf656-dd89fd-ffdfv3",
       "image": "",
-      "sortOrder": 5
+      "isActive": true,
+      "featured": true,
+      "sortOrder": 5,
+      "productCount": 7
     },
     {
       "name": "Tatlilar",
       "id": "xncd-ffdf656-dd89fd-ffdfv4",
       "image": "",
-      "sortOrder": 6
+      "isActive": true,
+      "featured": false,
+      "sortOrder": 6,
+      "productCount": 10
     },
     {
       "name": "Salatalar",
       "id": "xncd-ffdf656-dd89fd-ffdfv5",
       "image": "",
-      "sortOrder": 7
+      "isActive": true,
+      "featured": false,
+      "sortOrder": 7,
+      "productCount": 6
     },
     {
       "name": "Mezeler",
       "id": "xncd-ffdf656-dd89fd-ffdfv6",
       "image": "",
-      "sortOrder": 8
+      "isActive": false,
+      "featured": false,
+      "sortOrder": 8,
+      "productCount": 9
     },
     {
       "name": "Icecekler",
       "id": "xncd-ffdf656-dd89fd-ffdfv7",
       "image": "",
-      "sortOrder": 9
+      "isActive": false,
+      "featured": false,
+      "sortOrder": 9,
+      "productCount": 20
     }
   ]
 }

@@ -439,7 +439,7 @@ const EditRestaurant = ({ data: restaurant }) => {
                   required={true}
                   label={t("restaurants.name") + "*"}
                   placeholder={t("restaurants.name")}
-                  className="py-[.45rem] text-sm"
+                  className="py-[.45rem] text-sm bg-[--white-1]"
                   value={restaurantData.name}
                   onChange={(e) => {
                     setRestaurantData((prev) => {
@@ -454,7 +454,7 @@ const EditRestaurant = ({ data: restaurant }) => {
                   required={true}
                   label={t("restaurants.phone") + "*"}
                   placeholder={t("restaurants.phone")}
-                  className="py-[.45rem] text-sm"
+                  className="py-[.45rem] text-sm bg-[--white-1]"
                   value={restaurantData.phoneNumber}
                   onChange={(phone) => {
                     setRestaurantData((prev) => {
@@ -555,7 +555,7 @@ const EditRestaurant = ({ data: restaurant }) => {
                   required={true}
                   label={t("restaurants.address") + "*"}
                   placeholder={t("restaurants.address")}
-                  className="text-sm h-14"
+                  className="text-sm h-14 bg-[--white-1]"
                   value={restaurantData.address}
                   onChange={(e) => {
                     setRestaurantData((prev) => {
@@ -574,7 +574,7 @@ const EditRestaurant = ({ data: restaurant }) => {
                     required={true}
                     label={t("restaurants.latitude") + "*"}
                     placeholder={t("restaurants.latitude")}
-                    className="py-[.45rem] text-sm"
+                    className="py-[.45rem] text-sm bg-[--white-1]"
                     value={restaurantData.latitude}
                     onChange={() => {}}
                     onClick={() => {}}
@@ -584,7 +584,7 @@ const EditRestaurant = ({ data: restaurant }) => {
                     required={true}
                     label={t("restaurants.longitude") + "*"}
                     placeholder={t("restaurants.longitude")}
-                    className="py-[.45rem] text-sm"
+                    className="py-[.45rem] text-sm bg-[--white-1]"
                     value={restaurantData.longitude}
                     onChange={() => {}}
                     onClick={() => {}}

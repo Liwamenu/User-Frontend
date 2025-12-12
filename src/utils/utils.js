@@ -96,18 +96,17 @@ export const maxInput = (e) => {
 
   let useVal = value;
 
-  // Handle different input types
-  if (type === "number" || name === "digit") {
-    useVal = value.replace(/[^\d]/g, ""); // Only allow digits
-  }
-
-  // Handle the "price" input type
-  if (name === "price") {
-    useVal = formatToPrice(value);
-  }
-
   // Enforce max length
   if (maxAllowed && maxAllowed !== -1 && useVal?.length > maxAllowed) {
+    // Handle different input types
+    if (type === "number" || name === "digit") {
+      useVal = value.replace(/[^\d]/g, ""); // Only allow digits
+    }
+    // Handle the "price" input type
+    if (name === "price") {
+      useVal = formatToPrice(value);
+    }
+
     return useVal.slice(0, maxAllowed);
   }
 

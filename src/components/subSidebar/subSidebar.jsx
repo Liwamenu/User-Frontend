@@ -12,7 +12,6 @@ import {
   EditI,
   TemplatesI,
   QRI,
-  PaymentI,
   BellI,
   LicenseI,
   DebitI,
@@ -71,7 +70,7 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
     {
       icon: <Bars4I />,
       text: "Katagoriler",
-      to: `/restaurant/categories/${id}/edit`,
+      to: `/restaurant/categories/${id}/list`,
       path: "categories",
     },
     {

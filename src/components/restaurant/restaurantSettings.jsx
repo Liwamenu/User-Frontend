@@ -87,7 +87,7 @@ const RestaurantSettings = ({ data }) => {
                   <CustomInput
                     type="text"
                     placeholder={t("restaurantSettings.tenant_placeholder")}
-                    className="py-[.4rem] rounded-none"
+                    className="py-[.4rem] rounded-none bg-[--white-1]"
                     value={restaurantData?.tenant ?? ""}
                     onChange={(e) =>
                       setRestaurantData((prev) => ({
@@ -118,7 +118,7 @@ const RestaurantSettings = ({ data }) => {
                       websitesinden ulaşabilirsiniz.
                     </span>
                   }
-                  className="py-[.4rem]"
+                  className="py-[.4rem] bg-[--white-1]"
                   placeholder={t(
                     "restaurantSettings.google_analytics_placeholder"
                   )}
@@ -164,7 +164,7 @@ const RestaurantSettings = ({ data }) => {
                   type="text"
                   label={t("restaurantSettings.slogan1")}
                   placeholder={t("restaurantSettings.slogan1_placeholder")}
-                  className="py-[.4rem]"
+                  className="py-[.4rem] bg-[--white-1]"
                   value={restaurantData?.slogan1 ?? ""}
                   onChange={(e) =>
                     setRestaurantData((prev) => ({
@@ -180,7 +180,7 @@ const RestaurantSettings = ({ data }) => {
                 <CustomInput
                   label={t("restaurantSettings.slogan2")}
                   placeholder={t("restaurantSettings.slogan2_placeholder")}
-                  className="py-[.4rem]"
+                  className="py-[.4rem] bg-[--white-1]"
                   value={restaurantData?.slogan2 ?? ""}
                   onChange={(e) =>
                     setRestaurantData((prev) => ({
@@ -222,7 +222,7 @@ const RestaurantSettings = ({ data }) => {
                     placeholder={t(
                       "restaurantSettings.max_distance_placeholder"
                     )}
-                    className="py-[.4rem]"
+                    className="py-[.4rem] bg-[--white-1]"
                     value={restaurantData?.maxDistance ?? ""}
                     onChange={(e) =>
                       setRestaurantData((prev) => ({
@@ -257,7 +257,7 @@ const RestaurantSettings = ({ data }) => {
                   placeholder={t(
                     "restaurantSettings.online_order_discount_placeholder"
                   )}
-                  className="py-[.4rem] rounded-r-none"
+                  className="py-[.4rem] rounded-r-none bg-[--white-1]"
                   value={restaurantData?.onlineOrderDiscountRate ?? ""}
                   onChange={(e) =>
                     setRestaurantData((prev) => ({
@@ -294,7 +294,7 @@ const RestaurantSettings = ({ data }) => {
                   placeholder={t(
                     "restaurantSettings.table_order_discount_placeholder"
                   )}
-                  className="py-[.4rem] rounded-r-none"
+                  className="py-[.4rem] rounded-r-none bg-[--white-1]"
                   value={restaurantData?.tableOrderDiscountRate ?? ""}
                   onChange={(e) =>
                     setRestaurantData((prev) => ({

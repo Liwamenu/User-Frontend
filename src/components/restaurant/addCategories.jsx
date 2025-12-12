@@ -8,8 +8,9 @@ import { useTranslation } from "react-i18next";
 
 //COMP
 import CustomInput from "../common/customInput";
-import { CloudUI, MenuI } from "../../assets/icon";
+import CustomToggle from "../common/customToggle";
 import CustomFileInput from "../common/customFileInput";
+import { CancelI, CloudUI, DeleteI, EditI, MenuI } from "../../assets/icon";
 
 //REDUX
 import {
@@ -24,14 +25,20 @@ const AddCategories = ({ data: restaurant }) => {
     (state) => state.categories.add
   );
   const [categories, setCategories] = useState([
-    { name: "", image: null, sortOrder: 0 },
+    { name: "", status: true, featured: false, image: null, sortOrder: 0 },
   ]);
 
   // Add a new blank category row
   const addCategory = () => {
     setCategories((prev) => [
       ...prev,
-      { name: "", image: null, sortOrder: prev.length },
+      {
+        name: "",
+        image: null,
+        status: true,
+        featured: false,
+        sortOrder: prev.length,
+      },
     ]);
   };
 
@@ -115,28 +122,24 @@ const AddCategories = ({ data: restaurant }) => {
           </p>
         </div>
 
-        <div className="flex gap-2 my-4">
+        <div className="flex gap-2 my-4 text-sm">
           <Link
             to={`/restaurant/categories/${restaurant?.id}/edit`}
-            className="bg-[--light-3] p-2"
+            className="bg-[--light-3] p-2.5 rounded-md flex items-center gap-1"
           >
+            <EditI className="size-[1rem]" />
             {t("addCategories.edit")}
           </Link>
           <Link
             to={`/restaurant/categories/${restaurant?.id}/add`}
-            className="bg-[--primary-1] text-white p-2"
+            className="bg-[--primary-1] text-white p-2.5 rounded-md flex items-center gap-1"
           >
+            <CancelI className="rotate-45 size-[1rem]" />
             {t("addCategories.add")}
           </Link>
         </div>
 
-        <form onSubmit={handleSubmit} className="py-3">
-          <div className="flex gap-4 max-sm:gap-2 items-end mb-4">
-            <p className="w-8"></p>
-            <p className="w-[19rem]">{t("addCategories.category_name")}</p>
-            <p className="w-full">{t("addCategories.category_image")}</p>
-          </div>
-
+        <form onSubmit={handleSubmit} className="py-3 text-sm">
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="categories">
               {(provided) => (
@@ -173,6 +176,34 @@ const AddCategories = ({ data: restaurant }) => {
                                 placeholder={t("addCategories.category_name")}
                                 onChange={(e) =>
                                   updateCategory(index, "name", e)
+                                }
+                              />
+                            </div>
+
+                            <div>
+                              <CustomToggle
+                                label={t("addCategories.status")}
+                                checked={cat?.status}
+                                className="scale-[.7]"
+                                className1="flex-col"
+                                onChange={() =>
+                                  updateCategory(index, "status", !cat.status)
+                                }
+                              />
+                            </div>
+
+                            <div>
+                              <CustomToggle
+                                label={t("addCategories.featured")}
+                                checked={cat?.featured}
+                                className="scale-[.7]"
+                                className1="flex-col"
+                                onChange={() =>
+                                  updateCategory(
+                                    index,
+                                    "featured",
+                                    !cat.featured
+                                  )
                                 }
                               />
                             </div>
@@ -218,7 +249,11 @@ const AddCategories = ({ data: restaurant }) => {
                             onClick={() => removeCategory(index)}
                             className="flex text-[--red-1] font-semibold"
                           >
-                            {t("addCategories.delete")}
+                            {/* {t("addCategories.delete")} */}
+                            <DeleteI
+                              strokeWidth={1.5}
+                              className="size-[1.3rem]"
+                            />
                           </button>
                         </div>
                       )}
