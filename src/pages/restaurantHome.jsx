@@ -41,6 +41,8 @@ import Products from "../components/restaurant/products/products";
 import AddProduct from "../components/restaurant/products/addProduct";
 import Categories from "../components/restaurant/category/categories";
 import AddCategory from "../components/restaurant/category/addCategory";
+import MenuList from "../components/restaurant/menus/menuList";
+import SubCategories from "../components/restaurant/subCategory/subCategories";
 
 const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   const location = useLocation();
@@ -109,13 +111,14 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
             element={<AddCategory data={data} />}
           />
           <Route
-            path="/sub_categories/:id/edit"
-            element={<EditSubCategories data={data} />}
+            path="/sub_categories/:id/list"
+            element={<SubCategories data={data} />}
           />
           <Route
             path="/sub_categories/:id/add"
             element={<AddSubCategories data={data} />}
           />
+          <Route path="/menus/:id/list" element={<MenuList data={data} />} />
           <Route
             path="/tags/:id/edit"
             element={<EditOrderTagsAndItems data={data} />}

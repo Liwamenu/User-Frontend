@@ -17,6 +17,11 @@
           "startTime": "08:00",
           "endTime": "12:00"
         }
+      ],
+      "categoryIds": [
+        "xncd-sfsfsfs-gsgg23-skroewt",
+        "xncd-ffdf656-dd89fd-ffdfv5",
+        "xncd-ffdf656-dd89fd-ffdfv7"
       ]
     },
 
@@ -31,6 +36,12 @@
           "startTime": "11:30",
           "endTime": "15:00"
         }
+      ],
+      "categoryIds": [
+        "xncd-sfsfsfs-gsgg23-skroethgh",
+        "xncd-fdfvf-3ffxd5h-fdfdf5",
+        "xncd-ffdf656-dd89fd-ffdfv3",
+        "xncd-ffdf656-dd89fd-ffdfv7"
       ]
     },
 
@@ -45,6 +56,12 @@
           "startTime": "17:00",
           "endTime": "23:00"
         }
+      ],
+      "categoryIds": [
+        "xncd-ffdf656-dd89fd-ffdfv2",
+        "xncd-ffdf656-dd89fd-ffdfv1",
+        "xncd-ffdf656-dd89fd-ffdfv4",
+        "xncd-ffdf656-dd89fd-ffdfv7"
       ]
     }
   ]

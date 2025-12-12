@@ -19,6 +19,7 @@ import {
   SettingsI,
   Bars4SubI,
   ListI,
+  StackI,
 } from "../../assets/icon/index";
 
 //COMP
@@ -29,7 +30,7 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
   const param = useParams();
   const sidebarRef = useRef();
   const id = param["*"].split("/")[1];
-  const { showPopup, contentRef, setContentRef } = usePopup();
+  const { popupContent, contentRef, setContentRef } = usePopup();
   const sidebarItems = [
     {
       icon: <GobackI />,
@@ -76,8 +77,14 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
     {
       icon: <Bars4SubI />,
       text: "Alt Katagoriler",
-      to: `/restaurant/sub_categories/${id}/edit`,
+      to: `/restaurant/sub_categories/${id}/list`,
       path: "sub_categories",
+    },
+    {
+      icon: <StackI />,
+      text: "Menüler",
+      to: `/restaurant/menus/${id}/list`,
+      path: "menus",
     },
     {
       icon: <LicenseI />,
@@ -126,7 +133,7 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
   return (
     <nav
       className={`fixed -left-[280px] lg:left-0 top-0 flex flex-col justify-between bg-[--white-1] border-r shadow-2xl border-[--border-1] w-[280px] transition-all ${
-        !showPopup && "z-[999]"
+        !popupContent && "z-[999]"
       } ${openSidebar && "left-[0]"}`}
       ref={sidebarRef}
     >

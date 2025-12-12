@@ -258,8 +258,7 @@ const RestaurantsPage = () => {
               }}
               value={searchVal}
               placeholder={t("restaurants.search_placeholder")}
-              className2="mt-[0px] w-full sm:mt-[0]"
-              className="mt-[0px] py-[.7rem] w-[100%] focus:outline-none"
+              className="py-[.7rem] w-[100%] focus:outline-none bg-[--white-1]"
               icon={<CloseI className="w-4 text-[--red-1]" />}
               className4={`top-[20px] right-2 hover:bg-[--light-4] rounded-full px-2 py-1 ${
                 searchVal ? "block" : "hidden"

@@ -1,17 +1,25 @@
-import { useEffect, useState } from "react";
+//MODULES
+import toast from "react-hot-toast";
+import { useEffect, useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+
+//COMP
 import CustomInput from "../../common/customInput";
 import CustomToggle from "../../common/customToggle";
-import CustomFileInput from "../../common/customFileInput";
-import CategoriesHeader from "./header";
-import { useTranslation } from "react-i18next";
-import { CancelI, CloudUI, WarnI } from "../../../assets/icon";
+import CustomCheckbox from "../../common/customCheckbox";
 import { usePopup } from "../../../context/PopupContext";
+import CustomFileInput from "../../common/customFileInput";
+import { CancelI, CloudUI, WarnI } from "../../../assets/icon";
+
+//REDUX
 import {
   addCategories,
   resetAddCategories,
 } from "../../../redux/categories/addCategoriesSlice";
-import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
+
+//JSON
+import menusJSON from "../../../assets/js/Menus.json";
 
 const initialCategory = () => ({
   name: "",
@@ -19,6 +27,7 @@ const initialCategory = () => ({
   isActive: true,
   featured: false,
   campaign: false,
+  menuIds: [],
 });
 
 const AddCategory = ({ data: restaurant, onSuccess }) => {
@@ -31,6 +40,8 @@ const AddCategory = ({ data: restaurant, onSuccess }) => {
   const [category, setCategory] = useState(initialCategory());
   const [preview, setPreview] = useState(null);
   const [showCampaignWarning, setShowCampaignWarning] = useState(false);
+
+  const menus = useMemo(() => menusJSON.menus || [], []);
 
   const handleField = (key, value) => {
     setCategory((prev) => ({ ...prev, [key]: value }));
@@ -58,6 +69,15 @@ const AddCategory = ({ data: restaurant, onSuccess }) => {
     }));
   };
 
+  const toggleMenuSelection = (menuId) => {
+    setCategory((prev) => ({
+      ...prev,
+      menuIds: prev.menuIds.includes(menuId)
+        ? prev.menuIds.filter((id) => id !== menuId)
+        : [...prev.menuIds, menuId],
+    }));
+  };
+
   const handleSave = () => {
     try {
       const formData = new FormData();
@@ -72,12 +92,12 @@ const AddCategory = ({ data: restaurant, onSuccess }) => {
         formData.append(`image_0`, category.image);
       }
 
-      console.log("Adding categories:", category);
+      console.log("Adding category:", category);
       for (const pair of formData.entries()) {
         console.log(pair[0], pair[1]);
       }
 
-      dispatch(addCategories(formData));
+      // dispatch(addCategories(formData));
     } catch (error) {
       console.error("Error preparing form data:", error);
     }
@@ -105,7 +125,7 @@ const AddCategory = ({ data: restaurant, onSuccess }) => {
           <CategoriesHeader restaurant={restaurant} />
         </div> */}
 
-      <div className="w-full max-w-xl flex bg-[--white-1] rounded-lg items-center justify-center transition-all duration-300">
+      <div className="w-full max-w-xl flex bg-[--white-1] rounded-lg justify-center transition-all duration-300 max-h-[95dvh] overflow-y-auto">
         <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full p-8 transform scale-100 transition-all duration-300 modal-content relative">
           <div className="flex justify-between items-center mb-8 border-b border-[--light-3] pb-4">
             <h3 className="text-2xl font-bold text-[--black-1]">
@@ -120,7 +140,7 @@ const AddCategory = ({ data: restaurant, onSuccess }) => {
             </button>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-6 pb-4">
             {/* Kategori Adı */}
             <CustomInput
               required
@@ -136,9 +156,9 @@ const AddCategory = ({ data: restaurant, onSuccess }) => {
               <span className="text-[--black-2] text-sm font-medium mb-2 block">
                 Kategori Görseli (Opsiyonel)
               </span>
-              <div className="group border-2 border-dashed border-[--border-1] rounded-xl p-6 text-center hover:border-[--primary-1] transition-all relative cursor-pointer">
+              <div className="group border-2 border-dashed border-[--border-1] rounded-xl p-4 text-center hover:border-[--primary-1] transition-all relative cursor-pointer">
                 {preview ? (
-                  <div className="mb-3 max-h-40 overflow-hidden flex justify-center items-center rounded-lg mx-auto shadow-md">
+                  <div className="max-h-40 overflow-hidden flex justify-center items-center rounded-lg mx-auto shadow-md">
                     <img
                       src={preview}
                       className="max-h-40 w-auto object-cover rounded-md"
@@ -165,6 +185,35 @@ const AddCategory = ({ data: restaurant, onSuccess }) => {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Checkbox for Menu IDs */}
+            <div>
+              <label className="block text-[--black-2] text-sm font-medium mb-3">
+                Menüler (Opsiyonel)
+              </label>
+              <div className="bg-[--light-1] p-4 rounded-xl border border-[--border-1] space-y-3 max-h-44 overflow-y-auto">
+                {menus.length > 0 ? (
+                  menus.map((menu) => (
+                    <div key={menu.id}>
+                      <CustomCheckbox
+                        id={`menu-${menu.id}`}
+                        label={menu.name}
+                        checked={category.menuIds.includes(menu.id)}
+                        onChange={() => toggleMenuSelection(menu.id)}
+                        className2="text-[--black-2] font-medium"
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-[--gr-1] italic">
+                    Kullanılabilir menü yok.
+                  </p>
+                )}
+              </div>
+              <p className="text-xs text-[--gr-1] mt-2">
+                Bu kategorinin hangi menülerde gösterilmesi gerektiğini seçin.
+              </p>
             </div>
 
             {/* Toggle'lar */}

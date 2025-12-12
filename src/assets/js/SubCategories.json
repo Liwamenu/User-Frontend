@@ -4,127 +4,190 @@
       "id": "some-random-id-1",
       "categoryId": "xncd-sfsfsfs-gsgg23-skroewt",
       "name": "Mercimek Çorbası",
-      "sortOrder": 0
+      "sortOrder": 0,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-2",
       "categoryId": "xncd-sfsfsfs-gsgg23-skroewt",
       "name": "Tarhana Çorbası",
-      "sortOrder": 1
+      "sortOrder": 1,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-3",
       "categoryId": "xncd-sfsfsfs-gsgg23-skroethgh",
       "name": "Kuzu Tandır",
-      "sortOrder": 0
+      "sortOrder": 0,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-4",
       "categoryId": "xncd-sfsfsfs-gsgg23-skroethgh",
       "name": "Tavuk Sote",
-      "sortOrder": 1
+      "sortOrder": 1,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-5",
       "categoryId": "xncd-fdfvf-3ffxd5h-fdfdf5",
       "name": "Pilav Üstü Et",
-      "sortOrder": 0
+      "sortOrder": 0,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-6",
       "categoryId": "xncd-fdfvf-3ffxd5h-fdfdf5",
       "name": "Sebzeli Pilav",
-      "sortOrder": 1
+      "sortOrder": 1,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-7",
       "categoryId": "xncd-ffdf656-dd89fd-ffdfv1",
       "name": "Lahmacun",
-      "sortOrder": 0
+      "sortOrder": 0,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-8",
       "categoryId": "xncd-ffdf656-dd89fd-ffdfv1",
       "name": "Pide",
-      "sortOrder": 1
+      "sortOrder": 1,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-9",
       "categoryId": "xncd-ffdf656-dd89fd-ffdfv1",
       "name": "Pizza",
-      "sortOrder": 3
+      "sortOrder": 3,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-10",
       "categoryId": "xncd-ffdf656-dd89fd-ffdfv2",
       "name": "Grilled Salmon",
-      "sortOrder": 0
+      "sortOrder": 0,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-11",
       "categoryId": "xncd-ffdf656-dd89fd-ffdfv2",
       "name": "Fried Calamari",
-      "sortOrder": 1
+      "sortOrder": 1,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-12",
       "categoryId": "xncd-ffdf656-dd89fd-ffdfv3",
       "name": "Stuffed Eggplant",
-      "sortOrder": 0
+      "sortOrder": 0,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-13",
       "categoryId": "xncd-ffdf656-dd89fd-ffdfv3",
       "name": "Zeytinyağlı Fasulye",
-      "sortOrder": 1
+      "sortOrder": 1,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-14",
       "categoryId": "xncd-ffdf656-dd89fd-ffdfv4",
       "name": "Baklava",
-      "sortOrder": 0
+      "sortOrder": 0,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-15",
       "categoryId": "xncd-ffdf656-dd89fd-ffdfv4",
       "name": "Künefe",
-      "sortOrder": 1
+      "sortOrder": 1,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-16",
       "categoryId": "xncd-ffdf656-dd89fd-ffdfv5",
       "name": "Çoban Salata",
-      "sortOrder": 0
+      "sortOrder": 0,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-17",
       "categoryId": "xncd-ffdf656-dd89fd-ffdfv5",
       "name": "Sezar Salata",
-      "sortOrder": 1
+      "sortOrder": 1,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-18",
       "categoryId": "xncd-ffdf656-dd89fd-ffdfv6",
       "name": "Humus",
-      "sortOrder": 0
+      "sortOrder": 0,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-19",
       "categoryId": "xncd-ffdf656-dd89fd-ffdfv6",
       "name": "Haydari",
-      "sortOrder": 1
+      "sortOrder": 1,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-20",
       "categoryId": "xncd-ffdf656-dd89fd-ffdfv7",
       "name": "Ayran",
-      "sortOrder": 0
+      "sortOrder": 0,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     },
     {
       "id": "some-random-id-21",
       "categoryId": "xncd-ffdf656-dd89fd-ffdfv7",
       "name": "Şalgam",
-      "sortOrder": 1
+      "sortOrder": 1,
+      "productCount": 3,
+      "isActive": true,
+      "image": ""
     }
   ]
 }

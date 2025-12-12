@@ -6,8 +6,10 @@
       "image": "",
       "isActive": true,
       "featured": false,
+      "campaign": false,
       "sortOrder": 0,
-      "productCount": 3
+      "productCount": 3,
+      "menuIds": [1, 2]
     },
     {
       "name": "AnaYemekler",
@@ -15,8 +17,10 @@
       "image": "",
       "isActive": true,
       "featured": true,
+      "campaign": true,
       "sortOrder": 1,
-      "productCount": 12
+      "productCount": 12,
+      "menuIds": [2, 3]
     },
     {
       "name": "Pilavlar",
@@ -24,8 +28,10 @@
       "image": "",
       "isActive": true,
       "featured": true,
+      "campaign": true,
       "sortOrder": 2,
-      "productCount": 5
+      "productCount": 5,
+      "menuIds": [2]
     },
     {
       "name": "HamurIsleri",
@@ -33,8 +39,10 @@
       "image": "",
       "isActive": false,
       "featured": true,
+      "campaign": true,
       "sortOrder": 3,
-      "productCount": 8
+      "productCount": 8,
+      "menuIds": [3]
     },
     {
       "name": "DenizUrunleri",
@@ -42,8 +50,10 @@
       "image": "",
       "isActive": true,
       "featured": false,
+      "campaign": false,
       "sortOrder": 4,
-      "productCount": 15
+      "productCount": 15,
+      "menuIds": [3]
     },
     {
       "name": "Zeytinyaglilar",
@@ -51,8 +61,10 @@
       "image": "",
       "isActive": true,
       "featured": true,
+      "campaign": true,
       "sortOrder": 5,
-      "productCount": 7
+      "productCount": 7,
+      "menuIds": [2]
     },
     {
       "name": "Tatlilar",
@@ -60,8 +72,10 @@
       "image": "",
       "isActive": true,
       "featured": false,
+      "campaign": false,
       "sortOrder": 6,
-      "productCount": 10
+      "productCount": 10,
+      "menuIds": [2, 3]
     },
     {
       "name": "Salatalar",
@@ -69,8 +83,10 @@
       "image": "",
       "isActive": true,
       "featured": false,
+      "campaign": false,
       "sortOrder": 7,
-      "productCount": 6
+      "productCount": 6,
+      "menuIds": [1, 2]
     },
     {
       "name": "Mezeler",
@@ -78,8 +94,10 @@
       "image": "",
       "isActive": false,
       "featured": false,
+      "campaign": false,
       "sortOrder": 8,
-      "productCount": 9
+      "productCount": 9,
+      "menuIds": [1]
     },
     {
       "name": "Icecekler",
@@ -87,8 +105,10 @@
       "image": "",
       "isActive": false,
       "featured": false,
+      "campaign": false,
       "sortOrder": 9,
-      "productCount": 20
+      "productCount": 20,
+      "menuIds": [1, 2, 3]
     }
   ]
 }

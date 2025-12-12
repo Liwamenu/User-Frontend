@@ -16,3 +16,17 @@ Category – Product (Cat–Prod)
 -Delete Product from Category
 -Edit Product from Category
 -Select Product to Category
+
+Menu
+-Menu List
+-Add Menu
+-Edit Menu
+-Delete Menu
+-Select Menus for Category in Edit Category
+-Select Menus for Category in Add Category
+
+Sub-Categories
+-List SubCategory
+-Add SubCategory
+-Edit SubCategory
+-Delete SubCategory

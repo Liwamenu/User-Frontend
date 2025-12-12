@@ -2,12 +2,12 @@ import { useTranslation } from "react-i18next";
 import { usePopup } from "../../../context/PopupContext";
 import { DeleteI } from "../../../assets/icon";
 
-const DeleteCategory = ({ category }) => {
+const DeleteSubCategory = ({ subCategory }) => {
   const { t } = useTranslation();
   const { setPopupContent } = usePopup();
 
   const handleSubmit = () => {
-    console.log(category.id, "is to be deleted");
+    console.log(subCategory.id, "is to be deleted");
   };
 
   return (
@@ -23,7 +23,7 @@ const DeleteCategory = ({ category }) => {
 
         {/* Description */}
         <p className="text-[--gr-1] text-base mb-10 leading-relaxed px-2 font-medium">
-          <span className="font-bold text-[--red-1]">{category.name}</span>{" "}
+          <span className="font-bold text-[--red-1]">{subCategory.name}</span>{" "}
           öğesini silmek üzeresiniz. Bu işlem geri alınamaz.
         </p>
 
@@ -47,4 +47,4 @@ const DeleteCategory = ({ category }) => {
   );
 };
 
-export default DeleteCategory;
+export default DeleteSubCategory;

@@ -1,18 +1,18 @@
-import { useTranslation } from "react-i18next";
-import { usePopup } from "../../../context/PopupContext";
 import { DeleteI } from "../../../assets/icon";
+import { usePopup } from "../../../context/PopupContext";
 
-const DeleteCategory = ({ category }) => {
-  const { t } = useTranslation();
+const DeleteMenu = ({ menu, onDelete }) => {
   const { setPopupContent } = usePopup();
 
-  const handleSubmit = () => {
-    console.log(category.id, "is to be deleted");
-  };
+  function onConfirm() {
+    console.log(menu.id, "is to be deleted");
+    onDelete?.(menu.id);
+    setPopupContent(false);
+  }
 
   return (
     <main className="flex justify-center">
-      <div className="bg-[--white-1] text-[--black-2] rounded-[32px] p-8 md:p-10 w-full max-w-[440px] flex flex-col items-center text-center shadow-2xl animate-[fadeIn_0.2s_ease-out]">
+      <div className="bg-[--white-2] text-[--black-2] rounded-[32px] p-8 md:p-10 w-full max-w-[440px] flex flex-col items-center text-center shadow-2xl animate-[fadeIn_0.2s_ease-out]">
         {/* Icon Circle */}
         <div className="size-16 bg-[--status-red] rounded-full flex items-center justify-center mb-6">
           <DeleteI className="size-[1.8rem] text-[--red-1]" strokeWidth={1.8} />
@@ -23,8 +23,8 @@ const DeleteCategory = ({ category }) => {
 
         {/* Description */}
         <p className="text-[--gr-1] text-base mb-10 leading-relaxed px-2 font-medium">
-          <span className="font-bold text-[--red-1]">{category.name}</span>{" "}
-          öğesini silmek üzeresiniz. Bu işlem geri alınamaz.
+          <span className="font-bold text-[--red-1]">{menu.name}</span> öğesini
+          silmek üzeresiniz. Bu işlem geri alınamaz.
         </p>
 
         {/* Buttons */}
@@ -36,7 +36,7 @@ const DeleteCategory = ({ category }) => {
             İptal
           </button>
           <button
-            onClick={handleSubmit}
+            onClick={onConfirm}
             className="flex-1 px-6 bg-[--red-1] text-white rounded-xl font-bold hover:bg-red-700 transition-all"
           >
             Sil
@@ -47,4 +47,4 @@ const DeleteCategory = ({ category }) => {
   );
 };
 
-export default DeleteCategory;
+export default DeleteMenu;

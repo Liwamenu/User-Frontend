@@ -1,5 +1,5 @@
 //MODULES
-import { isEqual, set } from "lodash";
+import { isEqual } from "lodash";
 import { toast } from "react-hot-toast";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -261,7 +261,7 @@ const Categories = ({ data: restaurant }) => {
                               {...provided.dragHandleProps}
                               className={`p-4 grid grid-cols-[0.3fr_3fr_1fr_1fr_2fr] gap-4 items-center text-sm border-b border-[--light-3] last:border-b-0 group ${
                                 snapshot.isDragging
-                                  ? "bg-[--status-primary-1] px-2 py-1 border border-[--primary-1] border-dashed rounded-md"
+                                  ? "bg-[--white-1] px-2 py-1 border border-[--primary-1] border-dashed rounded-md"
                                   : "bg-[--white-1]"
                               }`}
                             >
