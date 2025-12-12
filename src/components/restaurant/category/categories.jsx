@@ -13,7 +13,9 @@ import { ListI, DragI, StackI } from "../../../assets/icon";
 
 //COMP
 import CategoriesHeader from "./header";
-import DeleteCategory from "./deleteCategory";
+import EditCategory from "./editCategory";
+import DeleteCategory from "./_deleteCategory";
+import CategoryProducts from "./categoryProducts";
 
 //REDUX
 import {
@@ -25,8 +27,6 @@ import {
   resetEditCategories,
 } from "../../../redux/categories/editCategoriesSlice";
 import { usePopup } from "../../../context/PopupContext";
-import EditCategory from "./editCategory";
-import CategoryProducts from "./categoryProducts";
 
 const Categories = ({ data: restaurant }) => {
   const params = useParams();

@@ -5,10 +5,6 @@ import CustomFileInput from "../../common/customFileInput";
 import { useTranslation } from "react-i18next";
 import { CancelI, CloudUI, WarnI } from "../../../assets/icon";
 import { usePopup } from "../../../context/PopupContext";
-import {
-  addCategories,
-  resetAddCategories,
-} from "../../../redux/categories/addCategoriesSlice";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { isEqual } from "lodash";
