@@ -14,7 +14,7 @@ import { ListI, DragI, StackI } from "../../../assets/icon";
 //COMP
 import CategoriesHeader from "./header";
 import EditCategory from "./editCategory";
-import DeleteCategory from "./_deleteCategory";
+import DeleteCategory from "./deleteCategory";
 import CategoryProducts from "./categoryProducts";
 
 //REDUX

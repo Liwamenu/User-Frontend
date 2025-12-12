@@ -57,6 +57,19 @@ const EditProduct = ({ product: prodToPopup }) => {
     setProductData((prev) => ({ ...prev, [key]: value }));
   };
 
+  const handleSpecialPrice = (value) => {
+    // change special price for all portions
+    setProductData((prev) => {
+      const next = { ...prev };
+      next.specialPrice = value;
+      next.portions = next.portions.map((p) => ({
+        ...p,
+        specialPrice: value,
+      }));
+      return next;
+    });
+  };
+
   const handleToggle = (key) => {
     setProductData((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -373,24 +386,24 @@ const EditProduct = ({ product: prodToPopup }) => {
 
             {/* Alt Kısım */}
             <div className="pt-4 border-t border-[--border-1]">
-              {/* <div className="bg-orange-50 p-4 rounded-xl border border-orange-100 mb-4">
-                <span className="text-xs font-semibold text-orange-600 uppercase tracking-wider mb-3 block">
+              <div className="bg-[--light-1] p-4 rounded-xl border border-[--border-1] mb-4">
+                <span className="text-xs font-semibold text-[--orange-1] uppercase tracking-wider mb-3 block">
                   <i className="fa-solid fa-tag mr-1" /> Özel Fiyat Tanımı
                   (Opsiyonel)
                 </span>
                 <CustomInput
+                  type="number"
                   label="Etiket (Örn: Maliyet, VIP)"
                   placeholder="Personel, Müdavim gibi . . ."
-                  className="w-full border border-orange-200 rounded-lg px-3 py-2 text-sm text-[--black-1] outline-none focus:border-orange-400 bg-white"
-                  className2=""
-                  value={productData.customPriceLabel || ""}
-                  onChange={(v) => handleField("customPriceLabel", v)}
+                  className="w-full border border-[--border-1] rounded-lg px-3 py-2 text-sm text-[--black-1] outline-none focus:border-[--orange-1] bg-[--white-1]"
+                  value={productData.specialPrice || ""}
+                  onChange={(v) => handleSpecialPrice(v)}
                 />
                 <p className="text-[10px] text-[--gr-1] mt-1 italic">
                   Not: Bu etiket tüm porsiyonlardaki özel fiyatlar için geçerli
                   olacaktır.
                 </p>
-              </div> */}
+              </div>
 
               <div>
                 <div className="flex justify-between items-center mb-3">
