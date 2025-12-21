@@ -1,32 +1,36 @@
-Categories
--Drag & Drop (reorder categories)
--Add Category
--Delete Category
--Edit Category
+Category-Slices
+  --Add
+  --Edit
+  --Delete
 
-Products
--Product List
--Edit Product
--Delete Product
--Price List
--Add Product
+Products-Slices
+  --Get
+  --GetByCategoryId
+  --Edit
+  --UpdatePriceList
+  --Delete
 
-Category – Product (Cat–Prod)
--View Category's Product
--Delete Product from Category
--Edit Product from Category
--Select Product to Category
+SubCategory-Slices
+  --Add
+  --Edit
+  --UpdateSubCategoriesSortOrder
+  --Delete
 
-Menu
--Menu List
--Add Menu
--Edit Menu
--Delete Menu
--Select Menus for Category in Edit Category
--Select Menus for Category in Add Category
+Menu-Slices
+  --Get
+  --Add
+  --Edit
+  --Delete
 
-Sub-Categories
--List SubCategory
--Add SubCategory
--Edit SubCategory
--Delete SubCategory
+OrderTag
+  --ListOrderTags
+  --AddOrderTag
+  --UpdateOrderTag
+  --DeleteOrderTag
+
+OrderTag-Slices
+  --List
+  --BulkEdit
+  --Edit
+  --Delete
+  --ADD

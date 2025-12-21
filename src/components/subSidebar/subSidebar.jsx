@@ -89,7 +89,7 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
     {
       icon: <LicenseI />,
       text: "Etiketler",
-      to: `/restaurant/tags/${id}/edit`,
+      to: `/restaurant/tags/${id}/`,
       path: "tags",
     },
     {

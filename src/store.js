@@ -28,6 +28,7 @@ import categoriesSlice from "./redux/categories";
 import subCategoriesSlice from "./redux/subCategories";
 import productsSlice from "./redux/products";
 import menusSlice from "./redux/menus";
+import orderTagsSlice from "./redux/orderTags";
 // import emailSlice from "./redux/email";
 // import smsSlice from "./redux/sms";
 // import tempUsersSlice from "./redux/tempUsers";
@@ -48,6 +49,7 @@ const store = configureStore({
     subCategories: subCategoriesSlice,
     products: productsSlice,
     menus: menusSlice,
+    orderTags: orderTagsSlice,
     // generalVars: generalVariablesSlice,
     // getContext: getContextSlice,
     cart: cartSlice,

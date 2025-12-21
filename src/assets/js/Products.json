@@ -1,7 +1,7 @@
 {
   "Products": [
     {
-      "id": 1001,
+      "id": "some-product-id-1",
       "sortOrder": 10,
       "imageURL": "http://192.168.100.113:9006/image_1.png",
       "name": "Mercimek Çorbası Kırmızı mercimekten yapılan",
@@ -18,8 +18,8 @@
       "subCategorySortOrder": 0,
       "portions": [
         {
-          "id": 1,
-          "productId": 1001,
+          "id": "some-portion-id-1",
+          "productId": "some-product-id-1",
           "name": "Normal",
           "price": 45.2,
           "campaignPrice": 30,

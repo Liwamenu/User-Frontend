@@ -1,0 +1,25 @@
+{
+  "orderTags": [
+    {
+      "id": "some-ordertag-id-1",
+      "name": "Sos Seçimi (Zorunlu)",
+      "minSelected": 0,
+      "maxSelected": 2,
+      "freeTagging": false
+    },
+    {
+      "id": "some-ordertag-id-2",
+      "name": "Ekstra Malzemeler (Max 3 Adet)",
+      "minSelected": 0,
+      "maxSelected": 3,
+      "freeTagging": false
+    },
+    {
+      "id": "some-ordertag-id-3",
+      "name": "İçecek Seçimi",
+      "minSelected": 1,
+      "maxSelected": 2,
+      "freeTagging": false
+    }
+  ]
+}

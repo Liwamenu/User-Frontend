@@ -1,22 +1,53 @@
 {
-  "orderTags": [
+  "OrderTags": [
     {
       "id": "some-ordertag-id-1",
-      "name": "Baharat Seçimi",
-      "minSelected": 0,
-      "maxSelected": 2
+      "name": "Sos Seçimi (Zorunlu)",
+      "minSelected": 1,
+      "maxSelected": 1,
+      "freeTagging": false,
+      "sortOrder": 0,
+      "items": [
+        {
+          "id": "some-ordertagitem-id-1",
+          "name": "Ketçap",
+          "price": 0,
+          "maxQuantity": 1,
+          "isDefault": true,
+          "isMandatory": true,
+          "minQuantity": 1,
+          "sortOrder": 0
+        }
+      ],
+      "relations": [
+        {
+          "id": "r1",
+          "categoryId": "xncd-sfsfsfs-gsgg23-skroethgh",
+          "productId": "some-product-id-1",
+          "portionId": "some-portion-id-1"
+        }
+      ]
     },
     {
       "id": "some-ordertag-id-2",
-      "name": "Sos Seçimi",
+      "name": "Ekstra Malzemeler (Max 3 Adet)",
       "minSelected": 0,
-      "maxSelected": 3
-    },
-    {
-      "id": "some-ordertag-id-3",
-      "name": "İçecek Seçimi",
-      "minSelected": 1,
-      "maxSelected": 2
+      "maxSelected": 3,
+      "freeTagging": false,
+      "sortOrder": 1,
+      "items": [
+        {
+          "id": "some-ordertagitem-id-2",
+          "name": "Jalapeno Biberi (+2 TL)",
+          "price": 2,
+          "maxQuantity": 3,
+          "isDefault": false,
+          "isMandatory": false,
+          "minQuantity": 0,
+          "sortOrder": 0
+        }
+      ],
+      "relations": []
     }
   ]
 }

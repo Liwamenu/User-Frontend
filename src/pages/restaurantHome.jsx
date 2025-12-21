@@ -22,27 +22,21 @@ import PaymentMethods from "../components/restaurant/paymentMethods";
 import RestaurantSettings from "../components/restaurant/restaurantSettings";
 
 //PRODUCTS
+import Products from "../components/restaurant/products/products";
 import PriceList from "../components/restaurant/products/priceList";
-import AddProducts from "../components/restaurant/products/addProducts";
+import AddProduct from "../components/restaurant/products/addProduct";
 import EditProduct from "../components/restaurant/products/editProduct";
 
-//SUB CATEGORIES
-import AddSubCategories from "../components/restaurant/addSubCategories";
-import EditSubCategories from "../components/restaurant/editSubCategories";
-
-//ORDER TAG ITEMS
-import EditOrderTagsAndItems from "../components/restaurant/editOrderTagsAndItems";
-import AddOrderTagsAndItems from "../components/restaurant/addOrderTagsAndItems";
-
 //CATEGORIES
-import AddCategories from "../components/restaurant/addCategories";
-import EditCategories from "../components/restaurant/editCategories";
-import Products from "../components/restaurant/products/products";
-import AddProduct from "../components/restaurant/products/addProduct";
+import MenuList from "../components/restaurant/menus/menuList";
 import Categories from "../components/restaurant/category/categories";
 import AddCategory from "../components/restaurant/category/addCategory";
-import MenuList from "../components/restaurant/menus/menuList";
+
+//SUB CATEGORIES
 import SubCategories from "../components/restaurant/subCategory/subCategories";
+
+//ORDER TAG ITEMS
+import OrderTags from "../components/restaurant/orderTags/orderTags";
 
 const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   const location = useLocation();
@@ -83,6 +77,37 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
     }
   }, [success]);
 
+  const P = {
+    // paths
+    R: {
+      // restaurant
+      edit: "/edit/:id",
+      hours: "/hours/:id",
+      social: "/social/:id",
+      payments: "/payments/:id",
+      sett: "/settings/:id",
+    },
+    cat: {
+      add: "/categories/:id/add",
+      list: "/categories/:id/list",
+    },
+    subCat: {
+      list: "/sub_categories/:id/list",
+    },
+    menus: {
+      list: "/menus/:id/list",
+    },
+    orderTags: {
+      list: "/tags/:id",
+    },
+    prods: {
+      list: "/products/:id",
+      add: "/add-product/:id",
+      edit: "/products/:id/edit/:prodId",
+      priceList: "/price-list/:id",
+    },
+  };
+
   return (
     <section className="bg-[--white-1]">
       {!showS1 && (
@@ -93,51 +118,28 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
           <Route path="/edit/:id" element={<EditRestaurant data={data} />} />
           <Route path="/hours/:id" element={<WorkingHours data={data} />} />
           <Route path="/social/:id" element={<SocialMedias data={data} />} />
-          <Route
-            path="/payments/:id"
-            element={<PaymentMethods data={data} />}
-          />
-          <Route
-            path="/settings/:id"
-            element={<RestaurantSettings data={data} />}
-          />
+          <Route path={P.R.payments} element={<PaymentMethods data={data} />} />
+          <Route path={P.R.sett} element={<RestaurantSettings data={data} />} />
 
-          <Route
-            path="/categories/:id/list"
-            element={<Categories data={data} />}
-          />
-          <Route
-            path="/categories/:id/add"
-            element={<AddCategory data={data} />}
-          />
-          <Route
-            path="/sub_categories/:id/list"
-            element={<SubCategories data={data} />}
-          />
-          <Route
-            path="/sub_categories/:id/add"
-            element={<AddSubCategories data={data} />}
-          />
-          <Route path="/menus/:id/list" element={<MenuList data={data} />} />
-          <Route
-            path="/tags/:id/edit"
-            element={<EditOrderTagsAndItems data={data} />}
-          />
-          <Route
-            path="/tags/:id/add"
-            element={<AddOrderTagsAndItems data={data} />}
-          />
-          <Route path="/products/:id" element={<Products data={data} />} />
-          <Route
-            path="/add-products/:id"
-            element={<AddProducts data={data} />}
-          />
-          <Route path="/add-product/:id" element={<AddProduct data={data} />} />
-          <Route path="/price-list/:id" element={<PriceList data={data} />} />
-          <Route
-            path="/products/:id/edit/:prodId"
-            element={<EditProduct data={data} />}
-          />
+          {/* CATEGORIES */}
+          <Route path={P.cat.list} element={<Categories data={data} />} />
+          <Route path={P.cat.add} element={<AddCategory data={data} />} />
+
+          {/* SUBCATEGORIES */}
+          <Route path={P.subCat.list} element={<SubCategories data={data} />} />
+
+          {/* MENUS */}
+          <Route path={P.menus.list} element={<MenuList data={data} />} />
+
+          {/* ORDER TAGS AND ITEMS */}
+          <Route path={P.orderTags.list} element={<OrderTags data={data} />} />
+
+          {/* PRODUCTS */}
+          <Route path={P.prods.list} element={<Products data={data} />} />
+          <Route path={P.prods.add} element={<AddProduct data={data} />} />
+          <Route path={P.prods.priceList} element={<PriceList data={data} />} />
+          <Route path={P.prods.edit} element={<EditProduct data={data} />} />
+
           <Route path="/test" element={<TestPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
