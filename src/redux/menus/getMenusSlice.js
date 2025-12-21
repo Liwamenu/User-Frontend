@@ -7,54 +7,55 @@ const baseURL = import.meta.env.VITE_BASE_URL;
 const initialState = {
   loading: false,
   success: false,
-  error: null,
-  data: null,
+  error: false,
+  menus: null,
 };
 
-const editCategoriesSlice = createSlice({
-  name: "editCategories",
+const getMenusSlice = createSlice({
+  name: "getMenus",
   initialState: initialState,
   reducers: {
-    resetEditCategories: (state) => {
+    resetGetMenusState: (state) => {
       state.loading = false;
       state.success = false;
       state.error = null;
-      state.data = null;
+    },
+    resetGetMenus: (state) => {
+      state.menus = null;
     },
   },
   extraReducers: (build) => {
     build
-      .addCase(editCategories.pending, (state) => {
+      .addCase(getMenus.pending, (state) => {
         state.loading = true;
         state.success = false;
-        state.error = null;
-        state.data = null;
+        state.error = false;
+        state.menus = null;
       })
-      .addCase(editCategories.fulfilled, (state, action) => {
+      .addCase(getMenus.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.error = null;
-        state.data = action.payload;
+        state.error = false;
+        state.menus = action.payload;
       })
-      .addCase(editCategories.rejected, (state, action) => {
+      .addCase(getMenus.rejected, (state, action) => {
         state.loading = false;
         state.success = false;
         state.error = action.payload;
-        state.data = null;
+        state.menus = null;
       });
   },
 });
 
-export const editCategories = createAsyncThunk(
-  "Categories/EditCategories",
-  async (data, { rejectWithValue }) => {
+export const getMenus = createAsyncThunk(
+  "menus/GetMenusByRestaurantId",
+  async (restaurantId, { rejectWithValue }) => {
     try {
-      const res = await api.put(`${baseURL}Categories/EditCategories`, data, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const res = await api.get(`${baseURL}Menus/GetMenusByRestaurantId`, {
+        params: { restaurantId },
       });
 
-      console.log(data);
-      console.log(res);
+      // console.log(res.data);
       return res.data;
     } catch (err) {
       console.log(err);
@@ -66,5 +67,5 @@ export const editCategories = createAsyncThunk(
   }
 );
 
-export const { resetEditCategories } = editCategoriesSlice.actions;
-export default editCategoriesSlice.reducer;
+export const { resetGetMenusState, resetGetMenus } = getMenusSlice.actions;
+export default getMenusSlice.reducer;

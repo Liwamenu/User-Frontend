@@ -22,7 +22,7 @@
           "productId": 1001,
           "name": "Normal",
           "price": 45.2,
-          "discountedPrice": 30,
+          "campaignPrice": 30,
           "specialPrice": 20,
           "orderTags": [
             {
@@ -72,7 +72,7 @@
           "productId": 1002,
           "name": "Kase",
           "price": 50,
-          "discountedPrice": 30,
+          "campaignPrice": 30,
           "specialPrice": 20,
           "orderTags": [
             {
@@ -122,7 +122,7 @@
           "productId": 2001,
           "name": "Normal",
           "price": 180,
-          "discountedPrice": 30,
+          "campaignPrice": 30,
           "specialPrice": 20,
           "orderTags": [
             {
@@ -152,7 +152,7 @@
           "productId": 2002,
           "name": "Porsiyon",
           "price": 130,
-          "discountedPrice": 30,
+          "campaignPrice": 30,
           "specialPrice": 20,
           "orderTags": [
             {

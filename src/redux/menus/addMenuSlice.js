@@ -11,11 +11,11 @@ const initialState = {
   data: null,
 };
 
-const editCategoriesSlice = createSlice({
-  name: "editCategories",
+const addMenuSlice = createSlice({
+  name: "addMenu",
   initialState: initialState,
   reducers: {
-    resetEditCategories: (state) => {
+    resetaddMenu: (state) => {
       state.loading = false;
       state.success = false;
       state.error = null;
@@ -24,19 +24,19 @@ const editCategoriesSlice = createSlice({
   },
   extraReducers: (build) => {
     build
-      .addCase(editCategories.pending, (state) => {
+      .addCase(addMenu.pending, (state) => {
         state.loading = true;
         state.success = false;
         state.error = null;
         state.data = null;
       })
-      .addCase(editCategories.fulfilled, (state, action) => {
+      .addCase(addMenu.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
         state.error = null;
         state.data = action.payload;
       })
-      .addCase(editCategories.rejected, (state, action) => {
+      .addCase(addMenu.rejected, (state, action) => {
         state.loading = false;
         state.success = false;
         state.error = action.payload;
@@ -45,15 +45,12 @@ const editCategoriesSlice = createSlice({
   },
 });
 
-export const editCategories = createAsyncThunk(
-  "Categories/EditCategories",
+export const addMenu = createAsyncThunk(
+  "Menus/AddMenu",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.put(`${baseURL}Categories/EditCategories`, data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await api.put(`${baseURL}Menus/AddMenu`, data);
 
-      console.log(data);
       console.log(res);
       return res.data;
     } catch (err) {
@@ -66,5 +63,5 @@ export const editCategories = createAsyncThunk(
   }
 );
 
-export const { resetEditCategories } = editCategoriesSlice.actions;
-export default editCategoriesSlice.reducer;
+export const { resetaddMenu } = addMenuSlice.actions;
+export default addMenuSlice.reducer;

@@ -11,11 +11,11 @@ const initialState = {
   data: null,
 };
 
-const editCategoriesSlice = createSlice({
-  name: "editCategories",
+const addSubCategorySlice = createSlice({
+  name: "addSubCategory",
   initialState: initialState,
   reducers: {
-    resetEditCategories: (state) => {
+    resetAddSubCategory: (state) => {
       state.loading = false;
       state.success = false;
       state.error = null;
@@ -24,19 +24,19 @@ const editCategoriesSlice = createSlice({
   },
   extraReducers: (build) => {
     build
-      .addCase(editCategories.pending, (state) => {
+      .addCase(addSubCategory.pending, (state) => {
         state.loading = true;
         state.success = false;
         state.error = null;
         state.data = null;
       })
-      .addCase(editCategories.fulfilled, (state, action) => {
+      .addCase(addSubCategory.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
         state.error = null;
         state.data = action.payload;
       })
-      .addCase(editCategories.rejected, (state, action) => {
+      .addCase(addSubCategory.rejected, (state, action) => {
         state.loading = false;
         state.success = false;
         state.error = action.payload;
@@ -45,13 +45,17 @@ const editCategoriesSlice = createSlice({
   },
 });
 
-export const editCategories = createAsyncThunk(
-  "Categories/EditCategories",
+export const addSubCategory = createAsyncThunk(
+  "SubCategories/AddSubCategory",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.put(`${baseURL}Categories/EditCategories`, data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await api.put(
+        `${baseURL}SubCategories/AddSubCategory`,
+        data,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
       console.log(data);
       console.log(res);
@@ -66,5 +70,5 @@ export const editCategories = createAsyncThunk(
   }
 );
 
-export const { resetEditCategories } = editCategoriesSlice.actions;
-export default editCategoriesSlice.reducer;
+export const { resetAddSubCategory } = addSubCategorySlice.actions;
+export default addSubCategorySlice.reducer;

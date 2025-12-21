@@ -1,18 +1,19 @@
+import { isEqual } from "lodash";
 import AddSubCategory from "./addSubCategory";
 import { usePopup } from "../../../context/PopupContext";
+import { CancelI } from "../../../assets/icon";
+import CheckI from "../../../assets/icon/check";
 
-const SubCategoriesHeader = ({ categoryId, onSuccess }) => {
+const SubCategoriesHeader = ({ onSuccess, before, after, saveNewOrder }) => {
   const { setPopupContent } = usePopup();
 
   const handleAddSubCategory = () => {
-    setPopupContent(
-      <AddSubCategory categoryId={categoryId} onSuccess={onSuccess} />
-    );
+    setPopupContent(<AddSubCategory onSuccess={onSuccess} />);
   };
 
   return (
-    <div className="py-4 flex items-center justify-between w-full">
-      <div>
+    <div className="flex justify-between items-center">
+      <div className="w-full">
         <h2 className="text-lg font-semibold text-[--black-1]">
           Alt Kategoriler
         </h2>
@@ -20,12 +21,30 @@ const SubCategoriesHeader = ({ categoryId, onSuccess }) => {
           Alt kategorileri yönetin ve düzenleyin
         </p>
       </div>
-      <button
-        onClick={handleAddSubCategory}
-        className="px-4 py-2 text-sm font-medium text-white bg-[--primary-1] rounded-lg shadow-md hover:bg-[--primary-2] transition-all flex items-center gap-2"
+
+      <div
+        className={`py-4 flex items-center justify-end w-full ${
+          !isEqual(before, after) && "max-md:flex-col max-md:items-end gap-3"
+        }`}
       >
-        <i className="fa-solid fa-plus"></i> Yeni Alt Kategori
-      </button>
+        <button
+          onClick={handleAddSubCategory}
+          className="px-4 py-2 text-sm font-medium text-white bg-[--primary-1] rounded-lg shadow-md hover:bg-[--primary-2] transition-all flex items-center gap-2 whitespace-nowrap"
+        >
+          <CancelI className="size-[1.1rem] rotate-45" /> Yeni Alt Kategori
+        </button>
+
+        {!isEqual(before, after) && (
+          <div className="flex h-max justify-end">
+            <button
+              onClick={saveNewOrder}
+              className="px-4 py-2 text-sm text-white bg-[--green-1] rounded-lg shadow-md hover:bg-[--green-2] transition-all flex items-center gap-2 whitespace-nowrap ml-2"
+            >
+              <CheckI className="size-[1.1rem]" /> Değişiklikleri Kaydet
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

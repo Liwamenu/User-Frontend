@@ -11,11 +11,11 @@ const initialState = {
   data: null,
 };
 
-const editCategoriesSlice = createSlice({
-  name: "editCategories",
+const addCategorySlice = createSlice({
+  name: "addCategory",
   initialState: initialState,
   reducers: {
-    resetEditCategories: (state) => {
+    resetAddCategory: (state) => {
       state.loading = false;
       state.success = false;
       state.error = null;
@@ -24,19 +24,19 @@ const editCategoriesSlice = createSlice({
   },
   extraReducers: (build) => {
     build
-      .addCase(editCategories.pending, (state) => {
+      .addCase(addCategory.pending, (state) => {
         state.loading = true;
         state.success = false;
         state.error = null;
         state.data = null;
       })
-      .addCase(editCategories.fulfilled, (state, action) => {
+      .addCase(addCategory.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
         state.error = null;
         state.data = action.payload;
       })
-      .addCase(editCategories.rejected, (state, action) => {
+      .addCase(addCategory.rejected, (state, action) => {
         state.loading = false;
         state.success = false;
         state.error = action.payload;
@@ -45,11 +45,11 @@ const editCategoriesSlice = createSlice({
   },
 });
 
-export const editCategories = createAsyncThunk(
-  "Categories/EditCategories",
+export const addCategory = createAsyncThunk(
+  "Categories/AddCategory",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.put(`${baseURL}Categories/EditCategories`, data, {
+      const res = await api.put(`${baseURL}Categories/AddCategory`, data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -66,5 +66,5 @@ export const editCategories = createAsyncThunk(
   }
 );
 
-export const { resetEditCategories } = editCategoriesSlice.actions;
-export default editCategoriesSlice.reducer;
+export const { resetAddCategory } = addCategorySlice.actions;
+export default addCategorySlice.reducer;

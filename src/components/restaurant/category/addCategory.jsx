@@ -14,9 +14,9 @@ import { CancelI, CloudUI, WarnI } from "../../../assets/icon";
 
 //REDUX
 import {
-  addCategories,
-  resetAddCategories,
-} from "../../../redux/categories/addCategoriesSlice";
+  addCategory,
+  resetAddCategory,
+} from "../../../redux/categories/addCategorySlice";
 
 //JSON
 import menusJSON from "../../../assets/js/Menus.json";
@@ -97,7 +97,7 @@ const AddCategory = ({ data: restaurant, onSuccess }) => {
         console.log(pair[0], pair[1]);
       }
 
-      // dispatch(addCategories(formData));
+      dispatch(addCategory(formData));
     } catch (error) {
       console.error("Error preparing form data:", error);
     }
@@ -107,11 +107,11 @@ const AddCategory = ({ data: restaurant, onSuccess }) => {
   useEffect(() => {
     if (success) {
       setPopupContent(null);
-      toast.success(t("addCategories.success"), { id: "categories" });
-      dispatch(resetAddCategories());
+      toast.success(t("addCategory.success"), { id: "categories" });
+      dispatch(resetAddCategory());
       onSuccess && onSuccess(category);
     }
-    if (error) dispatch(resetAddCategories());
+    if (error) dispatch(resetAddCategory());
   }, [success, error]);
 
   return (

@@ -46,11 +46,11 @@ const editSubCategoriesSlice = createSlice({
 });
 
 export const editSubCategories = createAsyncThunk(
-  "SubCategories/editSubCategories",
+  "SubCategories/EditSubCategories",
   async (data, { rejectWithValue }) => {
     try {
       const res = await api.put(
-        `${baseURL}SubCategories/editSubCategories`,
+        `${baseURL}SubCategories/EditSubCategories`,
         data,
         {
           headers: { "Content-Type": "multipart/form-data" },

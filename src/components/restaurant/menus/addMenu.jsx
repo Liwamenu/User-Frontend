@@ -1,7 +1,15 @@
-import { useState } from "react";
-import CustomInput from "../../common/customInput";
+//MODULES
 import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
+//COMP
+import CustomInput from "../../common/customInput";
 import { CancelI, WaitI } from "../../../assets/icon";
+
+//REDUX
+import { addMenu, resetaddMenu } from "../../../redux/menus/addMenuSlice";
+import { useParams } from "react-router-dom";
 
 const DAYS = [
   "Pazartesi",
@@ -14,8 +22,28 @@ const DAYS = [
 ];
 
 const AddMenu = ({ onClose, onSave }) => {
+  const params = useParams();
+  const restaurantId = params.id;
+  const dispatch = useDispatch();
+
+  const { success, error } = useSelector((s) => s.menus.add);
+
   const [menuName, setMenuName] = useState("");
   const [schedules, setSchedules] = useState([]);
+  const [categoryIds, setCategoryIds] = useState([]);
+
+  const newMenu = {
+    id: Date.now(),
+    restaurantId,
+    name: menuName,
+    plans: schedules.map((sch) => ({
+      id: sch.id,
+      days: sch.days,
+      startTime: sch.start,
+      endTime: sch.end,
+    })),
+    categoryIds,
+  };
 
   const addScheduleRow = (data = null) => {
     const newSchedule = {
@@ -70,28 +98,19 @@ const AddMenu = ({ onClose, onSave }) => {
       return;
     }
 
-    const newMenu = {
-      id: Date.now(),
-      name: menuName,
-      plans: schedules.map((sch) => ({
-        id: sch.id,
-        days: sch.days,
-        startTime: sch.start,
-        endTime: sch.end,
-      })),
-      categoryIds: [],
-    };
-
     console.log(newMenu);
-    onSave?.(newMenu);
-    // handleClose();
+    dispatch(addMenu(newMenu));
   };
 
-  const handleClose = () => {
-    setMenuName("");
-    setSchedules([]);
-    onClose?.();
-  };
+  useEffect(() => {
+    if (success) {
+      toast.success("Menü başarıyla eklendi.");
+      dispatch(resetaddMenu());
+      onSave(newMenu);
+      onClose();
+    }
+    if (error) dispatch(resetaddMenu());
+  }, [success, error]);
 
   return (
     <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center transition-all duration-300">
@@ -99,7 +118,7 @@ const AddMenu = ({ onClose, onSave }) => {
         <div className="flex justify-between items-center mb-6 border-b border-[--border-1] pb-4">
           <h3 className="text-2xl font-bold text-[--black-1]">Yeni Menü</h3>
           <button
-            onClick={handleClose}
+            onClick={onClose}
             className="text-[--gr-1] hover:text-[--black-2] transition-colors"
           >
             <CancelI className="size-[1.5rem]" />
@@ -201,7 +220,7 @@ const AddMenu = ({ onClose, onSave }) => {
 
         <div className="flex justify-end space-x-3 pt-4 border-t border-[--border-1] mt-6">
           <button
-            onClick={handleClose}
+            onClick={onClose}
             className="px-5 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] transition-all"
           >
             Vazgeç

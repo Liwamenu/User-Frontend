@@ -1,10 +1,21 @@
-import { useMemo } from "react";
-import { EditI, DeleteI, WaitI } from "../../../assets/icon";
-import menusJSON from "../../../assets/js/Menus.json";
-import { usePopup } from "../../../context/PopupContext";
+//MODULES
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+
+//COMP
 import AddMenu from "./addMenu";
 import EditMenu from "./editMenu";
 import DeleteMenu from "./deleteMenu";
+import menusJSON from "../../../assets/js/Menus.json";
+import { usePopup } from "../../../context/PopupContext";
+import { EditI, DeleteI, WaitI } from "../../../assets/icon";
+
+//REDUX
+import {
+  getMenus,
+  resetGetMenusState,
+} from "../../../redux/menus/getMenusSlice";
 
 const DAYS = [
   "Pazartesi",
@@ -17,9 +28,13 @@ const DAYS = [
 ];
 
 const MenuList = ({}) => {
+  const params = useParams();
+  const restaurantId = params.id;
+  const dispatch = useDispatch();
   const { setPopupContent } = usePopup();
-  const menus = menusJSON.menus;
-  const list = useMemo(() => menus || [], [menus]);
+
+  const { menus, error } = useSelector((s) => s.menus.get);
+  const [menusData, setMenusData] = useState(null);
 
   const varColor = (key) => {
     const colors = ["var(--primary-1)", "var(--red-1)", "var(--green-1)"];
@@ -29,20 +44,63 @@ const MenuList = ({}) => {
     return colors[index] || "var(--primary-1)";
   };
 
+  //handlers
+  const handleAddMenu = (addedMenu) => {
+    setMenusData((prev) => [...prev, addedMenu]);
+  };
+
+  const handleEditMenu = (editedMenu) => {
+    setMenusData((prev) =>
+      prev.map((menu) => (menu.id === editedMenu.id ? editedMenu : menu))
+    );
+  };
+
+  const handleDeleteMenu = (deletedMenuId) => {
+    setMenusData((prev) => prev.filter((menu) => menu.id !== deletedMenuId));
+  };
+
   function onAddMenu() {
-    setPopupContent(<AddMenu onClose={() => setPopupContent(false)} />);
+    setPopupContent(
+      <AddMenu onClose={() => setPopupContent(false)} onSave={handleAddMenu} />
+    );
   }
   function onEditMenu(menu) {
     setPopupContent(
-      <EditMenu menu={menu} onClose={() => setPopupContent(false)} />
+      <EditMenu
+        menu={menu}
+        onClose={() => setPopupContent(false)}
+        onSave={handleEditMenu}
+      />
     );
   }
   function onDeleteMenu(menu) {
     setPopupContent(
-      <DeleteMenu menu={menu} onClose={() => setPopupContent(false)} />
+      <DeleteMenu
+        menu={menu}
+        onClose={() => setPopupContent(false)}
+        onDelete={handleDeleteMenu}
+      />
     );
   }
-  function onGoToCategories() {}
+
+  //get menus from redux
+  useEffect(() => {
+    if (!menusData) {
+      dispatch(getMenus(restaurantId));
+    }
+  }, [dispatch, restaurantId]);
+
+  //set menus data when redux changes
+  useEffect(() => {
+    if (menus) {
+      setMenusData(menus);
+      dispatch(resetGetMenusState());
+    }
+    if (error) {
+      dispatch(resetGetMenusState());
+      setMenusData(menusJSON.menus);
+    }
+  }, [menus, error]);
 
   return (
     <div className="space-y-6 mt-1">
@@ -61,89 +119,90 @@ const MenuList = ({}) => {
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         id="menu-list-container"
       >
-        {list.map((menu, index) => {
-          const headerBg = varColor(index);
-          return (
-            <div
-              key={menu.id}
-              className="bg-[--white-1] rounded-xl border border-[--border-1] shadow-sm hover:shadow-lg transition-all relative overflow-hidden flex flex-col h-full"
-            >
+        {menusData &&
+          menusData.map((menu, index) => {
+            const headerBg = varColor(index);
+            return (
               <div
-                className="p-4 text-white flex justify-between items-start"
-                style={{ backgroundColor: headerBg }}
+                key={menu.id}
+                className="bg-[--white-1] rounded-xl border border-[--border-1] shadow-sm hover:shadow-lg transition-all relative overflow-hidden flex flex-col h-full"
               >
-                <h3 className="text-lg font-bold drop-shadow-sm">
-                  {menu.name}
-                </h3>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => onEditMenu?.(menu)}
-                    className="text-white/90 hover:bg-white/20 p-1.5 rounded-lg transition-colors"
-                    title="Düzenle"
-                  >
-                    <EditI className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onDeleteMenu?.(menu)}
-                    className="text-white/90 hover:bg-white/20 p-1.5 rounded-lg transition-colors"
-                    title="Sil"
-                  >
-                    <DeleteI className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-5 pt-4 space-y-3 flex-1 flex flex-col">
-                <div className="space-y-2 border-t border-[--border-1] pt-2 flex-1">
-                  {menu.plans && menu.plans.length > 0 ? (
-                    menu.plans.map((plan, i) => {
-                      const dayBadges =
-                        plan.days?.length === 7
-                          ? "Her Gün"
-                          : (plan.days || [])
-                              .map((d) => DAYS[d]?.substring(0, 3))
-                              .join(", ");
-                      return (
-                        <div
-                          key={i}
-                          className="text-xs text-[--gr-1] flex items-start mb-1"
-                        >
-                          <WaitI className="size-[1rem] mr-1" />
-                          <span className="flex-1">
-                            <span className="font-medium text-[--black-2]">
-                              {plan.startTime} - {plan.endTime}
-                            </span>
-                            <span className="block text-[--gr-1] text-[10px]">
-                              {dayBadges}
-                            </span>
-                          </span>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="text-xs text-[--gr-1] italic">
-                      Zaman planı eklenmemiş.
-                    </div>
-                  )}
+                <div
+                  className="p-4 text-white flex justify-between items-start"
+                  style={{ backgroundColor: headerBg }}
+                >
+                  <h3 className="text-lg font-bold drop-shadow-sm">
+                    {menu.name}
+                  </h3>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onEditMenu?.(menu)}
+                      className="text-white/90 hover:bg-white/20 p-1.5 rounded-lg transition-colors"
+                      title="Düzenle"
+                    >
+                      <EditI className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onDeleteMenu?.(menu)}
+                      className="text-white/90 hover:bg-white/20 p-1.5 rounded-lg transition-colors"
+                      title="Sil"
+                    >
+                      <DeleteI className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="mt-auto pt-2 flex justify-between items-center text-xs font-medium">
-                  <span className="text-[--gr-2]">ID: {menu.id}</span>
-                  <button
+                <div className="p-5 pt-4 space-y-3 flex-1 flex flex-col">
+                  <div className="space-y-2 border-t border-[--border-1] pt-2 flex-1">
+                    {menu.plans && menu.plans.length > 0 ? (
+                      menu.plans.map((plan, i) => {
+                        const dayBadges =
+                          plan.days?.length === 7
+                            ? "Her Gün"
+                            : (plan.days || [])
+                                .map((d) => DAYS[d]?.substring(0, 3))
+                                .join(", ");
+                        return (
+                          <div
+                            key={i}
+                            className="text-xs text-[--gr-1] flex items-start mb-1"
+                          >
+                            <WaitI className="size-[1rem] mr-1" />
+                            <span className="flex-1">
+                              <span className="font-medium text-[--black-2]">
+                                {plan.startTime} - {plan.endTime}
+                              </span>
+                              <span className="block text-[--gr-1] text-[10px]">
+                                {dayBadges}
+                              </span>
+                            </span>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="text-xs text-[--gr-1] italic">
+                        Zaman planı eklenmemiş.
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-auto pt-2 flex justify-between items-center text-xs font-medium">
+                    <span className="text-[--gr-2]">ID: {menu.id}</span>
+                    {/* <button
                     type="button"
                     onClick={() => onGoToCategories?.(menu.id)}
                     className="text-[--primary-1] bg-[--status-primary-1] px-3 py-1.5 rounded-lg hover:bg-[--status-primary-2] transition-colors"
                   >
                     Kategorileri Gör{" "}
                     <i className="fa-solid fa-arrow-right ml-1" />
-                  </button>
+                  </button> */}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
     </div>
   );

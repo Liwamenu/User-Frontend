@@ -26,7 +26,7 @@ const PriceListApplyBulk = ({ list, setList }) => {
 
   const bulkTargetOptions = [
     { label: "Sadece Normal Fiyat", value: "price" },
-    { label: "Sadece Kampanya Fiyatı", value: "discountedPrice" },
+    { label: "Sadece Kampanya Fiyatı", value: "campaignPrice" },
     { label: "Her İkisi", value: "both" },
   ];
 
@@ -45,7 +45,7 @@ const PriceListApplyBulk = ({ list, setList }) => {
       newProduct.portions = (product.portions || []).map((portion) => {
         const newPortion = { ...portion };
         const currentPrice = parseFloat(newPortion.price) || 0;
-        const currentDiscounted = parseFloat(newPortion.discountedPrice) || 0;
+        const currentDiscounted = parseFloat(newPortion.campaignPrice) || 0;
 
         let newPrice = currentPrice;
         let newDiscountedPrice = currentDiscounted;
@@ -65,7 +65,7 @@ const PriceListApplyBulk = ({ list, setList }) => {
 
         // Apply to discounted price
         if (
-          bulkTarget.value === "discountedPrice" ||
+          bulkTarget.value === "campaignPrice" ||
           bulkTarget.value === "both"
         ) {
           if (bulkType.value === "percent-increase") {
@@ -80,7 +80,7 @@ const PriceListApplyBulk = ({ list, setList }) => {
         }
 
         newPortion.price = Math.max(0, newPrice).toFixed(2);
-        newPortion.discountedPrice = Math.max(0, newDiscountedPrice).toFixed(2);
+        newPortion.campaignPrice = Math.max(0, newDiscountedPrice).toFixed(2);
 
         return newPortion;
       });

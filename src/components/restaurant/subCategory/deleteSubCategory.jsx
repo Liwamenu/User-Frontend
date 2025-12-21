@@ -1,14 +1,40 @@
+//MODULES
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { usePopup } from "../../../context/PopupContext";
+import { useDispatch, useSelector } from "react-redux";
+
+//ICONS
 import { DeleteI } from "../../../assets/icon";
 
-const DeleteSubCategory = ({ subCategory }) => {
+//REDUX
+import {
+  deleteSubCategory,
+  resetDeleteSubCategory,
+} from "../../../redux/subCategories/deleteSubCategorySlice";
+
+const DeleteSubCategory = ({ subCategory, onSuccess }) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const { setPopupContent } = usePopup();
+
+  const { success, error } = useSelector((s) => s.subCategories.delete);
 
   const handleSubmit = () => {
     console.log(subCategory.id, "is to be deleted");
+    dispatch(deleteSubCategory(subCategory.id));
   };
+
+  useEffect(() => {
+    if (success) {
+      dispatch(resetDeleteSubCategory());
+      setPopupContent(false);
+      onSuccess(subCategory.id);
+    }
+    if (error) {
+      dispatch(resetDeleteSubCategory());
+    }
+  }, [success, error]);
 
   return (
     <main className="flex justify-center">
@@ -26,6 +52,11 @@ const DeleteSubCategory = ({ subCategory }) => {
           <span className="font-bold text-[--red-1]">{subCategory.name}</span>{" "}
           öğesini silmek üzeresiniz. Bu işlem geri alınamaz.
         </p>
+
+        {/* Note About the items will be bound to category */}
+        <i className="text-sm text-[--gr-2] mb-6 px-4">
+          Not: Bu alt kategoriye bağlı öğeler, üst kategoriye taşınacaktır.
+        </i>
 
         {/* Buttons */}
         <div className="flex gap-4 w-full text-sm">

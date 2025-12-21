@@ -1,7 +1,7 @@
 //MODULES
 import { isEqual } from "lodash";
 import { toast } from "react-hot-toast";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,7 +9,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 //ICONS
 import { DeleteI, EditI } from "../../../assets/icon";
-import { ListI, DragI, StackI } from "../../../assets/icon";
+import { DragI, StackI } from "../../../assets/icon";
 
 //COMP
 import SubCategoriesHeader from "./header";
@@ -21,6 +21,12 @@ import { usePopup } from "../../../context/PopupContext";
 import subCategoriesJSON from "../../../assets/js/SubCategories.json";
 import categoriesJSON from "../../../assets/js/Categories.json";
 
+//REDUX
+import {
+  updateSubOrders,
+  resetUpdateSubOrders,
+} from "../../../redux/subCategories/updateSubOrdersSlice";
+
 const SubCategories = ({ data: restaurant }) => {
   const params = useParams();
   const { t } = useTranslation();
@@ -28,23 +34,20 @@ const SubCategories = ({ data: restaurant }) => {
   const { setPopupContent } = usePopup();
 
   // Mock selectors - replace with your actual Redux selectors
-  const { subCategories } = useSelector(
-    (state) => state.subCategories?.get || {}
-  );
+  const { subCategories } = useSelector((s) => s.subCategories.get);
   const { success, error } = useSelector(
-    (state) => state.subCategories?.edit || {}
+    (s) => s.subCategories.updateSubOrders
   );
 
+  // Store grouped data directly (array of category groups)
   const [subCategoriesData, setSubCategoriesData] = useState(null);
   const [subCategoriesDataBefore, setSubCategoriesDataBefore] = useState(null);
 
-  // Group subcategories by category
-  const groupedSubCategories = useMemo(() => {
-    if (!subCategoriesData) return [];
-
+  // Helper: Convert flat array to grouped structure
+  const groupSubCategories = (flatArray) => {
     const groups = {};
 
-    subCategoriesData.forEach((subCat) => {
+    flatArray.forEach((subCat) => {
       const categoryId = subCat.categoryId;
       if (!groups[categoryId]) {
         const category = categoriesJSON.categories.find(
@@ -58,59 +61,89 @@ const SubCategories = ({ data: restaurant }) => {
       groups[categoryId].subCategories.push(subCat);
     });
 
-    // Convert to array and sort each group's subcategories
+    // Convert to array and sort each group's subcategories by sortOrder
     return Object.values(groups).map((group) => ({
       ...group,
       subCategories: group.subCategories.sort(
         (a, b) => a.sortOrder - b.sortOrder
       ),
     }));
-  }, [subCategoriesData]);
+  };
+
+  // Helper: Convert grouped structure back to flat array
+  const flattenGroupedData = (groupedData) => {
+    if (!groupedData) return [];
+    return groupedData.flatMap((group) => group.subCategories);
+  };
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
 
     const { source, destination } = result;
 
-    // Extract categoryId from droppableId (format: "subCategories-{categoryId}")
+    // Extract categoryId from droppableId (format: "subCategories#{categoryId}")
     const sourceCategoryId = source.droppableId.split("#")[1];
     const destCategoryId = destination.droppableId.split("#")[1];
 
     // Only allow reordering within same category
     if (sourceCategoryId !== destCategoryId) return;
 
-    const items = Array.from(subCategoriesData);
-    const categorySubCats = items.filter(
-      (sc) => sc.categoryId === sourceCategoryId
-    );
+    // Clone the groups array
+    const updatedGroups = subCategoriesData.map((group) => {
+      // Only update the group that matches the source category
+      if (group.category.id !== sourceCategoryId) {
+        return group;
+      }
 
-    const [reorderedItem] = categorySubCats.splice(source.index, 1);
-    categorySubCats.splice(destination.index, 0, reorderedItem);
+      // Clone subcategories array for this group
+      const newSubCategories = Array.from(group.subCategories);
 
-    // Update sortOrder for this category's subcategories
-    const updatedCategorySubCats = categorySubCats.map((subCat, i) => ({
-      ...subCat,
-      sortOrder: i,
-    }));
+      // Perform the reorder
+      const [movedItem] = newSubCategories.splice(source.index, 1);
+      newSubCategories.splice(destination.index, 0, movedItem);
 
-    // Merge back with other categories
-    const otherSubCats = items.filter(
-      (sc) => sc.categoryId !== sourceCategoryId
-    );
-    const updated = [...updatedCategorySubCats, ...otherSubCats];
+      // Update sortOrder for all items in this category
+      const updatedSubCategories = newSubCategories.map((subCat, index) => ({
+        ...subCat,
+        sortOrder: index,
+      }));
 
-    setSubCategoriesData(updated);
+      return {
+        ...group,
+        subCategories: updatedSubCategories,
+      };
+    });
+
+    setSubCategoriesData(updatedGroups);
   };
 
   const handleEditSubCategory = (updatedSubCategory) => {
-    const newSubCategories = subCategoriesData.map((subCat) =>
-      subCat.id === updatedSubCategory.id
-        ? { ...subCat, ...updatedSubCategory }
-        : subCat
-    );
+    const updatedGroups = subCategoriesData.map((group) => ({
+      ...group,
+      subCategories: group.subCategories.map((subCat) =>
+        subCat.id === updatedSubCategory.id
+          ? { ...subCat, ...updatedSubCategory }
+          : subCat
+      ),
+    }));
 
-    setSubCategoriesData(newSubCategories);
-    setSubCategoriesDataBefore(newSubCategories);
+    setSubCategoriesData(updatedGroups);
+    setSubCategoriesDataBefore(updatedGroups);
+  };
+
+  const handleDelete = (deletedSubCategoryId) => {
+    const updatedGroups = subCategoriesData.map((group) => ({
+      ...group,
+      subCategories: group.subCategories
+        .filter((subCat) => subCat.id !== deletedSubCategoryId)
+        .map((subCat, index) => ({
+          ...subCat,
+          sortOrder: index, // Reassign sortOrder after deletion
+        })),
+    }));
+
+    setSubCategoriesData(updatedGroups);
+    setSubCategoriesDataBefore(updatedGroups);
   };
 
   const getStatusBadge = (value, type) => {
@@ -132,36 +165,43 @@ const SubCategories = ({ data: restaurant }) => {
   };
 
   const handleAddSubCategory = (subCategory) => {
-    const categorySubCats = subCategoriesData.filter(
-      (sc) => sc.categoryId === subCategory.categoryId
-    );
-    const maxSortOrder =
-      categorySubCats.length > 0
-        ? Math.max(...categorySubCats.map((sc) => sc.sortOrder))
-        : -1;
+    const updatedGroups = subCategoriesData.map((group) => {
+      // Only add to the matching category group
+      if (group.category.id !== subCategory.categoryId) {
+        return group;
+      }
 
-    const newSubCategories = [
-      ...(subCategoriesData || []),
-      {
-        ...subCategory,
-        sortOrder: maxSortOrder + 1,
-      },
-    ];
+      const maxSortOrder =
+        group.subCategories.length > 0
+          ? Math.max(...group.subCategories.map((sc) => sc.sortOrder))
+          : -1;
 
-    setSubCategoriesData(newSubCategories);
-    setSubCategoriesDataBefore(newSubCategories);
+      return {
+        ...group,
+        subCategories: [
+          ...group.subCategories,
+          {
+            ...subCategory,
+            sortOrder: maxSortOrder + 1,
+          },
+        ],
+      };
+    });
+
+    setSubCategoriesData(updatedGroups);
+    setSubCategoriesDataBefore(updatedGroups);
   };
 
   //GET SUBCATEGORIES - Replace with actual API call
   useEffect(() => {
     if (!subCategoriesData) {
       // dispatch(getSubCategories({ restaurantId: restaurant?.id }));
-      // Mock data from JSON
-      const sorted = [...subCategoriesJSON.subCategories].sort(
-        (a, b) => a.sortOrder - b.sortOrder
-      );
-      setSubCategoriesData(sorted);
-      setSubCategoriesDataBefore(sorted);
+      // Mock data from JSON - convert to grouped structure
+      const flatData = [...subCategoriesJSON.subCategories];
+      const grouped = groupSubCategories(flatData);
+
+      setSubCategoriesData(grouped);
+      setSubCategoriesDataBefore(grouped);
     }
   }, [subCategoriesData, restaurant]);
 
@@ -172,10 +212,10 @@ const SubCategories = ({ data: restaurant }) => {
         id: "subCategories",
       });
       setSubCategoriesDataBefore(subCategoriesData);
-      // dispatch(resetEditSubCategories());
+      dispatch(resetUpdateSubOrders());
     }
     if (error) {
-      // dispatch(resetEditSubCategories());
+      dispatch(resetUpdateSubOrders());
     }
   }, [success, error]);
 
@@ -191,20 +231,27 @@ const SubCategories = ({ data: restaurant }) => {
     try {
       const formData = new FormData();
 
-      const deletedSubCategories = subCategoriesDataBefore.filter(
-        (prevSubCat) =>
-          !subCategoriesData.some((subCat) => subCat.id === prevSubCat.id)
-      );
+      // Flatten both current and before data for comparison
+      const currentFlat = flattenGroupedData(subCategoriesData);
+      const beforeFlat = flattenGroupedData(subCategoriesDataBefore);
+
+      const changedOnes = currentFlat.filter((a) => {
+        const original = beforeFlat.find((b) => b.id === a.id);
+        return original && original.sortOrder !== a.sortOrder;
+      });
+
+      const dataToSend = changedOnes.map(({ id, categoryId, sortOrder }) => ({
+        id,
+        categoryId,
+        sortOrder,
+      }));
 
       formData.append("restaurantId", restaurant?.id);
-      formData.append("subCategoriesData", JSON.stringify(subCategoriesData));
-      formData.append(
-        "deletedSubCategories",
-        JSON.stringify(deletedSubCategories)
-      );
+      formData.append("subCategoriesData", JSON.stringify(dataToSend));
 
-      console.log("Saving subcategories:", subCategoriesData);
-      // dispatch(editSubCategories(formData));
+      console.log("Saving subcategories:", dataToSend);
+
+      dispatch(updateSubOrders(formData));
     } catch (error) {
       console.error("Error preparing form data:", error);
     }
@@ -214,33 +261,25 @@ const SubCategories = ({ data: restaurant }) => {
     <div className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
       <div className="flex flex-col sm:px-14">
         <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
-          Alt Kategoriler Yönetimi
+          {t("editSubCategories.title", { name: restaurant?.name })}
         </h1>
 
-        <div className="flex justify-between items-center">
-          <SubCategoriesHeader onSuccess={handleAddSubCategory} />
-
-          {!isEqual(subCategoriesData, subCategoriesDataBefore) && (
-            <div className="flex h-max justify-end">
-              <button
-                onClick={saveNewOrder}
-                className="px-4 py-2 text-sm text-white bg-[--green-1] rounded-lg shadow-md hover:bg-[--green-2] transition-all flex items-center gap-2 whitespace-nowrap ml-3"
-              >
-                <i className="fa-solid fa-check"></i> Değişiklikleri Kaydet
-              </button>
-            </div>
-          )}
-        </div>
+        <SubCategoriesHeader
+          onSuccess={handleAddSubCategory}
+          before={subCategoriesDataBefore}
+          after={subCategoriesData}
+          saveNewOrder={saveNewOrder}
+        />
 
         <div className="space-y-4">
           {/* Render each category group */}
-          {groupedSubCategories.length === 0 ? (
+          {!subCategoriesData || subCategoriesData.length === 0 ? (
             <div className="p-8 text-center text-[--gr-1] italic bg-[--light-2] rounded-xl">
               Henüz bir alt kategori bulunmuyor.
             </div>
           ) : (
             <DragDropContext onDragEnd={handleDragEnd}>
-              {groupedSubCategories.map((group) => (
+              {subCategoriesData.map((group) => (
                 <div
                   key={group.category.id}
                   className="bg-[--light-4] border border-[--light-3] rounded-xl overflow-hidden"
@@ -340,6 +379,7 @@ const SubCategories = ({ data: restaurant }) => {
                                       onClick={() => {
                                         setPopupContent(
                                           <DeleteSubCategory
+                                            onSuccess={handleDelete}
                                             subCategory={subCat}
                                           />
                                         );

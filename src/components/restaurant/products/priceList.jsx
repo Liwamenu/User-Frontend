@@ -1,5 +1,7 @@
 //MODULES
+import toast from "react-hot-toast";
 import isEqual from "lodash/isEqual";
+import { useSelector, useDispatch } from "react-redux";
 import React, { useEffect, useState, useRef } from "react";
 
 //COMP
@@ -11,19 +13,23 @@ import CustomInput from "../../common/customInput";
 import Products from "../../../assets/js/Products.json";
 import PriceListApplyBulk from "./priceListApplyBulk";
 
+//REDUX
+import {
+  updatePriceList,
+  resetUpdatePriceList,
+} from "../../../redux/products/updatePriceListSlice";
+import { getProducts } from "../../../redux/products/getProductsSlice";
+
 const PriceList = ({ data: restaurant }) => {
+  const dispatch = useDispatch();
   const containerRef = useRef(null);
+
+  const { products } = useSelector((s) => s.products.get);
+  const { success, error } = useSelector((s) => s.products.updatePriceList);
+
   const [list, setList] = useState([]);
   const [listBefore, setListBefore] = useState([]);
   const [groupedByCategory, setGroupedByCategory] = useState({});
-
-  // const updateField = (index, key, value) => {
-  //   setList((prev) => {
-  //     const next = [...prev];
-  //     next[index] = { ...next[index], [key]: value };
-  //     return next;
-  //   });
-  // };
 
   const updatePortion = (pIndex, portionIndex, key, value) => {
     setList((prev) => {
@@ -35,9 +41,12 @@ const PriceList = ({ data: restaurant }) => {
     });
   };
 
+  // On Products load, set local list state and group by category
   useEffect(() => {
     // Products.json exports an object { Products: [...] }
-    const productsList = Products?.Products || [];
+    const productsList =
+      (products?.data.length && products.data) || Products?.Products || [];
+
     // initialize editable local copy
     const initialList = productsList.map((p) => ({
       ...p,
@@ -60,11 +69,12 @@ const PriceList = ({ data: restaurant }) => {
       grouped[categoryId].push(product);
     });
     setGroupedByCategory(grouped);
-  }, [Products]);
+  }, [Products, products]);
 
   // Submit: find changed Products (deep compare with original Products) and console them
   const handleSaveAll = () => {
     const productsList = Products?.Products || [];
+
     const changed = list.filter((prod) => {
       const orig = productsList.find((p) => p.id === prod.id);
       // if no original (new product) consider changed
@@ -72,8 +82,25 @@ const PriceList = ({ data: restaurant }) => {
       return !isEqual(prod, orig);
     });
 
-    console.log("Changed Products:", changed);
-    console.log("Original Products:", productsList);
+    //Get only id and price of chnaged products portions
+    const changedWithPortions = changed.map((prod) => {
+      const orig = productsList.find((p) => p.id === prod.id);
+      const changedPortions = (prod.portions || []).filter((pt, index) => {
+        const origPortion = (orig?.portions || [])[index];
+        return !isEqual(pt, origPortion);
+      });
+      return {
+        id: prod.id,
+        portions: changedPortions.map((pt) => ({
+          id: pt.id,
+          price: pt.price,
+          campaignPrice: pt.campaignPrice,
+        })),
+      };
+    });
+
+    console.log("Data to send:", changedWithPortions);
+    dispatch(updatePriceList(changedWithPortions));
   };
 
   // Separate vertical navigation for each column
@@ -107,17 +134,27 @@ const PriceList = ({ data: restaurant }) => {
     }
   };
 
+  //TOAST
+  useEffect(() => {
+    if (success) {
+      toast.success("Fiyat listesi başarıyla güncellendi.");
+      dispatch(getProducts({ restaurantId: restaurant.id }));
+      dispatch(resetUpdatePriceList());
+    }
+    if (error) {
+      dispatch(resetUpdatePriceList());
+    }
+  }, [success, error, list, dispatch]);
+
   return (
     <section className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
       <div className="px-4 max-w-6xl mx-auto" ref={containerRef}>
-        <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 px-4 sm:px-14 rounded-t-lg">
+        {/* <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 px-4 sm:px-14 rounded-t-lg">
           Fiyat Listesi {restaurant?.name} Restoranı
-        </h1>
+        </h1> */}
 
-        <div className="flex justify-between items-center">
-          <div>
-            <ProductsHeader />
-          </div>
+        <div className="flex flex-wrap gap-2 my-3 text-sm max-sm:grid max-sm:grid-cols-2 max-sm:items-center">
+          <ProductsHeader />
 
           {!isEqual(list, listBefore) && (
             <div className="flex justify-end">
@@ -125,7 +162,7 @@ const PriceList = ({ data: restaurant }) => {
                 <button
                   type="button"
                   onClick={handleSaveAll}
-                  className="px-6 py-2.5 text-sm font-medium text-white bg-green-600 rounded-xl shadow-lg hover:bg-green-700 transition-all"
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md shadow-lg hover:bg-green-700 transition-all"
                 >
                   Değişiklikleri Kaydet
                 </button>
@@ -197,12 +234,12 @@ const PriceList = ({ data: restaurant }) => {
                                 data-edit-second={true}
                                 type="number"
                                 className="py-[5px] rounded-md w-full text-sm text-[--green-1] border-green-400/50 bg-[--white-2]"
-                                value={portion.discountedPrice || ""}
+                                value={portion.campaignPrice || ""}
                                 onChange={(v) =>
                                   updatePortion(
                                     i,
                                     pi,
-                                    "discountedPrice",
+                                    "campaignPrice",
                                     Number(v)
                                   )
                                 }

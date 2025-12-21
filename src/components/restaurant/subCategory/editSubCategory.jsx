@@ -1,9 +1,9 @@
 //MODULES
-import toast from "react-hot-toast";
-import { useEffect, useState, useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
 import { isEqual } from "lodash";
+import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
+import { useEffect, useState, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 //COMP
 import CustomInput from "../../common/customInput";
@@ -15,9 +15,9 @@ import { CancelI, CloudUI } from "../../../assets/icon";
 
 //REDUX
 import {
-  editSubCategories,
-  resetEditSubCategories,
-} from "../../../redux/subCategories/editSubCategoriesSlice";
+  editSubCategory,
+  resetEditSubCategory,
+} from "../../../redux/subCategories/editSubCategorySlice";
 
 //JSON
 import categoriesJSON from "../../../assets/js/Categories.json";
@@ -27,11 +27,10 @@ const EditSubCategory = ({ subCategory, onSuccess }) => {
   const { t } = useTranslation();
   const { setPopupContent } = usePopup();
 
-  const { success, error } = useSelector(
-    (state) => state.subCategories?.edit || {}
-  );
+  const { success, error } = useSelector((s) => s.subCategories.edit);
 
   const [subCategoryData, setSubCategoryData] = useState(subCategory);
+
   const [preview, setPreview] = useState(
     subCategory?.image
       ? URL.createObjectURL(subCategory.image)
@@ -67,7 +66,9 @@ const EditSubCategory = ({ subCategory, onSuccess }) => {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = (e) => {
+    e.preventDefault();
+
     if (isEqual(subCategoryData, subCategory)) {
       toast.error("Değişiklik yapılmadı.", { id: "subCategories" });
       return;
@@ -90,7 +91,7 @@ const EditSubCategory = ({ subCategory, onSuccess }) => {
       const payloadSubCategory = [rest];
 
       formData.append("restaurantId", subCategoryData?.restaurantId);
-      formData.append("subCategoriesData", JSON.stringify(payloadSubCategory));
+      formData.append("subCategoryData", JSON.stringify(payloadSubCategory));
 
       if (subCategoryData.image) {
         formData.append(`image_0`, subCategoryData.image);
@@ -101,16 +102,7 @@ const EditSubCategory = ({ subCategory, onSuccess }) => {
         console.log(pair[0], pair[1]);
       }
 
-      // dispatch(editSubCategories(formData));
-
-      // Mock success for now
-      setTimeout(() => {
-        onSuccess && onSuccess(subCategoryData);
-        setPopupContent(null);
-        toast.success("Alt kategori başarıyla güncellendi.", {
-          id: "subCategories",
-        });
-      }, 500);
+      dispatch(editSubCategory(formData));
     } catch (error) {
       console.error("Error preparing form data:", error);
     }
@@ -124,9 +116,9 @@ const EditSubCategory = ({ subCategory, onSuccess }) => {
       toast.success("Alt kategori başarıyla güncellendi.", {
         id: "subCategories",
       });
-      dispatch(resetEditSubCategories());
+      dispatch(resetEditSubCategory());
     }
-    if (error) dispatch(resetEditSubCategories());
+    if (error) dispatch(resetEditSubCategory());
   }, [success, error]);
 
   return (
@@ -146,7 +138,7 @@ const EditSubCategory = ({ subCategory, onSuccess }) => {
             </button>
           </div>
 
-          <div className="space-y-6 pb-4">
+          <form className="space-y-6 pb-4" onSubmit={handleSave}>
             {/* Alt Kategori Adı */}
             <CustomInput
               required
@@ -257,14 +249,11 @@ const EditSubCategory = ({ subCategory, onSuccess }) => {
               >
                 Vazgeç
               </button>
-              <button
-                onClick={handleSave}
-                className="px-8 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg shadow-[--light-1] hover:bg-[--primary-2] transform hover:-translate-y-0.5 transition-all"
-              >
+              <button className="px-8 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg shadow-[--light-1] hover:bg-[--primary-2] transform hover:-translate-y-0.5 transition-all">
                 Güncelle
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

@@ -1,19 +1,24 @@
+//MODULES
+import { isEqual } from "lodash";
+import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { useEffect, useState, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
+//COMP
 import CustomInput from "../../common/customInput";
 import CustomToggle from "../../common/customToggle";
+import menusJSON from "../../../assets/js/Menus.json";
+import { usePopup } from "../../../context/PopupContext";
 import CustomCheckbox from "../../common/customCheckbox";
 import CustomFileInput from "../../common/customFileInput";
-import { useTranslation } from "react-i18next";
 import { CancelI, CloudUI, WarnI } from "../../../assets/icon";
-import { usePopup } from "../../../context/PopupContext";
-import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
-import { isEqual } from "lodash";
+
+//REDUX
 import {
-  editCategories,
-  resetEditCategories,
-} from "../../../redux/categories/editCategoriesSlice";
-import menusJSON from "../../../assets/js/Menus.json";
+  editCategory,
+  resetEditCategory,
+} from "../../../redux/categories/editCategorySlice";
 
 const EditCategory = ({ category, onSuccess }) => {
   const dispatch = useDispatch();
@@ -59,11 +64,12 @@ const EditCategory = ({ category, onSuccess }) => {
   };
 
   const toggleMenuSelection = (menuId) => {
+    const menuIds = categoryData?.menuIds || [];
     setCategoryData((prev) => ({
       ...prev,
-      menuIds: prev.menuIds.includes(menuId)
-        ? prev.menuIds.filter((id) => id !== menuId)
-        : [...prev.menuIds, menuId],
+      menuIds: menuIds.includes(menuId)
+        ? menuIds.filter((id) => id !== menuId)
+        : [...menuIds, menuId],
     }));
   };
 
@@ -75,8 +81,11 @@ const EditCategory = ({ category, onSuccess }) => {
     try {
       const formData = new FormData();
 
-      const { image, ...rest } = categoryData;
-      const payloadCategory = [rest];
+      const { id, restaurantId, menuIds, name, isActive, featured, campaign } =
+        categoryData;
+      const payloadCategory = [
+        { id, restaurantId, menuIds, name, isActive, featured, campaign },
+      ];
 
       formData.append("restaurantId", categoryData?.restaurantId);
       formData.append("categoriesData", JSON.stringify(payloadCategory));
@@ -85,12 +94,12 @@ const EditCategory = ({ category, onSuccess }) => {
         formData.append(`image_0`, categoryData.image);
       }
 
-      // console.log("Editing categories:", categoryData);
-      // for (const pair of formData.entries()) {
-      //   console.log(pair[0], pair[1]);
-      // }
+      console.log("Editing categories:", payloadCategory);
+      for (const pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
 
-      dispatch(editCategories(formData));
+      dispatch(editCategory(formData));
     } catch (error) {
       console.error("Error preparing form data:", error);
     }
@@ -102,9 +111,9 @@ const EditCategory = ({ category, onSuccess }) => {
       onSuccess(categoryData);
       setPopupContent(null);
       toast.success("Kategoriler başarıyla güncellendi.", { id: "categories" });
-      dispatch(resetEditCategories());
+      dispatch(resetEditCategory());
     }
-    if (error) dispatch(resetEditCategories());
+    if (error) dispatch(resetEditCategory());
   }, [success, error]);
 
   return (

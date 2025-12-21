@@ -1,8 +1,16 @@
-import { useState, useEffect } from "react";
-import CustomInput from "../../common/customInput";
+//MODULES
 import toast from "react-hot-toast";
-import { CancelI, WaitI } from "../../../assets/icon";
 import isEqual from "lodash/isEqual";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
+//COMP
+import CustomInput from "../../common/customInput";
+import { CancelI, WaitI } from "../../../assets/icon";
+
+//REDUX
+import { editMenu, resetEditMenu } from "../../../redux/menus/editMenuSlice";
+import { useParams } from "react-router-dom";
 
 const DAYS = [
   "Pazartesi",
@@ -15,22 +23,28 @@ const DAYS = [
 ];
 
 const EditMenu = ({ menu, onClose, onSave }) => {
+  const params = useParams();
+  const restaurantId = params.id;
+  const dispatch = useDispatch();
+
+  const { success, error } = useSelector((s) => s.menus.edit);
+
   const [menuName, setMenuName] = useState("");
   const [schedules, setSchedules] = useState([]);
+  const [categoryIds, setCategoryIds] = useState(menu?.categoryIds || []);
 
-  useEffect(() => {
-    if (menu) {
-      setMenuName(menu.name || "");
-      setSchedules(
-        (menu.plans || []).map((plan) => ({
-          id: plan.id || `sch-${Date.now()}-${Math.random()}`,
-          days: plan.days || [],
-          startTime: plan.startTime || "00:00",
-          endTime: plan.endTime || "23:59",
-        }))
-      );
-    }
-  }, [menu, open]);
+  const updatedMenu = {
+    ...menu,
+    restaurantId,
+    name: menuName,
+    plans: schedules.map((sch) => ({
+      id: sch.id,
+      days: sch.days,
+      startTime: sch.start,
+      endTime: sch.end,
+    })),
+    categoryIds,
+  };
 
   const addScheduleRow = (data = null) => {
     const newSchedule = {
@@ -91,27 +105,33 @@ const EditMenu = ({ menu, onClose, onSave }) => {
       return;
     }
 
-    const updatedMenu = {
-      ...menu,
-      name: menuName,
-      plans: schedules.map((sch) => ({
-        id: sch.id,
-        days: sch.days,
-        startTime: sch.start,
-        endTime: sch.end,
-      })),
-    };
-
     console.log(updatedMenu);
-    onSave?.(updatedMenu);
-    // handleClose();
+    dispatch(editMenu(updatedMenu));
   };
 
-  const handleClose = () => {
-    setMenuName("");
-    setSchedules([]);
-    onClose?.();
-  };
+  useEffect(() => {
+    if (menu) {
+      setMenuName(menu.name || "");
+      setSchedules(
+        (menu.plans || []).map((plan) => ({
+          id: plan.id || `sch-${Date.now()}-${Math.random()}`,
+          days: plan.days || [],
+          startTime: plan.startTime || "00:00",
+          endTime: plan.endTime || "23:59",
+        }))
+      );
+    }
+  }, [menu, open]);
+
+  useEffect(() => {
+    if (success) {
+      toast.success("Menü başarıyla güncellendi.");
+      dispatch(resetEditMenu());
+      onSave?.(updatedMenu);
+      onClose?.();
+    }
+    if (error) dispatch(resetEditMenu());
+  }, [success, error, dispatch]);
 
   return (
     <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center transition-all duration-300">
@@ -121,7 +141,7 @@ const EditMenu = ({ menu, onClose, onSave }) => {
             Menüyü Düzenle
           </h3>
           <button
-            onClick={handleClose}
+            onClick={onClose}
             className="text-[--gr-1] hover:text-[--black-2] transition-colors"
           >
             <CancelI className="size-[1.5rem]" />
@@ -223,7 +243,7 @@ const EditMenu = ({ menu, onClose, onSave }) => {
 
         <div className="flex justify-end space-x-3 pt-4 border-t border-[--border-1] mt-6">
           <button
-            onClick={handleClose}
+            onClick={onClose}
             className="px-5 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] transition-all"
           >
             Vazgeç

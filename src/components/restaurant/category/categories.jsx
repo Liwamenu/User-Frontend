@@ -109,6 +109,13 @@ const Categories = ({ data: restaurant }) => {
     setCategoriesDataBefore(sorted);
   };
 
+  const handleDelete = (categoryId) => {
+    const newCategories = categoriesData.filter((cat) => cat.id !== categoryId);
+    const sorted = sortCategoriesByOrder(newCategories);
+    setCategoriesData(sorted);
+    setCategoriesDataBefore(sorted);
+  };
+
   const sortCategoriesByOrder = (cats) => {
     return cats.sort((a, b) => a.sortOrder - b.sortOrder);
   };
@@ -318,7 +325,10 @@ const Categories = ({ data: restaurant }) => {
                                 <button
                                   onClick={() => {
                                     setPopupContent(
-                                      <DeleteCategory category={cat} />
+                                      <DeleteCategory
+                                        category={cat}
+                                        onSuccess={handleDelete}
+                                      />
                                     );
                                   }}
                                   className="p-2 text-[--red-1] bg-[--status-red] hover:bg-[--red-2] hover:text-white rounded-lg transition-colors"

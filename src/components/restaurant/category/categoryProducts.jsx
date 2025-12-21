@@ -1,26 +1,52 @@
-import { useMemo } from "react";
-import productsData from "../../../assets/js/Products.json";
-import { CancelI, DeleteI, EditI } from "../../../assets/icon";
-import { usePopup } from "../../../context/PopupContext";
+//MODULES
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
+//COMPONENTS & FUNCTIONS
 import EditProduct from "../products/editProduct";
 import DeleteProduct from "../products/deleteProduct";
 import ListCategoryProduct from "./listCategoryProducts";
+import fallbackImg from "../../../assets/img/No_Img.svg";
+import { usePopup } from "../../../context/PopupContext";
+import localProds from "../../../assets/js/Products.json";
+import { CancelI, DeleteI, EditI } from "../../../assets/icon";
 
-const CategoryProducts = ({
-  categoryId,
-  onClose,
-  products = productsData, // allow overriding products via props
-}) => {
-  const catProducts = useMemo(() => {
-    if (!categoryId) return [];
-    // products can be array or object with Products key
-    const list = Array.isArray(products) ? products : products?.Products || [];
-    return list.filter((p) => p.categoryId !== categoryId);
-  }, [categoryId, products]);
+//REDUX
+import {
+  getProductsByCategoryId,
+  resetGetProductsByCategoryIdState,
+} from "../../../redux/products/getProductsByCategoryIdSlice";
+
+const CategoryProducts = ({ categoryId, onClose }) => {
+  const dispatch = useDispatch();
+
+  const { products, success, error } = useSelector(
+    (s) => s.products.getByCategoryId
+  );
+
+  const localCatProds = localProds.Products.filter(
+    (p) => p.categoryId !== categoryId
+  );
 
   const { setSecondPopupContent } = usePopup();
+  const [catProdsData, setCatProdsData] = useState(null);
 
-  const fallbackImg = "https://placehold.co/150x100/e2e8f0/64748b?text=No+Img";
+  useEffect(() => {
+    if (!catProdsData) {
+      dispatch(getProductsByCategoryId({ categoryId }));
+    }
+  }, [catProdsData, categoryId, dispatch]);
+
+  useEffect(() => {
+    if (products) {
+      setCatProdsData(products.data);
+      dispatch(resetGetProductsByCategoryIdState());
+    }
+    if (error) {
+      setCatProdsData(localCatProds);
+      dispatch(resetGetProductsByCategoryIdState());
+    }
+  }, [products, success, error]);
 
   const handleSelectProducts = () => {
     setSecondPopupContent(
@@ -75,12 +101,12 @@ const CategoryProducts = ({
 
         {/* Products List */}
         <div className="space-y-3 overflow-y-auto custom-scrollbar flex-1 p-1 pr-2">
-          {catProducts.length === 0 ? (
+          {!catProdsData?.length ? (
             <div className="text-center p-6 text-[--gr-1] italic">
               Bu kategoride henüz ürün yok.
             </div>
           ) : (
-            catProducts.map((prod, index) => {
+            catProdsData?.map((prod, index) => {
               const imgUrl = prod.image || fallbackImg;
               const portionsCount = Array.isArray(prod.portions)
                 ? prod.portions.length

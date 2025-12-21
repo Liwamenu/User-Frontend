@@ -1,12 +1,16 @@
 // MODULES
-import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import isEqual from "lodash/isEqual";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 
 // COMP
+import ProductsHeader from "./header";
 import CustomInput from "../../common/customInput";
+import CustomToggle from "../../common/customToggle";
 import CustomSelect from "../../common/customSelector";
 import CustomTextarea from "../../common/customTextarea";
-import CustomToggle from "../../common/customToggle";
 import CustomFileInput from "../../common/customFileInput";
 
 // DATA
@@ -15,25 +19,36 @@ import subCategories from "../../../assets/js/SubCategories.json";
 
 // UTILS
 import { formatToPrice } from "../../../utils/utils";
-import ProductsHeader from "./header";
-import { CancelI, CloudUI, DeleteI } from "../../../assets/icon";
-import { useLocation } from "react-router-dom";
-import toast from "react-hot-toast";
 import { usePopup } from "../../../context/PopupContext";
+import { CancelI, CloudUI, DeleteI } from "../../../assets/icon";
+import {
+  editProduct,
+  resetEditProduct,
+} from "../../../redux/products/editProductSlice";
+import { getProducts } from "../../../redux/products/getProductsSlice";
+
+//REDUX
 
 const emptyPortion = () => ({
   id: undefined,
   productId: undefined,
   name: "",
   price: 0,
-  discountedPrice: 0,
+  campaignPrice: 0,
   specialPrice: 0, // local optional “Özel” price
 });
 
 const EditProduct = ({ product: prodToPopup }) => {
+  const dispatch = useDispatch();
   const location = useLocation();
+  const params = useParams();
+  const restaurantId = params.id;
+
+  const { success, error } = useSelector((s) => s.products.edit);
+
   const { setSecondPopupContent } = usePopup();
   const { product } = location?.state || {};
+
   const [preview, setPreview] = useState(null);
   const [productData, setProductData] = useState(prodToPopup || product);
 
@@ -117,6 +132,7 @@ const EditProduct = ({ product: prodToPopup }) => {
 
     // Append basic fields
     formData.append("id", productData.id);
+    formData.append("restaurantId", restaurantId || productData.restaurantId);
     formData.append("name", productData.name || "");
     formData.append("description", productData.description || "");
     formData.append("recommendation", productData.recommendation);
@@ -137,7 +153,7 @@ const EditProduct = ({ product: prodToPopup }) => {
         productId: p.productId,
         name: p.name,
         price: Number(p.price) || 0,
-        discountedPrice: Number(p.discountedPrice) || 0,
+        campaignPrice: Number(p.campaignPrice) || 0,
         specialPrice: Number(p.specialPrice) || 0,
       }));
       formData.append("portions", JSON.stringify(portions));
@@ -148,7 +164,21 @@ const EditProduct = ({ product: prodToPopup }) => {
     for (let [key, value] of formData.entries()) {
       console.log(`${key}:`, value);
     }
+
+    dispatch(editProduct(formData));
   };
+
+  useEffect(() => {
+    if (success) {
+      toast.success("Ürün başarıyla güncellendi.");
+      setSecondPopupContent(null);
+      dispatch(resetEditProduct());
+      dispatch(
+        getProducts({ restaurantId: restaurantId || productData.restaurantId })
+      );
+    }
+    if (error) dispatch(resetEditProduct());
+  }, [success, error, dispatch, setSecondPopupContent]);
 
   return (
     <section
@@ -163,24 +193,20 @@ const EditProduct = ({ product: prodToPopup }) => {
       >
         {!prodToPopup && (
           <>
-            <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 px-4 sm:px-14 rounded-t-lg">
+            {/* <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 px-4 sm:px-14 rounded-t-lg">
               Fiyat Listesi {} Restoranı
-            </h1>
+            </h1> */}
 
-            <div className="flex justify-between items-center">
-              <div>
-                <ProductsHeader />
+            <div className="flex flex-wrap gap-2 my-3 text-sm max-sm:grid max-sm:grid-cols-2 max-sm:items-center">
+              <ProductsHeader />
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={handleSave}
+                  className="px-6 py-2.5 text-sm font-medium text-white bg-[--green-1] rounded-md shadow-lg hover:bg-indigo-700 transition-all"
+                >
+                  Kaydet
+                </button>
               </div>
-              {!isEqual(productData, product) && (
-                <div className="flex justify-end space-x-3">
-                  <button
-                    onClick={handleSave}
-                    className="px-6 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-xl shadow-lg hover:bg-indigo-700 transition-all"
-                  >
-                    Kaydet
-                  </button>
-                </div>
-              )}
             </div>
           </>
         )}
@@ -452,9 +478,9 @@ const EditProduct = ({ product: prodToPopup }) => {
                         type="number"
                         placeholder="Kampanya"
                         className="py-[6px] text-sm text-end text-[--black-2] bg-green-400/30 border-green-300"
-                        value={formatToPrice(portion.discountedPrice) || "0"}
+                        value={formatToPrice(portion.campaignPrice) || "0"}
                         onChange={(v) =>
-                          handlePortionChange(idx, "discountedPrice", v)
+                          handlePortionChange(idx, "campaignPrice", v)
                         }
                       />
                       <CustomInput

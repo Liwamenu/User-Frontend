@@ -130,6 +130,9 @@
     "status": "Durum",
     "featured": "Öne Çıkan"
   },
+  "addCatergory": {
+    "success": "Kategori başarıyla eklendi."
+  },
   "addCategories": {
     "title": "{{name}} Restoranı için Kategori Ekle",
     "info": "Yeni kategoriler eklemek için aşağıdaki formu kullanın. Kategorileri sürükleyip bırakarak sıralayabilirsiniz.",

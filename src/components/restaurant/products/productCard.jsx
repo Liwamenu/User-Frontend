@@ -69,9 +69,9 @@ const ProductCard = ({ product }) => {
                 })}
               </span>
 
-              {portion.discountedPrice > 0 && (
+              {portion.campaignPrice > 0 && (
                 <span className="text-[--green-1] text-xs font-semibold">
-                  Kampanya : {portion.discountedPrice}
+                  Kampanya : {portion.campaignPrice}
                 </span>
               )}
             </div>

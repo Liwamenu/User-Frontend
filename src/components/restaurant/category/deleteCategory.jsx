@@ -1,14 +1,51 @@
+//MODULES
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import { usePopup } from "../../../context/PopupContext";
-import { DeleteI } from "../../../assets/icon";
+import { useDispatch, useSelector } from "react-redux";
 
-const DeleteCategory = ({ category }) => {
+//COMP
+import { DeleteI } from "../../../assets/icon";
+import CustomCheckbox from "../../common/customCheckbox";
+import { usePopup } from "../../../context/PopupContext";
+
+//REDUX
+import {
+  deleteCategory,
+  resetDeleteCategory,
+} from "../../../redux/categories/deleteCategorySlice";
+
+const DeleteCategory = ({ category, onSuccess }) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const { setPopupContent } = usePopup();
 
+  const { success, error } = useSelector((s) => s.categories.deleteCategory);
+
+  const [deleteSubItems, setDeleteSubItems] = useState(false);
+  const [popCheckbox, setPopCheckbox] = useState(false);
+
   const handleSubmit = () => {
+    if (!deleteSubItems) {
+      setPopCheckbox(true);
+      const removePop = setTimeout(() => {
+        setPopCheckbox(false);
+      }, 1000);
+      return;
+    }
     console.log(category.id, "is to be deleted");
+    dispatch(deleteCategory(category.id));
   };
+
+  useEffect(() => {
+    if (success) {
+      toast.success(t("deleteCategory.deleteSuccess"));
+      dispatch(resetDeleteCategory());
+
+      onSuccess(category.id);
+    }
+    if (error) dispatch(resetDeleteCategory());
+  }, [success.error]);
 
   return (
     <main className="flex justify-center">
@@ -27,15 +64,33 @@ const DeleteCategory = ({ category }) => {
           öğesini silmek üzeresiniz. Bu işlem geri alınamaz.
         </p>
 
+        {/* Delete sub categories and related items */}
+        <div
+          className={`mb-10 text-[--red-1] p-2  ${
+            popCheckbox
+              ? "border border-[--red-1] rounded-lg vibrate_sides bg-[--status-red-1]"
+              : "border border-transparent"
+          }`}
+        >
+          <CustomCheckbox
+            required
+            label="Alt kategorileri ve ilişkili öğeleri de sil"
+            checked={deleteSubItems}
+            onChange={() => setDeleteSubItems(!deleteSubItems)}
+          />
+        </div>
+
         {/* Buttons */}
         <div className="flex gap-4 w-full text-sm">
           <button
+            type="button"
             onClick={() => setPopupContent(false)}
             className="flex-1 py-2 px-6 border border-[--border-1] rounded-xl text-[--gr-1] font-semibold hover:bg-[--gr-3] transition-colors"
           >
             İptal
           </button>
           <button
+            type="submit"
             onClick={handleSubmit}
             className="flex-1 px-6 bg-[--red-1] text-white rounded-xl font-bold hover:bg-red-700 transition-all"
           >

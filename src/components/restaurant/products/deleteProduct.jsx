@@ -1,12 +1,31 @@
+import { useEffect } from "react";
+import toast from "react-hot-toast";
+import { useSelector, useDispatch } from "react-redux";
+
+//COMP
 import { DeleteI } from "../../../assets/icon";
 import { usePopup } from "../../../context/PopupContext";
 
+//REDUX
+import { deleteProduct } from "../../../redux/products/deleteProductSlice";
+
 const DeleteProduct = ({ product }) => {
+  const dispatch = useDispatch();
   const { setSecondPopupContent } = usePopup();
+
+  const { success } = useSelector((s) => s.products.delete);
 
   function onConfirm() {
     console.log(product.id, "is to be deleted");
+    dispatch(deleteProduct(product.id));
   }
+
+  useEffect(() => {
+    if (success) {
+      toast.success("Ürün başarıyla silindi.");
+      setSecondPopupContent(null);
+    }
+  }, [success]);
 
   return (
     <main className="flex justify-center">

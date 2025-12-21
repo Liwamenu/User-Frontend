@@ -13,7 +13,7 @@ const PriceList = () => {
       p.portions.forEach((portion) => {
         initialState[portion.id] = {
           price: portion.price.toString(),
-          discountedPrice: portion.discountedPrice.toString(),
+          campaignPrice: portion.campaignPrice.toString(),
         };
       });
     });
@@ -187,7 +187,7 @@ const PriceList = () => {
                     className="w-full appearance-none bg-[#3D3D8A] border border-[#4F4F9E] text-white rounded-lg py-2.5 px-3 pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent text-sm"
                   >
                     <option value="price">Sadece Normal Fiyat</option>
-                    <option value="discountedPrice">
+                    <option value="campaignPrice">
                       Sadece Kampanya Fiyatı
                     </option>
                   </select>
@@ -263,7 +263,7 @@ const PriceList = () => {
 
                       const priceValue = prices[portion.id]?.price ?? "";
                       const offerValue =
-                        prices[portion.id]?.discountedPrice ?? "";
+                        prices[portion.id]?.campaignPrice ?? "";
 
                       return (
                         <div
@@ -315,7 +315,7 @@ const PriceList = () => {
                               </label>
                               <div className="relative">
                                 <input
-                                  id={`input-${globalIndex}-discountedPrice`}
+                                  id={`input-${globalIndex}-campaignPrice`}
                                   type="text"
                                   inputMode="decimal"
                                   className={`block w-full text-right font-bold bg-[#F0FDF4] border rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
@@ -327,7 +327,7 @@ const PriceList = () => {
                                   onChange={(e) =>
                                     handlePriceChange(
                                       portion.id,
-                                      "discountedPrice",
+                                      "campaignPrice",
                                       e.target.value
                                     )
                                   }
@@ -335,7 +335,7 @@ const PriceList = () => {
                                     handleKeyDown(
                                       e,
                                       globalIndex,
-                                      "discountedPrice"
+                                      "campaignPrice"
                                     )
                                   }
                                 />

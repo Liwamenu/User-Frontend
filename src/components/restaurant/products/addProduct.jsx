@@ -1,5 +1,8 @@
 // MODULES
-import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 
 // COMP
 import CustomInput from "../../common/customInput";
@@ -17,12 +20,19 @@ import { formatToPrice } from "../../../utils/utils";
 import ProductsHeader from "./header";
 import { CloudUI, DeleteI } from "../../../assets/icon";
 
+//REDUX
+import {
+  addProduct,
+  resetAddProduct,
+} from "../../../redux/products/addProductSlice";
+import { resetGetProducts } from "../../../redux/products/getProductsSlice";
+
 const emptyPortion = () => ({
   id: undefined,
   productId: undefined,
   name: "",
   price: 0,
-  discountedPrice: 0,
+  campaignPrice: 0,
   specialPrice: 0, // local optional “Özel” price
 });
 
@@ -41,6 +51,12 @@ const defaultProduct = {
 };
 
 const AddProduct = ({ data: restaurant }) => {
+  const params = useParams();
+  const restaurantId = params.id;
+  const dispatch = useDispatch();
+
+  const { success, error } = useSelector((s) => s.products.add);
+
   const [preview, setPreview] = useState(null);
   const [productData, setProductData] = useState(defaultProduct);
 
@@ -120,6 +136,7 @@ const AddProduct = ({ data: restaurant }) => {
     const formData = new FormData();
 
     // Append basic fields
+    formData.append("restaurantId", restaurantId);
     formData.append("name", productData.name || "");
     formData.append("description", productData.description || "");
     formData.append("recommendation", productData.recommendation);
@@ -138,7 +155,7 @@ const AddProduct = ({ data: restaurant }) => {
       productId: p.productId,
       name: p.name,
       price: Number(p.price) || 0,
-      discountedPrice: Number(p.discountedPrice) || 0,
+      campaignPrice: Number(p.campaignPrice) || 0,
       specialPrice: Number(p.specialPrice) || 0,
     }));
     formData.append("portions", JSON.stringify(portions));
@@ -148,7 +165,19 @@ const AddProduct = ({ data: restaurant }) => {
     for (let [key, value] of formData.entries()) {
       console.log(`${key}:`, value);
     }
+
+    dispatch(addProduct(formData));
   };
+
+  useEffect(() => {
+    if (success) {
+      toast.success("Ürün başarıyla eklendi.");
+      setProductData(null);
+      setPreview(null);
+      dispatch(resetGetProducts());
+      dispatch(resetAddProduct());
+    } else if (error) dispatch(resetAddProduct());
+  }, [success, error, dispatch]);
 
   return (
     <form
@@ -156,14 +185,12 @@ const AddProduct = ({ data: restaurant }) => {
       onSubmit={handleSave}
     >
       <div className="px-4 max-w-6xl mx-auto max-h-[90dvh] overflow-y-auto pb-20">
-        <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 px-4 sm:px-14 rounded-t-lg">
+        {/* <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 px-4 sm:px-14 rounded-t-lg">
           Fiyat Listesi {restaurant?.name} Restoranı
-        </h1>
+        </h1> */}
 
-        <div className="flex justify-between items-center">
-          <div>
-            <ProductsHeader />
-          </div>
+        <div className="flex flex-wrap gap-2 my-3 text-sm">
+          <ProductsHeader />
         </div>
 
         <div className="w-full py-8 relative flex flex-col sm:px-8">
@@ -419,9 +446,9 @@ const AddProduct = ({ data: restaurant }) => {
                         type="number"
                         placeholder="Kampanya"
                         className="py-[6px] text-sm text-end text-[--black-2] bg-green-400/30 border-green-300"
-                        value={formatToPrice(portion.discountedPrice) || "0"}
+                        value={formatToPrice(portion.campaignPrice) || "0"}
                         onChange={(v) =>
-                          handlePortionChange(idx, "discountedPrice", v)
+                          handlePortionChange(idx, "campaignPrice", v)
                         }
                       />
                       <CustomInput

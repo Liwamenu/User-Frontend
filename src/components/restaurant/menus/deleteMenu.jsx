@@ -1,14 +1,36 @@
+//MODULES
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
+//COMP
 import { DeleteI } from "../../../assets/icon";
 import { usePopup } from "../../../context/PopupContext";
 
+//REDUX
+import {
+  deleteMenu,
+  resetDeleteMenu,
+} from "../../../redux/menus/deleteMenuSlice";
+
 const DeleteMenu = ({ menu, onDelete }) => {
+  const dispatch = useDispatch();
+
+  const { success, error } = useSelector((s) => s.menus.delete);
   const { setPopupContent } = usePopup();
 
   function onConfirm() {
     console.log(menu.id, "is to be deleted");
-    onDelete?.(menu.id);
-    setPopupContent(false);
+    dispatch(deleteMenu(menu.id));
   }
+
+  useEffect(() => {
+    if (success) {
+      onDelete?.(menu.id);
+      setPopupContent(false);
+      dispatch(resetDeleteMenu());
+    }
+    if (error) dispatch(resetDeleteMenu());
+  }, [success, error, dispatch]);
 
   return (
     <main className="flex justify-center">

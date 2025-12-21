@@ -130,6 +130,9 @@
     "status": "Status",
     "featured": "Featured"
   },
+  "addCatergory": {
+    "success": "Category added successfully."
+  },
   "addCategories": {
     "title": "Add Category for {{name}} Restaurant",
     "info": "Use the form below to add new categories. You can reorder categories by dragging and dropping.",

@@ -14,9 +14,9 @@ import { CancelI, CloudUI } from "../../../assets/icon";
 
 //REDUX
 import {
-  addSubCategories,
-  resetAddSubCategories,
-} from "../../../redux/subCategories/addSubCategoriesSlice";
+  addSubCategory,
+  resetAddSubCategory,
+} from "../../../redux/subCategories/addSubCategorySlice";
 
 //JSON
 import categoriesJSON from "../../../assets/js/Categories.json";
@@ -33,9 +33,7 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
   const { t } = useTranslation();
   const { setPopupContent } = usePopup();
 
-  const { success, error } = useSelector(
-    (state) => state.subCategories?.add || {}
-  );
+  const { success, error } = useSelector((s) => s.subCategories.add);
 
   const [subCategory, setSubCategory] = useState(initialSubCategory());
   const [preview, setPreview] = useState(null);
@@ -87,7 +85,7 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
       const payloadSubCategory = [rest];
 
       formData.append("restaurantId", restaurant?.id);
-      formData.append("subCategoriesData", JSON.stringify(payloadSubCategory));
+      formData.append("subCategoryData", JSON.stringify(payloadSubCategory));
 
       if (subCategory.image) {
         formData.append(`image_0`, subCategory.image);
@@ -98,16 +96,7 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
         console.log(pair[0], pair[1]);
       }
 
-      // dispatch(addSubCategories(formData));
-
-      // Mock success for now
-      setTimeout(() => {
-        onSuccess && onSuccess(subCategory);
-        setPopupContent(null);
-        toast.success("Alt kategori başarıyla eklendi.", {
-          id: "subCategories",
-        });
-      }, 500);
+      dispatch(addSubCategory(formData));
     } catch (error) {
       console.error("Error preparing form data:", error);
     }
@@ -118,10 +107,10 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
     if (success) {
       setPopupContent(null);
       toast.success("Alt kategori başarıyla eklendi.", { id: "subCategories" });
-      dispatch(resetAddSubCategories());
+      dispatch(resetAddSubCategory());
       onSuccess && onSuccess(subCategory);
     }
-    if (error) dispatch(resetAddSubCategories());
+    if (error) dispatch(resetAddSubCategory());
   }, [success, error]);
 
   return (
