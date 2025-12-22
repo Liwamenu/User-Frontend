@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 //COMP
 import { DeleteI } from "../../../assets/icon";
@@ -14,6 +15,7 @@ const DeleteProduct = ({ product }) => {
   const { setSecondPopupContent } = usePopup();
 
   const { success } = useSelector((s) => s.products.delete);
+  const { t } = useTranslation();
 
   function onConfirm() {
     console.log(product.id, "is to be deleted");
@@ -22,7 +24,7 @@ const DeleteProduct = ({ product }) => {
 
   useEffect(() => {
     if (success) {
-      toast.success("Ürün başarıyla silindi.");
+      toast.success(t("deleteProduct.success"));
       setSecondPopupContent(null);
     }
   }, [success]);
@@ -36,12 +38,14 @@ const DeleteProduct = ({ product }) => {
         </div>
 
         {/* Title */}
-        <h2 className="text-xl font-bold mb-3 tracking-tight">Silme İşlemi</h2>
+        <h2 className="text-xl font-bold mb-3 tracking-tight">
+          {t("deleteProduct.title")}
+        </h2>
 
         {/* Description */}
         <p className="text-[--gr-1] text-base mb-10 leading-relaxed px-2 font-medium">
           <span className="font-bold text-[--red-1]">{product.name}</span>{" "}
-          öğesini silmek üzeresiniz. Bu işlem geri alınamaz.
+          {t("deleteProduct.description")}
         </p>
 
         {/* Buttons */}
@@ -50,13 +54,13 @@ const DeleteProduct = ({ product }) => {
             onClick={() => setSecondPopupContent(false)}
             className="flex-1 py-2 px-6 border border-[--border-1] rounded-xl text-[--gr-1] font-semibold hover:bg-[--gr-3] transition-colors"
           >
-            İptal
+            {t("deleteProduct.cancel")}
           </button>
           <button
             onClick={onConfirm}
             className="flex-1 px-6 bg-[--red-1] text-white rounded-xl font-bold hover:bg-red-700 transition-all"
           >
-            Sil
+            {t("deleteProduct.delete")}
           </button>
         </div>
       </div>

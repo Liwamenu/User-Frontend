@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import isEqual from "lodash/isEqual";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 //COMP
 import CustomInput from "../../common/customInput";
@@ -12,20 +13,21 @@ import { CancelI, WaitI } from "../../../assets/icon";
 import { editMenu, resetEditMenu } from "../../../redux/menus/editMenuSlice";
 import { useParams } from "react-router-dom";
 
-const DAYS = [
-  "Pazartesi",
-  "Salı",
-  "Çarşamba",
-  "Perşembe",
-  "Cuma",
-  "Cumartesi",
-  "Pazar",
+const DAY_KEYS = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
 ];
 
 const EditMenu = ({ menu, onClose, onSave }) => {
   const params = useParams();
   const restaurantId = params.id;
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const { success, error } = useSelector((s) => s.menus.edit);
 
@@ -84,24 +86,24 @@ const EditMenu = ({ menu, onClose, onSave }) => {
 
   const handleSave = () => {
     if (!menuName.trim()) {
-      toast.error("Menü adı gereklidir!");
+      toast.error(t("addMenu.name_required"));
       return;
     }
 
     if (schedules.length === 0) {
-      toast.error("Zaman planı eklemelisiniz!");
+      toast.error(t("addMenu.schedule_required"));
       return;
     }
 
     //check if there is no changes using isEqual from lodash
     if (isEqual(menu.name, menuName) && isEqual(menu.plans, schedules)) {
-      toast.error("Menüde herhangi bir değişiklik yapılmadı!");
+      toast.error(t("editMenu.not_changed"));
       return;
     }
 
     const hasInvalidSchedules = schedules.some((sch) => sch.days.length === 0);
     if (hasInvalidSchedules) {
-      toast.error("Her plan için gün seçilmelidir!");
+      toast.error(t("addMenu.schedule_days_required"));
       return;
     }
 
@@ -125,7 +127,7 @@ const EditMenu = ({ menu, onClose, onSave }) => {
 
   useEffect(() => {
     if (success) {
-      toast.success("Menü başarıyla güncellendi.");
+      toast.success(t("editMenu.success"));
       dispatch(resetEditMenu());
       onSave?.(updatedMenu);
       onClose?.();
@@ -138,7 +140,7 @@ const EditMenu = ({ menu, onClose, onSave }) => {
       <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full max-w-lg p-8 transform scale-95 transition-all duration-300 modal-content relative flex flex-col max-h-[90vh]">
         <div className="flex justify-between items-center mb-6 border-b border-[--border-1] pb-4">
           <h3 className="text-2xl font-bold text-[--black-1]">
-            Menüyü Düzenle
+            {t("editMenu.title")}
           </h3>
           <button
             onClick={onClose}
@@ -151,11 +153,12 @@ const EditMenu = ({ menu, onClose, onSave }) => {
         <div className="space-y-5 overflow-y-auto pr-2 custom-scrollbar flex-1">
           <div>
             <label className="block text-[--black-2] text-sm font-medium mb-2">
-              Menü Adı <span className="text-[--red-1]">*</span>
+              {t("addMenu.name_label")}{" "}
+              <span className="text-[--red-1]">*</span>
             </label>
             <CustomInput
               required
-              placeholder="Örn: Öğle Menüsü"
+              placeholder={t("addMenu.name_placeholder")}
               className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
               value={menuName}
               onChange={(v) => setMenuName(v)}
@@ -165,14 +168,15 @@ const EditMenu = ({ menu, onClose, onSave }) => {
           <div>
             <div className="flex justify-between items-center mb-3">
               <label className="block text-[--black-2] text-sm font-medium">
-                Aktif Gün ve Saatler
+                {t("addMenu.days_title")}
               </label>
               <button
                 type="button"
                 onClick={() => addScheduleRow()}
                 className="text-xs bg-[--status-primary-1] text-[--primary-1] px-3 py-1.5 rounded-lg hover:bg-[--status-primary-2] transition font-medium border border-[--border-1] flex gap-1 whitespace-nowrap"
               >
-                <CancelI className="rotate-45 size-[1rem]" /> Yeni Plan Ekle
+                <CancelI className="rotate-45 size-[1rem]" />{" "}
+                {t("addMenu.add_plan")}
               </button>
             </div>
 
@@ -184,7 +188,7 @@ const EditMenu = ({ menu, onClose, onSave }) => {
                 >
                   {/* Days */}
                   <div className="flex flex-wrap gap-1.5 mb-3 justify-center sm:justify-start">
-                    {DAYS.map((day, idx) => (
+                    {DAY_KEYS.map((dayKey, idx) => (
                       <button
                         key={idx}
                         type="button"
@@ -195,7 +199,7 @@ const EditMenu = ({ menu, onClose, onSave }) => {
                             : "bg-[--white-1] text-[--gr-1] border-[--border-1]"
                         }`}
                       >
-                        {day.substring(0, 2)}
+                        {t(`workingHours.${dayKey}`).substring(0, 2)}
                       </button>
                     ))}
                   </div>
@@ -246,13 +250,13 @@ const EditMenu = ({ menu, onClose, onSave }) => {
             onClick={onClose}
             className="px-5 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] transition-all"
           >
-            Vazgeç
+            {t("addMenu.cancel")}
           </button>
           <button
             onClick={handleSave}
             className="px-6 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg hover:bg-[--primary-2] transition-all"
           >
-            Güncelle
+            {t("editMenu.update")}
           </button>
         </div>
       </div>

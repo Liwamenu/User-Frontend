@@ -45,17 +45,19 @@ const DeleteSubCategory = ({ subCategory, onSuccess }) => {
         </div>
 
         {/* Title */}
-        <h2 className="text-xl font-bold mb-3 tracking-tight">Silme İşlemi</h2>
+        <h2 className="text-xl font-bold mb-3 tracking-tight">
+          {t("deleteSubCategory.title")}
+        </h2>
 
         {/* Description */}
         <p className="text-[--gr-1] text-base mb-10 leading-relaxed px-2 font-medium">
           <span className="font-bold text-[--red-1]">{subCategory.name}</span>{" "}
-          öğesini silmek üzeresiniz. Bu işlem geri alınamaz.
+          {t("deleteSubCategory.description")}
         </p>
 
         {/* Note About the items will be bound to category */}
         <i className="text-sm text-[--gr-2] mb-6 px-4">
-          Not: Bu alt kategoriye bağlı öğeler, üst kategoriye taşınacaktır.
+          {t("deleteSubCategory.note")}
         </i>
 
         {/* Buttons */}
@@ -64,13 +66,13 @@ const DeleteSubCategory = ({ subCategory, onSuccess }) => {
             onClick={() => setPopupContent(false)}
             className="flex-1 py-2 px-6 border border-[--border-1] rounded-xl text-[--gr-1] font-semibold hover:bg-[--gr-3] transition-colors"
           >
-            İptal
+            {t("deleteSubCategory.cancel")}
           </button>
           <button
             onClick={handleSubmit}
             className="flex-1 px-6 bg-[--red-1] text-white rounded-xl font-bold hover:bg-red-700 transition-all"
           >
-            Sil
+            {t("deleteSubCategory.delete")}
           </button>
         </div>
       </div>

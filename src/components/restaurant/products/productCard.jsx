@@ -1,7 +1,11 @@
+//MODULES
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import { DeleteI, EditI } from "../../../assets/icon";
+
+//COMP
 import DeleteProduct from "./deleteProduct";
+import { DeleteI, EditI } from "../../../assets/icon";
 import { usePopup } from "../../../context/PopupContext";
 
 const ProductCard = ({ product }) => {
@@ -9,6 +13,7 @@ const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   const [imgError, setImgError] = useState(false);
   const { setSecondPopupContent } = usePopup();
+  const { t } = useTranslation();
 
   return (
     <div className="bg-[--white-1] rounded-2xl shadow-sm border border-[--gr-4] p-6 mb-4 flex flex-col md:flex-row gap-6 relative group hover:shadow-md transition-shadow duration-200">
@@ -21,7 +26,7 @@ const ProductCard = ({ product }) => {
               <div
                 className={`w-full h-full flex items-center justify-center bg-[--gr-4] text-[--gr-2] font-bold text-lg `}
               >
-                {!product.image && "No Img"}
+                {!product.image && t("productCard.no_image")}
               </div>
             ) : (
               <img
@@ -71,7 +76,7 @@ const ProductCard = ({ product }) => {
 
               {portion.campaignPrice > 0 && (
                 <span className="text-[--green-1] text-xs font-semibold">
-                  Kampanya : {portion.campaignPrice}
+                  {t("productCard.campaign_prefix")} {portion.campaignPrice}
                 </span>
               )}
             </div>
@@ -89,7 +94,9 @@ const ProductCard = ({ product }) => {
                 : "bg-[--status-green] text-[--green-1]"
             } px-3 py-1 rounded-full text-xs font-semibold`}
           >
-            {product.hide ? "Kapalı" : "Açık"}
+            {product.hide
+              ? t("editCategories.status_closed")
+              : t("editCategories.status_open")}
           </span>
         </div>
 

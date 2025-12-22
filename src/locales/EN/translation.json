@@ -4,6 +4,26 @@
     "licenses": "Licenses",
     "orders": "Orders"
   },
+  "subSidebar": {
+    "back": "Go Back",
+    "edit_restaurant": "Edit Restaurant",
+    "settings": "Settings",
+    "working_hours": "Working Hours",
+    "social_media": "Social Media",
+    "payment_methods": "Payment Methods",
+    "categories": "Categories",
+    "sub_categories": "Sub Categories",
+    "menus": "Menus",
+    "tags": "Tags",
+    "products": "Products",
+    "themes": "Themes",
+    "qr_code": "QR Code"
+  },
+  "userProfile": {
+    "admin": "Admin",
+    "user": "User",
+    "default_name": "User"
+  },
   "restaurants": {
     "add": "Add Restaurant",
     "edit": "Edit Restaurant",
@@ -46,7 +66,7 @@
   "restaurantSettings": {
     "title": "Settings for {{name}} Restaurant",
     "tenant": "Tenant",
-    "tenant_note": "(e.g. restaurant.liwamenu.com)",
+    "tenant_note": "(e.g. {{url}})",
     "tenant_placeholder": "restaurant",
     "google_analytics": "Google Analytics",
     "google_analytics_placeholder": "Enter your Google Analytics Measurement-ID",
@@ -66,8 +86,14 @@
     "in_person_order": "In-Person Order",
     "table_order_discount": "Table Order Discount",
     "table_order_discount_placeholder": "Enter table order discount",
-    "save": "Save",
-    "success": "Restaurant settings updated successfully."
+    "save": "Save All Settings",
+    "success": "Restaurant settings updated successfully.",
+    "not_changed": "No changes made.",
+    "special_price_label": "Tag (e.g. Cost, VIP)",
+    "special_price_section": "Special Price Definition (Optional)",
+    "special_price_placeholder": "Staff, Regular, etc...",
+    "special_price_note": "Note: This tag will apply to special prices of all portions.",
+    "is_special_price_active": "Activate Special Price"
   },
   "workingHours": {
     "title": "Working Hours for {{name}} Restaurant",
@@ -113,11 +139,11 @@
   "editCategories": {
     "title": "Edit Categories for {{name}} Restaurant",
     "info": "Use the form below to edit your existing categories. You can reorder categories by dragging and dropping.",
-    "edit": "Edit Categories",
+    "edit": "Edit Category",
     "add": "Add Category",
     "category_name": "Category Name",
     "category_desc": "Description",
-    "category_image": "Category Image",
+    "category_image": "Image",
     "delete": "Delete",
     "save": "Save",
     "no_categories": "No Categories Yet",
@@ -128,30 +154,77 @@
     "success": "Categories updated successfully.",
     "not_changed": "No changes made.",
     "status": "Status",
-    "featured": "Featured"
+    "featured": "Featured",
+    "campaign": "Campaign",
+    "actions": "Actions",
+    "save_order": "Save Order",
+    "status_open": "Open",
+    "status_closed": "Closed",
+    "status_active": "Active",
+    "status_passive": "Passive",
+    "manage_products": "Manage Products",
+    "product_count": "{{count}} Products"
   },
-  "addCatergory": {
-    "success": "Category added successfully."
+  "categoryProducts": {
+    "title": "Category Products",
+    "subtitle": "Add and Remove Products",
+    "close": "Close",
+    "add_existing": "Add from Existing Products",
+    "no_products": "No products in this category yet.",
+    "portions": "{{count}} Portions",
+    "edit": "Edit",
+    "delete": "Delete"
   },
-  "addCategories": {
+  "listCategoryProducts": {
+    "title": "Product Selection",
+    "close": "Close",
+    "search_placeholder": "Search product name...",
+    "no_products": "No suitable products found to add.",
+    "category_label": "Category:",
+    "no_category": "No Category",
+    "cancel": "Cancel",
+    "add_selected": "Add Selected"
+  },
+  "deleteCategory": {
+    "title": "Delete Operation",
+    "description": "you are about to delete. This operation cannot be undone.",
+    "delete_sub_items": "Also delete subcategories and related items",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleteSuccess": "Category deleted successfully."
+  },
+  "addCategory": {
+    "success": "Category added successfully.",
     "title": "Add Category for {{name}} Restaurant",
     "info": "Use the form below to add new categories. You can reorder categories by dragging and dropping.",
-    "edit": "Edit Categories",
+    "edit": "Edit Category",
     "add": "Add Category",
     "category_name": "Category Name",
     "category_image": "Category Image",
+    "category_name_placeholder": "e.g. Soups",
+    "category_image_optional": "Category Image (Optional)",
     "upload_image": "Upload category image",
+    "image_click_to_select": "Click to select an image",
+    "menus_optional": "Menus (Optional)",
+    "menus_empty": "No available menu.",
+    "menus_help": "Select in which menus this category should be shown.",
     "delete": "Delete",
     "save": "Save",
-    "success": "Categories added successfully.",
+    "cancel": "Cancel",
     "status": "Status",
-    "featured": "Featured"
+    "featured": "Featured",
+    "campaign_warning": "You can set the campaign price from the {{tab}} tab.",
+    "campaign_warning_tab": "Price List"
   },
   "editSubCategories": {
     "title": "Edit Subcategories for {{name}} Restaurant",
     "info": "You can edit, reorder, or delete existing subcategories below. (Changing category is not possible.)",
     "edit": "Edit Subcategories",
     "add": "Add Subcategory",
+    "header_title": "Subcategories",
+    "header_subtitle": "Manage and edit your subcategories",
+    "add_button": "New Subcategory",
+    "save_changes": "Save Changes",
     "subcategory_name": "Subcategory Name",
     "subcategory_image": "Subcategory Image",
     "delete": "Delete",
@@ -161,7 +234,10 @@
     "success": "Subcategories updated successfully.",
     "not_changed": "No changes made.",
     "tip_title": "Tip:",
-    "tip_content": "Subcategories allow you to group your main categories in more detail."
+    "tip_content": "Subcategories allow you to group your main categories in more detail.",
+    "unknown_category": "Unknown Category",
+    "subcategory_count": "{{count}} Subcategories",
+    "no_subcategories_in_category": "There are no subcategories in this category."
   },
   "addSubCategories": {
     "title": "Add Subcategory for {{name}} Restaurant",
@@ -174,6 +250,152 @@
     "delete": "Delete",
     "save": "Save",
     "success": "Subcategories added successfully."
+  },
+  "addSubCategory": {
+    "add": "Add Subcategory",
+    "name": "Subcategory Name",
+    "name_placeholder": "e.g. Hot Soups",
+    "name_required": "Subcategory name is required!",
+    "category_label": "Parent Category",
+    "category_placeholder": "Select Category",
+    "category_required": "You must select a category!",
+    "category_help": "Select the parent category this subcategory belongs to.",
+    "image_optional": "Subcategory Image (Optional)",
+    "image_click_to_select": "Click to select an image",
+    "info": "Subcategories are used to group products within main categories in more detail. For example: under the 'Soups' category you can have 'Hot Soups' and 'Cold Soups'.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "success": "Subcategory added successfully."
+  },
+  "editSubCategory": {
+    "title": "Edit Subcategory",
+    "success": "Subcategory updated successfully.",
+    "not_changed": "No changes made.",
+    "update": "Update"
+  },
+  "deleteSubCategory": {
+    "title": "Delete Operation",
+    "description": "you are about to delete. This action cannot be undone.",
+    "note": "Note: Items linked to this subcategory will be moved to the parent category.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "menuList": {
+    "title": "Menu List",
+    "add_menu": "Add New Menu",
+    "edit": "Edit",
+    "delete": "Delete",
+    "every_day": "Every Day",
+    "no_time_plan": "No time plan added."
+  },
+  "addMenu": {
+    "title": "New Menu",
+    "name_label": "Menu Name",
+    "name_placeholder": "e.g. Lunch Menu",
+    "days_title": "Active Days and Times",
+    "add_plan": "Add New Plan",
+    "name_required": "Menu name is required!",
+    "schedule_required": "You must add at least one time plan!",
+    "schedule_days_required": "Each plan must have at least one day selected!",
+    "success": "Menu added successfully.",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "editMenu": {
+    "title": "Edit Menu",
+    "success": "Menu updated successfully.",
+    "not_changed": "No changes were made to the menu!",
+    "update": "Update"
+  },
+  "deleteMenu": {
+    "title": "Delete Operation",
+    "description": " you are about to delete. This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "productsHeader": {
+    "manage": "Product Management",
+    "price_list": "Price List",
+    "add_product": "Add Product"
+  },
+  "productsList": {
+    "search_placeholder": "Search Product...",
+    "all_categories": "All Categories",
+    "all_statuses": "All Statuses",
+    "no_products": "No products found."
+  },
+  "productCard": {
+    "no_image": "No Image",
+    "campaign_prefix": "Campaign:"
+  },
+  "priceList": {
+    "success": "Price list updated successfully.",
+    "save_changes": "Save Changes",
+    "normal_price": "Regular Price",
+    "campaign": "Campaign",
+    "bulk_title": "Bulk Price Update",
+    "bulk_description": "Apply price changes that will affect all products here.",
+    "bulk_type_label": "Operation Type",
+    "bulk_type_percent_increase": "Increase by (%)",
+    "bulk_type_percent_decrease": "Decrease by (%)",
+    "bulk_type_amount_add": "Add Amount (+)",
+    "bulk_type_amount_subtract": "Subtract Amount (-)",
+    "bulk_value_label": "Value",
+    "bulk_value_placeholder": "e.g. 10",
+    "bulk_target_label": "Target",
+    "bulk_target_price": "Regular Price Only",
+    "bulk_target_campaign": "Campaign Price Only",
+    "bulk_target_both": "Both",
+    "bulk_error_invalid_value": "Please enter a valid value",
+    "bulk_undo_button": "Undo",
+    "bulk_undo_title": "Undo last operation",
+    "bulk_apply_button": "Apply"
+  },
+  "editProduct": {
+    "no_changes": "No changes made.",
+    "success": "Product updated successfully.",
+    "save_button": "Save",
+    "title": "Edit Product",
+    "close": "Close",
+    "name_label": "Product Name",
+    "name_placeholder": "e.g. Meat Pide",
+    "category_label": "Category",
+    "category_placeholder": "Select Category",
+    "subCategory_label": "Subcategory",
+    "subCategory_placeholder": "Select Subcategory",
+    "description_label": "Product Description",
+    "description_ai_button": "Generate with Liwa AI",
+    "description_placeholder": "Short info about the product...",
+    "status_section": "Sales Status",
+    "status_label": "Available for Sale",
+    "recommendation_section": "Recommendation Status",
+    "recommendation_label": "Chef's Recommendation",
+    "image_label": "Product Image",
+    "image_ai_title": "AI Image Studio",
+    "image_ai_button": "Generate with Liwa AI",
+    "image_prompt_placeholder": "Add image detail (e.g. On a wooden table, with ayran...)",
+    "image_click_to_select": "Click to Select Image",
+    "portions_title": "Portions and Prices",
+    "add_portion": "Add Portion",
+    "portion_name_placeholder": "Portion Name",
+    "portion_column_name": "Portion",
+    "portion_column_price": "Price",
+    "portion_column_campaign": "Campaign",
+    "portion_column_special": "Special",
+    "portion_delete_aria": "Delete Portion",
+    "cancel": "Cancel"
+  },
+  "addProduct": {
+    "title": "New Product",
+    "success": "Product added successfully.",
+    "save": "Save"
+  },
+  "deleteProduct": {
+    "title": "Delete Operation",
+    "description": " you are about to delete. This action cannot be undone.",
+    "success": "Product deleted successfully.",
+    "cancel": "Cancel",
+    "delete": "Delete"
   },
   "editUserProfile": {
     "first_name": "First Name",

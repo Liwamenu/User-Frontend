@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import isEqual from "lodash/isEqual";
 import { useSelector, useDispatch } from "react-redux";
 import React, { useEffect, useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 //COMP
 import ProductsHeader from "./header";
@@ -23,6 +24,7 @@ import { getProducts } from "../../../redux/products/getProductsSlice";
 const PriceList = ({ data: restaurant }) => {
   const dispatch = useDispatch();
   const containerRef = useRef(null);
+  const { t } = useTranslation();
 
   const { products } = useSelector((s) => s.products.get);
   const { success, error } = useSelector((s) => s.products.updatePriceList);
@@ -137,7 +139,7 @@ const PriceList = ({ data: restaurant }) => {
   //TOAST
   useEffect(() => {
     if (success) {
-      toast.success("Fiyat listesi başarıyla güncellendi.");
+      toast.success(t("priceList.success"));
       dispatch(getProducts({ restaurantId: restaurant.id }));
       dispatch(resetUpdatePriceList());
     }
@@ -164,7 +166,7 @@ const PriceList = ({ data: restaurant }) => {
                   onClick={handleSaveAll}
                   className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md shadow-lg hover:bg-green-700 transition-all"
                 >
-                  Değişiklikleri Kaydet
+                  {t("priceList.save_changes")}
                 </button>
               </div>
             </div>
@@ -211,7 +213,7 @@ const PriceList = ({ data: restaurant }) => {
                             {/* normal price */}
                             <td className="w-32 py-2 pr-3">
                               <label className="text-[10px] text-[--gr-2] uppercase">
-                                Normal Fiyatı
+                                {t("priceList.normal_price")}
                               </label>
                               <CustomInput
                                 data-edit={true}
@@ -228,7 +230,7 @@ const PriceList = ({ data: restaurant }) => {
                             {/* discounted price */}
                             <td className="pr-4 w-32 py-2">
                               <label className="text-[10px] text-[--green-1] uppercase">
-                                Kampanya
+                                {t("priceList.campaign")}
                               </label>
                               <CustomInput
                                 data-edit-second={true}

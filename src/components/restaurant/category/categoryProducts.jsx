@@ -1,6 +1,7 @@
 //MODULES
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 //COMPONENTS & FUNCTIONS
 import EditProduct from "../products/editProduct";
@@ -18,6 +19,7 @@ import {
 } from "../../../redux/products/getProductsByCategoryIdSlice";
 
 const CategoryProducts = ({ categoryId, onClose }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
 
   const { products, success, error } = useSelector(
@@ -48,18 +50,18 @@ const CategoryProducts = ({ categoryId, onClose }) => {
     }
   }, [products, success, error]);
 
-  const handleSelectProducts = () => {
-    setSecondPopupContent(
-      <ListCategoryProduct
-        onClose={() => setSecondPopupContent(false)}
-        onAddSelected={(selectedIds) => {
-          console.log("Selected product IDs to add:", selectedIds);
-        }}
-        products={products}
-        activeCategoryId={categoryId}
-      />
-    );
-  };
+  // const handleSelectProducts = () => {
+  //   setSecondPopupContent(
+  //     <ListCategoryProduct
+  //       onClose={() => setSecondPopupContent(false)}
+  //       onAddSelected={(selectedIds) => {
+  //         console.log("Selected product IDs to add:", selectedIds);
+  //       }}
+  //       products={products}
+  //       activeCategoryId={categoryId}
+  //     />
+  //   );
+  // };
 
   const handleEditProduct = (product) => {
     setSecondPopupContent(<EditProduct product={product} />);
@@ -76,34 +78,36 @@ const CategoryProducts = ({ categoryId, onClose }) => {
         <div className="flex justify-between items-center mb-4 border-b border-[--border-1] pb-4">
           <div>
             <h3 className="text-2xl font-bold text-[--black-1]">
-              Kategori Ürünleri
+              {t("categoryProducts.title")}
             </h3>
-            <p className="text-xs text-[--gr-1]">Ürün Ekleme ve Çıkarma</p>
+            <p className="text-xs text-[--gr-1]">
+              {t("categoryProducts.subtitle")}
+            </p>
           </div>
           <button
             onClick={onClose}
             className="text-[--gr-1] hover:text-[--black-2] transition-colors"
-            aria-label="Kapat"
+            aria-label={t("categoryProducts.close")}
           >
             <CancelI className="w-6 h-6" />
           </button>
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end mb-4">
+        {/* <div className="flex justify-end mb-4">
           <button
             className="flex items-center px-4 py-2 text-sm font-medium text-white bg-[--primary-1] rounded-lg shadow-lg hover:bg-[--primary-2] transition-all"
             onClick={handleSelectProducts}
           >
             <i className="fa-solid fa-plus mr-2"></i> Mevcut Ürünlerden Ekle
           </button>
-        </div>
+        </div> */}
 
         {/* Products List */}
         <div className="space-y-3 overflow-y-auto custom-scrollbar flex-1 p-1 pr-2">
           {!catProdsData?.length ? (
             <div className="text-center p-6 text-[--gr-1] italic">
-              Bu kategoride henüz ürün yok.
+              {t("categoryProducts.no_products")}
             </div>
           ) : (
             catProdsData?.map((prod, index) => {
@@ -128,7 +132,7 @@ const CategoryProducts = ({ categoryId, onClose }) => {
                       {prod.name}
                     </div>
                     <div className="text-xs text-[--gr-1]">
-                      {portionsCount} Porsiyon
+                      {t("categoryProducts.portions", { count: portionsCount })}
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -137,7 +141,7 @@ const CategoryProducts = ({ categoryId, onClose }) => {
                         handleEditProduct(prod);
                       }}
                       className="p-2 text-[--primary-1] bg-[--status-primary-1] hover:bg-[--status-primary-2] rounded-lg transition-all"
-                      title="Düzenle"
+                      title={t("categoryProducts.edit")}
                     >
                       <EditI className="w-4 h-4" />
                     </button>
@@ -146,7 +150,7 @@ const CategoryProducts = ({ categoryId, onClose }) => {
                         handleDeleteProduct(prod);
                       }}
                       className="p-2 text-[--red-1] bg-[--status-red] hover:bg-[--red-2] rounded-lg transition-all"
-                      title="Sil"
+                      title={t("categoryProducts.delete")}
                     >
                       <DeleteI strokeWidth={1.5} className="w-4 h-4" />
                     </button>

@@ -2,6 +2,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 //COMP
 import ProductsHeader from "./header";
@@ -22,11 +23,12 @@ const Products = ({ data: restaurant }) => {
   const params = useParams();
   const restaurantId = params.id;
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const { products, error } = useSelector((s) => s.products.get);
 
   const categoryOptions = [
-    { label: "Tüm Kategoriler", value: "" },
+    { label: t("productsList.all_categories"), value: "" },
     ...categoriesJSON.categories.map((c) => ({
       label: c.name,
       value: c.name,
@@ -35,9 +37,9 @@ const Products = ({ data: restaurant }) => {
   ];
 
   const statusOptions = [
-    { label: "Tüm Durumlar", value: null },
-    { label: "Açık", value: true }, //it checks if the product is hiden or not
-    { label: "Kapalı", value: false },
+    { label: t("productsList.all_statuses"), value: null },
+    { label: t("editCategories.status_open"), value: true },
+    { label: t("editCategories.status_closed"), value: false },
   ];
 
   const [productsData, setProductsData] = useState(null);
@@ -133,7 +135,7 @@ const Products = ({ data: restaurant }) => {
               </div>
               <CustomInput
                 type="text"
-                placeholder="Ürün Ara..."
+                placeholder={t("productsList.search_placeholder")}
                 value={searchVal}
                 className="block w-full pl-10 pr-3 py-2.5 border border-[--border-1] rounded-lg leading-5 placeholder-[--gr-2] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-[--gr-1] bg-[--white-1] transition duration-150 ease-in-out"
                 onChange={(e) => {
@@ -179,7 +181,7 @@ const Products = ({ data: restaurant }) => {
 
             {!productsData?.length && (
               <div className="text-center py-12 text-[--gr-1]">
-                Ürün bulunamadı.
+                {t("productsList.no_products")}
               </div>
             )}
           </div>

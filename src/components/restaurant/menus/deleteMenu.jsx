@@ -1,6 +1,7 @@
 //MODULES
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 //COMP
 import { DeleteI } from "../../../assets/icon";
@@ -17,6 +18,7 @@ const DeleteMenu = ({ menu, onDelete }) => {
 
   const { success, error } = useSelector((s) => s.menus.delete);
   const { setPopupContent } = usePopup();
+  const { t } = useTranslation();
 
   function onConfirm() {
     console.log(menu.id, "is to be deleted");
@@ -41,12 +43,14 @@ const DeleteMenu = ({ menu, onDelete }) => {
         </div>
 
         {/* Title */}
-        <h2 className="text-xl font-bold mb-3 tracking-tight">Silme İşlemi</h2>
+        <h2 className="text-xl font-bold mb-3 tracking-tight">
+          {t("deleteMenu.title")}
+        </h2>
 
         {/* Description */}
         <p className="text-[--gr-1] text-base mb-10 leading-relaxed px-2 font-medium">
-          <span className="font-bold text-[--red-1]">{menu.name}</span> öğesini
-          silmek üzeresiniz. Bu işlem geri alınamaz.
+          <span className="font-bold text-[--red-1]">{menu.name}</span>{" "}
+          {t("deleteMenu.description")}
         </p>
 
         {/* Buttons */}
@@ -55,13 +59,13 @@ const DeleteMenu = ({ menu, onDelete }) => {
             onClick={() => setPopupContent(false)}
             className="flex-1 py-2 px-6 border border-[--border-1] rounded-xl text-[--gr-1] font-semibold hover:bg-[--gr-3] transition-colors"
           >
-            İptal
+            {t("deleteMenu.cancel")}
           </button>
           <button
             onClick={onConfirm}
             className="flex-1 px-6 bg-[--red-1] text-white rounded-xl font-bold hover:bg-red-700 transition-all"
           >
-            Sil
+            {t("deleteMenu.delete")}
           </button>
         </div>
       </div>

@@ -16,6 +16,7 @@ import CategoriesHeader from "./header";
 import EditCategory from "./editCategory";
 import DeleteCategory from "./deleteCategory";
 import CategoryProducts from "./categoryProducts";
+import fallbackImg from "../../../assets/img/No_Img.svg";
 
 //REDUX
 import {
@@ -66,16 +67,28 @@ const Categories = ({ data: restaurant }) => {
   const getStatusBadge = (value, type) => {
     const configs = {
       isActive: {
-        true: { label: "Açık", class: "bg-[--status-green] text-[--green-1]" },
-        false: { label: "Kapalı", class: "bg-[--status-gray] text-[--gr-1]" },
+        true: {
+          label: t("editCategories.status_open"),
+          class: "bg-[--status-green] text-[--green-1]",
+        },
+        false: {
+          label: t("editCategories.status_closed"),
+          class: "bg-[--status-gray] text-[--gr-1]",
+        },
       },
-      featured: {
-        true: { label: "Aktif", class: "bg-[--status-green] text-[--green-1]" },
-        false: { label: "Pasif", class: "bg-[--status-gray] text-[--gr-1]" },
+      campaign: {
+        true: {
+          label: t("editCategories.status_active"),
+          class: "bg-[--status-green] text-[--green-1]",
+        },
+        false: {
+          label: t("editCategories.status_passive"),
+          class: "bg-[--status-gray] text-[--gr-1]",
+        },
       },
     };
 
-    const config = configs[type]?.[value];
+    const config = configs[type]?.[value || false];
     if (!config) return null;
 
     return (
@@ -142,7 +155,7 @@ const Categories = ({ data: restaurant }) => {
   // TOAST
   useEffect(() => {
     if (success) {
-      toast.success("Kategoriler başarıyla güncellendi.", { id: "categories" });
+      toast.success(t("editCategories.success"), { id: "categories" });
       setCategoriesDataBefore(categoriesData);
       dispatch(resetEditCategories());
     }
@@ -154,7 +167,7 @@ const Categories = ({ data: restaurant }) => {
     e?.preventDefault();
 
     if (isEqual(categoriesData, categoriesDataBefore) && index === undefined) {
-      toast.error("Değişiklik yapılmadı.", { id: "categories" });
+      toast.error(t("editCategories.not_changed"), { id: "categories" });
       return;
     }
 
@@ -219,7 +232,8 @@ const Categories = ({ data: restaurant }) => {
                 onClick={saveNewOrder}
                 className="px-4 py-2 text-sm text-white bg-[--green-1] rounded-lg shadow-md hover:bg-[--green-2] transition-all flex items-center gap-2 whitespace-nowrap ml-3"
               >
-                <i className="fa-solid fa-check"></i> Sıralamayı Kaydet
+                <i className="fa-solid fa-check"></i>{" "}
+                {t("editCategories.save_order")}
               </button>
             </div>
           )}
@@ -229,14 +243,17 @@ const Categories = ({ data: restaurant }) => {
           {/* Categories List */}
           <div className="bg-[--light-2] border border-[--light-3] rounded-xl overflow-hidden">
             {/* Header Row */}
-            <div className="hidden sm:grid grid-cols-[0.3fr_3fr_1fr_1fr_2fr] gap-4 p-4 bg-[--light-3] font-semibold text-xs uppercase tracking-wider text-[--black-2] border-b border-[--light-3]">
+            <div className="hidden sm:grid grid-cols-[0.3fr_1fr_3fr_1fr_1fr_2fr] gap-4 p-4 bg-[--light-3] font-semibold text-xs uppercase tracking-wider text-[--black-2] border-b border-[--light-3]">
               <div className="text-center text-[--gr-1]">
                 <StackI className="inline size-4" />
               </div>
-              <div>Kategori Adı</div>
-              <div className="text-center">Durum</div>
-              <div className="text-center">Kampanya</div>
-              <div className="text-right pr-4">İşlemler</div>
+              <div>{t("editCategories.category_image")}</div>
+              <div>{t("editCategories.category_name")}</div>
+              <div className="text-center">{t("editCategories.status")}</div>
+              <div className="text-center">{t("editCategories.campaign")}</div>
+              <div className="text-right pr-4">
+                {t("editCategories.actions")}
+              </div>
             </div>
 
             {/* Category Rows with DragDropContext */}
@@ -252,7 +269,7 @@ const Categories = ({ data: restaurant }) => {
                   >
                     {!categoriesData ? (
                       <div className="p-8 text-center text-[--gr-1] italic">
-                        Henüz bir kategori bulunmuyor.
+                        {t("editCategories.no_categories")}
                       </div>
                     ) : (
                       categoriesData.map((cat) => (
@@ -266,7 +283,7 @@ const Categories = ({ data: restaurant }) => {
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className={`p-4 grid grid-cols-[0.3fr_3fr_1fr_1fr_2fr] gap-4 items-center text-sm border-b border-[--light-3] last:border-b-0 group ${
+                              className={`p-4 grid grid-cols-[0.3fr_1fr_3fr_1fr_1fr_2fr] gap-4 items-center text-sm border-b border-[--light-3] last:border-b-0 group ${
                                 snapshot.isDragging
                                   ? "bg-[--white-1] px-2 py-1 border border-[--primary-1] border-dashed rounded-md"
                                   : "bg-[--white-1]"
@@ -276,13 +293,22 @@ const Categories = ({ data: restaurant }) => {
                                 <DragI className="size-5" />
                               </div>
 
+                              <div className="size-16">
+                                <img
+                                  src={cat.imageAbsoluteUrl || fallbackImg}
+                                  alt={cat.name}
+                                />
+                              </div>
+
                               {/* Category Name & Product Count */}
                               <div className="font-medium text-[--black-2] flex flex-col sm:flex-row sm:items-center gap-2">
                                 <span className="text-base font-semibold text-[--black-1]">
                                   {cat.name}
                                 </span>
                                 <span className="text-xs text-[--primary-2] font-medium bg-[--status-primary-2] px-2 py-0.5 rounded-md w-fit">
-                                  {cat.productCount} Ürün
+                                  {t("editCategories.product_count", {
+                                    count: cat.productCount || 0,
+                                  })}
                                 </span>
                               </div>
 
@@ -293,7 +319,7 @@ const Categories = ({ data: restaurant }) => {
 
                               {/* Featured */}
                               <div className="text-center">
-                                {getStatusBadge(cat.featured, "featured")}
+                                {getStatusBadge(cat.campaign, "campaign")}
                               </div>
 
                               {/* Actions */}
@@ -301,7 +327,7 @@ const Categories = ({ data: restaurant }) => {
                                 <button
                                   onClick={() => handleManageProducts(cat.id)}
                                   className="p-2 text-[--green-3] bg-[--light-green] hover:bg-[--status-green] rounded-lg transition-colors"
-                                  title="Ürünleri Yönet"
+                                  title={t("editCategories.manage_products")}
                                 >
                                   <ListI className="size-4" />
                                 </button>
@@ -315,7 +341,7 @@ const Categories = ({ data: restaurant }) => {
                                     )
                                   }
                                   className="p-2 text-[--primary-1] bg-[--status-primary-1] hover:bg-[--status-primary-2] rounded-lg transition-colors"
-                                  title="Düzenle"
+                                  title={t("editCategories.edit")}
                                 >
                                   <EditI
                                     className="size-[1.1rem]"
@@ -332,7 +358,7 @@ const Categories = ({ data: restaurant }) => {
                                     );
                                   }}
                                   className="p-2 text-[--red-1] bg-[--status-red] hover:bg-[--red-2] hover:text-white rounded-lg transition-colors"
-                                  title="Sil"
+                                  title={t("editCategories.delete")}
                                 >
                                   <DeleteI
                                     className="size-[1.1rem]"

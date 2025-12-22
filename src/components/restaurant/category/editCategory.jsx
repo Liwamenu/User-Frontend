@@ -75,7 +75,7 @@ const EditCategory = ({ category, onSuccess }) => {
 
   const handleSave = () => {
     if (isEqual(categoryData, category)) {
-      toast.error("Değişiklik yapılmadı.", { id: "categories" });
+      toast.error(t("editCategories.not_changed"), { id: "categories" });
       return;
     }
     try {
@@ -110,7 +110,7 @@ const EditCategory = ({ category, onSuccess }) => {
     if (success) {
       onSuccess(categoryData);
       setPopupContent(null);
-      toast.success("Kategoriler başarıyla güncellendi.", { id: "categories" });
+      toast.success(t("editCategories.success"), { id: "categories" });
       dispatch(resetEditCategory());
     }
     if (error) dispatch(resetEditCategory());
@@ -131,12 +131,12 @@ const EditCategory = ({ category, onSuccess }) => {
         <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full p-8  transition-all duration-300 modal-content relative">
           <div className="flex justify-between items-center mb-8 border-b border-[--light-3] pb-4">
             <h3 className="text-2xl font-bold text-[--black-1]">
-              EdiKategori Düzenle
+              {t("editCategories.edit")}
             </h3>
             <button
               onClick={() => setPopupContent(null)}
               className="text-[--gr-1] hover:text-[--black-2] transition-colors"
-              aria-label="Kapat"
+              aria-label={t("categoryProducts.close")}
             >
               <CancelI clsassName="" />
             </button>
@@ -146,8 +146,8 @@ const EditCategory = ({ category, onSuccess }) => {
             {/* Kategori Adı */}
             <CustomInput
               required
-              label="Kategori Adı *"
-              placeholder="Örn: Çorbalar"
+              label={`${t("addCategories.category_name")} *`}
+              placeholder={t("addCategories.category_name_placeholder")}
               className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
               value={categoryData.name}
               onChange={(v) => handleField("name", v)}
@@ -156,7 +156,7 @@ const EditCategory = ({ category, onSuccess }) => {
             {/* Kategori Görseli */}
             <div>
               <span className="text-[--black-2] text-sm font-medium mb-2 block">
-                Kategori Görseli (Opsiyonel)
+                {t("addCategories.category_image_optional")}
               </span>
               <div className="group border-2 border-dashed border-[--border-1] rounded-xl p-4 text-center hover:border-[--primary-1] transition-all relative cursor-pointer">
                 {preview ? (
@@ -173,7 +173,7 @@ const EditCategory = ({ category, onSuccess }) => {
                       <CloudUI className="size-[1.5rem] pt-1 pl-1" />
                     </div>
                     <p className="text-sm text-[--gr-1] group-hover:text-[--primary-1] font-medium">
-                      Görsel Seçmek İçin Tıklayın
+                      {t("addCategories.image_click_to_select")}
                     </p>
                   </div>
                 )}
@@ -192,7 +192,7 @@ const EditCategory = ({ category, onSuccess }) => {
             {/* Checkbox for Menu IDs */}
             <div>
               <label className="block text-[--black-2] text-sm font-medium mb-3">
-                Menüler (Opsiyonel)
+                {t("addCategories.menus_optional")}
               </label>
               <div className="bg-[--light-1] p-4 rounded-xl border border-[--border-1] space-y-3 max-h-40 overflow-y-auto">
                 {menus.length > 0 ? (
@@ -209,12 +209,12 @@ const EditCategory = ({ category, onSuccess }) => {
                   ))
                 ) : (
                   <p className="text-sm text-[--gr-1] italic">
-                    Kullanılabilir menü yok.
+                    {t("addCategories.menus_empty")}
                   </p>
                 )}
               </div>
               <p className="text-xs text-[--gr-1] mt-2">
-                Bu kategorinin hangi menülerde gösterilmesi gerektiğini seçin.
+                {t("addCategories.menus_help")}
               </p>
             </div>
 
@@ -223,11 +223,11 @@ const EditCategory = ({ category, onSuccess }) => {
               {/* Durum */}
               <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-[--primary-1] transition-colors">
                 <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
-                  Durum
+                  {t("editCategories.status")}
                 </span>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-[--black-2]">
-                    Açık
+                    {t("editCategories.status_open")}
                   </span>
                   <CustomToggle
                     checked={categoryData.isActive}
@@ -240,11 +240,11 @@ const EditCategory = ({ category, onSuccess }) => {
               {/* Kampanya */}
               <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-[--primary-1] transition-colors">
                 <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
-                  Kampanya
+                  {t("editCategories.campaign")}
                 </span>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-[--black-2]">
-                    Aktif
+                    {t("editCategories.status_active")}
                   </span>
                   <CustomToggle
                     checked={categoryData.campaign}
@@ -257,11 +257,11 @@ const EditCategory = ({ category, onSuccess }) => {
               {/* Öne Çıkan */}
               <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-[--primary-1] transition-colors">
                 <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
-                  Öne Çıkan
+                  {t("editCategories.featured")}
                 </span>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-[--black-2]">
-                    Aktif
+                    {t("editCategories.status_active")}
                   </span>
                   <CustomToggle
                     checked={categoryData.featured}
@@ -278,8 +278,9 @@ const EditCategory = ({ category, onSuccess }) => {
                 <div className="flex items-center">
                   <WarnI className="text-[--orange-1] mr-3 size-[1.5rem]" />
                   <span>
-                    Kampanya fiyatını <strong>Fiyat Listesi</strong> sekmesinden
-                    ayarlayabilirsiniz.
+                    {t("addCategories.campaign_warning", {
+                      tab: t("addCategories.campaign_warning_tab"),
+                    })}
                   </span>
                 </div>
               </div>
@@ -291,13 +292,13 @@ const EditCategory = ({ category, onSuccess }) => {
                 onClick={() => setPopupContent(null)}
                 className="px-6 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] hover:text-[--black-1] transition-all"
               >
-                Vazgeç
+                {t("addCategories.cancel")}
               </button>
               <button
                 onClick={handleSave}
                 className="px-8 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg shadow-[--light-1] hover:bg-[--primary-2] transform hover:-translate-y-0.5 transition-all"
               >
-                Kaydet
+                {t("addCategories.save")}
               </button>
             </div>
           </div>

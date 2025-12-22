@@ -56,12 +56,14 @@ const DeleteCategory = ({ category, onSuccess }) => {
         </div>
 
         {/* Title */}
-        <h2 className="text-xl font-bold mb-3 tracking-tight">Silme İşlemi</h2>
+        <h2 className="text-xl font-bold mb-3 tracking-tight">
+          {t("deleteCategory.title")}
+        </h2>
 
         {/* Description */}
         <p className="text-[--gr-1] text-base mb-10 leading-relaxed px-2 font-medium">
           <span className="font-bold text-[--red-1]">{category.name}</span>{" "}
-          öğesini silmek üzeresiniz. Bu işlem geri alınamaz.
+          {t("deleteCategory.description")}
         </p>
 
         {/* Delete sub categories and related items */}
@@ -74,7 +76,7 @@ const DeleteCategory = ({ category, onSuccess }) => {
         >
           <CustomCheckbox
             required
-            label="Alt kategorileri ve ilişkili öğeleri de sil"
+            label={t("deleteCategory.delete_sub_items")}
             checked={deleteSubItems}
             onChange={() => setDeleteSubItems(!deleteSubItems)}
           />
@@ -87,14 +89,14 @@ const DeleteCategory = ({ category, onSuccess }) => {
             onClick={() => setPopupContent(false)}
             className="flex-1 py-2 px-6 border border-[--border-1] rounded-xl text-[--gr-1] font-semibold hover:bg-[--gr-3] transition-colors"
           >
-            İptal
+            {t("deleteCategory.cancel")}
           </button>
           <button
             type="submit"
             onClick={handleSubmit}
             className="flex-1 px-6 bg-[--red-1] text-white rounded-xl font-bold hover:bg-red-700 transition-all"
           >
-            Sil
+            {t("deleteCategory.delete")}
           </button>
         </div>
       </div>

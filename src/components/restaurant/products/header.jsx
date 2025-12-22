@@ -1,17 +1,19 @@
 import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const ProductsHeader = () => {
   const params = useParams();
   const id = params?.id;
   const fullPath = params["*"]?.split("/");
   const thisPath = params["*"]?.split("/")[0];
+  const { t } = useTranslation();
 
   const pathMatches = (path) => thisPath === path && fullPath.length == 2;
 
   const headers = [
-    { label: "Ürün Yönetimi", path: "products" },
-    { label: "Fiyat Listesi", path: "price-list" },
-    { label: "Ürün Ekle", path: "add-product" },
+    { label: t("productsHeader.manage"), path: "products" },
+    { label: t("productsHeader.price_list"), path: "price-list" },
+    { label: t("productsHeader.add_product"), path: "add-product" },
   ];
 
   return (

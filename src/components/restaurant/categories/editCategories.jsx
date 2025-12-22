@@ -15,23 +15,23 @@ import {
   EditI,
   MenuI,
   WarnI,
-} from "../../assets/icon";
-import CustomInput from "../common/customInput";
-import CustomToggle from "../common/customToggle";
-import CustomFileInput from "../common/customFileInput";
+} from "../../../assets/icon";
+import CustomInput from "../../common/customInput";
+import CustomToggle from "../../common/customToggle";
+import CustomFileInput from "../../common/customFileInput";
 
 //REDUX
 import {
   editCategories,
   resetEditCategories,
-} from "../../redux/categories/editCategoriesSlice";
+} from "../../../redux/categories/editCategoriesSlice";
 import {
   getCategories,
   resetGetCategories,
-} from "../../redux/categories/getCategoriesSlice";
+} from "../../../redux/categories/getCategoriesSlice";
 
 //CONTEXT
-import { usePopup } from "../../context/PopupContext";
+import { usePopup } from "../../../context/PopupContext";
 
 const EditCategories = ({ data: restaurant }) => {
   const dispatch = useDispatch();

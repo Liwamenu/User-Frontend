@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 //COMP
 import AddMenu from "./addMenu";
@@ -17,14 +18,14 @@ import {
   resetGetMenusState,
 } from "../../../redux/menus/getMenusSlice";
 
-const DAYS = [
-  "Pazartesi",
-  "Salı",
-  "Çarşamba",
-  "Perşembe",
-  "Cuma",
-  "Cumartesi",
-  "Pazar",
+const DAY_KEYS = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
 ];
 
 const MenuList = ({}) => {
@@ -32,6 +33,7 @@ const MenuList = ({}) => {
   const restaurantId = params.id;
   const dispatch = useDispatch();
   const { setPopupContent } = usePopup();
+  const { t } = useTranslation();
 
   const { menus, error } = useSelector((s) => s.menus.get);
   const [menusData, setMenusData] = useState(null);
@@ -105,13 +107,15 @@ const MenuList = ({}) => {
   return (
     <div className="space-y-6 mt-1">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold text-[--black-1]">Menü Listesi</h2>
+        <h2 className="text-xl font-bold text-[--black-1]">
+          {t("menuList.title")}
+        </h2>
         <button
           type="button"
           onClick={onAddMenu}
           className="px-5 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg hover:bg-[--primary-2] transition-all flex items-center"
         >
-          <i className="fa-solid fa-plus mr-2" /> Yeni Menü Ekle
+          <i className="fa-solid fa-plus mr-2" /> {t("menuList.add_menu")}
         </button>
       </div>
 
@@ -139,7 +143,7 @@ const MenuList = ({}) => {
                       type="button"
                       onClick={() => onEditMenu?.(menu)}
                       className="text-white/90 hover:bg-white/20 p-1.5 rounded-lg transition-colors"
-                      title="Düzenle"
+                      title={t("menuList.edit")}
                     >
                       <EditI className="w-4 h-4" />
                     </button>
@@ -147,7 +151,7 @@ const MenuList = ({}) => {
                       type="button"
                       onClick={() => onDeleteMenu?.(menu)}
                       className="text-white/90 hover:bg-white/20 p-1.5 rounded-lg transition-colors"
-                      title="Sil"
+                      title={t("menuList.delete")}
                     >
                       <DeleteI className="w-4 h-4" />
                     </button>
@@ -160,9 +164,14 @@ const MenuList = ({}) => {
                       menu.plans.map((plan, i) => {
                         const dayBadges =
                           plan.days?.length === 7
-                            ? "Her Gün"
+                            ? t("menuList.every_day")
                             : (plan.days || [])
-                                .map((d) => DAYS[d]?.substring(0, 3))
+                                .map((d) =>
+                                  t(`workingHours.${DAY_KEYS[d]}`)?.substring(
+                                    0,
+                                    3
+                                  )
+                                )
                                 .join(", ");
                         return (
                           <div
@@ -183,7 +192,7 @@ const MenuList = ({}) => {
                       })
                     ) : (
                       <div className="text-xs text-[--gr-1] italic">
-                        Zaman planı eklenmemiş.
+                        {t("menuList.no_time_plan")}
                       </div>
                     )}
                   </div>

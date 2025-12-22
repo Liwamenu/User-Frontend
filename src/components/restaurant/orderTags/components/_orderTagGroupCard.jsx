@@ -145,32 +145,36 @@ const OrderTagGroupCard = ({
 
             <div className="flex items-center gap-2 px-3 py-1 rounded-lg border shadow-sm text-sm bg-[--white-1] border-[--border-1]">
               <span className="font-semibold text-[--gr-1]">Min:</span>
-              <CustomInput
-                required
-                type="number"
-                value={group.minSelected}
-                onChange={(v) =>
-                  onUpdate({
-                    minSelected: parseInt(v) || 0,
-                    isDirty: true,
-                  })
-                }
-                className="w-[2.5rem] text-center font-bold text-[--black-1] bg-transparent px-[5px] py-[5px]"
-              />
+              <div className="w-20">
+                <CustomInput
+                  required
+                  type="number"
+                  value={group.minSelected}
+                  onChange={(v) =>
+                    onUpdate({
+                      minSelected: parseInt(v) || 0,
+                      isDirty: true,
+                    })
+                  }
+                  className="text-center font-bold text-[--black-1] bg-transparent px-[5px] py-[5px]"
+                />
+              </div>
               <span className="mx-1 text-[--gr-3]">|</span>
               <span className="font-semibold text-[--gr-1]">Max:</span>
-              <CustomInput
-                required
-                type="number"
-                value={group.maxSelected}
-                onChange={(v) =>
-                  onUpdate({
-                    maxSelected: parseInt(v) || 1,
-                    isDirty: true,
-                  })
-                }
-                className="w-[2.5rem] text-center font-bold text-[--black-1] bg-transparent px-[5px] py-[5px]"
-              />
+              <div className="w-20">
+                <CustomInput
+                  required
+                  type="number"
+                  value={group.maxSelected}
+                  onChange={(v) =>
+                    onUpdate({
+                      maxSelected: parseInt(v) || 1,
+                      isDirty: true,
+                    })
+                  }
+                  className="w-[2.5rem] text-center font-bold text-[--black-1] bg-transparent px-[5px] py-[5px]"
+                />
+              </div>
             </div>
 
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg border shadow-sm bg-[--white-1] border-[--border-1] whitespace-nowrap">

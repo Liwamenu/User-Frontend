@@ -4,6 +4,26 @@
     "licenses": "Lisanslar",
     "orders": "Siparişler"
   },
+  "subSidebar": {
+    "back": "Geri Dön",
+    "edit_restaurant": "Restoranı Düzenle",
+    "settings": "Ayarlar",
+    "working_hours": "Çalışma Saatleri",
+    "social_media": "Sosyal Medya",
+    "payment_methods": "Ödeme Yöntemler",
+    "categories": "Kategoriler",
+    "sub_categories": "Alt Kategoriler",
+    "menus": "Menüler",
+    "tags": "Etiketler",
+    "products": "Ürünler",
+    "themes": "Temalar",
+    "qr_code": "QR Kod"
+  },
+  "userProfile": {
+    "admin": "Yetkili",
+    "user": "Kullanıcı",
+    "default_name": "Kullanıcı"
+  },
   "restaurants": {
     "add": "Restoran Ekle",
     "edit": "Restoranı Düzenle",
@@ -46,7 +66,7 @@
   "restaurantSettings": {
     "title": "{{name}} Restoranı için Ayarlar",
     "tenant": "Tenant",
-    "tenant_note": "(Örn: restoran.liwamenu.com)",
+    "tenant_note": "(Örn: {{url}})",
     "tenant_placeholder": "restoran",
     "google_analytics": "Google Analytics",
     "google_analytics_placeholder": "Google Analytics Measurement-ID'nizi yazınız",
@@ -66,8 +86,14 @@
     "in_person_order": "Masada Sipariş",
     "table_order_discount": "Masada Sipariş İskonto",
     "table_order_discount_placeholder": "Masada Sipariş İskonto giriniz",
-    "save": "Kaydet",
-    "success": "Restoran ayarları başarıyla güncellendi."
+    "save": "Tüm Ayarları Kaydet",
+    "success": "Restoran ayarları başarıyla güncellendi.",
+    "not_changed": "Değişiklik yapılmadı.",
+    "special_price_section": "Özel Fiyat Tanımı (Opsiyonel)",
+    "special_price_label": "Etiket (Örn: Maliyet, VIP)",
+    "special_price_placeholder": "Personel, Müdavim gibi . . .",
+    "special_price_note": "Not: Bu etiket tüm porsiyonlardaki özel fiyatlar için geçerli olacaktır.",
+    "is_special_price_active": "Özel Fiyatı Aktif Et"
   },
   "workingHours": {
     "title": "{{name}} Restoranı için Çalışma Saatleri",
@@ -113,11 +139,11 @@
   "editCategories": {
     "title": "{{name}} Restoranı için Kategorileri Düzenle",
     "info": "Mevcut kategorilerinizi düzenlemek için aşağıdaki formu kullanın. Kategorileri sürükleyip bırakarak sıralayabilirsiniz.",
-    "edit": "Kategorileri Düzenle",
+    "edit": "Kategori Düzenle",
     "add": "Kategori Ekle",
     "category_name": "Kategori Adı",
     "category_desc": "Açıklama",
-    "category_image": "Kategori Görseli",
+    "category_image": "Görsel",
     "delete": "Sil",
     "save": "Kaydet",
     "no_categories": "Henüz Kategori Yok",
@@ -128,30 +154,77 @@
     "success": "Kategoriler başarıyla güncellendi.",
     "not_changed": "Değişiklik yapılmadı.",
     "status": "Durum",
-    "featured": "Öne Çıkan"
+    "featured": "Öne Çıkan",
+    "campaign": "Kampanya",
+    "actions": "İşlemler",
+    "save_order": "Sıralamayı Kaydet",
+    "status_open": "Açık",
+    "status_closed": "Kapalı",
+    "status_active": "Aktif",
+    "status_passive": "Pasif",
+    "manage_products": "Ürünleri Yönet",
+    "product_count": "{{count}} Ürün"
   },
-  "addCatergory": {
-    "success": "Kategori başarıyla eklendi."
+  "categoryProducts": {
+    "title": "Kategori Ürünleri",
+    "subtitle": "Ürün Ekleme ve Çıkarma",
+    "close": "Kapat",
+    "add_existing": "Mevcut Ürünlerden Ekle",
+    "no_products": "Bu kategoride henüz ürün yok.",
+    "portions": "{{count}} Porsiyon",
+    "edit": "Düzenle",
+    "delete": "Sil"
   },
-  "addCategories": {
+  "listCategoryProducts": {
+    "title": "Ürün Seçimi",
+    "close": "Kapat",
+    "search_placeholder": "Ürün adı ara...",
+    "no_products": "Eklenebilecek uygun ürün bulunamadı.",
+    "category_label": "Kategori:",
+    "no_category": "Kategorisiz",
+    "cancel": "İptal",
+    "add_selected": "Seçilenleri Ekle"
+  },
+  "deleteCategory": {
+    "title": "Silme İşlemi",
+    "description": "öğesini silmek üzeresiniz. Bu işlem geri alınamaz.",
+    "delete_sub_items": "Alt kategorileri ve ilişkili öğeleri de sil",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "deleteSuccess": "Kategori başarıyla silindi."
+  },
+  "addCategory": {
+    "success": "Kategori başarıyla eklendi.",
     "title": "{{name}} Restoranı için Kategori Ekle",
     "info": "Yeni kategoriler eklemek için aşağıdaki formu kullanın. Kategorileri sürükleyip bırakarak sıralayabilirsiniz.",
-    "edit": "Kategorileri Düzenle",
+    "edit": "Kategori Düzenle",
     "add": "Kategori Ekle",
     "category_name": "Kategori Adı",
     "category_image": "Kategori Görseli",
+    "category_name_placeholder": "Örn: Çorbalar",
+    "category_image_optional": "Kategori Görseli (Opsiyonel)",
     "upload_image": "Kategori görseli yükleyin",
+    "image_click_to_select": "Görsel seçmek için tıklayın",
+    "menus_optional": "Menüler (Opsiyonel)",
+    "menus_empty": "Kullanılabilir menü yok.",
+    "menus_help": "Bu kategorinin hangi menülerde gösterilmesi gerektiğini seçin.",
     "delete": "Sil",
     "save": "Kaydet",
-    "success": "Kategoriler başarıyla eklendi.",
+    "cancel": "Vazgeç",
     "status": "Durum",
-    "featured": "Öne Çıkan"
+    "featured": "Öne Çıkan",
+    "campaign_warning": "Kampanya fiyatını {{tab}} sekmesinden ayarlayabilirsiniz.",
+    "campaign_warning_tab": "Fiyat Listesi"
   },
   "editSubCategories": {
     "title": "{{name}} Restoranı için Alt Kategorileri Düzenle",
     "info": "Mevcut alt kategorileri düzenleyebilir, yeniden sıralayabilir veya silebilirsiniz. (Kategori değiştirme mümkün değildir.)",
     "edit": "Alt Kategorileri Düzenle",
     "add": "Alt Kategori Ekle",
+    "header_title": "Alt Kategoriler",
+    "header_subtitle": "Alt kategorileri yönetin ve düzenleyin",
+    "add_button": "Yeni Alt Kategori",
+    "save_changes": "Değişiklikleri Kaydet",
     "subcategory_name": "Alt Kategori Adı",
     "subcategory_image": "Alt Kategori Görseli",
     "delete": "Sil",
@@ -161,7 +234,10 @@
     "success": "Alt Kategoriler başarıyla düzenlendi.",
     "not_changed": "Hiçbir değişiklik yapılmadı.",
     "tip_title": "İpucu:",
-    "tip_content": "Alt kategoriler ana kategorilerinizi daha detaylı gruplandırmanıza olanak tanır."
+    "tip_content": "Alt kategoriler ana kategorilerinizi daha detaylı gruplandırmanıza olanak tanır.",
+    "unknown_category": "Bilinmeyen Kategori",
+    "subcategory_count": "{{count}} Alt Kategori",
+    "no_subcategories_in_category": "Bu kategoride alt kategori bulunmuyor."
   },
   "addSubCategories": {
     "title": "{{name}} Restoranı için Alt Kategori Ekle",
@@ -174,6 +250,152 @@
     "delete": "Sil",
     "save": "Kaydet",
     "success": "Alt Kategoriler başarıyla eklendi."
+  },
+  "addSubCategory": {
+    "add": "Yeni Alt Kategori",
+    "name": "Alt Kategori Adı",
+    "name_placeholder": "Örn: Sıcak Çorbalar",
+    "name_required": "Alt kategori adı gereklidir!",
+    "category_label": "Ana Kategori",
+    "category_placeholder": "Kategori Seç",
+    "category_required": "Kategori seçmelisiniz!",
+    "category_help": "Bu alt kategorinin bağlı olduğu ana kategoriyi seçin.",
+    "image_optional": "Alt Kategori Görseli (Opsiyonel)",
+    "image_click_to_select": "Görsel Seçmek İçin Tıklayın",
+    "info": "Alt kategoriler, ana kategoriler içinde ürünleri daha detaylı gruplamak için kullanılır. Örneğin: 'Çorbalar' kategorisi altında 'Sıcak Çorbalar' ve 'Soğuk Çorbalar' gibi.",
+    "cancel": "Vazgeç",
+    "save": "Kaydet",
+    "success": "Alt kategori başarıyla eklendi."
+  },
+  "editSubCategory": {
+    "title": "Alt Kategoriyi Düzenle",
+    "success": "Alt kategori başarıyla güncellendi.",
+    "not_changed": "Değişiklik yapılmadı.",
+    "update": "Güncelle"
+  },
+  "deleteSubCategory": {
+    "title": "Silme İşlemi",
+    "description": "öğesini silmek üzeresiniz. Bu işlem geri alınamaz.",
+    "note": "Not: Bu alt kategoriye bağlı öğeler, üst kategoriye taşınacaktır.",
+    "cancel": "İptal",
+    "delete": "Sil"
+  },
+  "menuList": {
+    "title": "Menü Listesi",
+    "add_menu": "Yeni Menü Ekle",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "every_day": "Her Gün",
+    "no_time_plan": "Zaman planı eklenmemiş."
+  },
+  "addMenu": {
+    "title": "Yeni Menü",
+    "name_label": "Menü Adı",
+    "name_placeholder": "Örn: Öğle Menüsü",
+    "days_title": "Aktif Gün ve Saatler",
+    "add_plan": "Yeni Plan Ekle",
+    "name_required": "Menü adı gereklidir!",
+    "schedule_required": "Zaman planı eklemelisiniz!",
+    "schedule_days_required": "Her plan için gün seçilmelidir!",
+    "success": "Menü başarıyla eklendi.",
+    "cancel": "Vazgeç",
+    "save": "Kaydet"
+  },
+  "editMenu": {
+    "title": "Menüyü Düzenle",
+    "success": "Menü başarıyla güncellendi.",
+    "not_changed": "Menüde herhangi bir değişiklik yapılmadı!",
+    "update": "Güncelle"
+  },
+  "deleteMenu": {
+    "title": "Silme İşlemi",
+    "description": " öğesini silmek üzeresiniz. Bu işlem geri alınamaz.",
+    "cancel": "İptal",
+    "delete": "Sil"
+  },
+  "productsHeader": {
+    "manage": "Ürün Yönetimi",
+    "price_list": "Fiyat Listesi",
+    "add_product": "Ürün Ekle"
+  },
+  "productsList": {
+    "search_placeholder": "Ürün Ara...",
+    "all_categories": "Tüm Kategoriler",
+    "all_statuses": "Tüm Durumlar",
+    "no_products": "Ürün bulunamadı."
+  },
+  "productCard": {
+    "no_image": "Görsel Yok",
+    "campaign_prefix": "Kampanya:"
+  },
+  "priceList": {
+    "success": "Fiyat listesi başarıyla güncellendi.",
+    "save_changes": "Değişiklikleri Kaydet",
+    "normal_price": "Normal Fiyatı",
+    "campaign": "Kampanya",
+    "bulk_title": "Toplu Fiyat Güncelleme",
+    "bulk_description": "Tüm ürünlerde geçerli olacak değişiklikleri buradan yapabilirsiniz.",
+    "bulk_type_label": "İşlem Türü",
+    "bulk_type_percent_increase": "Yüzde (%) Artır",
+    "bulk_type_percent_decrease": "Yüzde (%) İndir",
+    "bulk_type_amount_add": "Tutar (+) Ekle",
+    "bulk_type_amount_subtract": "Tutar (-) Çıkar",
+    "bulk_value_label": "Değer",
+    "bulk_value_placeholder": "Örn: 10",
+    "bulk_target_label": "Hedef",
+    "bulk_target_price": "Sadece Normal Fiyat",
+    "bulk_target_campaign": "Sadece Kampanya Fiyatı",
+    "bulk_target_both": "Her İkisi",
+    "bulk_error_invalid_value": "Lütfen geçerli bir değer girin",
+    "bulk_undo_button": "Geri Al",
+    "bulk_undo_title": "Son işlemi geri al",
+    "bulk_apply_button": "Uygula"
+  },
+  "editProduct": {
+    "no_changes": "Değişiklik yapılmadı.",
+    "success": "Ürün başarıyla güncellendi.",
+    "save_button": "Kaydet",
+    "title": "Ürünü Düzenle",
+    "close": "Kapat",
+    "name_label": "Ürün Adı",
+    "name_placeholder": "Örn: Etli Ekmek",
+    "category_label": "Kategori",
+    "category_placeholder": "Kategori Seç",
+    "subCategory_label": "Alt Kategori",
+    "subCategory_placeholder": "Alt Kategori Seç",
+    "description_label": "Ürün Açıklaması",
+    "description_ai_button": "Liwa AI ile Oluştur",
+    "description_placeholder": "Ürün hakkında kısa bilgi...",
+    "status_section": "Satış Durumu",
+    "status_label": "Satışa Açık",
+    "recommendation_section": "Tavsiye Durumu",
+    "recommendation_label": "Şef Tavsiyesi",
+    "image_label": "Ürün Görseli",
+    "image_ai_title": "AI Görsel Stüdyosu",
+    "image_ai_button": "Liwa AI ile Oluştur",
+    "image_prompt_placeholder": "Görsel detayı ekle (Örn: Ahşap masada, yanında ayran ile...)",
+    "image_click_to_select": "Görsel Seçmek İçin Tıklayın",
+    "portions_title": "Porsiyonlar ve Fiyatlar",
+    "add_portion": "Porsiyon Ekle",
+    "portion_name_placeholder": "Porsiyon Adı",
+    "portion_column_name": "Porsiyon",
+    "portion_column_price": "Fiyat",
+    "portion_column_campaign": "Kampanya",
+    "portion_column_special": "Özel",
+    "portion_delete_aria": "Porsiyonu Sil",
+    "cancel": "Vazgeç"
+  },
+  "addProduct": {
+    "title": "Yeni Ürün",
+    "success": "Ürün başarıyla eklendi.",
+    "save": "Kaydet"
+  },
+  "deleteProduct": {
+    "title": "Silme İşlemi",
+    "description": " öğesini silmek üzeresiniz. Bu işlem geri alınamaz.",
+    "success": "Ürün başarıyla silindi.",
+    "cancel": "İptal",
+    "delete": "Sil"
   },
   "editUserProfile": {
     "first_name": "Ad",

@@ -7,20 +7,20 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useTranslation } from "react-i18next";
 
 //COMP
-import { MenuI, CloudUI } from "../../assets/icon";
-import CustomInput from "../common/customInput";
-import CustomSelect from "../common/customSelector";
-import CustomFileInput from "../common/customFileInput";
+import { MenuI, CloudUI } from "../../../assets/icon";
+import CustomInput from "../../common/customInput";
+import CustomSelect from "../../common/customSelector";
+import CustomFileInput from "../../common/customFileInput";
 
 //REDUX
 import {
   getCategories,
   resetGetCategoriesState,
-} from "../../redux/categories/getCategoriesSlice";
+} from "../../../redux/categories/getCategoriesSlice";
 import {
   addSubCategories,
   resetAddSubCategories,
-} from "../../redux/subCategories/addSubCategoriesSlice";
+} from "../../../redux/subCategories/addSubCategoriesSlice";
 
 const AddSubCategories = ({ data: restaurant }) => {
   const { t } = useTranslation();

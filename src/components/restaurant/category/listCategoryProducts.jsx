@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import CustomCheckbox from "../../common/customCheckbox";
 
 const ListCategoryProduct = ({
@@ -8,6 +9,7 @@ const ListCategoryProduct = ({
   categories = [],
   activeCategoryId,
 }) => {
+  const { t } = useTranslation();
   const [searchText, setSearchText] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
 
@@ -41,11 +43,13 @@ const ListCategoryProduct = ({
       <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full max-w-lg p-6 transform scale-95 transition-all duration-300 modal-content relative flex flex-col max-h-[85vh]">
         {/* Header */}
         <div className="flex justify-between items-center mb-4 border-b border-[--border-1] pb-4">
-          <h3 className="text-xl font-bold text-[--black-1]">Ürün Seçimi</h3>
+          <h3 className="text-xl font-bold text-[--black-1]">
+            {t("listCategoryProducts.title")}
+          </h3>
           <button
             onClick={onClose}
             className="text-[--gr-1] hover:text-[--black-2] transition-colors"
-            aria-label="Kapat"
+            aria-label={t("listCategoryProducts.close")}
           >
             <i className="fa-solid fa-xmark text-xl" />
           </button>
@@ -57,7 +61,7 @@ const ListCategoryProduct = ({
             type="text"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            placeholder="Ürün adı ara..."
+            placeholder={t("listCategoryProducts.search_placeholder")}
             className="w-full px-4 py-2 rounded-lg border border-[--border-1] bg-[--white-1] focus:ring-2 focus:ring-[--primary-1] focus:border-[--primary-1] outline-none text-sm text-[--black-2]"
           />
         </div>
@@ -66,14 +70,16 @@ const ListCategoryProduct = ({
         <div className="space-y-2 overflow-y-auto custom-scrollbar flex-1 mb-4 pr-1">
           {filtered.length === 0 ? (
             <div className="text-center p-4 text-[--gr-1] text-sm italic">
-              Eklenebilecek uygun ürün bulunamadı.
+              {t("listCategoryProducts.no_products")}
             </div>
           ) : (
             filtered.map((prod) => {
               const currentCat = categories.find(
                 (c) => c.id === prod.categoryId
               );
-              const catName = currentCat ? currentCat.name : "Kategorisiz";
+              const catName = currentCat
+                ? currentCat.name
+                : t("listCategoryProducts.no_category");
               const checked = selectedIds.includes(prod.id);
               return (
                 <label
@@ -90,7 +96,7 @@ const ListCategoryProduct = ({
                       {prod.name}
                     </div>
                     <div className="text-xs text-[--gr-1]">
-                      Kategori:{" "}
+                      {t("listCategoryProducts.category_label")}{" "}
                       <span className="text-[--primary-1] font-medium">
                         {catName}
                       </span>
@@ -108,14 +114,14 @@ const ListCategoryProduct = ({
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-lg hover:bg-[--light-1] transition-colors"
           >
-            İptal
+            {t("listCategoryProducts.cancel")}
           </button>
           <button
             onClick={handleAdd}
             disabled={selectedIds.length === 0}
             className="px-4 py-2 text-sm font-medium text-white bg-[--primary-1] rounded-lg shadow hover:bg-[--primary-2] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           >
-            Seçilenleri Ekle
+            {t("listCategoryProducts.add_selected")}
           </button>
         </div>
       </div>

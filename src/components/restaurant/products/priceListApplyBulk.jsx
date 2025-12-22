@@ -4,35 +4,50 @@ import CheckI from "../../../assets/icon/check";
 import CustomInput from "../../common/customInput";
 import CustomSelect from "../../common/customSelector";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
+
+const BULK_TYPE_OPTIONS = [
+  {
+    value: "percent-increase",
+    labelKey: "priceList.bulk_type_percent_increase",
+  },
+  {
+    value: "percent-decrease",
+    labelKey: "priceList.bulk_type_percent_decrease",
+  },
+  { value: "amount-add", labelKey: "priceList.bulk_type_amount_add" },
+  { value: "amount-subtract", labelKey: "priceList.bulk_type_amount_subtract" },
+];
+
+const BULK_TARGET_OPTIONS = [
+  { value: "price", labelKey: "priceList.bulk_target_price" },
+  { value: "campaignPrice", labelKey: "priceList.bulk_target_campaign" },
+  { value: "both", labelKey: "priceList.bulk_target_both" },
+];
 
 const PriceListApplyBulk = ({ list, setList }) => {
-  const [bulkType, setBulkType] = useState({
-    label: "Yüzde (%) Artır",
-    value: "percent-increase",
-  });
+  const { t } = useTranslation();
+
+  const [bulkType, setBulkType] = useState("percent-increase");
   const [bulkValue, setBulkValue] = useState("");
-  const [bulkTarget, setBulkTarget] = useState({
-    label: "Sadece Normal Fiyat",
-    value: "price",
-  });
+  const [bulkTarget, setBulkTarget] = useState("price");
   const [history, setHistory] = useState(null);
 
-  const bulkTypeOptions = [
-    { label: "Yüzde (%) Artır", value: "percent-increase" },
-    { label: "Yüzde (%) İndir", value: "percent-decrease" },
-    { label: "Tutar (+) Ekle", value: "amount-add" },
-    { label: "Tutar (-) Çıkar", value: "amount-subtract" },
-  ];
+  const bulkTypeOptions = BULK_TYPE_OPTIONS.map((opt) => ({
+    value: opt.value,
+    label: t(opt.labelKey),
+  }));
 
-  const bulkTargetOptions = [
-    { label: "Sadece Normal Fiyat", value: "price" },
-    { label: "Sadece Kampanya Fiyatı", value: "campaignPrice" },
-    { label: "Her İkisi", value: "both" },
-  ];
+  const bulkTargetOptions = BULK_TARGET_OPTIONS.map((opt) => ({
+    value: opt.value,
+    label: t(opt.labelKey),
+  }));
 
   const applyBulkUpdate = () => {
     if (!bulkValue || isNaN(bulkValue)) {
-      toast.error("Lütfen geçerli bir değer girin", { id: "applyInBulk" });
+      toast.error(t("priceList.bulk_error_invalid_value"), {
+        id: "applyInBulk",
+      });
       return;
     }
 
@@ -51,30 +66,27 @@ const PriceListApplyBulk = ({ list, setList }) => {
         let newDiscountedPrice = currentDiscounted;
 
         // Apply to normal price
-        if (bulkTarget.value === "price" || bulkTarget.value === "both") {
-          if (bulkType.value === "percent-increase") {
+        if (bulkTarget === "price" || bulkTarget === "both") {
+          if (bulkType === "percent-increase") {
             newPrice = currentPrice * (1 + value / 100);
-          } else if (bulkType.value === "percent-decrease") {
+          } else if (bulkType === "percent-decrease") {
             newPrice = currentPrice * (1 - value / 100);
-          } else if (bulkType.value === "amount-add") {
+          } else if (bulkType === "amount-add") {
             newPrice = currentPrice + value;
-          } else if (bulkType.value === "amount-subtract") {
+          } else if (bulkType === "amount-subtract") {
             newPrice = currentPrice - value;
           }
         }
 
         // Apply to discounted price
-        if (
-          bulkTarget.value === "campaignPrice" ||
-          bulkTarget.value === "both"
-        ) {
-          if (bulkType.value === "percent-increase") {
+        if (bulkTarget === "campaignPrice" || bulkTarget === "both") {
+          if (bulkType === "percent-increase") {
             newDiscountedPrice = currentDiscounted * (1 + value / 100);
-          } else if (bulkType.value === "percent-decrease") {
+          } else if (bulkType === "percent-decrease") {
             newDiscountedPrice = currentDiscounted * (1 - value / 100);
-          } else if (bulkType.value === "amount-add") {
+          } else if (bulkType === "amount-add") {
             newDiscountedPrice = currentDiscounted + value;
-          } else if (bulkType.value === "amount-subtract") {
+          } else if (bulkType === "amount-subtract") {
             newDiscountedPrice = currentDiscounted - value;
           }
         }
@@ -105,10 +117,10 @@ const PriceListApplyBulk = ({ list, setList }) => {
         {/* Title & Desc */}
         <div className="flex-1 mb-6">
           <div className="flex items-center gap-2 mb-2">
-            <h2 className="text-xl font-bold">Toplu Fiyat Güncelleme</h2>
+            <h2 className="text-xl font-bold">{t("priceList.bulk_title")}</h2>
           </div>
           <p className="text-indigo-200 text-sm max-w-md leading-relaxed">
-            Tüm ürünlerde geçerli olacak değişiklikleri buradan yapabilirsiniz.
+            {t("priceList.bulk_description")}
           </p>
         </div>
 
@@ -117,10 +129,10 @@ const PriceListApplyBulk = ({ list, setList }) => {
           {/* İşlem Türü */}
           <div className="w-full sm:w-48">
             <CustomSelect
-              label="İşlem Türü"
-              value={bulkType}
+              label={t("priceList.bulk_type_label")}
+              value={bulkTypeOptions.find((opt) => opt.value === bulkType)}
               options={bulkTypeOptions}
-              onChange={(opt) => setBulkType(opt)}
+              onChange={(opt) => setBulkType(opt.value)}
               isSearchable={false}
               className="text-sm font-light"
               style={{
@@ -135,9 +147,9 @@ const PriceListApplyBulk = ({ list, setList }) => {
           {/* Değer */}
           <div className="w-full sm:w-36">
             <CustomInput
-              label="Değer"
+              label={t("priceList.bulk_value_label")}
               type="number"
-              placeholder="Örn: 10"
+              placeholder={t("priceList.bulk_value_placeholder")}
               value={bulkValue}
               onChange={(v) => setBulkValue(v)}
               className="bg-[#3D3D8A] border-[#4F4F9E] text-white placeholder-indigo-400 focus:ring-2 focus:ring-indigo-400 py-[6px]"
@@ -147,10 +159,10 @@ const PriceListApplyBulk = ({ list, setList }) => {
           {/* Hedef */}
           <div className="w-full sm:w-56">
             <CustomSelect
-              label="Hedef"
-              value={bulkTarget}
+              label={t("priceList.bulk_target_label")}
+              value={bulkTargetOptions.find((opt) => opt.value === bulkTarget)}
               options={bulkTargetOptions}
-              onChange={(opt) => setBulkTarget(opt)}
+              onChange={(opt) => setBulkTarget(opt.value)}
               isSearchable={false}
               className="text-sm font-light"
               style={{
@@ -168,9 +180,9 @@ const PriceListApplyBulk = ({ list, setList }) => {
               <button
                 onClick={handleUndo}
                 className="flex items-center justify-center gap-2 bg-[#4F4F9E] hover:bg-[#5A5AAF] text-white font-light py-1.5 px-4 rounded-lg transition-all whitespace-nowrap"
-                title="Son işlemi geri al"
+                title={t("priceList.bulk_undo_title")}
               >
-                Geri Al
+                {t("priceList.bulk_undo_button")}
               </button>
             </div>
           )}
@@ -182,7 +194,7 @@ const PriceListApplyBulk = ({ list, setList }) => {
               className="w-full sm:w-auto bg-[#6366F1] hover:bg-[#5558E3] text-white font-light py-1.5 px-6 rounded-lg flex items-center justify-center gap-2"
             >
               <CheckI className="size-[1.1rem]" />
-              Uygula
+              {t("priceList.bulk_apply_button")}
             </button>
           </div>
         </div>

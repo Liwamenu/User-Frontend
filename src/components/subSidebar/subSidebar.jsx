@@ -1,6 +1,7 @@
 //MODULES
 import { useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 //ASSETS
 import UserProfile from "./userProfile";
@@ -27,6 +28,7 @@ import { usePopup } from "../../context/PopupContext";
 import Bars4I from "../../assets/icon/bars4";
 
 function Sidebar({ openSidebar, setOpenSidebar }) {
+  const { t } = useTranslation();
   const param = useParams();
   const sidebarRef = useRef();
   const id = param["*"].split("/")[1];
@@ -34,79 +36,79 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
   const sidebarItems = [
     {
       icon: <GobackI />,
-      text: "Geri Dön",
+      text: t("subSidebar.back"),
       to: "/restaurants",
       path: "restaurants",
     },
     {
       icon: <EditI className="size-[1.3rem]" strokeWidth={2} />,
-      text: "Restoranı Düzenle",
+      text: t("subSidebar.edit_restaurant"),
       to: `/restaurant/edit/${id}`,
       path: "edit",
     },
     {
       icon: <SettingsI className="size-[1.3rem]" strokeWidth={2} />,
-      text: "Ayarlar",
+      text: t("subSidebar.settings"),
       to: `/restaurant/settings/${id}`,
       path: "settings",
     },
     {
       icon: <WaitI />,
-      text: "Çalışma Saatleri",
+      text: t("subSidebar.working_hours"),
       to: `/restaurant/hours/${id}`,
       path: "hours",
     },
     {
       icon: <BellI />,
-      text: "Sosyal Medya",
+      text: t("subSidebar.social_media"),
       to: `/restaurant/social/${id}`,
       path: "social",
     },
     {
       icon: <DebitI />,
-      text: "Ödeme Yontemler",
+      text: t("subSidebar.payment_methods"),
       to: `/restaurant/payments/${id}`,
       path: "payments",
     },
     {
       icon: <Bars4I />,
-      text: "Katagoriler",
+      text: t("subSidebar.categories"),
       to: `/restaurant/categories/${id}/list`,
       path: "categories",
     },
     {
       icon: <Bars4SubI />,
-      text: "Alt Katagoriler",
+      text: t("subSidebar.sub_categories"),
       to: `/restaurant/sub_categories/${id}/list`,
       path: "sub_categories",
     },
     {
       icon: <StackI />,
-      text: "Menüler",
+      text: t("subSidebar.menus"),
       to: `/restaurant/menus/${id}/list`,
       path: "menus",
     },
     {
       icon: <LicenseI />,
-      text: "Etiketler",
+      text: t("subSidebar.tags"),
       to: `/restaurant/tags/${id}/`,
       path: "tags",
     },
     {
       icon: <ListI />,
-      text: "Ürünler",
+      text: t("subSidebar.products"),
       to: `/restaurant/products/${id}`,
       path: "products",
     },
     {
       icon: <TemplatesI />,
-      text: "Temalar",
+      text: t("subSidebar.themes"),
       to: `/restaurant/themes/${id}`,
       path: "themes",
     },
     {
       icon: <QRI />,
-      text: "QR Kod",
+      text: t("subSidebar.qr_code"),
       to: `/restaurant/qr/${id}`,
       path: "qr",
     },

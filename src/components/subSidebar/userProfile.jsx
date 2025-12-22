@@ -1,5 +1,6 @@
 //MODULES
 import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 //COMP
 import { UserI } from "../../assets/icon";
@@ -9,6 +10,7 @@ import ArrowIR from "../../assets/icon/arrowR";
 import { getAuth } from "../../redux/api";
 
 function UserProfile({ setOpenSidebar }) {
+  const { t } = useTranslation();
   const param = useParams();
 
   const user = getAuth()?.user;
@@ -29,10 +31,10 @@ function UserProfile({ setOpenSidebar }) {
             </div>
             <div className="flex flex-col flex-1">
               <div className="text-sm leading-5 text-[--black-2]">
-                {user?.fullName || "User"}
+                {user?.fullName || t("userProfile.default_name")}
               </div>
               <div className="text-xs leading-5">
-                {isAdmin ? "Yetkili" : "Kullanıcı"}
+                {isAdmin ? t("userProfile.admin") : t("userProfile.user")}
               </div>
             </div>
           </div>

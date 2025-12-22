@@ -4,6 +4,7 @@ import isEqual from "lodash/isEqual";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 // COMP
 import ProductsHeader from "./header";
@@ -43,6 +44,7 @@ const EditProduct = ({ product: prodToPopup }) => {
   const location = useLocation();
   const params = useParams();
   const restaurantId = params.id;
+  const { t } = useTranslation();
 
   const { success, error } = useSelector((s) => s.products.edit);
 
@@ -125,7 +127,7 @@ const EditProduct = ({ product: prodToPopup }) => {
 
   const handleSave = () => {
     if (isEqual(productData, product || prodToPopup)) {
-      toast.error("Değişiklik yapılmadı.");
+      toast.error(t("editProduct.no_changes"));
       return;
     }
     const formData = new FormData();
@@ -170,7 +172,7 @@ const EditProduct = ({ product: prodToPopup }) => {
 
   useEffect(() => {
     if (success) {
-      toast.success("Ürün başarıyla güncellendi.");
+      toast.success(t("editProduct.success"));
       setSecondPopupContent(null);
       dispatch(resetEditProduct());
       dispatch(
@@ -204,7 +206,7 @@ const EditProduct = ({ product: prodToPopup }) => {
                   onClick={handleSave}
                   className="px-6 py-2.5 text-sm font-medium text-white bg-[--green-1] rounded-md shadow-lg hover:bg-indigo-700 transition-all"
                 >
-                  Kaydet
+                  {t("editProduct.save_button")}
                 </button>
               </div>
             </div>
@@ -214,7 +216,7 @@ const EditProduct = ({ product: prodToPopup }) => {
         <div className="w-full py-8 relative flex flex-col sm:px-8">
           <div className="flex justify-between items-center mb-6 border-b border-[--border-1] pb-4">
             <h3 className="text-2xl font-bold text-[--black-2]">
-              Ürünü Düzenle
+              {t("editProduct.title")}
             </h3>
 
             {prodToPopup && (
@@ -222,7 +224,7 @@ const EditProduct = ({ product: prodToPopup }) => {
                 <button
                   onClick={() => setSecondPopupContent(null)}
                   className="text-[--gr-1] hover:text-[--black-2] transition-colors"
-                  aria-label="Kapat"
+                  aria-label={t("editProduct.close")}
                 >
                   <CancelI />
                 </button>
@@ -237,8 +239,8 @@ const EditProduct = ({ product: prodToPopup }) => {
               <div className="space-y-2">
                 <CustomInput
                   required
-                  label="Ürün Adı *"
-                  placeholder="Örn: Etli Ekmek"
+                  label={`${t("editProduct.name_label")} *`}
+                  placeholder={t("editProduct.name_placeholder")}
                   className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
                   className2=""
                   value={productData.name}
@@ -247,15 +249,18 @@ const EditProduct = ({ product: prodToPopup }) => {
 
                 <CustomSelect
                   required
-                  label="Kategori *"
-                  placeholder="Kategori Seç"
+                  label={`${t("editProduct.category_label")} *`}
+                  placeholder={t("editProduct.category_placeholder")}
                   value={
                     productData.categoryId
                       ? {
                           value: productData.categoryId,
                           label: productData.categoryName,
                         }
-                      : { value: "", label: "Kategori Seç" }
+                      : {
+                          value: "",
+                          label: t("editProduct.category_placeholder"),
+                        }
                   }
                   style={{ backgroundColor: "var(--light-1)" }}
                   options={categoryOptions}
@@ -271,16 +276,19 @@ const EditProduct = ({ product: prodToPopup }) => {
                 />
 
                 <CustomSelect
-                  label="Alt Kategori *"
+                  label={`${t("editProduct.subCategory_label")} *`}
                   disabled={!productData.categoryId}
-                  placeholder="Alt Kategori"
+                  placeholder={t("editProduct.subCategory_placeholder")}
                   value={
                     productData.subCategoryId
                       ? {
                           value: productData.subCategoryId,
                           label: productData.subCategoryName,
                         }
-                      : { value: "", label: "Alt Kategori Seç" }
+                      : {
+                          value: "",
+                          label: t("editProduct.subCategory_placeholder"),
+                        }
                   }
                   style={{ backgroundColor: "var(--light-1)" }}
                   options={getSubcatOptions(productData.categoryId)}
@@ -297,7 +305,7 @@ const EditProduct = ({ product: prodToPopup }) => {
                 <div>
                   <div className="flex justify-between items-center mb-1 py-2">
                     <label className="block text-[--black-2] text-sm font-medium">
-                      Ürün Açıklaması
+                      {t("editProduct.description_label")}
                     </label>
                     <button
                       type="button"
@@ -305,24 +313,24 @@ const EditProduct = ({ product: prodToPopup }) => {
                       className="text-xs bg-purple-50 text-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-100 transition font-medium border border-purple-200 flex items-center shadow-sm"
                     >
                       <i className="fa-solid fa-wand-magic-sparkles mr-1.5" />
-                      Liwa AI ile Oluştur
+                      {t("editProduct.description_ai_button")}
                     </button>
                   </div>
                   <CustomTextarea
                     value={productData.description}
                     onChange={(e) => handleField("description", e.target.value)}
-                    placeholder="Ürün hakkında kısa bilgi..."
+                    placeholder={t("editProduct.description_placeholder")}
                     className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none resize-none text-sm"
                   />
                 </div>
 
                 <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-indigo-200 transition-colors">
                   <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
-                    Satış Durumu
+                    {t("editProduct.status_section")}
                   </span>
                   <div className="flex items-center justify-between">
                     <CustomToggle
-                      label="Satışa Açık"
+                      label={t("editProduct.status_label")}
                       className1="text-sm"
                       className="peer-checked:bg-[--green-1] bg-[--border-1] scale-[.9]"
                       checked={!productData.hide}
@@ -333,11 +341,11 @@ const EditProduct = ({ product: prodToPopup }) => {
 
                 <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-indigo-200 transition-colors">
                   <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
-                    Tavsiye Durumu
+                    {t("editProduct.recommendation_section")}
                   </span>
                   <div className="flex items-center justify-between">
                     <CustomToggle
-                      label="Şef Tavsiyesi"
+                      label={t("editProduct.recommendation_label")}
                       checked={productData.recommendation}
                       className1="text-sm"
                       className="peer-checked:bg-[--green-1] bg-[--border-1] scale-[.9]"
@@ -350,14 +358,14 @@ const EditProduct = ({ product: prodToPopup }) => {
               {/* Sağ Kolon */}
               <div className="space-y-2">
                 <span className="text-[--black-2] text-sm font-medium block">
-                  Ürün Görseli
+                  {t("editProduct.image_label")}
                 </span>
 
                 <div className="bg-[--light-4] p-4 rounded-xl border border-[--border-1]">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
-                      <i className="fa-solid fa-palette mr-1" /> AI Görsel
-                      Stüdyosu
+                      <i className="fa-solid fa-palette mr-1" />
+                      {t("editProduct.image_ai_title")}
                     </span>
                     <button
                       type="button"
@@ -366,12 +374,12 @@ const EditProduct = ({ product: prodToPopup }) => {
                       className="text-xs bg-indigo-500 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-600 transition font-medium shadow-sm flex items-center"
                     >
                       <i className="fa-solid fa-wand-magic-sparkles mr-1.5" />
-                      Liwa AI ile Oluştur
+                      {t("editProduct.image_ai_button")}
                     </button>
                   </div>
 
                   <CustomInput
-                    placeholder="Görsel detayı ekle (Örn: Ahşap masada, yanında ayran ile...)"
+                    placeholder={t("editProduct.image_prompt_placeholder")}
                     className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none text-sm"
                   />
                 </div>
@@ -382,7 +390,7 @@ const EditProduct = ({ product: prodToPopup }) => {
                       <img
                         src={preview || productData.imageURL}
                         className="max-h-full w-auto object-contain rounded-md"
-                        alt="Ürün"
+                        alt={t("editProduct.image_label")}
                       />
                     </div>
                   ) : (
@@ -393,7 +401,7 @@ const EditProduct = ({ product: prodToPopup }) => {
                         </div>
                       </div>
                       <p className="text-sm text-[--light-1]0 group-hover:text-indigo-600 font-medium">
-                        Görsel Seçmek İçin Tıklayın
+                        {t("editProduct.image_click_to_select")}
                       </p>
                     </div>
                   )}
@@ -412,44 +420,32 @@ const EditProduct = ({ product: prodToPopup }) => {
 
             {/* Alt Kısım */}
             <div className="pt-4 border-t border-[--border-1]">
-              <div className="bg-[--light-1] p-4 rounded-xl border border-[--border-1] mb-4">
-                <span className="text-xs font-semibold text-[--orange-1] uppercase tracking-wider mb-3 block">
-                  <i className="fa-solid fa-tag mr-1" /> Özel Fiyat Tanımı
-                  (Opsiyonel)
-                </span>
-                <CustomInput
-                  type="number"
-                  label="Etiket (Örn: Maliyet, VIP)"
-                  placeholder="Personel, Müdavim gibi . . ."
-                  className="w-full border border-[--border-1] rounded-lg px-3 py-2 text-sm text-[--black-1] outline-none focus:border-[--orange-1] bg-[--white-1]"
-                  value={productData.specialPrice || ""}
-                  onChange={(v) => handleSpecialPrice(v)}
-                />
-                <p className="text-[10px] text-[--gr-1] mt-1 italic">
-                  Not: Bu etiket tüm porsiyonlardaki özel fiyatlar için geçerli
-                  olacaktır.
-                </p>
-              </div>
-
               <div>
                 <div className="flex justify-between items-center mb-3">
                   <label className="block text-[--black-2] text-sm font-medium">
-                    Porsiyonlar ve Fiyatlar
+                    {t("editProduct.portions_title")}
                   </label>
                   <button
                     type="button"
                     onClick={addPortion}
                     className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition font-medium border border-indigo-200"
                   >
-                    <i className="fa-solid fa-plus mr-1" /> Porsiyon Ekle
+                    <i className="fa-solid fa-plus mr-1" />
+                    {t("editProduct.add_portion")}
                   </button>
                 </div>
 
                 <div className="grid grid-cols-[1fr_80px_80px_80px_30px] gap-2 text-[10px] text-[--gr-1] uppercase font-semibold mb-2">
-                  <div>Porsiyon</div>
-                  <div className="text-center">Fiyat</div>
-                  <div className="text-center text-[--green-1]">Kampanya</div>
-                  <div className="text-center text-[--orange-1]">Özel</div>
+                  <div>{t("editProduct.portion_column_name")}</div>
+                  <div className="text-center">
+                    {t("editProduct.portion_column_price")}
+                  </div>
+                  <div className="text-center text-[--green-1]">
+                    {t("editProduct.portion_column_campaign")}
+                  </div>
+                  <div className="text-center text-[--orange-1]">
+                    {t("editProduct.portion_column_special")}
+                  </div>
                   <div />
                 </div>
 
@@ -461,7 +457,7 @@ const EditProduct = ({ product: prodToPopup }) => {
                     >
                       <CustomInput
                         required
-                        placeholder="Porsiyon Adı"
+                        placeholder={t("editProduct.portion_name_placeholder")}
                         className="py-[6px] text-sm bg-[--white-2]"
                         value={portion.name}
                         onChange={(v) => handlePortionChange(idx, "name", v)}
@@ -498,7 +494,7 @@ const EditProduct = ({ product: prodToPopup }) => {
                             type="button"
                             onClick={() => deletePortion(idx)}
                             className="text-[--red-1] text-xs"
-                            aria-label="Porsiyonu Sil"
+                            aria-label={t("editProduct.portion_delete_aria")}
                           >
                             <DeleteI
                               strokeWidth={1}
@@ -523,14 +519,14 @@ const EditProduct = ({ product: prodToPopup }) => {
               onClick={() => setSecondPopupContent(null)}
               className="px-6 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] hover:text-[--black-1] transition-all"
             >
-              Vazgeç
+              {t("editProduct.cancel")}
             </button>
 
             <button
               onClick={handleSave}
               className="px-8 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg shadow-[--light-1] hover:bg-[--primary-2] transform hover:-translate-y-0.5 transition-all"
             >
-              Kaydet
+              {t("editProduct.save_button")}
             </button>
           </div>
         </div>

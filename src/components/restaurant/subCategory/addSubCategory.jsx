@@ -69,12 +69,14 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
 
   const handleSave = () => {
     if (!subCategory.name.trim()) {
-      toast.error("Alt kategori adı gereklidir!", { id: "subCategories" });
+      toast.error(t("addSubCategory.name_required"), { id: "subCategories" });
       return;
     }
 
     if (!subCategory.categoryId) {
-      toast.error("Kategori seçmelisiniz!", { id: "subCategories" });
+      toast.error(t("addSubCategory.category_required"), {
+        id: "subCategories",
+      });
       return;
     }
 
@@ -106,7 +108,7 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
   useEffect(() => {
     if (success) {
       setPopupContent(null);
-      toast.success("Alt kategori başarıyla eklendi.", { id: "subCategories" });
+      toast.success(t("addSubCategory.success"), { id: "subCategories" });
       dispatch(resetAddSubCategory());
       onSuccess && onSuccess(subCategory);
     }
@@ -119,12 +121,12 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
         <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full p-8 transform scale-100 transition-all duration-300 modal-content relative">
           <div className="flex justify-between items-center mb-8 border-b border-[--light-3] pb-4">
             <h3 className="text-2xl font-bold text-[--black-1]">
-              Yeni Alt Kategori
+              {t("addSubCategory.add")}
             </h3>
             <button
               onClick={() => setPopupContent(null)}
               className="text-[--gr-1] hover:text-[--black-2] transition-colors"
-              aria-label="Kapat"
+              aria-label={t("categoryProducts.close")}
             >
               <CancelI clsassName="" />
             </button>
@@ -134,8 +136,8 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
             {/* Alt Kategori Adı */}
             <CustomInput
               required
-              label="Alt Kategori Adı *"
-              placeholder="Örn: Sıcak Çorbalar"
+              label={`${t("addSubCategory.name")} *`}
+              placeholder={t("addSubCategory.name_placeholder")}
               className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
               className2=""
               value={subCategory.name}
@@ -145,17 +147,20 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
             {/* Kategori Seçimi */}
             <div>
               <label className="block text-[--black-2] text-sm font-medium mb-2">
-                Ana Kategori *
+                {`${t("addSubCategory.category_label")} *`}
               </label>
               <CustomSelect
                 required
-                placeholder="Kategori Seç"
+                placeholder={t("addSubCategory.category_placeholder")}
                 value={
                   subCategory.categoryId
                     ? categoryOptions.find(
                         (opt) => opt.value === subCategory.categoryId
                       )
-                    : { label: "Kategori Seç", value: "" }
+                    : {
+                        label: t("addSubCategory.category_placeholder"),
+                        value: "",
+                      }
                 }
                 style={{ backgroundColor: "var(--light-1)" }}
                 options={categoryOptions}
@@ -164,14 +169,14 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
                 className="text-sm"
               />
               <p className="text-xs text-[--gr-1] mt-2">
-                Bu alt kategorinin bağlı olduğu ana kategoriyi seçin.
+                {t("addSubCategory.category_help")}
               </p>
             </div>
 
             {/* Alt Kategori Görseli */}
             <div>
               <span className="text-[--black-2] text-sm font-medium mb-2 block">
-                Alt Kategori Görseli (Opsiyonel)
+                {t("addSubCategory.image_optional")}
               </span>
               <div className="group border-2 border-dashed border-[--border-1] rounded-xl p-6 text-center hover:border-[--primary-1] transition-all relative cursor-pointer">
                 {preview ? (
@@ -188,7 +193,7 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
                       <CloudUI className="size-[1.5rem] pt-1 pl-1" />
                     </div>
                     <p className="text-sm text-[--gr-1] group-hover:text-[--primary-1] font-medium">
-                      Görsel Seçmek İçin Tıklayın
+                      {t("addSubCategory.image_click_to_select")}
                     </p>
                   </div>
                 )}
@@ -207,11 +212,11 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
             {/* Durum Toggle */}
             <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-[--primary-1] transition-colors">
               <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
-                Durum
+                {t("editCategories.status")}
               </span>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-[--black-2]">
-                  Açık
+                  {t("editCategories.status_open")}
                 </span>
                 <CustomToggle
                   checked={subCategory.isActive}
@@ -225,11 +230,7 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
             <div className="p-4 bg-[--status-primary-1] text-[--primary-1] rounded-xl border border-[--border-1] text-sm">
               <div className="flex items-start">
                 <i className="fa-solid fa-circle-info mr-3 mt-0.5"></i>
-                <span>
-                  Alt kategoriler, ana kategoriler içinde ürünleri daha detaylı
-                  gruplamak için kullanılır. Örneğin: "Çorbalar" kategorisi
-                  altında "Sıcak Çorbalar" ve "Soğuk Çorbalar" gibi.
-                </span>
+                <span>{t("addSubCategory.info")}</span>
               </div>
             </div>
 
@@ -239,13 +240,13 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
                 onClick={() => setPopupContent(null)}
                 className="px-6 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] hover:text-[--black-1] transition-all"
               >
-                Vazgeç
+                {t("addSubCategory.cancel")}
               </button>
               <button
                 onClick={handleSave}
                 className="px-8 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg shadow-[--light-1] hover:bg-[--primary-2] transform hover:-translate-y-0.5 transition-all"
               >
-                Kaydet
+                {t("addSubCategory.save")}
               </button>
             </div>
           </div>

@@ -20,17 +20,17 @@
     "inPersonOrder": true,
     "hide": false,
     "themeId": 1,
-    "maxDistanceKM": 1, //currently its minDistance, change it to maxDistance
-    "menuLang": "1", // add this field
-    "table_order_discount_rate": 0, // add this field
-    "online_order_discount_rate": 0, // add this field
-    "tenant": "popeyes", // add this field
+    "maxDistanceKM": 1,
+    "menuLang": "1",
+    "table_order_discount_rate": 0,
+    "online_order_discount_rate": 0,
+    "tenant": "popeyes",
     "workingHours": [
       {
         "Day": 1,
         "IsClosed": true,
-        "Open": "00:00", // fill 00:00 by default when creating a new restaurant
-        "Close": "23:59" // fill 23:59 by default when creating a new restaurant
+        "Open": "00:00",
+        "Close": "23:59"
       },
       {
         "Day": 2,

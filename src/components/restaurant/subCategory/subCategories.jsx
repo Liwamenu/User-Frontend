@@ -16,6 +16,7 @@ import SubCategoriesHeader from "./header";
 import EditSubCategory from "./editSubCategory";
 import DeleteSubCategory from "./deleteSubCategory";
 import { usePopup } from "../../../context/PopupContext";
+import fallbackImg from "../../../assets/img/No_Img.svg";
 
 //JSON
 import subCategoriesJSON from "../../../assets/js/SubCategories.json";
@@ -54,7 +55,10 @@ const SubCategories = ({ data: restaurant }) => {
           (c) => c.id === categoryId
         );
         groups[categoryId] = {
-          category: category || { id: categoryId, name: "Bilinmeyen Kategori" },
+          category: category || {
+            id: categoryId,
+            name: t("editSubCategories.unknown_category"),
+          },
           subCategories: [],
         };
       }
@@ -149,8 +153,14 @@ const SubCategories = ({ data: restaurant }) => {
   const getStatusBadge = (value, type) => {
     const configs = {
       isActive: {
-        true: { label: "Açık", class: "bg-[--status-green] text-[--green-1]" },
-        false: { label: "Kapalı", class: "bg-[--status-gray] text-[--gr-1]" },
+        true: {
+          label: t("editCategories.status_open"),
+          class: "bg-[--status-green] text-[--green-1]",
+        },
+        false: {
+          label: t("editCategories.status_closed"),
+          class: "bg-[--status-gray] text-[--gr-1]",
+        },
       },
     };
 
@@ -208,7 +218,7 @@ const SubCategories = ({ data: restaurant }) => {
   // TOAST
   useEffect(() => {
     if (success) {
-      toast.success("Alt kategoriler başarıyla güncellendi.", {
+      toast.success(t("editSubCategories.success"), {
         id: "subCategories",
       });
       setSubCategoriesDataBefore(subCategoriesData);
@@ -224,7 +234,9 @@ const SubCategories = ({ data: restaurant }) => {
     e?.preventDefault();
 
     if (isEqual(subCategoriesData, subCategoriesDataBefore)) {
-      toast.error("Değişiklik yapılmadı.", { id: "subCategories" });
+      toast.error(t("editSubCategories.not_changed"), {
+        id: "subCategories",
+      });
       return;
     }
 
@@ -275,7 +287,7 @@ const SubCategories = ({ data: restaurant }) => {
           {/* Render each category group */}
           {!subCategoriesData || subCategoriesData.length === 0 ? (
             <div className="p-8 text-center text-[--gr-1] italic bg-[--light-2] rounded-xl">
-              Henüz bir alt kategori bulunmuyor.
+              {t("editSubCategories.no_subcategories")}
             </div>
           ) : (
             <DragDropContext onDragEnd={handleDragEnd}>
@@ -295,7 +307,9 @@ const SubCategories = ({ data: restaurant }) => {
                         {group.category.name}
                       </p>
                       <p className="text-xs text-[--primary-1] bg-[--status-primary-1] px-2 w-max rounded-md">
-                        {group.subCategories.length} Alt Kategori
+                        {t("editSubCategories.subcategory_count", {
+                          count: group.subCategories.length,
+                        })}
                       </p>
                     </div>
                   </div>
@@ -312,7 +326,9 @@ const SubCategories = ({ data: restaurant }) => {
                       >
                         {group.subCategories.length === 0 ? (
                           <div className="p-8 text-center text-[--gr-1] italic">
-                            Bu kategoride alt kategori bulunmuyor.
+                            {t(
+                              "editSubCategories.no_subcategories_in_category"
+                            )}
                           </div>
                         ) : (
                           group.subCategories.map((subCat, index) => (
@@ -328,7 +344,7 @@ const SubCategories = ({ data: restaurant }) => {
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
-                                  className={`p-4 grid grid-cols-[0.3fr_4fr_1fr_2fr] gap-4 items-center text-sm border-b border-[--light-3] last:border-b-0 group ${
+                                  className={`p-4 grid grid-cols-[0.3fr_1fr_4fr_1fr_2fr] gap-4 items-center text-sm border-b border-[--light-3] last:border-b-0 group ${
                                     snapshot.isDragging
                                       ? "bg-[--white-1] px-2 py-1 border border-[--primary-1] border-dashed rounded-md"
                                       : "bg-[--white-1]"
@@ -338,13 +354,24 @@ const SubCategories = ({ data: restaurant }) => {
                                     <DragI className="size-5" />
                                   </div>
 
+                                  <div className="flex items-center size-16">
+                                    <img
+                                      src={
+                                        subCat.imageAbsoluteUrl || fallbackImg
+                                      }
+                                      alt={subCat.name}
+                                    />
+                                  </div>
+
                                   {/* SubCategory Name & Product Count */}
                                   <div className="font-medium text-[--black-2] flex flex-col sm:flex-row sm:items-center gap-2">
                                     <span className="text-base font-semibold text-[--black-1]">
                                       {subCat.name}
                                     </span>
                                     <span className="text-xs text-[--primary-2] font-medium bg-[--status-primary-2] px-2 py-0.5 rounded-md w-fit">
-                                      {subCat.productCount || 0} Ürün
+                                      {t("editCategories.product_count", {
+                                        count: subCat.productCount || 0,
+                                      })}
                                     </span>
                                   </div>
 
@@ -368,7 +395,7 @@ const SubCategories = ({ data: restaurant }) => {
                                         )
                                       }
                                       className="p-2 text-[--primary-1] bg-[--status-primary-1] hover:bg-[--status-primary-2] rounded-lg transition-colors"
-                                      title="Düzenle"
+                                      title={t("categoryProducts.edit")}
                                     >
                                       <EditI
                                         className="size-[1.1rem]"
@@ -385,7 +412,7 @@ const SubCategories = ({ data: restaurant }) => {
                                         );
                                       }}
                                       className="p-2 text-[--red-1] bg-[--status-red] hover:bg-[--red-2] hover:text-white rounded-lg transition-colors"
-                                      title="Sil"
+                                      title={t("categoryProducts.delete")}
                                     >
                                       <DeleteI
                                         className="size-[1.1rem]"
