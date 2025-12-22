@@ -38,6 +38,9 @@ import SubCategories from "../components/restaurant/subCategory/subCategories";
 //ORDER TAG ITEMS
 import OrderTags from "../components/restaurant/orderTags/orderTags";
 
+//QR
+import QRPage from "../components/qr/qrPage";
+
 const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   const location = useLocation();
   const dispatch = useDispatch();
@@ -139,6 +142,9 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
           <Route path={P.prods.add} element={<AddProduct data={data} />} />
           <Route path={P.prods.priceList} element={<PriceList data={data} />} />
           <Route path={P.prods.edit} element={<EditProduct data={data} />} />
+
+          {/* QR */}
+          <Route path="/qr/:id" element={<QRPage data={data} />} />
 
           <Route path="/test" element={<TestPage />} />
           <Route path="*" element={<NotFound />} />

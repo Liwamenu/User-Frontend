@@ -49,8 +49,6 @@ const EditRestaurant = ({ data: restaurant }) => {
       phoneNumber,
       latitude,
       longitude,
-      lat,
-      lng,
       city,
       district,
       neighbourhood,
@@ -67,8 +65,8 @@ const EditRestaurant = ({ data: restaurant }) => {
       phoneNumber: phoneNumber?.startsWith("90")
         ? phoneNumber
         : "90" + phoneNumber,
-      latitude: lat ? lat : latitude,
-      longitude: lng ? lng : longitude,
+      latitude: latitude,
+      longitude: longitude,
       city: { label: city, value: city, id: null },
       district: { label: district, value: district, id: null },
       neighbourhood: { label: neighbourhood, value: neighbourhood, id: null },

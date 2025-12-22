@@ -10,21 +10,25 @@
     "city": "KAHRAMANMARAŞ",
     "district": "ONİKİŞUBAT",
     "neighbourhood": "SÜLEYMANŞAH MAHALLESİ",
-    "address": "Marash",
+    "address": "Ondokuz Mayıs KYK Öğrenci Yurdu, Gençlik Bulvarı, Kumcağız Mahallesi, 19 Mayıs, Samsun, Black Sea Region, Turkey",
     "isActive": true,
     "imageAbsoluteUrl": "http://localhost:5210/images/restaurants/538ba1a1-bf0d-47eb-9b88-054856703452.jpg",
-    "defaultLang": "1",
+    "defaultLang": "TR",
     "slogan1": "Lezzetin Adı",
     "slogan2": "Popeyes",
     "onlineOrder": true,
     "inPersonOrder": true,
     "hide": false,
     "themeId": 1,
-    "maxDistanceKM": 1,
-    "menuLang": "1",
-    "table_order_discount_rate": 0,
-    "online_order_discount_rate": 0,
+    "maxDistance": 1,
+    "menuLang": "TR",
+    "tableOrderDiscountRate": 0,
+    "onlineOrderDiscountRate": 0,
     "tenant": "popeyes",
+    "isSpecialPriceActive": false,
+    "specialPriceName": "",
+    "googleAnalytics": "",
+    "licenseIsActive": true,
     "workingHours": [
       {
         "Day": 1,
@@ -67,6 +71,194 @@
         "IsClosed": true,
         "Open": "00:00",
         "Close": "23:59"
+      }
+    ],
+    "socialLinks": {
+      "facebookUrl": null,
+      "instagramUrl": null,
+      "tiktokUrl": null,
+      "youtubeUrl": null,
+      "whatsappUrl": null
+    },
+    "Products": [
+      {
+        "id": "some-product-id-1",
+        "sortOrder": 10,
+        "imageURL": "http://192.168.100.113:9006/image_1.png",
+        "name": "Mercimek Çorbası Kırmızı mercimekten yapılan",
+        "description": "Kırmızı mercimekten yapılan geleneksel çorba. Zırh ile çekilmiş kuzu eti, özel baharatlar ve közlenmiş. Zırh ile çekilmiş kuzu eti, özel baharatlar ve közlenmiş",
+        "recommendation": false,
+        "hide": true,
+        "categoryId": "xncd-sfsfsfs-gsgg23-skroewt",
+        "categoryName": "Corbalar",
+        "categoryImage": "",
+        "categorySortOrder": 0,
+        "subCategoryId": null,
+        "subCategoryName": null,
+        "subCategoryImage": "https://cdn.liwasoft.com/products/mercimek-sub.jpg",
+        "subCategorySortOrder": 0,
+        "portions": [
+          {
+            "id": "some-portion-id-1",
+            "productId": "some-product-id-1",
+            "name": "Normal",
+            "price": 45.2,
+            "campaignPrice": 30,
+            "specialPrice": 20,
+            "orderTags": [
+              {
+                "id": "some-ordertag-id-1",
+                "name": "Baharat Seçimi",
+                "minSelected": 0,
+                "maxSelected": 2,
+                "orderTagItems": [
+                  {
+                    "id": "some-ordertagitem-id-4",
+                    "name": "Acı Biber",
+                    "price": 0.0,
+                    "maxQuantity": 1
+                  },
+                  {
+                    "id": "some-ordertagitem-id-5",
+                    "name": "Tatlı Biber",
+                    "price": 0.0,
+                    "maxQuantity": 1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+
+      {
+        "id": 1002,
+        "sortOrder": 11,
+        "name": "Ezogelin Çorbası",
+        "imageURL": "https://cdn.liwasoft.com/products/ezogelin.jpg",
+        "description": "Geleneksel, baharatlı ezogelin çorbası.",
+        "recommendation": false,
+        "hide": false,
+        "categoryId": "xncd-sfsfsfs-gsgg23-skroewt",
+        "categoryName": "Corbalar",
+        "categoryImage": "",
+        "categorySortOrder": 0,
+        "subCategoryId": null,
+        "subCategoryName": null,
+        "subCategoryImage": "https://cdn.liwasoft.com/products/ezogelin-sub.jpg",
+        "subCategorySortOrder": 0,
+        "portions": [
+          {
+            "id": 2,
+            "productId": 1002,
+            "name": "Kase",
+            "price": 50,
+            "campaignPrice": 30,
+            "specialPrice": 20,
+            "orderTags": [
+              {
+                "id": "some-ordertag-id-1",
+                "name": "Baharat Seçimi",
+                "minSelected": 0,
+                "maxSelected": 2,
+                "orderTagItems": [
+                  {
+                    "id": "some-ordertagitem-id-4",
+                    "name": "Acı Biber",
+                    "price": 0.0,
+                    "maxQuantity": 1
+                  },
+                  {
+                    "id": "some-ordertagitem-id-5",
+                    "name": "Tatlı Biber",
+                    "price": 0.0,
+                    "maxQuantity": 1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+
+      {
+        "id": 2001,
+        "sortOrder": 10,
+        "name": "Kuzu Tandır",
+        "imageURL": "https://cdn.liwasoft.com/products/kuzu-tandir.jpg",
+        "description": "Fırında pişen yumuşacık kuzu tandır.",
+        "recommendation": true,
+        "hide": false,
+        "categoryId": "xncd-sfsfsfs-gsgg23-skroethgh",
+        "categoryName": "AnaYemekler",
+        "categoryImage": "",
+        "categorySortOrder": 1,
+        "subCategoryId": null,
+        "subCategoryName": null,
+        "subCategoryImage": "https://cdn.liwasoft.com/products/kuzu-tandir-sub.jpg",
+        "subCategorySortOrder": 0,
+        "portions": [
+          {
+            "id": 3,
+            "productId": 2001,
+            "name": "Normal",
+            "price": 180,
+            "campaignPrice": 30,
+            "specialPrice": 20,
+            "orderTags": [
+              {
+                "id": "some-ordertag-id-2",
+                "name": "Sos Seçimi",
+                "minSelected": 0,
+                "maxSelected": 3,
+                "orderTagItems": [
+                  {
+                    "id": "some-ordertagitem-id-6",
+                    "name": "Domates Sosu",
+                    "price": 0.0,
+                    "maxQuantity": 1
+                  },
+                  {
+                    "id": "some-ordertagitem-id-7",
+                    "name": "Sarımsaklı Sos",
+                    "price": 0.0,
+                    "maxQuantity": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": 4,
+            "productId": 2002,
+            "name": "Porsiyon",
+            "price": 130,
+            "campaignPrice": 30,
+            "specialPrice": 20,
+            "orderTags": [
+              {
+                "id": "some-ordertag-id-2",
+                "name": "Sos Seçimi",
+                "minSelected": 0,
+                "maxSelected": 3,
+                "orderTagItems": [
+                  {
+                    "id": "some-ordertagitem-id-6",
+                    "name": "Domates Sosu",
+                    "price": 0.0,
+                    "maxQuantity": 1
+                  },
+                  {
+                    "id": "some-ordertagitem-id-7",
+                    "name": "Sarımsaklı Sos",
+                    "price": 0.0,
+                    "maxQuantity": 1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       }
     ]
   }
