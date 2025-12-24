@@ -149,7 +149,7 @@ function Header({ openSidebar, setOpenSidebar }) {
                 <span className="ml-1 text-xs font-semibold uppercase">
                   {
                     LanguagesEnums.filter((l) => l.value == selectedLang)[0]
-                      .label
+                      ?.label
                   }
                 </span>
               </div>
