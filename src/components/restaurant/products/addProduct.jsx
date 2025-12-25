@@ -48,6 +48,7 @@ const defaultProduct = {
   categoryName: "",
   subCategoryId: "",
   subCategoryName: "",
+  isNoteAllowed: true,
   portions: [emptyPortion()],
 };
 
@@ -383,6 +384,22 @@ const AddProduct = ({ data: restaurant }) => {
                       onChange={handleFileChange}
                       accept={"image/png, image/jpeg"}
                       className="h-full w-full"
+                    />
+                  </div>
+                </div>
+
+                {/* IS NOTE ALLOWED */}
+                <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-indigo-200 transition-colors">
+                  <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
+                    {t("editProduct.tag")}
+                  </span>
+                  <div className="flex items-center justify-between">
+                    <CustomToggle
+                      label={t("editProduct.freeTag")}
+                      checked={productData.isNoteAllowed}
+                      className1="text-sm"
+                      className="peer-checked:bg-[--green-1] bg-[--border-1] scale-[.9]"
+                      onChange={() => handleToggle("isNoteAllowed")}
                     />
                   </div>
                 </div>

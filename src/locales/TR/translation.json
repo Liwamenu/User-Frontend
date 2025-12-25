@@ -93,7 +93,19 @@
     "special_price_label": "Etiket (Örn: Maliyet, VIP)",
     "special_price_placeholder": "Personel, Müdavim gibi . . .",
     "special_price_note": "Not: Bu etiket tüm porsiyonlardaki özel fiyatlar için geçerli olacaktır.",
-    "is_special_price_active": "Özel Fiyatı Aktif Et"
+    "is_special_price_active": "Özel Fiyatı Aktif Et",
+    "money_sign": "Para Birimi Sembolü",
+    "money_sign_placeholder": "örn: ₺, $, €",
+    "table_number": "Masa Sayısı",
+    "table_number_placeholder": "Masa sayısını giriniz",
+    "delivery_price": "Teslimat Ücreti",
+    "delivery_price_placeholder": "Teslimat ücretini giriniz",
+    "min_order_amount": "Minimum Sipariş Tutarı",
+    "min_order_amount_placeholder": "Minimum sipariş tutarını giriniz",
+    "check_table_order_distance": "Masa Sipariş Mesafesini Kontrol Et",
+    "max_table_order_distance_meter": "Maksimum Masa Sipariş Mesafesi (metre)",
+    "max_table_order_distance_meter_placeholder": "Maksimum mesafeyi metre cinsinden giriniz",
+    "is_reservation_license_active": "Rezervasyon Lisansını Aktif Et"
   },
   "workingHours": {
     "title": "{{name}} Restoranı için Çalışma Saatleri",
@@ -383,7 +395,9 @@
     "portion_column_campaign": "Kampanya",
     "portion_column_special": "Özel",
     "portion_delete_aria": "Porsiyonu Sil",
-    "cancel": "Vazgeç"
+    "cancel": "Vazgeç",
+    "tag": "Etiket",
+    "freeTag": "Serbest Etiketleme"
   },
   "addProduct": {
     "title": "Yeni Ürün",

@@ -41,6 +41,15 @@ const RestaurantSettings = ({ data: inData }) => {
       tableOrderDiscountRate: inData?.tableOrderDiscountRate,
       isSpecialPriceActive: inData?.isSpecialPriceActive,
       specialPriceName: inData?.specialPriceName,
+
+      // Additional fields
+      deliveryPrice: inData?.deliveryPrice,
+      tableNumber: inData?.tableNumber,
+      moneySign: inData?.moneySign,
+      maxTableOrderDistanceMeter: inData?.maxTableOrderDistanceMeter,
+      checkTableOrderDistance: inData?.checkTableOrderDistance,
+      isReservationLicenseActive: inData?.isReservationLicenseActive,
+      minOrderAmount: inData?.minOrderAmount,
     }),
     [inData]
   );
@@ -177,6 +186,23 @@ const RestaurantSettings = ({ data: inData }) => {
                 />
               </div>
 
+              {/* MONEY SIGN */}
+              <div>
+                <CustomInput
+                  type="text"
+                  label={t("restaurantSettings.money_sign")}
+                  placeholder={t("restaurantSettings.money_sign_placeholder")}
+                  className="py-[.4rem] bg-[--white-1]"
+                  value={restaurantData?.moneySign ?? ""}
+                  onChange={(e) =>
+                    setRestaurantData((prev) => ({
+                      ...prev,
+                      moneySign: e,
+                    }))
+                  }
+                />
+              </div>
+
               {/* SLOGAN 1 */}
               <div>
                 <CustomInput
@@ -213,32 +239,6 @@ const RestaurantSettings = ({ data: inData }) => {
 
             {/* RIGHT SIDE */}
             <div className="flex-1 flex flex-col gap-y-9 text-sm  max-w-md">
-              {/* MAXIMUM DISTANCE */}
-              <div>
-                <span className="text-xs font-semibold tracking-wide text-[--gr-1] max-md:max-w-full text-left ">
-                  {t("restaurantSettings.max_distance")}{" "}
-                  <span className="text-[--primary-1]">
-                    {t("restaurantSettings.max_distance_note")}
-                  </span>
-                </span>
-                <div className="max-w-md">
-                  <CustomInput
-                    type="number"
-                    placeholder={t(
-                      "restaurantSettings.max_distance_placeholder"
-                    )}
-                    className="py-[.4rem] bg-[--white-1]"
-                    value={restaurantData?.maxDistance ?? ""}
-                    onChange={(e) =>
-                      setRestaurantData((prev) => ({
-                        ...prev,
-                        maxDistance: e,
-                      }))
-                    }
-                  />
-                </div>
-              </div>
-
               {/* ONLINE ORDER */}
               <main className="max-w-md flex flex-col gap-4 border border-[--border-1] px-2.5 py-4 rounded-md bg-[--light-1]">
                 <div>
@@ -274,6 +274,72 @@ const RestaurantSettings = ({ data: inData }) => {
                   />
                   <span className="bg-[--gr-4] border border-[--border-1] px-3 py-[7px] rounded-md">
                     %
+                  </span>
+                </div>
+
+                {/* DELIVERY PRICE */}
+                <div className="flex gap-2 items-end">
+                  <CustomInput
+                    type="number"
+                    label={t("restaurantSettings.delivery_price")}
+                    placeholder={t(
+                      "restaurantSettings.delivery_price_placeholder"
+                    )}
+                    className="py-[.4rem] bg-[--white-1] mt-2"
+                    value={restaurantData?.deliveryPrice ?? ""}
+                    onChange={(e) =>
+                      setRestaurantData((prev) => ({
+                        ...prev,
+                        deliveryPrice: e,
+                      }))
+                    }
+                  />
+                  <span className="bg-[--gr-4] border border-[--border-1] px-3 py-[7px] rounded-md">
+                    {restaurantData?.moneySign || "₺"}
+                  </span>
+                </div>
+
+                {/* MIN ORDER AMOUNT */}
+                <div className="flex gap-2 items-end">
+                  <CustomInput
+                    type="number"
+                    label={t("restaurantSettings.min_order_amount")}
+                    placeholder={t(
+                      "restaurantSettings.min_order_amount_placeholder"
+                    )}
+                    className="py-[.4rem] bg-[--white-1] mt-2"
+                    value={restaurantData?.minOrderAmount ?? ""}
+                    onChange={(e) =>
+                      setRestaurantData((prev) => ({
+                        ...prev,
+                        minOrderAmount: e,
+                      }))
+                    }
+                  />
+                  <span className="bg-[--gr-4] border border-[--border-1] px-3 py-[7px] rounded-md">
+                    {restaurantData?.moneySign || "₺"}
+                  </span>
+                </div>
+
+                {/* MAXIMUM DISTANCE */}
+                <div className="flex gap-2 items-end">
+                  <CustomInput
+                    type="number"
+                    label={t("restaurantSettings.max_distance")}
+                    placeholder={t(
+                      "restaurantSettings.max_distance_placeholder"
+                    )}
+                    className="py-[.4rem] bg-[--white-1] mt-2"
+                    value={restaurantData?.maxDistance ?? ""}
+                    onChange={(e) =>
+                      setRestaurantData((prev) => ({
+                        ...prev,
+                        maxDistance: e,
+                      }))
+                    }
+                  />
+                  <span className="bg-[--gr-4] border border-[--border-1] px-3 py-[7px] rounded-md">
+                    ㎞
                   </span>
                 </div>
               </main>
@@ -315,6 +381,45 @@ const RestaurantSettings = ({ data: inData }) => {
                     %
                   </span>
                 </div>
+
+                {/* CHECK TABLE ORDER DISTANCE */}
+                <div>
+                  <CustomToggle
+                    label={t("restaurantSettings.check_table_order_distance")}
+                    className2="font-medium"
+                    checked={restaurantData?.checkTableOrderDistance}
+                    onChange={() =>
+                      setRestaurantData((prev) => ({
+                        ...prev,
+                        checkTableOrderDistance:
+                          !restaurantData.checkTableOrderDistance,
+                      }))
+                    }
+                  />
+                </div>
+
+                {/* MAX TABLE ORDER DISTANCE METER */}
+                {restaurantData?.checkTableOrderDistance && (
+                  <div>
+                    <CustomInput
+                      type="number"
+                      label={t(
+                        "restaurantSettings.max_table_order_distance_meter"
+                      )}
+                      placeholder={t(
+                        "restaurantSettings.max_table_order_distance_meter_placeholder"
+                      )}
+                      className="py-[.4rem] bg-[--white-1] mt-2"
+                      value={restaurantData?.maxTableOrderDistanceMeter ?? ""}
+                      onChange={(e) =>
+                        setRestaurantData((prev) => ({
+                          ...prev,
+                          maxTableOrderDistanceMeter: e,
+                        }))
+                      }
+                    />
+                  </div>
+                )}
               </main>
             </div>
           </div>
@@ -344,6 +449,21 @@ const RestaurantSettings = ({ data: inData }) => {
                   setRestaurantData((prev) => ({
                     ...prev,
                     isSpecialPriceActive: !restaurantData.isSpecialPriceActive,
+                  }))
+                }
+              />
+            </div>
+
+            {/* IS RESERVATION LICENSE ACTIVE */}
+            <div className="w-full border border-[--border-1] rounded-md p-2.5 mt-3">
+              <CustomToggle
+                label={t("restaurantSettings.is_reservation_license_active")}
+                checked={restaurantData?.isReservationLicenseActive}
+                onChange={() =>
+                  setRestaurantData((prev) => ({
+                    ...prev,
+                    isReservationLicenseActive:
+                      !restaurantData.isReservationLicenseActive,
                   }))
                 }
               />

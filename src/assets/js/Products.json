@@ -16,6 +16,7 @@
       "subCategoryName": null,
       "subCategoryImage": "https://cdn.liwasoft.com/products/mercimek-sub.jpg",
       "subCategorySortOrder": 0,
+      "isNoteAllowed": true,
       "portions": [
         {
           "id": "some-portion-id-1",
@@ -66,6 +67,7 @@
       "subCategoryName": null,
       "subCategoryImage": "https://cdn.liwasoft.com/products/ezogelin-sub.jpg",
       "subCategorySortOrder": 0,
+      "isNoteAllowed": false,
       "portions": [
         {
           "id": 2,
@@ -116,6 +118,7 @@
       "subCategoryName": null,
       "subCategoryImage": "https://cdn.liwasoft.com/products/kuzu-tandir-sub.jpg",
       "subCategorySortOrder": 0,
+      "isNoteAllowed": false,
       "portions": [
         {
           "id": 3,

@@ -29,6 +29,14 @@
     "specialPriceName": "",
     "googleAnalytics": "",
     "licenseIsActive": true,
+
+    "deliveryPrice": 15,
+    "maxTableOrderDistanceMeter": 1000000,
+    "checkTableOrderDistance": true,
+    "isReservationLicenseActive": true,
+    "tableNumber": 5,
+    "moneySign": "$",
+    "minOrderAmount": 100,
     "workingHours": [
       {
         "Day": 1,

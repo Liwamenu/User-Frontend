@@ -93,7 +93,19 @@
     "special_price_section": "Special Price Definition (Optional)",
     "special_price_placeholder": "Staff, Regular, etc...",
     "special_price_note": "Note: This tag will apply to special prices of all portions.",
-    "is_special_price_active": "Activate Special Price"
+    "is_special_price_active": "Activate Special Price",
+    "money_sign": "Currency Symbol",
+    "money_sign_placeholder": "e.g. ₺, $, €",
+    "table_number": "Number of Tables",
+    "table_number_placeholder": "Enter number of tables",
+    "delivery_price": "Delivery Price",
+    "delivery_price_placeholder": "Enter delivery price",
+    "min_order_amount": "Minimum Order Amount",
+    "min_order_amount_placeholder": "Enter minimum order amount",
+    "check_table_order_distance": "Check Table Order Distance",
+    "max_table_order_distance_meter": "Max Table Order Distance (meters)",
+    "max_table_order_distance_meter_placeholder": "Enter max distance in meters",
+    "is_reservation_license_active": "Activate Reservation License"
   },
   "workingHours": {
     "title": "Working Hours for {{name}} Restaurant",
@@ -383,7 +395,9 @@
     "portion_column_campaign": "Campaign",
     "portion_column_special": "Special",
     "portion_delete_aria": "Delete Portion",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "tag": "Tag",
+    "freeTag": "Free Tagging"
   },
   "addProduct": {
     "title": "New Product",
