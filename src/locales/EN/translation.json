@@ -105,7 +105,7 @@
     "check_table_order_distance": "Check Table Order Distance",
     "max_table_order_distance_meter": "Max Table Order Distance (meters)",
     "max_table_order_distance_meter_placeholder": "Enter max distance in meters",
-    "is_reservation_license_active": "Activate Reservation License"
+    "is_reservation_active": "Activate Reservation"
   },
   "workingHours": {
     "title": "Working Hours for {{name}} Restaurant",
