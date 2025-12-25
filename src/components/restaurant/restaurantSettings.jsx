@@ -43,7 +43,7 @@ const RestaurantSettings = ({ data: inData }) => {
       specialPriceName: inData?.specialPriceName,
 
       // Additional fields
-      deliveryPrice: inData?.deliveryPrice,
+      deliveryFee: inData?.deliveryFee,
       tableNumber: inData?.tableNumber,
       moneySign: inData?.moneySign,
       maxTableOrderDistanceMeter: inData?.maxTableOrderDistanceMeter,
@@ -286,11 +286,11 @@ const RestaurantSettings = ({ data: inData }) => {
                       "restaurantSettings.delivery_price_placeholder"
                     )}
                     className="py-[.4rem] bg-[--white-1] mt-2"
-                    value={restaurantData?.deliveryPrice ?? ""}
-                    onChange={(e) =>
+                    value={restaurantData?.deliveryFee ?? ""}
+                    onChange={(v) =>
                       setRestaurantData((prev) => ({
                         ...prev,
-                        deliveryPrice: e,
+                        deliveryFee: v,
                       }))
                     }
                   />
