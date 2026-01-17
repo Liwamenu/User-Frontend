@@ -40,6 +40,7 @@ import OrderTags from "../components/restaurant/orderTags/orderTags";
 
 //QR
 import QRPage from "../components/qr/qrPage";
+import AddCategories from "../components/restaurant/categories/addCategories";
 
 const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   const location = useLocation();
@@ -47,11 +48,11 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   const id = useParams()["*"].split("/")[1];
 
   const { restaurants } = useSelector(
-    (state) => state.restaurants.getRestaurants
+    (state) => state.restaurants.getRestaurants,
   );
 
   const { restaurant: stateRest, success } = useSelector(
-    (state) => state.restaurants.getRestaurant
+    (state) => state.restaurants.getRestaurant,
   );
   const { restaurant } = location?.state || {};
   const myRestaurant = restaurants?.data?.filter((r) => r.id === id)[0];
@@ -92,6 +93,7 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
     },
     cat: {
       add: "/categories/:id/add",
+      addMany: "/categories/:id/addMany",
       list: "/categories/:id/list",
     },
     subCat: {
@@ -127,6 +129,7 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
           {/* CATEGORIES */}
           <Route path={P.cat.list} element={<Categories data={data} />} />
           <Route path={P.cat.add} element={<AddCategory data={data} />} />
+          <Route path={P.cat.addMany} element={<AddCategories data={data} />} />
 
           {/* SUBCATEGORIES */}
           <Route path={P.subCat.list} element={<SubCategories data={data} />} />

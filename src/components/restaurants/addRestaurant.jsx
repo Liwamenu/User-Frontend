@@ -8,13 +8,13 @@ import { useTranslation } from "react-i18next";
 
 //COMP
 import { CancelI } from "../../assets/icon";
+import { googleMap } from "../../utils/utils";
 import CustomInput from "../common/customInput";
 import CustomSelect from "../common/customSelector";
 import CustomTextarea from "../common/customTextarea";
 import { usePopup } from "../../context/PopupContext";
 import CustomFileInput from "../common/customFileInput";
 import CustomPhoneInput from "../common/customPhoneInput";
-import { googleMap } from "../../utils/utils";
 
 // REDUX
 import {
@@ -282,7 +282,7 @@ function AddRestaurantPopup({ onSuccess }) {
     }
   }, [restaurantData.city]);
 
-  //SET THE USER DATA
+  //SET THE USER ADDRESS
   useEffect(() => {
     if (address) {
       const city_ = address.city;

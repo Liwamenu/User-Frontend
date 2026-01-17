@@ -22,7 +22,7 @@ const AddCategories = ({ data: restaurant }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { loading, success, error } = useSelector(
-    (state) => state.categories.add
+    (state) => state.categories.add,
   );
   const [categories, setCategories] = useState([
     { name: "", status: true, featured: false, image: null, sortOrder: 0 },
@@ -45,14 +45,16 @@ const AddCategories = ({ data: restaurant }) => {
   // Update field in a category row
   const updateCategory = (index, key, value) => {
     setCategories((prev) =>
-      prev.map((cat, i) => (i === index ? { ...cat, [key]: value } : cat))
+      prev.map((cat, i) => (i === index ? { ...cat, [key]: value } : cat)),
     );
   };
 
   // Remove a category row
   const removeCategory = (index) => {
     setCategories((prev) =>
-      prev.filter((_, i) => i !== index).map((c, i) => ({ ...c, sortOrder: i }))
+      prev
+        .filter((_, i) => i !== index)
+        .map((c, i) => ({ ...c, sortOrder: i })),
     );
   };
 
@@ -95,6 +97,20 @@ const AddCategories = ({ data: restaurant }) => {
       }
 
       dispatch(addCategories(formData));
+
+      const debugFormData = {};
+      for (const [key, value] of formData.entries()) {
+        debugFormData[key] =
+          value instanceof File
+            ? {
+                name: value.name,
+                type: value.type,
+                size: value.size,
+              }
+            : value;
+      }
+
+      console.log(JSON.stringify(debugFormData, null, 2));
     } catch (error) {
       console.error("Error preparing form data:", error);
     }
@@ -202,7 +218,7 @@ const AddCategories = ({ data: restaurant }) => {
                                   updateCategory(
                                     index,
                                     "featured",
-                                    !cat.featured
+                                    !cat.featured,
                                   )
                                 }
                               />
@@ -231,8 +247,8 @@ const AddCategories = ({ data: restaurant }) => {
                                   screen.width < 435
                                     ? 10
                                     : screen.width < 1025
-                                    ? 20
-                                    : 40
+                                      ? 20
+                                      : 40
                                 }
                                 value={cat.image}
                                 onChange={(file) =>
