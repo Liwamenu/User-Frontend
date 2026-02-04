@@ -7,6 +7,7 @@ import updatePriceListSlice from "./updatePriceListSlice";
 import addProductSlice from "./addProductSlice";
 import editProductSlice from "./editProductSlice";
 import deleteProductSlice from "./deleteProductSlice";
+import priceListApplyBulkSlice from "./priceListApplyBulkSlice";
 
 const productsSlice = combineReducers({
   get: getProductsSlice,
@@ -15,6 +16,7 @@ const productsSlice = combineReducers({
   delete: deleteProductSlice,
   getByCategoryId: getProductsByCategoryIdSlice,
   updatePriceList: updatePriceListSlice,
+  applyPriceListBulk: priceListApplyBulkSlice,
 });
 
 export default productsSlice;

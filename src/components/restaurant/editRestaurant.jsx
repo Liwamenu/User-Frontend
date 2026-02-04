@@ -27,8 +27,8 @@ import {
   resetGetDistrictsState,
 } from "../../redux/data/getDistrictsSlice";
 import {
-  resetUpdateRestaurant,
   updateRestaurant,
+  resetUpdateRestaurant,
 } from "../../redux/restaurants/updateRestaurantSlice";
 import { getCities } from "../../redux/data/getCitiesSlice";
 

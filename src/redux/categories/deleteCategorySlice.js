@@ -46,17 +46,17 @@ const deleteCategorySlice = createSlice({
 });
 
 export const deleteCategory = createAsyncThunk(
-  "categories/DeleteCategory",
+  "Categories/DeleteCategory",
   async (categoryId, { rejectWithValue }) => {
     try {
       const response = await api.delete(
-        `${baseURL}categories/DeleteCategory/${categoryId}`
+        `${baseURL}Categories/DeleteCategory/${categoryId}`,
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
-  }
+  },
 );
 
 export const { resetDeleteCategory } = deleteCategorySlice.actions;

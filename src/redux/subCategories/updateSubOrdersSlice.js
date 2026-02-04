@@ -46,15 +46,15 @@ const updateSubOrdersSlice = createSlice({
 });
 
 export const updateSubOrders = createAsyncThunk(
-  "SubCategories/UpdateSubOrders",
+  "SubCategories/UpdateSubCategoriesOrder",
   async (data, { rejectWithValue }) => {
     try {
       const res = await api.put(
-        `${baseURL}SubCategories/UpdateSubOrders`,
+        `${baseURL}SubCategories/UpdateSubCategoriesOrder`,
         data,
         {
           headers: { "Content-Type": "multipart/form-data" },
-        }
+        },
       );
 
       console.log(res);
@@ -66,7 +66,7 @@ export const updateSubOrders = createAsyncThunk(
       }
       return rejectWithValue({ message_TR: err.message });
     }
-  }
+  },
 );
 
 export const { resetUpdateSubOrders } = updateSubOrdersSlice.actions;

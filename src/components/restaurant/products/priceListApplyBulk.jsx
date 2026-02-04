@@ -1,10 +1,19 @@
-import { useState } from "react";
-import { TurnLeftI } from "../../../assets/icon";
+//MODULES
+import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+
+//COMP
 import CheckI from "../../../assets/icon/check";
 import CustomInput from "../../common/customInput";
 import CustomSelect from "../../common/customSelector";
-import toast from "react-hot-toast";
-import { useTranslation } from "react-i18next";
+
+//REEDUX
+import {
+  priceListApplyBulk,
+  resetPriceListApplyBulk,
+} from "../../../redux/products/priceListApplyBulkSlice";
 
 const BULK_TYPE_OPTIONS = [
   {
@@ -27,6 +36,9 @@ const BULK_TARGET_OPTIONS = [
 
 const PriceListApplyBulk = ({ list, setList }) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+
+  const { success, error } = useSelector((s) => s.products.applyPriceListBulk);
 
   const [bulkType, setBulkType] = useState("percent-increase");
   const [bulkValue, setBulkValue] = useState("");
@@ -101,6 +113,7 @@ const PriceListApplyBulk = ({ list, setList }) => {
     });
 
     setList(updatedList);
+    dispatch(priceListApplyBulk(updatedList));
     setBulkValue("");
   };
 
@@ -110,6 +123,14 @@ const PriceListApplyBulk = ({ list, setList }) => {
       setHistory(null);
     }
   };
+
+  useEffect(() => {
+    if (success) {
+      toast.success(t("priceList.bulk_success"), { id: "applyInBulk" });
+      dispatch(resetPriceListApplyBulk());
+    }
+    if (error) dispatch(resetPriceListApplyBulk());
+  }, [success, error]);
 
   return (
     <div className="bg-[#222265] rounded-2xl p-6 mb-8 text-white shadow-lg relative">

@@ -7,58 +7,51 @@ const baseURL = import.meta.env.VITE_BASE_URL;
 const initialState = {
   loading: false,
   success: false,
-  error: false,
-  categories: null,
+  error: null,
+  data: null,
 };
 
-const getCategoriesSlice = createSlice({
-  name: "getCategories",
+const priceListApplyBulkSlice = createSlice({
+  name: "priceListApplyBulk",
   initialState: initialState,
   reducers: {
-    resetGetCategoriesState: (state) => {
+    resetPriceListApplyBulk: (state) => {
       state.loading = false;
       state.success = false;
       state.error = null;
-    },
-    resetGetCategories: (state) => {
-      state.categories = null;
+      state.data = null;
     },
   },
   extraReducers: (build) => {
     build
-      .addCase(getCategories.pending, (state) => {
+      .addCase(priceListApplyBulk.pending, (state) => {
         state.loading = true;
         state.success = false;
-        state.error = false;
-        state.categories = null;
+        state.error = null;
+        state.data = null;
       })
-      .addCase(getCategories.fulfilled, (state, action) => {
+      .addCase(priceListApplyBulk.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.error = false;
-        state.categories = action.payload;
+        state.error = null;
+        state.data = action.payload;
       })
-      .addCase(getCategories.rejected, (state, action) => {
+      .addCase(priceListApplyBulk.rejected, (state, action) => {
         state.loading = false;
         state.success = false;
         state.error = action.payload;
-        state.categories = null;
+        state.data = null;
       });
   },
 });
 
-export const getCategories = createAsyncThunk(
-  "Categories/GetCategoriesByRestaurantId",
+export const priceListApplyBulk = createAsyncThunk(
+  "Products/PriceListApplyBulk",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.get(
-        `${baseURL}Categories/GetCategoriesByRestaurantId`,
-        {
-          params: data,
-        },
-      );
+      const res = await api.put(`${baseURL}Products/PriceListApplyBulk`, data);
 
-      // console.log(res.data);
+      console.log(res);
       return res.data;
     } catch (err) {
       console.log(err);
@@ -70,6 +63,5 @@ export const getCategories = createAsyncThunk(
   },
 );
 
-export const { resetGetCategoriesState, resetGetCategories } =
-  getCategoriesSlice.actions;
-export default getCategoriesSlice.reducer;
+export const { resetPriceListApplyBulk } = priceListApplyBulkSlice.actions;
+export default priceListApplyBulkSlice.reducer;

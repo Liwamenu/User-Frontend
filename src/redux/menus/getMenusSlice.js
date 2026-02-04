@@ -48,7 +48,7 @@ const getMenusSlice = createSlice({
 });
 
 export const getMenus = createAsyncThunk(
-  "menus/GetMenusByRestaurantId",
+  "Menus/GetMenusByRestaurantId",
   async (restaurantId, { rejectWithValue }) => {
     try {
       const res = await api.get(`${baseURL}Menus/GetMenusByRestaurantId`, {
@@ -64,7 +64,7 @@ export const getMenus = createAsyncThunk(
       }
       return rejectWithValue({ message_TR: err.message });
     }
-  }
+  },
 );
 
 export const { resetGetMenusState, resetGetMenus } = getMenusSlice.actions;
