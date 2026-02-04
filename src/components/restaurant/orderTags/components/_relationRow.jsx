@@ -23,7 +23,7 @@ const RelationRow = ({
       { value: "*", label: "* Tüm Kategoriler" },
       ...categories.map((c) => ({ value: c.id, label: c.name })),
     ],
-    [categories]
+    [categories],
   );
 
   const productOptions = useMemo(
@@ -31,7 +31,7 @@ const RelationRow = ({
       { value: "*", label: "* Tüm Ürünler" },
       ...filteredProducts.map((p) => ({ value: p.id, label: p.name })),
     ],
-    [filteredProducts]
+    [filteredProducts],
   );
 
   const portionOptions = useMemo(() => {

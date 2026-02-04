@@ -48,7 +48,7 @@ const OrderTags = () => {
     setState((prev) => ({
       ...prev,
       tagGroups: prev.tagGroups.map((g) =>
-        g.id === groupId ? { ...g, ...updates } : g
+        g.id === groupId ? { ...g, ...updates } : g,
       ),
     }));
   };
@@ -63,7 +63,7 @@ const OrderTags = () => {
             tagGroups: prev.tagGroups.filter((g) => g.id !== group.id),
           }));
         }}
-      />
+      />,
     );
   };
 
@@ -89,7 +89,7 @@ const OrderTags = () => {
           top: document.body.scrollHeight,
           behavior: "smooth",
         }),
-      100
+      100,
     );
   };
 
@@ -116,11 +116,11 @@ const OrderTags = () => {
   const handleSaveAll = () => {
     // Simple validation: groups must have name and at least one item
     const invalidGroups = state.tagGroups.filter(
-      (g) => !g.name.trim() || g.items.length === 0
+      (g) => !g.name.trim() || g.items.length === 0,
     );
     if (invalidGroups.length > 0) {
       toast.error(
-        "Lütfen tüm grupların adlarını girin ve en az bir seçenek ekleyin."
+        "Lütfen tüm grupların adlarını girin ve en az bir seçenek ekleyin.",
       );
       return;
     }
@@ -183,7 +183,7 @@ const OrderTags = () => {
   }, [success, error]);
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen">
       <header className="shadow-xl sticky top-0 z-50 bg-[--primary-1] text-[--white-1]">
         <div className="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3">
@@ -215,7 +215,7 @@ const OrderTags = () => {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 pt-8">
         {state.tagGroups.length === 0 ? (
           <div className="text-center py-20 rounded-3xl border-2 border-dashed bg-[--white-1] border-[--border-1]">
             <h3 className="text-xl font-bold text-[--gr-2]">
@@ -230,7 +230,7 @@ const OrderTags = () => {
             <Droppable droppableId="tag-groups">
               {(provided) => (
                 <div
-                  className="space-y-2"
+                  className="space-y-2 overflow-x-auto overflow-y-clip pb-60"
                   {...provided.droppableProps}
                   ref={provided.innerRef}
                 >
@@ -244,6 +244,7 @@ const OrderTags = () => {
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
+                          className="min-w-min"
                         >
                           <OrderTagGroupCard
                             group={group}
@@ -256,7 +257,7 @@ const OrderTags = () => {
                               setState((prev) => ({
                                 ...prev,
                                 tagGroups: prev.tagGroups.filter(
-                                  (g) => g.id !== group.id
+                                  (g) => g.id !== group.id,
                                 ),
                               }))
                             }

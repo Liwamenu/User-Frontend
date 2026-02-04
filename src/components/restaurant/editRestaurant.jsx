@@ -77,21 +77,21 @@ const EditRestaurant = ({ data: restaurant }) => {
   };
 
   const { loading, success, error } = useSelector(
-    (state) => state.restaurants.updateRestaurant
+    (state) => state.restaurants.updateRestaurant,
   );
 
   const { cities: citiesData } = useSelector((state) => state.data.getCities);
 
   const { districts: districtsData, success: districtsSuccess } = useSelector(
-    (state) => state.data.getDistricts
+    (state) => state.data.getDistricts,
   );
 
   const { neighs: neighsData, success: neighsSuccess } = useSelector(
-    (state) => state.data.getNeighs
+    (state) => state.data.getNeighs,
   );
 
   const { success: locationSuccess, location } = useSelector(
-    (state) => state.data.getLocation
+    (state) => state.data.getLocation,
   );
 
   const [lat, setLat] = useState(restaurant?.latitude);
@@ -103,15 +103,17 @@ const EditRestaurant = ({ data: restaurant }) => {
   const [cities, setCities] = useState([]);
   const [neighs, setNeighs] = useState([]);
   const [document, setDocument] = useState("");
+  const [document2, setDocument2] = useState("");
   const [districts, setDistricts] = useState([]);
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [restaurantDataBefore, setRestaurantDataBefore] = useState(
-    formatRestaurant(restaurant)
+    formatRestaurant(restaurant),
   );
   const [restaurantData, setRestaurantData] = useState(
-    formatRestaurant(restaurant)
+    formatRestaurant(restaurant),
   );
   const [preview, setPreview] = useState();
+  const [preview2, setPreview2] = useState();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -135,7 +137,8 @@ const EditRestaurant = ({ data: restaurant }) => {
     formData.append("Neighbourhood", restaurantData.neighbourhood.value);
     formData.append("Address", restaurantData.address);
     formData.append("IsActive", restaurantData.isActive);
-    document && formData.append("Image", document);
+    document && formData.append("Image0", document);
+    document2 && formData.append("Image1", document2);
 
     dispatch(updateRestaurant(formData));
     // console.log(restaurantData);
@@ -163,6 +166,7 @@ const EditRestaurant = ({ data: restaurant }) => {
       setRestaurantData(formatted);
       setRestaurantDataBefore(formatted);
       setPreview(formatted?.imageAbsoluteUrl);
+      setPreview2(formatted?.logoImageUrl);
     }
   }, [restaurant]);
 
@@ -192,7 +196,7 @@ const EditRestaurant = ({ data: restaurant }) => {
         const city = citiesData.filter(
           (city) =>
             city?.label?.toLowerCase() ===
-            restaurantData?.city?.label?.toLowerCase() //toLocaleLowerCase('tr-TR')
+            restaurantData?.city?.label?.toLowerCase(), //toLocaleLowerCase('tr-TR')
         )[0];
 
         if (city) {
@@ -237,7 +241,7 @@ const EditRestaurant = ({ data: restaurant }) => {
         const district = districtsData.filter(
           (dist) =>
             dist?.label.toLowerCase() ===
-            restaurantDataBefore.district?.label.toLowerCase()
+            restaurantDataBefore.district?.label.toLowerCase(),
         )[0];
         if (district) {
           setRestaurantDataBefore((prev) => {
@@ -266,7 +270,7 @@ const EditRestaurant = ({ data: restaurant }) => {
         getNeighs({
           cityId: restaurantData.city.id,
           districtId: restaurantData.district.id,
-        })
+        }),
       );
       setRestaurantData((prev) => {
         return {
@@ -286,7 +290,7 @@ const EditRestaurant = ({ data: restaurant }) => {
         const neigh = neighsData.filter(
           (neigh) =>
             neigh.label.toLowerCase() ===
-            restaurantDataBefore.neighbourhood.label.toLowerCase()
+            restaurantDataBefore.neighbourhood.label.toLowerCase(),
         )[0];
         if (neigh) {
           setRestaurantDataBefore((prev) => {
@@ -367,15 +371,29 @@ const EditRestaurant = ({ data: restaurant }) => {
 
   //PREVIEW
   useEffect(() => {
-    if (!document) return;
-
-    // Create a preview URL
-    const objectUrl = URL.createObjectURL(document);
-    setPreview(objectUrl);
+    let objectUrl;
+    let objectUrl2;
+    if (document) {
+      // Create a preview URL
+      objectUrl = URL.createObjectURL(document);
+      setPreview(objectUrl);
+    }
+    if (document2) {
+      // Create a preview URL
+      objectUrl2 = URL.createObjectURL(document2);
+      setPreview2(objectUrl2);
+    }
 
     // Free memory when the component unmounts or doc changes
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [document]);
+    return () => {
+      if (document) {
+        URL.revokeObjectURL(objectUrl);
+      }
+      if (document2) {
+        URL.revokeObjectURL(objectUrl2);
+      }
+    };
+  }, [document, document2]);
 
   return (
     <div className=" w-full pb-8 mt-1 bg-[--white-1] rounded-lg text-[--black-2] text-base overflow-visible relative">
@@ -592,11 +610,22 @@ const EditRestaurant = ({ data: restaurant }) => {
               </div>
 
               <div className="mt-4 flex max-sm:flex-col items-center">
-                <div className="w-full max-w-40">
+                <div className="w-full max-w-40 mb-2">
+                  <img src={preview2} alt="preview_liwamenu_logo" />
+                </div>
+                <CustomFileInput
+                  msg={t("restaurants.logo_msg")}
+                  value={document2}
+                  onChange={setDocument2}
+                  accept={"image/png, image/jpeg"}
+                />
+              </div>
+
+              <div className="mt-4 flex max-sm:flex-col items-center">
+                <div className="w-full max-w-40 mb-2">
                   <img src={preview} alt="preview_liwamenu" />
                 </div>
                 <CustomFileInput
-                  className="h-[8rem] p-4"
                   value={document}
                   onChange={setDocument}
                   accept={"image/png, image/jpeg"}

@@ -1,36 +1,3 @@
-Category-Slices
-  --Add
-  --Edit
-  --Delete
-
-Products-Slices
-  --Get
-  --GetByCategoryId
-  --Edit
-  --UpdatePriceList
-  --Delete
-
-SubCategory-Slices
-  --Add
-  --Edit
-  --UpdateSubCategoriesSortOrder
-  --Delete
-
-Menu-Slices
-  --Get
-  --Add
-  --Edit
-  --Delete
-
-OrderTag
-  --ListOrderTags
-  --AddOrderTag
-  --UpdateOrderTag
-  --DeleteOrderTag
-
-OrderTag-Slices
-  --List
-  --BulkEdit
-  --Edit
-  --Delete
-  --ADD
+//Endpoints
+Restaurants/GetRestaurantReservationSettingsSlice
+Restaurants/SetRestaurantReservationSettingsSlice

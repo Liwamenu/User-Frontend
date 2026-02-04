@@ -38,7 +38,7 @@ const OrderTagGroupCard = ({
 
   const updateItem = (index, updates) => {
     const newItems = group.items.map((item, i) =>
-      i === index ? { ...item, ...updates } : item
+      i === index ? { ...item, ...updates } : item,
     );
     onUpdate({ items: newItems, isDirty: true });
   };
@@ -67,7 +67,7 @@ const OrderTagGroupCard = ({
 
   const updateRelation = (relId, updates) => {
     const newRels = group.relations.map((rel) =>
-      rel.id === relId ? { ...rel, ...updates } : rel
+      rel.id === relId ? { ...rel, ...updates } : rel,
     );
     onUpdate({ relations: newRels, isDirty: true });
   };
@@ -138,7 +138,7 @@ const OrderTagGroupCard = ({
                 type="text"
                 value={group.name}
                 onChange={(v) => onUpdate({ name: v, isDirty: true })}
-                className="w-full px-3 py-[8px] text-sm rounded-lg font-bold transition-all bg-[--white-1] border-[--border-1] text-[--black-1] placeholder:!text-[--gr-3]"
+                className="px-3 py-[8px] text-sm rounded-lg font-bold transition-all bg-[--white-1] border-[--border-1] text-[--black-1] placeholder:!text-[--gr-3]"
                 placeholder="Gurup Adı"
               />
             </div>

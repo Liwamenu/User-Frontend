@@ -11,11 +11,11 @@ const initialState = {
   data: null,
 };
 
-const setWorkingHoursSlice = createSlice({
-  name: "setWorkingHours",
+const setRestaurantReservationSettingsSlice = createSlice({
+  name: "setRestaurantReservationSettings",
   initialState: initialState,
   reducers: {
-    resetSetWorkingHours: (state) => {
+    resetSetRestaurantReservationSettings: (state) => {
       state.loading = false;
       state.success = false;
       state.error = null;
@@ -24,19 +24,19 @@ const setWorkingHoursSlice = createSlice({
   },
   extraReducers: (build) => {
     build
-      .addCase(setWorkingHours.pending, (state) => {
+      .addCase(setRestaurantReservationSettings.pending, (state) => {
         state.loading = true;
         state.success = false;
         state.error = null;
         state.data = null;
       })
-      .addCase(setWorkingHours.fulfilled, (state, action) => {
+      .addCase(setRestaurantReservationSettings.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
         state.error = null;
         state.data = action.payload;
       })
-      .addCase(setWorkingHours.rejected, (state, action) => {
+      .addCase(setRestaurantReservationSettings.rejected, (state, action) => {
         state.loading = false;
         state.success = false;
         state.error = action.payload;
@@ -45,11 +45,14 @@ const setWorkingHoursSlice = createSlice({
   },
 });
 
-export const setWorkingHours = createAsyncThunk(
-  "Restaurants/setWorkingHours",
+export const setRestaurantReservationSettings = createAsyncThunk(
+  "Restaurants/SetRestaurantReservationSettings",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.put(`${baseURL}Restaurants/SetWorkingHours`, data);
+      const res = await api.put(
+        `${baseURL}Restaurants/SetRestaurantReservationSettings`,
+        data,
+      );
 
       // console.log(res);
       return res.data;
@@ -63,5 +66,6 @@ export const setWorkingHours = createAsyncThunk(
   },
 );
 
-export const { resetSetWorkingHours } = setWorkingHoursSlice.actions;
-export default setWorkingHoursSlice.reducer;
+export const { resetSetRestaurantReservationSettings } =
+  setRestaurantReservationSettingsSlice.actions;
+export default setRestaurantReservationSettingsSlice.reducer;

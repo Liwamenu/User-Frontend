@@ -34,7 +34,7 @@ const EditSubCategory = ({ subCategory, onSuccess }) => {
   const [preview, setPreview] = useState(
     subCategory?.image
       ? URL.createObjectURL(subCategory.image)
-      : subCategory?.imageAbsoluteUrl || null
+      : subCategory?.imageAbsoluteUrl || null,
   );
 
   const categories = useMemo(() => categoriesJSON.categories || [], []);
@@ -126,8 +126,8 @@ const EditSubCategory = ({ subCategory, onSuccess }) => {
   return (
     <div className="w-full flex justify-center pb-5- mt-1-  text-[--black-2]">
       <div className="w-full max-w-xl flex bg-[--white-1] rounded-lg justify-center transition-all duration-300 max-h-[95dvh] overflow-y-auto">
-        <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full p-8 transform scale-100 transition-all duration-300 modal-content relative">
-          <div className="flex justify-between items-center mb-8 border-b border-[--light-3] pb-4">
+        <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full p-8 transform scale-100 transition-all duration-300 modal-content max-sm:px-4 overflow-hidden">
+          <div className="flex justify-between items-center mb-4 border-b border-[--light-3] pb-4">
             <h3 className="text-2xl font-bold text-[--black-1]">
               {t("editSubCategory.title")}
             </h3>
@@ -140,7 +140,10 @@ const EditSubCategory = ({ subCategory, onSuccess }) => {
             </button>
           </div>
 
-          <form className="space-y-6 pb-4" onSubmit={handleSave}>
+          <form
+            className="space-y-6 overflow-y-auto max-h-[80dvh] pb-14"
+            onSubmit={handleSave}
+          >
             {/* Alt Kategori Adı */}
             <CustomInput
               required
@@ -163,7 +166,7 @@ const EditSubCategory = ({ subCategory, onSuccess }) => {
                 value={
                   subCategoryData.categoryId
                     ? categoryOptions.find(
-                        (opt) => opt.value === subCategoryData.categoryId
+                        (opt) => opt.value === subCategoryData.categoryId,
                       )
                     : null
                 }
@@ -238,20 +241,20 @@ const EditSubCategory = ({ subCategory, onSuccess }) => {
                 <span>{t("addSubCategory.info")}</span>
               </div>
             </div>
-
-            {/* Buttons */}
-            <div className="flex justify-end space-x-3 pt-6 border-t border-[--border-1]">
-              <button
-                onClick={() => setPopupContent(null)}
-                className="px-6 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] hover:text-[--black-1] transition-all"
-              >
-                {t("addSubCategory.cancel")}
-              </button>
-              <button className="px-8 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg shadow-[--light-1] hover:bg-[--primary-2] transform hover:-translate-y-0.5 transition-all">
-                {t("editSubCategory.update")}
-              </button>
-            </div>
           </form>
+
+          {/* Buttons */}
+          <div className="absolute bottom-0 left-0 right-0 bg-[--white-1] flex justify-end space-x-3 p-3 border-t border-[--border-1]">
+            <button
+              onClick={() => setPopupContent(null)}
+              className="px-6 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] hover:text-[--black-1] transition-all"
+            >
+              {t("addSubCategory.cancel")}
+            </button>
+            <button className="px-8 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg shadow-[--light-1] hover:bg-[--primary-2] transform hover:-translate-y-0.5 transition-all">
+              {t("editSubCategory.update")}
+            </button>
+          </div>
         </div>
       </div>
     </div>

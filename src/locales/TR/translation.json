@@ -8,6 +8,7 @@
     "back": "Geri Dön",
     "edit_restaurant": "Restoranı Düzenle",
     "settings": "Ayarlar",
+    "reservation_settings": "Randevu Ayarları",
     "working_hours": "Çalışma Saatleri",
     "social_media": "Sosyal Medya",
     "payment_methods": "Ödeme Yöntemler",
@@ -17,7 +18,8 @@
     "tags": "Etiketler",
     "products": "Ürünler",
     "themes": "Temalar",
-    "qr_code": "QR Kod"
+    "qr_code": "QR Kod",
+    "announcement_settings": "Duyuru Ayarları"
   },
   "userProfile": {
     "admin": "Yetkili",
@@ -25,6 +27,8 @@
     "default_name": "Kullanıcı"
   },
   "restaurants": {
+    "file-info": "Görsel Yüklemek için tıklayın veya sürükleyip bırakın.",
+    "logo_msg": "Restoran logosu yüklemek için tıklayın veya sürükleyip bırakın.",
     "add": "Restoran Ekle",
     "edit": "Restoranı Düzenle",
     "delete": "Restoranı Sil",
@@ -107,6 +111,33 @@
     "max_table_order_distance_meter_placeholder": "Maksimum mesafeyi metre cinsinden giriniz",
     "is_reservation_active": "Rezervasyon Aktif Et"
   },
+  "restaurantReservationSettings": {
+    "updateSuccess": "Rezervasyon ayarları başarıyla güncellendi.",
+    "title": "{{name}} Restoranı için Rezervasyon Ayarları",
+    "interval_minutes_label": "Rezervasyon Aralığı (Dk)",
+    "max_guests_label": "Maksimum Misafir Sayısı",
+    "start_time_label": "Rezervasyon Başlangıç Saati",
+    "end_time_label": "Rezervasyon Bitiş Saati",
+    "save": "Kaydet",
+    "is_active_label": "Rezervasyonları Aktif Et"
+  },
+  "announcementSettings": {
+    "title": "{{name}} için Duyuru Ayarları",
+    "enable_announcement": "Duyuruyu Etkinleştir",
+    "enable_note": "Bu açılır pencereyi ziyaretçilerinize otomatik olarak gösterin.",
+    "display_delay": "Gösterim Gecikmesi",
+    "display_delay_unit": "ms",
+    "display_delay_help": "Mesajın gösterilmeden önce sayfa yüklemesinden sonra bekleme süresi. 1000ms = 1s.",
+    "html_content_label": "HTML İçeriği",
+    "html_content_placeholder": "Tailwind destekli HTML içeriği giriniz...",
+    "magic_generate": "✨ Sihirli Oluştur",
+    "live_preview": "Canlı Önizleme",
+    "preview_disabled": "Önizleme Devre Dışı",
+    "save_changes": "Değişiklikleri Kaydet",
+    "did_you_know_title": "Biliyor muydunuz?",
+    "did_you_know_text": "Duyurular hem masaüstü hem de mobil görünümler için optimize edilmiştir. HTML içeriğinizde md:text-left veya sm:p-8 gibi standart Tailwind sınıflarını kullanabilirsiniz.",
+    "success": "Duyuru ayarları başarıyla güncellendi."
+  },
   "workingHours": {
     "title": "{{name}} Restoranı için Çalışma Saatleri",
     "monday": "Pazartesi",
@@ -175,7 +206,8 @@
     "status_active": "Aktif",
     "status_passive": "Pasif",
     "manage_products": "Ürünleri Yönet",
-    "product_count": "{{count}} Ürün"
+    "product_count": "{{count}} Ürün",
+    "category_image_optional": "Kategori Görseli (Opsiyonel)"
   },
   "categoryProducts": {
     "title": "Kategori Ürünleri",

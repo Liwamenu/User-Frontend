@@ -8,6 +8,10 @@ import setSocialMediasSlice from "./setSocialMediasSlice";
 import getPaymentMethodsSlice from "./getPaymentMethodsSlice";
 import setPaymentMethodsSlice from "./setPaymentMethodsSlice";
 import setRestaurantSettings from "./setRestaurantSettingsSlice";
+import setRestaurantReservationSettingsSlice from "./setRestaurantReservationSettingsSlice";
+import getRestaurantReservationSettingsSlice from "./getRestaurantReservationSettingsSlice";
+import getAnnouncementSettingsSlice from "./getAnnouncementSettingsSlice";
+import setAnnouncementSettingsSlice from "./setAnnouncementSettingsSlice";
 
 const restaurantSlice = combineReducers({
   getWorkingHours: getWorkingHoursSlice,
@@ -17,6 +21,10 @@ const restaurantSlice = combineReducers({
   getPaymentMethods: getPaymentMethodsSlice,
   setPaymentMethods: setPaymentMethodsSlice,
   setRestaurantSettings: setRestaurantSettings,
+  setRestaurantReservationSettings: setRestaurantReservationSettingsSlice,
+  getRestaurantReservationSettings: getRestaurantReservationSettingsSlice,
+  getAnnouncementSettings: getAnnouncementSettingsSlice,
+  setAnnouncementSettings: setAnnouncementSettingsSlice,
 });
 
 export default restaurantSlice;

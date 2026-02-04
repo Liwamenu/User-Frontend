@@ -2,6 +2,7 @@
 import toast from "react-hot-toast";
 import { useRef, useState } from "react";
 import { CloudUI } from "../../assets/icon";
+import { useTranslation } from "react-i18next";
 
 //CONTEXT
 import { usePopup } from "../../context/PopupContext";
@@ -20,6 +21,7 @@ const CustomFileInput = ({
   sliceNameAt = 40,
   editIfImage = true,
 }) => {
+  const { t } = useTranslation();
   const { setCropImgPopup } = usePopup();
 
   const inputRef = useRef(null);
@@ -104,7 +106,7 @@ const CustomFileInput = ({
   return (
     <label
       htmlFor="dropzone-file"
-      className={`flex flex-col items-center justify-center w-full h-64 text-[--gr-1] border-2 border-[--light-1] border-dashed rounded-lg cursor-pointer bg-[--white-1] relative ${
+      className={`flex flex-col items-center justify-center w-full text-[--gr-1] border-2 border-[--primary-1] border-dashed rounded-lg cursor-pointer bg-[--white-1] relative p-3 ${
         isDragging ? "border-[--primary-1] bg-[--light-3]" : ""
       } ${className}`}
       onDragOver={handleDragOver}
@@ -113,34 +115,30 @@ const CustomFileInput = ({
       onDrop={handleDrop}
     >
       <div className="flex flex-col items-center justify-center cursor-pointer">
-        {!value
-          ? msg || (
-              <>
-                <CloudUI className="size-[2.5rem]" strokeWidth={1.5} />
-                <p className="mb-2 text-sm">
-                  Restoran Logosu Yüklemek için
-                  <span className="font-semibold"> tıklayın</span> veya
-                  <span className="font-semibold"> sürükleyip bırakın</span>
-                </p>
-                <p className="text-xs">
-                  {getReadableAcceptText(accept)} (MAX. 800x400px)
-                </p>
-              </>
-            )
-          : showFileDetails && (
-              <div className="text-center flex flex-col justify-between">
-                <p className="text-sm">
-                  <span className="font-semibold">Seçilen dosya: </span>
-                  <span className="font-semibold text-[--primary-1]">
-                    {value.name?.slice(0, sliceNameAt)}
-                    {value.name?.length > sliceNameAt && "..."}
-                  </span>
-                </p>
-                <p className="text-xs">
-                  Boyut: {(value.size / 1024).toFixed(2)} KB
-                </p>
-              </div>
-            )}
+        {!value ? (
+          <>
+            <CloudUI className="size-[2.5rem]" strokeWidth={1.5} />
+            <p className="mb-2 text-sm">{msg || t("restaurants.file-info")}</p>
+            <p className="text-xs">
+              {getReadableAcceptText(accept)} (MAX. 800x400px)
+            </p>
+          </>
+        ) : (
+          showFileDetails && (
+            <div className="text-center flex flex-col justify-between">
+              <p className="text-sm">
+                <span className="font-semibold">Seçilen dosya: </span>
+                <span className="font-semibold text-[--primary-1]">
+                  {value.name?.slice(0, sliceNameAt)}
+                  {value.name?.length > sliceNameAt && "..."}
+                </span>
+              </p>
+              <p className="text-xs">
+                Boyut: {(value.size / 1024).toFixed(2)} KB
+              </p>
+            </div>
+          )
+        )}
       </div>
       <input
         ref={inputRef}

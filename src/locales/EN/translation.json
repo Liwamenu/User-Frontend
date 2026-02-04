@@ -8,6 +8,7 @@
     "back": "Go Back",
     "edit_restaurant": "Edit Restaurant",
     "settings": "Settings",
+    "reservation_settings": "Reservation Settings",
     "working_hours": "Working Hours",
     "social_media": "Social Media",
     "payment_methods": "Payment Methods",
@@ -17,7 +18,8 @@
     "tags": "Tags",
     "products": "Products",
     "themes": "Themes",
-    "qr_code": "QR Code"
+    "qr_code": "QR Code",
+    "announcement_settings": "Announcement Settings"
   },
   "userProfile": {
     "admin": "Admin",
@@ -25,6 +27,8 @@
     "default_name": "User"
   },
   "restaurants": {
+    "file-info": "Click or drag and drop to upload an image.",
+    "logo_msg": "Click or drag and drop to upload the restaurant logo.",
     "add": "Add Restaurant",
     "edit": "Edit Restaurant",
     "delete": "Delete Restaurant",
@@ -106,6 +110,33 @@
     "max_table_order_distance_meter": "Max Table Order Distance (meters)",
     "max_table_order_distance_meter_placeholder": "Enter max distance in meters",
     "is_reservation_active": "Activate Reservation"
+  },
+  "restaurantReservationSettings": {
+    "updateSuccess": "Restaurant reservation settings updated successfully.",
+    "title": "Reservation Settings for {{name}} Restaurant",
+    "interval_minutes_label": "Reservation Interval (Minutes)",
+    "max_guests_label": "Maximum Number of Guests",
+    "start_time_label": "Reservation Start Time",
+    "end_time_label": "Reservation End Time",
+    "save": "Save",
+    "is_active_label": "Activate Reservations"
+  },
+  "announcementSettings": {
+    "title": "Announcement Settings for {{name}}",
+    "enable_announcement": "Enable Announcement",
+    "enable_note": "Show this pop-up to your visitors automatically.",
+    "display_delay": "Display Delay",
+    "display_delay_unit": "ms",
+    "display_delay_help": "Time to wait after page load before showing the message. 1000ms = 1s.",
+    "html_content_label": "HTML Content",
+    "html_content_placeholder": "Enter Tailwind-powered HTML here...",
+    "magic_generate": "✨ Magic Generate",
+    "live_preview": "Live Preview",
+    "preview_disabled": "Preview Disabled",
+    "save_changes": "Save Changes",
+    "did_you_know_title": "Did you know?",
+    "did_you_know_text": "Announcements are optimized for both desktop and mobile views. You can use standard Tailwind classes like md:text-left or sm:p-8 within your HTML content to ensure a seamless cross-device experience.",
+    "success": "Announcement settings updated successfully."
   },
   "workingHours": {
     "title": "Working Hours for {{name}} Restaurant",

@@ -19,7 +19,9 @@ import EditRestaurant from "../components/restaurant/editRestaurant";
 import WorkingHours from "../components/restaurant/workingHours";
 import SocialMedias from "../components/restaurant/socialMedias";
 import PaymentMethods from "../components/restaurant/paymentMethods";
+import ReservationSett from "../components/restaurant/reservationSettings";
 import RestaurantSettings from "../components/restaurant/restaurantSettings";
+import AnnouncementSett from "../components/restaurant/announcementSettings";
 
 //PRODUCTS
 import Products from "../components/restaurant/products/products";
@@ -31,16 +33,18 @@ import EditProduct from "../components/restaurant/products/editProduct";
 import MenuList from "../components/restaurant/menus/menuList";
 import Categories from "../components/restaurant/category/categories";
 import AddCategory from "../components/restaurant/category/addCategory";
+import AddCategories from "../components/restaurant/categories/addCategories";
 
 //SUB CATEGORIES
 import SubCategories from "../components/restaurant/subCategory/subCategories";
+import AddSubCategories from "../components/restaurant/subCategories/addSubCategories";
 
 //ORDER TAG ITEMS
 import OrderTags from "../components/restaurant/orderTags/orderTags";
 
 //QR
 import QRPage from "../components/qr/qrPage";
-import AddCategories from "../components/restaurant/categories/addCategories";
+import SurveySettings from "../components/restaurant/surveySettings";
 
 const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   const location = useLocation();
@@ -90,6 +94,9 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
       social: "/social/:id",
       payments: "/payments/:id",
       sett: "/settings/:id",
+      rsrv: "reservationSettings/:id",
+      ann: "announcementSettings/:id",
+      surv: "surveySettings/:id",
     },
     cat: {
       add: "/categories/:id/add",
@@ -98,6 +105,7 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
     },
     subCat: {
       list: "/sub_categories/:id/list",
+      add: "/sub_categories/:id/add",
     },
     menus: {
       list: "/menus/:id/list",
@@ -125,6 +133,9 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
           <Route path="/social/:id" element={<SocialMedias data={data} />} />
           <Route path={P.R.payments} element={<PaymentMethods data={data} />} />
           <Route path={P.R.sett} element={<RestaurantSettings data={data} />} />
+          <Route path={P.R.rsrv} element={<ReservationSett data={data} />} />
+          <Route path={P.R.ann} element={<AnnouncementSett data={data} />} />
+          <Route path={P.R.surv} element={<SurveySettings data={data} />} />
 
           {/* CATEGORIES */}
           <Route path={P.cat.list} element={<Categories data={data} />} />
@@ -133,6 +144,10 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
 
           {/* SUBCATEGORIES */}
           <Route path={P.subCat.list} element={<SubCategories data={data} />} />
+          <Route
+            path={P.subCat.add}
+            element={<AddSubCategories data={data} />}
+          />
 
           {/* MENUS */}
           <Route path={P.menus.list} element={<MenuList data={data} />} />

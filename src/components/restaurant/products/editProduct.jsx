@@ -61,7 +61,7 @@ const EditProduct = ({ product: prodToPopup }) => {
         label: c.name,
         ...c,
       })),
-    []
+    [],
   );
 
   const getSubcatOptions = (categoryId) =>
@@ -176,7 +176,7 @@ const EditProduct = ({ product: prodToPopup }) => {
       setSecondPopupContent(null);
       dispatch(resetEditProduct());
       dispatch(
-        getProducts({ restaurantId: restaurantId || productData.restaurantId })
+        getProducts({ restaurantId: restaurantId || productData.restaurantId }),
       );
     }
     if (error) dispatch(resetEditProduct());
@@ -184,13 +184,13 @@ const EditProduct = ({ product: prodToPopup }) => {
 
   return (
     <section
-      className={`w-full  ${prodToPopup ? "flex items-center" : "pb-5 mt-1"}`}
+      className={`w-full ${prodToPopup ? "flex items-center" : "pb-5 mt-1"}`}
     >
       <div
         className={`bg-[--white-1] rounded-lg text-[--black-2] shadow-2xl px-4 w-full  mx-auto ${
           prodToPopup
             ? "h-[95dvh] overflow-y-auto relative max-w-4xl pb-20"
-            : "max-w-6xl"
+            : "max-w-6xl pt-1"
         }`}
       >
         {!prodToPopup && (

@@ -53,6 +53,24 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
       path: "settings",
     },
     {
+      icon: <SettingsI className="size-[1.3rem]" strokeWidth={2} />,
+      text: t("subSidebar.reservation_settings"),
+      to: `/restaurant/reservationSettings/${id}`,
+      path: "reservationSettings",
+    },
+    {
+      icon: <SettingsI className="size-[1.3rem]" strokeWidth={2} />,
+      text: t("subSidebar.announcement_settings"),
+      to: `/restaurant/announcementSettings/${id}`,
+      path: "announcementSettings",
+    },
+    {
+      icon: <SettingsI className="size-[1.3rem]" strokeWidth={2} />,
+      text: t("subSidebar.survey_settings"),
+      to: `/restaurant/surveySettings/${id}`,
+      path: "surveySettings",
+    },
+    {
       icon: <WaitI />,
       text: t("subSidebar.working_hours"),
       to: `/restaurant/hours/${id}`,

@@ -118,8 +118,8 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
   return (
     <div className="w-full flex justify-center pb-5- mt-1-  text-[--black-2]">
       <div className="w-full max-w-xl flex bg-[--white-1] rounded-lg justify-center transition-all duration-300 max-h-[95dvh] overflow-y-auto">
-        <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full p-8 transform scale-100 transition-all duration-300 modal-content relative">
-          <div className="flex justify-between items-center mb-8 border-b border-[--light-3] pb-4">
+        <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full transform scale-100 transition-all duration-300 modal-content p-8 max-sm:px-4 overflow-hidden">
+          <div className="flex justify-between items-center mb-4 border-b border-[--light-3] pb-4">
             <h3 className="text-2xl font-bold text-[--black-1]">
               {t("addSubCategory.add")}
             </h3>
@@ -132,7 +132,7 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
             </button>
           </div>
 
-          <div className="space-y-6 pb-4">
+          <div className="space-y-6 overflow-y-auto max-h-[80dvh] pb-14">
             {/* Alt Kategori Adı */}
             <CustomInput
               required
@@ -155,7 +155,7 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
                 value={
                   subCategory.categoryId
                     ? categoryOptions.find(
-                        (opt) => opt.value === subCategory.categoryId
+                        (opt) => opt.value === subCategory.categoryId,
                       )
                     : {
                         label: t("addSubCategory.category_placeholder"),
@@ -233,22 +233,22 @@ const AddSubCategory = ({ data: restaurant, onSuccess }) => {
                 <span>{t("addSubCategory.info")}</span>
               </div>
             </div>
+          </div>
 
-            {/* Buttons */}
-            <div className="flex justify-end space-x-3 pt-6 border-t border-[--border-1]">
-              <button
-                onClick={() => setPopupContent(null)}
-                className="px-6 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] hover:text-[--black-1] transition-all"
-              >
-                {t("addSubCategory.cancel")}
-              </button>
-              <button
-                onClick={handleSave}
-                className="px-8 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg shadow-[--light-1] hover:bg-[--primary-2] transform hover:-translate-y-0.5 transition-all"
-              >
-                {t("addSubCategory.save")}
-              </button>
-            </div>
+          {/* Buttons */}
+          <div className="absolute bottom-0 left-0 right-0 bg-[--white-1] flex justify-end space-x-3 p-3 border-t border-[--border-1]">
+            <button
+              onClick={() => setPopupContent(null)}
+              className="px-6 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] hover:text-[--black-1] transition-all"
+            >
+              {t("addSubCategory.cancel")}
+            </button>
+            <button
+              onClick={handleSave}
+              className="px-8 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg shadow-[--light-1] hover:bg-[--primary-2] transform hover:-translate-y-0.5 transition-all"
+            >
+              {t("addSubCategory.save")}
+            </button>
           </div>
         </div>
       </div>

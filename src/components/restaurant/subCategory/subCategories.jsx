@@ -37,7 +37,7 @@ const SubCategories = ({ data: restaurant }) => {
   // Mock selectors - replace with your actual Redux selectors
   const { subCategories } = useSelector((s) => s.subCategories.get);
   const { success, error } = useSelector(
-    (s) => s.subCategories.updateSubOrders
+    (s) => s.subCategories.updateSubOrders,
   );
 
   // Store grouped data directly (array of category groups)
@@ -52,7 +52,7 @@ const SubCategories = ({ data: restaurant }) => {
       const categoryId = subCat.categoryId;
       if (!groups[categoryId]) {
         const category = categoriesJSON.categories.find(
-          (c) => c.id === categoryId
+          (c) => c.id === categoryId,
         );
         groups[categoryId] = {
           category: category || {
@@ -69,7 +69,7 @@ const SubCategories = ({ data: restaurant }) => {
     return Object.values(groups).map((group) => ({
       ...group,
       subCategories: group.subCategories.sort(
-        (a, b) => a.sortOrder - b.sortOrder
+        (a, b) => a.sortOrder - b.sortOrder,
       ),
     }));
   };
@@ -127,7 +127,7 @@ const SubCategories = ({ data: restaurant }) => {
       subCategories: group.subCategories.map((subCat) =>
         subCat.id === updatedSubCategory.id
           ? { ...subCat, ...updatedSubCategory }
-          : subCat
+          : subCat,
       ),
     }));
 
@@ -283,7 +283,7 @@ const SubCategories = ({ data: restaurant }) => {
           saveNewOrder={saveNewOrder}
         />
 
-        <div className="space-y-4">
+        <div className="space-y-4 overflow-x-auto">
           {/* Render each category group */}
           {!subCategoriesData || subCategoriesData.length === 0 ? (
             <div className="p-8 text-center text-[--gr-1] italic bg-[--light-2] rounded-xl">
@@ -294,7 +294,7 @@ const SubCategories = ({ data: restaurant }) => {
               {subCategoriesData.map((group) => (
                 <div
                   key={group.category.id}
-                  className="bg-[--light-4] border border-[--light-3] rounded-xl overflow-hidden"
+                  className="bg-[--light-4] border border-[--light-3] rounded-xl min-w-max overflow-hidden"
                 >
                   {/* Category Header */}
                   <div className="flex items-center gap-4 p-2 bg-[--light-3] border-b border-[--light-3]">
@@ -327,7 +327,7 @@ const SubCategories = ({ data: restaurant }) => {
                         {group.subCategories.length === 0 ? (
                           <div className="p-8 text-center text-[--gr-1] italic">
                             {t(
-                              "editSubCategories.no_subcategories_in_category"
+                              "editSubCategories.no_subcategories_in_category",
                             )}
                           </div>
                         ) : (
@@ -365,10 +365,10 @@ const SubCategories = ({ data: restaurant }) => {
 
                                   {/* SubCategory Name & Product Count */}
                                   <div className="font-medium text-[--black-2] flex flex-col sm:flex-row sm:items-center gap-2">
-                                    <span className="text-base font-semibold text-[--black-1]">
+                                    <span className="text-base font-semibold text-[--black-1] whitespace-nowrap">
                                       {subCat.name}
                                     </span>
-                                    <span className="text-xs text-[--primary-2] font-medium bg-[--status-primary-2] px-2 py-0.5 rounded-md w-fit">
+                                    <span className="text-xs text-[--primary-2] font-medium bg-[--status-primary-2] px-2 py-0.5 rounded-md w-fit whitespace-nowrap">
                                       {t("editCategories.product_count", {
                                         count: subCat.productCount || 0,
                                       })}
@@ -379,7 +379,7 @@ const SubCategories = ({ data: restaurant }) => {
                                   <div className="text-center">
                                     {getStatusBadge(
                                       subCat.isActive,
-                                      "isActive"
+                                      "isActive",
                                     )}
                                   </div>
 
@@ -391,7 +391,7 @@ const SubCategories = ({ data: restaurant }) => {
                                           <EditSubCategory
                                             subCategory={subCat}
                                             onSuccess={handleEditSubCategory}
-                                          />
+                                          />,
                                         )
                                       }
                                       className="p-2 text-[--primary-1] bg-[--status-primary-1] hover:bg-[--status-primary-2] rounded-lg transition-colors"
@@ -408,7 +408,7 @@ const SubCategories = ({ data: restaurant }) => {
                                           <DeleteSubCategory
                                             onSuccess={handleDelete}
                                             subCategory={subCat}
-                                          />
+                                          />,
                                         );
                                       }}
                                       className="p-2 text-[--red-1] bg-[--status-red] hover:bg-[--red-2] hover:text-white rounded-lg transition-colors"

@@ -40,7 +40,7 @@ const AddSubCategories = ({ data: restaurant }) => {
   useEffect(() => {
     if (categories?.data) {
       const sorted = [...categories.data].sort(
-        (a, b) => a.sortOrder - b.sortOrder
+        (a, b) => a.sortOrder - b.sortOrder,
       );
 
       const formattedCats = sorted.map((cat) => ({
@@ -151,6 +151,20 @@ const AddSubCategories = ({ data: restaurant }) => {
     });
 
     dispatch(addSubCategories(formData));
+
+    const debugFormData = {};
+    for (const [key, value] of formData.entries()) {
+      debugFormData[key] =
+        value instanceof File
+          ? {
+              name: value.name,
+              type: value.type,
+              size: value.size,
+            }
+          : value;
+    }
+
+    console.log(JSON.stringify(debugFormData, null, 2));
   };
 
   // TOAST
@@ -244,7 +258,7 @@ const AddSubCategories = ({ data: restaurant }) => {
                                       required
                                       value={
                                         formattedCategoriesData?.find(
-                                          (c) => c.value === row.categoryId
+                                          (c) => c.value === row.categoryId,
                                         ) || {
                                           value: null,
                                           label: "Kategori Seç",
@@ -260,10 +274,10 @@ const AddSubCategories = ({ data: restaurant }) => {
                                             (r) =>
                                               r.categoryId === categoryId &&
                                               groupedRows[categoryId][index] ===
-                                                r
+                                                r,
                                           ),
                                           "categoryId",
-                                          sel.value
+                                          sel.value,
                                         )
                                       }
                                       placeholder="Kategori seç"
@@ -276,7 +290,7 @@ const AddSubCategories = ({ data: restaurant }) => {
                                       type="text"
                                       value={row.name}
                                       placeholder={t(
-                                        "addSubCategories.subcategory_name"
+                                        "addSubCategories.subcategory_name",
                                       )}
                                       onChange={(v) =>
                                         updateRow(
@@ -284,10 +298,10 @@ const AddSubCategories = ({ data: restaurant }) => {
                                             (r) =>
                                               r.categoryId === categoryId &&
                                               groupedRows[categoryId][index] ===
-                                                r
+                                                r,
                                           ),
                                           "name",
-                                          v
+                                          v,
                                         )
                                       }
                                       className="mt-[0] sm:mt-[0]"
@@ -315,10 +329,10 @@ const AddSubCategories = ({ data: restaurant }) => {
                                             (r) =>
                                               r.categoryId === categoryId &&
                                               groupedRows[categoryId][index] ===
-                                                r
+                                                r,
                                           ),
                                           "image",
-                                          file
+                                          file,
                                         )
                                       }
                                       accept={"image/png, image/jpeg"}
@@ -335,8 +349,8 @@ const AddSubCategories = ({ data: restaurant }) => {
                                         screen.width < 435
                                           ? 10
                                           : screen.width < 1025
-                                          ? 20
-                                          : 40
+                                            ? 20
+                                            : 40
                                       }
                                     />
                                   </div>
@@ -349,8 +363,8 @@ const AddSubCategories = ({ data: restaurant }) => {
                                       rows.findIndex(
                                         (r) =>
                                           r.categoryId === categoryId &&
-                                          groupedRows[categoryId][index] === r
-                                      )
+                                          groupedRows[categoryId][index] === r,
+                                      ),
                                     )
                                   }
                                   className="text-[--red-1] font-semibold"

@@ -56,7 +56,7 @@ const Categories = ({ data: restaurant }) => {
 
   const handleEditCategory = (updatedCategory) => {
     const newCategories = categoriesData.map((cat) =>
-      cat.id === updatedCategory.id ? { ...cat, ...updatedCategory } : cat
+      cat.id === updatedCategory.id ? { ...cat, ...updatedCategory } : cat,
     );
 
     const sorted = sortCategoriesByOrder(newCategories);
@@ -103,7 +103,7 @@ const Categories = ({ data: restaurant }) => {
       <CategoryProducts
         categoryId={categoryId}
         onClose={() => setPopupContent(null)}
-      />
+      />,
     );
   };
 
@@ -144,7 +144,7 @@ const Categories = ({ data: restaurant }) => {
   useEffect(() => {
     if (categories?.data) {
       const sorted = [...categories.data].sort(
-        (a, b) => a.sortOrder - b.sortOrder
+        (a, b) => a.sortOrder - b.sortOrder,
       );
       setCategoriesData(sorted);
       setCategoriesDataBefore(sorted);
@@ -186,7 +186,7 @@ const Categories = ({ data: restaurant }) => {
       });
 
       const deletedCategories = categoriesDataBefore.filter(
-        (prevCat) => !_categories.some((cat) => cat.id === prevCat.id)
+        (prevCat) => !_categories.some((cat) => cat.id === prevCat.id),
       );
 
       formData.append("restaurantId", restaurant?.id);
@@ -239,9 +239,9 @@ const Categories = ({ data: restaurant }) => {
           )}
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 w-full overflow-auto">
           {/* Categories List */}
-          <div className="bg-[--light-2] border border-[--light-3] rounded-xl overflow-hidden">
+          <div className="bg-[--light-2] border border-[--light-3] rounded-xl min-w-min overflow-clip">
             {/* Header Row */}
             <div className="hidden sm:grid grid-cols-[0.3fr_1fr_3fr_1fr_1fr_2fr] gap-4 p-4 bg-[--light-3] font-semibold text-xs uppercase tracking-wider text-[--black-2] border-b border-[--light-3]">
               <div className="text-center text-[--gr-1]">
@@ -305,7 +305,7 @@ const Categories = ({ data: restaurant }) => {
                                 <span className="text-base font-semibold text-[--black-1]">
                                   {cat.name}
                                 </span>
-                                <span className="text-xs text-[--primary-2] font-medium bg-[--status-primary-2] px-2 py-0.5 rounded-md w-fit">
+                                <span className="text-xs text-[--primary-2] font-medium bg-[--status-primary-2] px-2 py-0.5 rounded-md w-fit whitespace-nowrap">
                                   {t("editCategories.product_count", {
                                     count: cat.productCount || 0,
                                   })}
@@ -337,7 +337,7 @@ const Categories = ({ data: restaurant }) => {
                                       <EditCategory
                                         category={cat}
                                         onSuccess={handleEditCategory}
-                                      />
+                                      />,
                                     )
                                   }
                                   className="p-2 text-[--primary-1] bg-[--status-primary-1] hover:bg-[--status-primary-2] rounded-lg transition-colors"
@@ -354,7 +354,7 @@ const Categories = ({ data: restaurant }) => {
                                       <DeleteCategory
                                         category={cat}
                                         onSuccess={handleDelete}
-                                      />
+                                      />,
                                     );
                                   }}
                                   className="p-2 text-[--red-1] bg-[--status-red] hover:bg-[--red-2] hover:text-white rounded-lg transition-colors"

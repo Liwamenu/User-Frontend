@@ -21,7 +21,7 @@ const RestaurantSettings = ({ data: inData }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { success, error } = useSelector(
-    (state) => state.restaurant.setRestaurantSettings
+    (state) => state.restaurant.setRestaurantSettings,
   );
 
   const initialData = useMemo(
@@ -51,7 +51,7 @@ const RestaurantSettings = ({ data: inData }) => {
       isReservationActive: inData?.isReservationActive,
       minOrderAmount: inData?.minOrderAmount,
     }),
-    [inData]
+    [inData],
   );
 
   const [restaurantData, setRestaurantData] = useState(initialData);
@@ -147,7 +147,7 @@ const RestaurantSettings = ({ data: inData }) => {
                   }
                   className="py-[.4rem] bg-[--white-1]"
                   placeholder={t(
-                    "restaurantSettings.google_analytics_placeholder"
+                    "restaurantSettings.google_analytics_placeholder",
                   )}
                   value={restaurantData?.googleAnalytics ?? ""}
                   onChange={(e) =>
@@ -166,12 +166,12 @@ const RestaurantSettings = ({ data: inData }) => {
                   className="text-sm"
                   label={t("restaurantSettings.menu_language")}
                   placeholder={t(
-                    "restaurantSettings.menu_language_placeholder"
+                    "restaurantSettings.menu_language_placeholder",
                   )}
                   style={{ borderRadius: ".4rem", padding: "0rem 0px" }}
                   value={
                     LanguagesEnums.find(
-                      (L) => L.value == (restaurantData?.menuLang ?? null)
+                      (L) => L.value == (restaurantData?.menuLang ?? null),
                     ) || {
                       label: t("restaurantSettings.menu_language_placeholder"),
                     }
@@ -261,7 +261,7 @@ const RestaurantSettings = ({ data: inData }) => {
                     type="number"
                     label={t("restaurantSettings.online_order_discount")}
                     placeholder={t(
-                      "restaurantSettings.online_order_discount_placeholder"
+                      "restaurantSettings.online_order_discount_placeholder",
                     )}
                     className="py-[.4rem] bg-[--white-1] mt-2"
                     value={restaurantData?.onlineOrderDiscountRate ?? ""}
@@ -281,9 +281,9 @@ const RestaurantSettings = ({ data: inData }) => {
                 <div className="flex gap-2 items-end">
                   <CustomInput
                     type="number"
-                    label={t("restaurantSettings.delivery_price")}
+                    label={t("restaurantSettings.delivery_fee")}
                     placeholder={t(
-                      "restaurantSettings.delivery_price_placeholder"
+                      "restaurantSettings.delivery_fee_placeholder",
                     )}
                     className="py-[.4rem] bg-[--white-1] mt-2"
                     value={restaurantData?.deliveryFee ?? ""}
@@ -305,7 +305,7 @@ const RestaurantSettings = ({ data: inData }) => {
                     type="number"
                     label={t("restaurantSettings.min_order_amount")}
                     placeholder={t(
-                      "restaurantSettings.min_order_amount_placeholder"
+                      "restaurantSettings.min_order_amount_placeholder",
                     )}
                     className="py-[.4rem] bg-[--white-1] mt-2"
                     value={restaurantData?.minOrderAmount ?? ""}
@@ -327,7 +327,7 @@ const RestaurantSettings = ({ data: inData }) => {
                     type="number"
                     label={t("restaurantSettings.max_distance")}
                     placeholder={t(
-                      "restaurantSettings.max_distance_placeholder"
+                      "restaurantSettings.max_distance_placeholder",
                     )}
                     className="py-[.4rem] bg-[--white-1] mt-2"
                     value={restaurantData?.maxDistance ?? ""}
@@ -366,7 +366,7 @@ const RestaurantSettings = ({ data: inData }) => {
                     type="number"
                     label={t("restaurantSettings.table_order_discount")}
                     placeholder={t(
-                      "restaurantSettings.table_order_discount_placeholder"
+                      "restaurantSettings.table_order_discount_placeholder",
                     )}
                     className="py-[.4rem] bg-[--white-1] mt-2"
                     value={restaurantData?.tableOrderDiscountRate ?? ""}
@@ -404,10 +404,10 @@ const RestaurantSettings = ({ data: inData }) => {
                     <CustomInput
                       type="number"
                       label={t(
-                        "restaurantSettings.max_table_order_distance_meter"
+                        "restaurantSettings.max_table_order_distance_meter",
                       )}
                       placeholder={t(
-                        "restaurantSettings.max_table_order_distance_meter_placeholder"
+                        "restaurantSettings.max_table_order_distance_meter_placeholder",
                       )}
                       className="py-[.4rem] bg-[--white-1] mt-2"
                       value={restaurantData?.maxTableOrderDistanceMeter ?? ""}

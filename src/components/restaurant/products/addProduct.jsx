@@ -71,7 +71,7 @@ const AddProduct = ({ data: restaurant }) => {
         label: c.name,
         ...c,
       })),
-    []
+    [],
   );
 
   const getSubcatOptions = (categoryId) =>

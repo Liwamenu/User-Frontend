@@ -11,7 +11,7 @@ const OptionRow = ({
 }) => {
   return (
     <div
-      className={`grid grid-cols-12 gap-3 items-center p-3 rounded-lg transition-all group animate-fade-in bg-[var(--white-1)] border-[var(--border-1)] hover:border-[var(--primary-1)] hover:bg-[var(--white-2)] ${
+      className={`grid grid-cols-12 gap-3 items-center py-3 rounded-lg transition-all group animate-fade-in bg-[var(--white-1)] border-[var(--border-1)] hover:border-[var(--primary-1)] hover:bg-[var(--white-2)] ${
         isDragging ? "shadow-lg scale-[1.01]" : ""
       }`}
     >

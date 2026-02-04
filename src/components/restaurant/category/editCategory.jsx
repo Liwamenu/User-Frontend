@@ -31,7 +31,7 @@ const EditCategory = ({ category, onSuccess }) => {
   const [preview, setPreview] = useState(
     category?.image
       ? URL.createObjectURL(category.image)
-      : category?.imageAbsoluteUrl || null
+      : category?.imageAbsoluteUrl || null,
   );
   const [showCampaignWarning, setShowCampaignWarning] = useState(false);
 
@@ -117,7 +117,7 @@ const EditCategory = ({ category, onSuccess }) => {
   }, [success, error]);
 
   return (
-    <div className="w-full flex justify-center pb-5- mt-1- text-[--black-2] ">
+    <div className="w-full flex justify-center pb-5- mt-1- text-[--black-2] max-h-[95dvh] overflow-hidden ">
       {/* <div className="flex flex-col px-4- sm:px-14-"> */}
       {/* <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
           {t("editCategories.title", { name: restaurant?.name })}
@@ -127,9 +127,9 @@ const EditCategory = ({ category, onSuccess }) => {
           <CategoriesHeader restaurant={restaurant} />
         </div> */}
 
-      <div className="w-full max-w-xl flex bg-[--white-1] rounded-lg justify-center transition-all duration-300 max-h-[95dvh] overflow-y-auto">
-        <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full p-8  transition-all duration-300 modal-content relative">
-          <div className="flex justify-between items-center mb-8 border-b border-[--light-3] pb-4">
+      <div className="w-full max-w-xl flex bg-[--white-1] rounded-lg justify-center transition-all duration-300 relative">
+        <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full p-8 max-sm:px-4 transform transition-all duration-300 modal-content overflow-hidden">
+          <div className="flex justify-between items-center mb-4 border-b border-[--light-3] pb-4">
             <h3 className="text-2xl font-bold text-[--black-1]">
               {t("editCategories.edit")}
             </h3>
@@ -142,12 +142,12 @@ const EditCategory = ({ category, onSuccess }) => {
             </button>
           </div>
 
-          <div className="space-y-6 pb-4">
+          <div className="space-y-6 overflow-y-auto max-h-[80dvh] pb-14">
             {/* Kategori Adı */}
             <CustomInput
               required
-              label={`${t("addCategories.category_name")} *`}
-              placeholder={t("addCategories.category_name_placeholder")}
+              label={`${t("addCategory.category_name")} *`}
+              placeholder={t("addCategory.category_name_placeholder")}
               className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
               value={categoryData.name}
               onChange={(v) => handleField("name", v)}
@@ -156,7 +156,7 @@ const EditCategory = ({ category, onSuccess }) => {
             {/* Kategori Görseli */}
             <div>
               <span className="text-[--black-2] text-sm font-medium mb-2 block">
-                {t("addCategories.category_image_optional")}
+                {t("editCategories.category_image_optional")}
               </span>
               <div className="group border-2 border-dashed border-[--border-1] rounded-xl p-4 text-center hover:border-[--primary-1] transition-all relative cursor-pointer">
                 {preview ? (
@@ -173,7 +173,7 @@ const EditCategory = ({ category, onSuccess }) => {
                       <CloudUI className="size-[1.5rem] pt-1 pl-1" />
                     </div>
                     <p className="text-sm text-[--gr-1] group-hover:text-[--primary-1] font-medium">
-                      {t("addCategories.image_click_to_select")}
+                      {t("addCategory.image_click_to_select")}
                     </p>
                   </div>
                 )}
@@ -192,7 +192,7 @@ const EditCategory = ({ category, onSuccess }) => {
             {/* Checkbox for Menu IDs */}
             <div>
               <label className="block text-[--black-2] text-sm font-medium mb-3">
-                {t("addCategories.menus_optional")}
+                {t("addCategory.menus_optional")}
               </label>
               <div className="bg-[--light-1] p-4 rounded-xl border border-[--border-1] space-y-3 max-h-40 overflow-y-auto">
                 {menus.length > 0 ? (
@@ -209,12 +209,12 @@ const EditCategory = ({ category, onSuccess }) => {
                   ))
                 ) : (
                   <p className="text-sm text-[--gr-1] italic">
-                    {t("addCategories.menus_empty")}
+                    {t("addCategory.menus_empty")}
                   </p>
                 )}
               </div>
               <p className="text-xs text-[--gr-1] mt-2">
-                {t("addCategories.menus_help")}
+                {t("addCategory.menus_help")}
               </p>
             </div>
 
@@ -278,29 +278,29 @@ const EditCategory = ({ category, onSuccess }) => {
                 <div className="flex items-center">
                   <WarnI className="text-[--orange-1] mr-3 size-[1.5rem]" />
                   <span>
-                    {t("addCategories.campaign_warning", {
-                      tab: t("addCategories.campaign_warning_tab"),
+                    {t("addCategory.campaign_warning", {
+                      tab: t("addCategory.campaign_warning_tab"),
                     })}
                   </span>
                 </div>
               </div>
             )}
+          </div>
 
-            {/* Buttons */}
-            <div className="flex justify-end space-x-3 pt-6 border-t border-[--border-1]">
-              <button
-                onClick={() => setPopupContent(null)}
-                className="px-6 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] hover:text-[--black-1] transition-all"
-              >
-                {t("addCategories.cancel")}
-              </button>
-              <button
-                onClick={handleSave}
-                className="px-8 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg shadow-[--light-1] hover:bg-[--primary-2] transform hover:-translate-y-0.5 transition-all"
-              >
-                {t("addCategories.save")}
-              </button>
-            </div>
+          {/* Buttons */}
+          <div className="absolute bottom-0 left-0 right-0 bg-[--white-1] flex justify-end space-x-3 p-3 border-t border-[--border-1]">
+            <button
+              onClick={() => setPopupContent(null)}
+              className="px-6 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] hover:text-[--black-1] transition-all"
+            >
+              {t("addCategory.cancel")}
+            </button>
+            <button
+              onClick={handleSave}
+              className="px-8 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg shadow-[--light-1] hover:bg-[--primary-2] transform hover:-translate-y-0.5 transition-all"
+            >
+              {t("addCategory.save")}
+            </button>
           </div>
         </div>
       </div>
