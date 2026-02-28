@@ -517,6 +517,19 @@
     "strongest_category": "Your <strong>{{category}}</strong> rating is currently your strongest category! Keep up the great work in this area.",
     "no_feedback": "Start collecting feedback to see detailed analytics and insights about your restaurant performance."
   },
+  "qrThemeSelector": {
+    "title": "Theme Settings for {{name}}",
+    "select_theme": "Select Theme",
+    "save": "Save",
+    "device_preview": "Device Preview",
+    "iphone": "iPhone",
+    "android": "Android",
+    "tablet": "Tablet",
+    "live_url": "Live URL",
+    "open_new_tab": "Open in New Tab",
+    "loading_theme": "Loading Live Theme",
+    "success_updated": "Theme updated successfully!"
+  },
   "notFound": {
     "title": "Page not found",
     "description": "The page you are looking for does not exist.",

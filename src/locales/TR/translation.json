@@ -500,7 +500,7 @@
     "confirm_password_placeholder": "Şifre",
     "save": "Kaydet",
     "processing": "İşleniyor...",
-    "success": "Şifrenız başarıyla güncelendi",
+    "success": "Şifreniz başarıyla güncellenmiştir",
     "passwords_not_match": "Şifreler aynı değil"
   },
   "profilePage": {
@@ -517,6 +517,19 @@
     "performance_insight": "Performans İçgörüsü",
     "strongest_category": "Sizin <strong>{{category}}</strong> puanı şu anda en güçlü kategoriniz! Bu alanda iyi işler yapmaya devam edin.",
     "no_feedback": "Restoranınızın performansı hakkında ayrıntılı analitik ve içgörüler görmek için geri bildirim toplamaya başlayın."
+  },
+  "qrThemeSelector": {
+    "title": "{{name}} için Tema Ayarları",
+    "select_theme": "Tema Seçin",
+    "save": "Kaydet",
+    "device_preview": "Cihaz Önizlemesi",
+    "iphone": "iPhone",
+    "android": "Android",
+    "tablet": "Tablet",
+    "live_url": "Canlı URL",
+    "open_new_tab": "Yeni Sekmede Aç",
+    "loading_theme": "Canlı Tema Yüklüyor",
+    "success_updated": "Tema başarıyla güncellenmiştir!"
   },
   "notFound": {
     "title": "Sayfa bulunmadı",

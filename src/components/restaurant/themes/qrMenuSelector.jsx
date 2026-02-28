@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import { setRestaurantTheme } from "../../../redux/restaurant/setRestaurantThemeSlice";
 
@@ -39,6 +40,7 @@ const THEMES = [
 const ThemeSelector = ({ data }) => {
   const params = useParams();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const resraurantId = params.id;
 
   const { success } = useSelector((s) => s.restaurant.setRestaurantTheme);
@@ -79,16 +81,16 @@ const ThemeSelector = ({ data }) => {
   //TOAST
   useEffect(() => {
     if (success) {
-      toast.success("Theme updated successfully!");
+      toast.success(t("qrThemeSelector.success_updated"));
     }
-  }, [success]);
+  }, [success, t]);
 
   return (
     <div className="w-full mt-1 bg-[--white-1] rounded-lg text-[--black-1] overflow-hidden shadow-lg border border-[--border-1] relative">
       <div className="flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between items-center bg-indigo-800 text-white py-5 px-6 sm:px-14">
           <h1 className="text-xl font-bold mb-4 sm:mb-0">
-            Theme Settings for {data?.name}
+            {t("qrThemeSelector.title", { name: data?.name })}
           </h1>
         </div>
         <div className="flex flex-col lg:flex-row min-h-[700px] bg-[--white-1]">
@@ -97,13 +99,13 @@ const ThemeSelector = ({ data }) => {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-sm font-bold uppercase tracking-wider text-gray-400">
-                  Select Theme
+                  {t("qrThemeSelector.select_theme")}
                 </h2>
                 <button
                   onClick={handleSaveThemeId}
                   className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors"
                 >
-                  Save
+                  {t("qrThemeSelector.save")}
                 </button>
               </div>
               <div className="space-y-2">
@@ -144,7 +146,7 @@ const ThemeSelector = ({ data }) => {
 
             <div className="mt-auto pt-6 border-t border-gray-100">
               <h2 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">
-                Device Preview
+                {t("qrThemeSelector.device_preview")}
               </h2>
               <div className="flex gap-2">
                 {["iphone", "android", "tablet" /* , "monitor" */].map((d) => (
@@ -163,7 +165,9 @@ const ThemeSelector = ({ data }) => {
                     )}
                     {d === "tablet" && <Tablet className="w-4 h-4" />}
                     {/* {d === "monitor" && <Monitor className="w-4 h-4" />} */}
-                    <span className="text-[10px] font-bold uppercase">{d}</span>
+                    <span className="text-[10px] font-bold uppercase">
+                      {t(`qrThemeSelector.${d}`)}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -172,7 +176,9 @@ const ThemeSelector = ({ data }) => {
             <div className="p-4 bg-[--white-1] rounded-2xl border border-[--gr-4]">
               <div className="flex items-center gap-2 text-indigo-700 mb-2">
                 <Globe className="w-4 h-4" />
-                <span className="text-xs font-bold uppercase">Live URL</span>
+                <span className="text-xs font-bold uppercase">
+                  {t("qrThemeSelector.live_url")}
+                </span>
               </div>
               <p className="text-[10px] text-indigo-600 font-mono break-all mb-3 opacity-80">
                 {selectedTheme.url}
@@ -183,7 +189,7 @@ const ThemeSelector = ({ data }) => {
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-2 bg-[--white-1] rounded-lg text-xs font-bold text-indigo-600 border border-[--gr-4] hover:bg-[--white-2] transition-colors shadow-sm"
               >
-                Open in New Tab
+                {t("qrThemeSelector.open_new_tab")}
                 <ExternalLink className="w-3 h-3" />
               </a>
             </div>
@@ -257,7 +263,7 @@ const ThemeSelector = ({ data }) => {
                       <div className="flex flex-col items-center gap-4">
                         <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin" />
                         <p className="text-xs font-bold text-indigo-900/40 uppercase tracking-widest">
-                          Loading Live Theme
+                          {t("qrThemeSelector.loading_theme")}
                         </p>
                       </div>
                     </div>
