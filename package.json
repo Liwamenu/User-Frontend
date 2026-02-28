@@ -20,6 +20,7 @@
     "lodash": "^4.17.21",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.532.0",
+    "motion": "^12.34.3",
     "qr-code-styling": "^1.9.2",
     "react": "^19.1.0",
     "react-cropper": "^2.3.3",

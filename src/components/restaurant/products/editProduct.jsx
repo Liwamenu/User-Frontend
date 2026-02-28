@@ -54,6 +54,7 @@ const EditProduct = ({ product: prodToPopup }) => {
   const [preview, setPreview] = useState(null);
   const [productData, setProductData] = useState(prodToPopup || product);
   const [categoryOptions, setCategoryOptions] = useState([]);
+  const [subCategoryOptions, setSubCategoryOptions] = useState([]);
 
   function setCategoryOptionsFunc() {
     const options = (categories || []).map((c) => ({
@@ -64,10 +65,17 @@ const EditProduct = ({ product: prodToPopup }) => {
     setCategoryOptions(options);
   }
 
+  function setSubCategoryOptionsFunc() {
+    const options = (subCategories || []).map((sc) => ({
+      value: sc.id,
+      label: sc.name,
+      ...sc,
+    }));
+    setSubCategoryOptions(options);
+  }
+
   const getSubcatOptions = (categoryId) =>
-    (subCategories || [])
-      .filter((s) => s.categoryId === categoryId)
-      .map((sc) => ({ value: sc.id, label: sc.name, ...sc }));
+    (subCategoryOptions || []).filter((s) => s.categoryId === categoryId);
 
   //handlers
   const handleField = (key, value) => {
@@ -141,6 +149,7 @@ const EditProduct = ({ product: prodToPopup }) => {
     formData.append("hide", productData.hide);
     formData.append("categoryId", productData.categoryId || "");
     formData.append("subCategoryId", productData.subCategoryId || "");
+    formData.append("freeTagging", productData.freeTagging);
 
     // Append image file if present
     if (productData.image instanceof File) {
@@ -148,18 +157,16 @@ const EditProduct = ({ product: prodToPopup }) => {
     }
 
     // Append portions if changed
-    if (!isEqual(productData.portions, (product || productData).portions)) {
-      // Append portions as JSON string (or send separately based on API requirement)
-      const portions = productData.portions.map((p) => ({
-        id: p.id,
-        productId: p.productId,
-        name: p.name,
-        price: Number(p.price) || 0,
-        campaignPrice: Number(p.campaignPrice) || 0,
-        specialPrice: Number(p.specialPrice) || 0,
-      }));
-      formData.append("portions", JSON.stringify(portions));
-    }
+    // Append portions as JSON string (or send separately based on API requirement)
+    const portions = productData.portions.map((p) => ({
+      id: p.id,
+      productId: p.productId,
+      name: p.name,
+      price: Number(p.price) || 0,
+      campaignPrice: Number(p.campaignPrice) || 0,
+      specialPrice: Number(p.specialPrice) || 0,
+    }));
+    formData.append("portions", JSON.stringify(portions));
 
     // Log FormData entries for debugging
     console.log("FormData payload:");
@@ -172,10 +179,10 @@ const EditProduct = ({ product: prodToPopup }) => {
 
   //GET CATEGORIES IF NOT IN STORE
   useEffect(() => {
-    if (!categories) {
+    if (!categories && categoryOptions.length === 0) {
       dispatch(getCategories({ restaurantId }));
     }
-  }, [categories]);
+  }, []);
 
   //SET CATEGORIES
   useEffect(() => {
@@ -184,9 +191,14 @@ const EditProduct = ({ product: prodToPopup }) => {
 
   //GET SUBCATEGORIES IF NOT IN STORE
   useEffect(() => {
-    if (!subCategories) {
+    if (!subCategories && subCategoryOptions.length === 0) {
       dispatch(getSubCategories({ restaurantId }));
     }
+  }, []);
+
+  //SET SUBCATEGORIES
+  useEffect(() => {
+    if (subCategories) setSubCategoryOptionsFunc();
   }, [subCategories]);
 
   useEffect(() => {
@@ -200,374 +212,379 @@ const EditProduct = ({ product: prodToPopup }) => {
     }
     if (error) dispatch(resetEditProduct());
   }, [success, error, dispatch, setSecondPopupContent]);
-  console.log(productData);
 
   return (
-    <section
-      className={`w-full ${prodToPopup ? "flex items-center" : "pb-5 mt-1"}`}
-    >
-      <div
-        className={`bg-[--white-1] rounded-lg text-[--black-2] shadow-2xl px-4 w-full  mx-auto ${
-          prodToPopup
-            ? "h-[95dvh] overflow-y-auto relative max-w-4xl pb-20"
-            : "max-w-6xl pt-1"
-        }`}
+    productData && (
+      <section
+        className={`w-full ${prodToPopup ? "flex items-center" : "pb-5 mt-1"}`}
       >
-        {!prodToPopup && (
-          <>
-            {/* <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 px-4 sm:px-14 rounded-t-lg">
+        <div
+          className={`bg-[--white-1] rounded-lg text-[--black-2] shadow-2xl px-4 w-full  mx-auto ${
+            prodToPopup
+              ? "h-[95dvh] overflow-y-auto relative max-w-4xl pb-20"
+              : "max-w-6xl pt-1"
+          }`}
+        >
+          {!prodToPopup && (
+            <>
+              {/* <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 px-4 sm:px-14 rounded-t-lg">
               Fiyat Listesi {} Restoranı
             </h1> */}
 
-            <div className="flex flex-wrap gap-2 my-3 text-sm max-sm:grid max-sm:grid-cols-2 max-sm:items-center">
-              <ProductsHeader />
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={handleSave}
-                  className="px-6 py-2.5 text-sm font-medium text-white bg-[--green-1] rounded-md shadow-lg hover:bg-indigo-700 transition-all"
-                >
-                  {t("editProduct.save_button")}
-                </button>
+              <div className="flex flex-wrap gap-2 my-3 text-sm max-sm:grid max-sm:grid-cols-2 max-sm:items-center">
+                <ProductsHeader />
+                <div className="flex justify-end space-x-3">
+                  <button
+                    onClick={handleSave}
+                    className="px-6 py-2.5 text-sm font-medium text-white bg-[--green-1] rounded-md shadow-lg hover:bg-indigo-700 transition-all"
+                  >
+                    {t("editProduct.save_button")}
+                  </button>
+                </div>
               </div>
-            </div>
-          </>
-        )}
+            </>
+          )}
 
-        <div className="w-full py-8 relative flex flex-col sm:px-8">
-          <div className="flex justify-between items-center mb-6 border-b border-[--border-1] pb-4">
-            <h3 className="text-2xl font-bold text-[--black-2]">
-              {t("editProduct.title")}
-            </h3>
+          <div className="w-full py-8 relative flex flex-col sm:px-8">
+            <div className="flex justify-between items-center mb-6 border-b border-[--border-1] pb-4">
+              <h3 className="text-2xl font-bold text-[--black-2]">
+                {t("editProduct.title")}
+              </h3>
 
-            {prodToPopup && (
-              <div>
-                <button
-                  onClick={() => setSecondPopupContent(null)}
-                  className="text-[--gr-1] hover:text-[--black-2] transition-colors"
-                  aria-label={t("editProduct.close")}
-                >
-                  <CancelI />
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-6 pr-2 flex-1">
-            {/* 2 Kolon */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Sol Kolon */}
-              <div className="space-y-2">
-                <CustomInput
-                  required
-                  label={`${t("editProduct.name_label")} *`}
-                  placeholder={t("editProduct.name_placeholder")}
-                  className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
-                  className2=""
-                  value={productData.name}
-                  onChange={(v) => handleField("name", v)}
-                />
-
-                <CustomSelect
-                  required
-                  label={`${t("editProduct.category_label")} *`}
-                  placeholder={t("editProduct.category_placeholder")}
-                  value={
-                    productData.categoryId
-                      ? {
-                          value: productData.categoryId,
-                          label: productData.categoryName,
-                        }
-                      : {
-                          value: "",
-                          label: t("editProduct.category_placeholder"),
-                        }
-                  }
-                  style={{ backgroundColor: "var(--light-1)" }}
-                  options={categoryOptions}
-                  onChange={(opt) =>
-                    setProductData((prev) => ({
-                      ...prev,
-                      categoryId: opt?.value || "",
-                      categoryName: opt?.label || "",
-                    }))
-                  }
-                  isSearchable={true}
-                  className="text-sm"
-                />
-
-                <CustomSelect
-                  label={`${t("editProduct.subCategory_label")} *`}
-                  disabled={!productData.categoryId}
-                  placeholder={t("editProduct.subCategory_placeholder")}
-                  value={
-                    productData.subCategoryId
-                      ? {
-                          value: productData.subCategoryId,
-                          label: productData.subCategoryName,
-                        }
-                      : {
-                          value: "",
-                          label: t("editProduct.subCategory_placeholder"),
-                        }
-                  }
-                  style={{ backgroundColor: "var(--light-1)" }}
-                  options={getSubcatOptions(productData.categoryId)}
-                  onChange={(opt) =>
-                    setProductData((prev) => ({
-                      ...prev,
-                      subCategoryId: opt?.value || "",
-                      subCategoryName: opt?.label || "",
-                    }))
-                  }
-                  className="text-sm"
-                />
-
+              {prodToPopup && (
                 <div>
-                  <div className="flex justify-between items-center mb-1 py-2">
+                  <button
+                    onClick={() => setSecondPopupContent(null)}
+                    className="text-[--gr-1] hover:text-[--black-2] transition-colors"
+                    aria-label={t("editProduct.close")}
+                  >
+                    <CancelI />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-6 pr-2 flex-1">
+              {/* 2 Kolon */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Sol Kolon */}
+                <div className="space-y-2">
+                  <CustomInput
+                    required
+                    label={`${t("editProduct.name_label")} *`}
+                    placeholder={t("editProduct.name_placeholder")}
+                    className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
+                    className2=""
+                    value={productData.name}
+                    onChange={(v) => handleField("name", v)}
+                  />
+
+                  <CustomSelect
+                    required
+                    label={`${t("editProduct.category_label")} *`}
+                    placeholder={t("editProduct.category_placeholder")}
+                    value={
+                      productData.categoryId
+                        ? {
+                            value: productData.categoryId,
+                            label: productData.categoryName,
+                          }
+                        : {
+                            value: "",
+                            label: t("editProduct.category_placeholder"),
+                          }
+                    }
+                    style={{ backgroundColor: "var(--light-1)" }}
+                    options={categoryOptions}
+                    onChange={(opt) =>
+                      setProductData((prev) => ({
+                        ...prev,
+                        categoryId: opt?.value || "",
+                        categoryName: opt?.label || "",
+                      }))
+                    }
+                    isSearchable={true}
+                    className="text-sm"
+                  />
+
+                  <CustomSelect
+                    label={`${t("editProduct.subCategory_label")} *`}
+                    disabled={!productData.categoryId}
+                    placeholder={t("editProduct.subCategory_placeholder")}
+                    value={
+                      productData.subCategoryId
+                        ? {
+                            value: productData.subCategoryId,
+                            label: productData.subCategoryName,
+                          }
+                        : {
+                            value: "",
+                            label: t("editProduct.subCategory_placeholder"),
+                          }
+                    }
+                    style={{ backgroundColor: "var(--light-1)" }}
+                    options={getSubcatOptions(productData.categoryId)}
+                    onChange={(opt) =>
+                      setProductData((prev) => ({
+                        ...prev,
+                        subCategoryId: opt?.value || "",
+                        subCategoryName: opt?.label || "",
+                      }))
+                    }
+                    className="text-sm"
+                  />
+
+                  <div>
+                    <div className="flex justify-between items-center mb-1 py-2">
+                      <label className="block text-[--black-2] text-sm font-medium">
+                        {t("editProduct.description_label")}
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => console.log("AI desc")}
+                        className="text-xs bg-purple-50 text-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-100 transition font-medium border border-purple-200 flex items-center shadow-sm"
+                      >
+                        <i className="fa-solid fa-wand-magic-sparkles mr-1.5" />
+                        {t("editProduct.description_ai_button")}
+                      </button>
+                    </div>
+                    <CustomTextarea
+                      value={productData.description}
+                      onChange={(e) =>
+                        handleField("description", e.target.value)
+                      }
+                      placeholder={t("editProduct.description_placeholder")}
+                      className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none resize-none text-sm"
+                    />
+                  </div>
+
+                  <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-indigo-200 transition-colors">
+                    <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
+                      {t("editProduct.status_section")}
+                    </span>
+                    <div className="flex items-center justify-between">
+                      <CustomToggle
+                        label={t("editProduct.status_label")}
+                        className1="text-sm"
+                        className="peer-checked:bg-[--green-1] bg-[--border-1] scale-[.9]"
+                        checked={!productData.hide}
+                        onChange={() => handleToggle("hide")}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-indigo-200 transition-colors">
+                    <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
+                      {t("editProduct.recommendation_section")}
+                    </span>
+                    <div className="flex items-center justify-between">
+                      <CustomToggle
+                        label={t("editProduct.recommendation_label")}
+                        checked={productData.recommendation}
+                        className1="text-sm"
+                        className="peer-checked:bg-[--green-1] bg-[--border-1] scale-[.9]"
+                        onChange={() => handleToggle("recommendation")}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sağ Kolon */}
+                <div className="space-y-2">
+                  <span className="text-[--black-2] text-sm font-medium block">
+                    {t("editProduct.image_label")}
+                  </span>
+
+                  <div className="bg-[--light-4] p-4 rounded-xl border border-[--border-1]">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
+                        <i className="fa-solid fa-palette mr-1" />
+                        {t("editProduct.image_ai_title")}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => console.log("AI image")}
+                        id="ai-img-btn"
+                        className="text-xs bg-indigo-500 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-600 transition font-medium shadow-sm flex items-center"
+                      >
+                        <i className="fa-solid fa-wand-magic-sparkles mr-1.5" />
+                        {t("editProduct.image_ai_button")}
+                      </button>
+                    </div>
+
+                    <CustomInput
+                      placeholder={t("editProduct.image_prompt_placeholder")}
+                      className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none text-sm"
+                    />
+                  </div>
+
+                  <div className="group border-2 border-dashed border-[--border-1] rounded-xl p-6 text-center hover:border-indigo-400 hover:bg-[--light-2] transition-all relative cursor-pointer h-48 flex flex-col justify-center items-center">
+                    {preview ? (
+                      <div className="w-full h-full overflow-hidden flex justify-center items-center rounded-lg">
+                        <img
+                          src={preview}
+                          className="max-h-full w-auto object-contain rounded-md"
+                          alt={t("editProduct.image_label")}
+                        />
+                      </div>
+                    ) : (
+                      <div className="group-hover:scale-110 transition-transform duration-300 pointer-events-none">
+                        <div className="w-12 h-12 bg-indigo-100 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <div className="pl-1 pt-1">
+                            <CloudUI />
+                          </div>
+                        </div>
+                        <p className="text-sm text-[--light-1]0 group-hover:text-indigo-600 font-medium">
+                          {t("editProduct.image_click_to_select")}
+                        </p>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 opacity-0">
+                      <CustomFileInput
+                        required={false}
+                        value={productData.image}
+                        onChange={handleFileChange}
+                        accept={"image/png, image/jpeg"}
+                        className="h-full w-full"
+                      />
+                    </div>
+                  </div>
+
+                  {/* IS NOTE ALLOWED */}
+                  <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-indigo-200 transition-colors">
+                    <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
+                      {t("editProduct.tag")}
+                    </span>
+                    <div className="flex items-center justify-between">
+                      <CustomToggle
+                        label={t("editProduct.freeTag")}
+                        checked={productData.freeTagging}
+                        className1="text-sm"
+                        className="peer-checked:bg-[--green-1] bg-[--border-1] scale-[.9]"
+                        onChange={() => handleToggle("freeTagging")}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Alt Kısım */}
+              <div className="pt-4 border-t border-[--border-1]">
+                <div>
+                  <div className="flex justify-between items-center mb-3">
                     <label className="block text-[--black-2] text-sm font-medium">
-                      {t("editProduct.description_label")}
+                      {t("editProduct.portions_title")}
                     </label>
                     <button
                       type="button"
-                      onClick={() => console.log("AI desc")}
-                      className="text-xs bg-purple-50 text-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-100 transition font-medium border border-purple-200 flex items-center shadow-sm"
+                      onClick={addPortion}
+                      className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition font-medium border border-indigo-200"
                     >
-                      <i className="fa-solid fa-wand-magic-sparkles mr-1.5" />
-                      {t("editProduct.description_ai_button")}
-                    </button>
-                  </div>
-                  <CustomTextarea
-                    value={productData.description}
-                    onChange={(e) => handleField("description", e.target.value)}
-                    placeholder={t("editProduct.description_placeholder")}
-                    className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--red-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none resize-none text-sm"
-                  />
-                </div>
-
-                <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-indigo-200 transition-colors">
-                  <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
-                    {t("editProduct.status_section")}
-                  </span>
-                  <div className="flex items-center justify-between">
-                    <CustomToggle
-                      label={t("editProduct.status_label")}
-                      className1="text-sm"
-                      className="peer-checked:bg-[--green-1] bg-[--border-1] scale-[.9]"
-                      checked={!productData.hide}
-                      onChange={() => handleToggle("hide")}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-indigo-200 transition-colors">
-                  <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
-                    {t("editProduct.recommendation_section")}
-                  </span>
-                  <div className="flex items-center justify-between">
-                    <CustomToggle
-                      label={t("editProduct.recommendation_label")}
-                      checked={productData.recommendation}
-                      className1="text-sm"
-                      className="peer-checked:bg-[--green-1] bg-[--border-1] scale-[.9]"
-                      onChange={() => handleToggle("recommendation")}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Sağ Kolon */}
-              <div className="space-y-2">
-                <span className="text-[--black-2] text-sm font-medium block">
-                  {t("editProduct.image_label")}
-                </span>
-
-                <div className="bg-[--light-4] p-4 rounded-xl border border-[--border-1]">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
-                      <i className="fa-solid fa-palette mr-1" />
-                      {t("editProduct.image_ai_title")}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => console.log("AI image")}
-                      id="ai-img-btn"
-                      className="text-xs bg-indigo-500 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-600 transition font-medium shadow-sm flex items-center"
-                    >
-                      <i className="fa-solid fa-wand-magic-sparkles mr-1.5" />
-                      {t("editProduct.image_ai_button")}
+                      <i className="fa-solid fa-plus mr-1" />
+                      {t("editProduct.add_portion")}
                     </button>
                   </div>
 
-                  <CustomInput
-                    placeholder={t("editProduct.image_prompt_placeholder")}
-                    className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none text-sm"
-                  />
-                </div>
-
-                <div className="group border-2 border-dashed border-[--border-1] rounded-xl p-6 text-center hover:border-indigo-400 hover:bg-[--light-2] transition-all relative cursor-pointer h-48 flex flex-col justify-center items-center">
-                  {preview ? (
-                    <div className="w-full h-full overflow-hidden flex justify-center items-center rounded-lg">
-                      <img
-                        src={preview}
-                        className="max-h-full w-auto object-contain rounded-md"
-                        alt={t("editProduct.image_label")}
-                      />
+                  <div className="grid grid-cols-[1fr_80px_80px_80px_30px] gap-2 text-[10px] text-[--gr-1] uppercase font-semibold mb-2">
+                    <div>{t("editProduct.portion_column_name")}</div>
+                    <div className="text-center">
+                      {t("editProduct.portion_column_price")}
                     </div>
-                  ) : (
-                    <div className="group-hover:scale-110 transition-transform duration-300 pointer-events-none">
-                      <div className="w-12 h-12 bg-indigo-100 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <div className="pl-1 pt-1">
-                          <CloudUI />
+                    <div className="text-center text-[--green-1]">
+                      {t("editProduct.portion_column_campaign")}
+                    </div>
+                    <div className="text-center text-[--orange-1]">
+                      {t("editProduct.portion_column_special")}
+                    </div>
+                    <div />
+                  </div>
+
+                  <div className="space-y-3">
+                    {productData.portions.map((portion, idx) => (
+                      <div
+                        key={idx}
+                        className="grid grid-cols-[1fr_80px_80px_80px_30px] gap-2 items-center"
+                      >
+                        <CustomInput
+                          required
+                          placeholder={t(
+                            "editProduct.portion_name_placeholder",
+                          )}
+                          className="py-[6px] text-sm bg-[--white-2]"
+                          value={portion.name}
+                          onChange={(v) => handlePortionChange(idx, "name", v)}
+                        />
+                        <CustomInput
+                          required
+                          type="number"
+                          placeholder="Fiyat"
+                          className="py-[6px] text-sm text-center bg-[--white-2]"
+                          value={formatToPrice(portion.price) || "0"}
+                          onChange={(v) => handlePortionChange(idx, "price", v)}
+                        />
+                        <CustomInput
+                          type="number"
+                          placeholder="Kampanya"
+                          className="py-[6px] text-sm text-end text-[--black-2] bg-green-400/30 border-green-300"
+                          value={formatToPrice(portion.campaignPrice) || "0"}
+                          onChange={(v) =>
+                            handlePortionChange(idx, "campaignPrice", v)
+                          }
+                        />
+                        <CustomInput
+                          type="number"
+                          placeholder="Özel"
+                          className="py-[6px] text-sm text-end text-[--black-2] bg-orange-400/30 border-orange-300"
+                          value={formatToPrice(portion.specialPrice) || "0"}
+                          onChange={(v) =>
+                            handlePortionChange(idx, "specialPrice", v)
+                          }
+                        />
+                        <div className="flex items-center justify-center">
+                          {productData.portions.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => deletePortion(idx)}
+                              className="text-[--red-1] text-xs"
+                              aria-label={t("editProduct.portion_delete_aria")}
+                            >
+                              <DeleteI
+                                strokeWidth={1}
+                                className="size-[1.3rem]"
+                              />
+                            </button>
+                          )}
                         </div>
                       </div>
-                      <p className="text-sm text-[--light-1]0 group-hover:text-indigo-600 font-medium">
-                        {t("editProduct.image_click_to_select")}
-                      </p>
-                    </div>
-                  )}
-                  <div className="absolute inset-0 opacity-0">
-                    <CustomFileInput
-                      required={false}
-                      value={productData.image}
-                      onChange={handleFileChange}
-                      accept={"image/png, image/jpeg"}
-                      className="h-full w-full"
-                    />
+                    ))}
                   </div>
-                </div>
-
-                {/* IS NOTE ALLOWED */}
-                <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-indigo-200 transition-colors">
-                  <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
-                    {t("editProduct.tag")}
-                  </span>
-                  <div className="flex items-center justify-between">
-                    <CustomToggle
-                      label={t("editProduct.freeTag")}
-                      checked={productData.isNoteAllowed}
-                      className1="text-sm"
-                      className="peer-checked:bg-[--green-1] bg-[--border-1] scale-[.9]"
-                      onChange={() => handleToggle("isNoteAllowed")}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Alt Kısım */}
-            <div className="pt-4 border-t border-[--border-1]">
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <label className="block text-[--black-2] text-sm font-medium">
-                    {t("editProduct.portions_title")}
-                  </label>
-                  <button
-                    type="button"
-                    onClick={addPortion}
-                    className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition font-medium border border-indigo-200"
-                  >
-                    <i className="fa-solid fa-plus mr-1" />
-                    {t("editProduct.add_portion")}
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-[1fr_80px_80px_80px_30px] gap-2 text-[10px] text-[--gr-1] uppercase font-semibold mb-2">
-                  <div>{t("editProduct.portion_column_name")}</div>
-                  <div className="text-center">
-                    {t("editProduct.portion_column_price")}
-                  </div>
-                  <div className="text-center text-[--green-1]">
-                    {t("editProduct.portion_column_campaign")}
-                  </div>
-                  <div className="text-center text-[--orange-1]">
-                    {t("editProduct.portion_column_special")}
-                  </div>
-                  <div />
-                </div>
-
-                <div className="space-y-3">
-                  {productData.portions.map((portion, idx) => (
-                    <div
-                      key={idx}
-                      className="grid grid-cols-[1fr_80px_80px_80px_30px] gap-2 items-center"
-                    >
-                      <CustomInput
-                        required
-                        placeholder={t("editProduct.portion_name_placeholder")}
-                        className="py-[6px] text-sm bg-[--white-2]"
-                        value={portion.name}
-                        onChange={(v) => handlePortionChange(idx, "name", v)}
-                      />
-                      <CustomInput
-                        required
-                        type="number"
-                        placeholder="Fiyat"
-                        className="py-[6px] text-sm text-center bg-[--white-2]"
-                        value={formatToPrice(portion.price) || "0"}
-                        onChange={(v) => handlePortionChange(idx, "price", v)}
-                      />
-                      <CustomInput
-                        type="number"
-                        placeholder="Kampanya"
-                        className="py-[6px] text-sm text-end text-[--black-2] bg-green-400/30 border-green-300"
-                        value={formatToPrice(portion.campaignPrice) || "0"}
-                        onChange={(v) =>
-                          handlePortionChange(idx, "campaignPrice", v)
-                        }
-                      />
-                      <CustomInput
-                        type="number"
-                        placeholder="Özel"
-                        className="py-[6px] text-sm text-end text-[--black-2] bg-orange-400/30 border-orange-300"
-                        value={formatToPrice(portion.specialPrice) || "0"}
-                        onChange={(v) =>
-                          handlePortionChange(idx, "specialPrice", v)
-                        }
-                      />
-                      <div className="flex items-center justify-center">
-                        {productData.portions.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => deletePortion(idx)}
-                            className="text-[--red-1] text-xs"
-                            aria-label={t("editProduct.portion_delete_aria")}
-                          >
-                            <DeleteI
-                              strokeWidth={1}
-                              className="size-[1.3rem]"
-                            />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {prodToPopup && (
-        <div className="w-full flex items-center  absolute bottom-5 right-0 left-0">
-          <div className="w-full flex justify-end space-x-3 max-w-4xl mx-auto bg-[--white-1] py-4 px-6 border-t border-[--border-1] rounded-b-lg">
-            <button
-              onClick={() => setSecondPopupContent(null)}
-              className="px-6 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] hover:text-[--black-1] transition-all"
-            >
-              {t("editProduct.cancel")}
-            </button>
+        {prodToPopup && (
+          <div className="w-full flex items-center  absolute bottom-5 right-0 left-0">
+            <div className="w-full flex justify-end space-x-3 max-w-4xl mx-auto bg-[--white-1] py-4 px-6 border-t border-[--border-1] rounded-b-lg">
+              <button
+                onClick={() => setSecondPopupContent(null)}
+                className="px-6 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] hover:text-[--black-1] transition-all"
+              >
+                {t("editProduct.cancel")}
+              </button>
 
-            <button
-              onClick={handleSave}
-              className="px-8 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg shadow-[--light-1] hover:bg-[--primary-2] transform hover:-translate-y-0.5 transition-all"
-            >
-              {t("editProduct.save_button")}
-            </button>
+              <button
+                onClick={handleSave}
+                className="px-8 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg shadow-[--light-1] hover:bg-[--primary-2] transform hover:-translate-y-0.5 transition-all"
+              >
+                {t("editProduct.save_button")}
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-    </section>
+        )}
+      </section>
+    )
   );
 };
 

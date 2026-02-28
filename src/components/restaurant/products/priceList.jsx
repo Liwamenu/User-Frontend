@@ -1,17 +1,15 @@
 //MODULES
 import toast from "react-hot-toast";
 import isEqual from "lodash/isEqual";
+import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux";
 import React, { useEffect, useState, useRef } from "react";
-import { useTranslation } from "react-i18next";
 
 //COMP
 import ProductsHeader from "./header";
 import { StackI } from "../../../assets/icon";
 import CustomInput from "../../common/customInput";
-
-//DEMO
-import Products from "../../../assets/js/Products.json";
 import PriceListApplyBulk from "./priceListApplyBulk";
 
 //REDUX
@@ -21,10 +19,12 @@ import {
 } from "../../../redux/products/updatePriceListSlice";
 import { getProducts } from "../../../redux/products/getProductsSlice";
 
-const PriceList = ({ data: restaurant }) => {
+const PriceList = () => {
+  const params = useParams();
   const dispatch = useDispatch();
-  const containerRef = useRef(null);
   const { t } = useTranslation();
+  const restaurantId = params.id;
+  const containerRef = useRef(null);
 
   const { products } = useSelector((s) => s.products.get);
   const { success, error } = useSelector((s) => s.products.updatePriceList);
@@ -43,11 +43,17 @@ const PriceList = ({ data: restaurant }) => {
     });
   };
 
+  //fetch products on load
+  useEffect(() => {
+    if (!list.length) {
+      dispatch(getProducts({ restaurantId }));
+    }
+  }, [list]);
+
   // On Products load, set local list state and group by category
   useEffect(() => {
     // Products.json exports an object { Products: [...] }
-    const productsList =
-      (products?.data.length && products.data) || Products?.Products || [];
+    const productsList = (products?.data?.length && products.data) || [];
 
     // initialize editable local copy
     const initialList = productsList.map((p) => ({
@@ -71,14 +77,12 @@ const PriceList = ({ data: restaurant }) => {
       grouped[categoryId].push(product);
     });
     setGroupedByCategory(grouped);
-  }, [Products, products]);
+  }, [products]);
 
   // Submit: find changed Products (deep compare with original Products) and console them
   const handleSaveAll = () => {
-    const productsList = Products?.Products || [];
-
     const changed = list.filter((prod) => {
-      const orig = productsList.find((p) => p.id === prod.id);
+      const orig = listBefore.find((p) => p.id === prod.id);
       // if no original (new product) consider changed
       if (!orig) return true;
       return !isEqual(prod, orig);
@@ -86,7 +90,7 @@ const PriceList = ({ data: restaurant }) => {
 
     //Get only id and price of chnaged products portions
     const changedWithPortions = changed.map((prod) => {
-      const orig = productsList.find((p) => p.id === prod.id);
+      const orig = listBefore.find((p) => p.id === prod.id);
       const changedPortions = (prod.portions || []).filter((pt, index) => {
         const origPortion = (orig?.portions || [])[index];
         return !isEqual(pt, origPortion);
@@ -140,7 +144,7 @@ const PriceList = ({ data: restaurant }) => {
   useEffect(() => {
     if (success) {
       toast.success(t("priceList.success"));
-      dispatch(getProducts({ restaurantId: restaurant.id }));
+      dispatch(getProducts({ restaurantId }));
       dispatch(resetUpdatePriceList());
     }
     if (error) {
@@ -242,7 +246,7 @@ const PriceList = ({ data: restaurant }) => {
                                     i,
                                     pi,
                                     "campaignPrice",
-                                    Number(v)
+                                    Number(v),
                                   )
                                 }
                                 onKeyDown={handleKeyDown}

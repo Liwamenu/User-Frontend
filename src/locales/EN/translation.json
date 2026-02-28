@@ -18,6 +18,8 @@
     "tags": "Tags",
     "products": "Products",
     "themes": "Themes",
+    "qrthemes": "QR Themes",
+    "tvthemes": "TV Themes",
     "qr_code": "QR Code",
     "announcement_settings": "Announcement Settings",
     "survey_settings": "Survey Settings"
@@ -505,6 +507,15 @@
     "edit_profile": "Edit Profile",
     "security": "Security",
     "invoice_info": "Invoice Information"
+  },
+  "surveySettings": {
+    "title": "{{name}} Restaurant Customer Feedback Analytics",
+    "add_survey": "Add Survey",
+    "new_badge": "NEW",
+    "reviews": "reviews",
+    "performance_insight": "Performance Insight",
+    "strongest_category": "Your <strong>{{category}}</strong> rating is currently your strongest category! Keep up the great work in this area.",
+    "no_feedback": "Start collecting feedback to see detailed analytics and insights about your restaurant performance."
   },
   "notFound": {
     "title": "Page not found",

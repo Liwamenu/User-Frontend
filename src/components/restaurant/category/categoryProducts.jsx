@@ -6,10 +6,8 @@ import { useTranslation } from "react-i18next";
 //COMPONENTS & FUNCTIONS
 import EditProduct from "../products/editProduct";
 import DeleteProduct from "../products/deleteProduct";
-import ListCategoryProduct from "./listCategoryProducts";
 import fallbackImg from "../../../assets/img/No_Img.svg";
 import { usePopup } from "../../../context/PopupContext";
-import localProds from "../../../assets/js/Products.json";
 import { CancelI, DeleteI, EditI } from "../../../assets/icon";
 
 //REDUX
@@ -23,11 +21,7 @@ const CategoryProducts = ({ categoryId, onClose }) => {
   const dispatch = useDispatch();
 
   const { products, success, error } = useSelector(
-    (s) => s.products.getByCategoryId
-  );
-
-  const localCatProds = localProds.Products.filter(
-    (p) => p.categoryId !== categoryId
+    (s) => s.products.getByCategoryId,
   );
 
   const { setSecondPopupContent } = usePopup();
@@ -45,10 +39,15 @@ const CategoryProducts = ({ categoryId, onClose }) => {
       dispatch(resetGetProductsByCategoryIdState());
     }
     if (error) {
-      setCatProdsData(localCatProds);
       dispatch(resetGetProductsByCategoryIdState());
     }
   }, [products, success, error]);
+
+  function handleDeletedProduct(deletedProductId) {
+    setCatProdsData((prevData) =>
+      prevData.filter((prod) => prod.id !== deletedProductId),
+    );
+  }
 
   // const handleSelectProducts = () => {
   //   setSecondPopupContent(
@@ -68,7 +67,9 @@ const CategoryProducts = ({ categoryId, onClose }) => {
   };
 
   const handleDeleteProduct = (product) => {
-    setSecondPopupContent(<DeleteProduct product={product} />);
+    setSecondPopupContent(
+      <DeleteProduct product={product} onSuccess={handleDeletedProduct} />,
+    );
   };
 
   return (

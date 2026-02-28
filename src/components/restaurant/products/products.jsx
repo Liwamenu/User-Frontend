@@ -12,29 +12,31 @@ import CustomInput from "../../common/customInput";
 import CustomSelect from "../../common/customSelector";
 import CustomPagination from "../../common/pagination";
 
-//DEMO
-import DUMMY_DATA from "../../../assets/js/Products.json";
-import categoriesJSON from "../../../assets/js/Categories.json";
-
 //REDUX
-import { getProducts } from "../../../redux/products/getProductsSlice";
+import {
+  getProducts,
+  resetGetProducts,
+} from "../../../redux/products/getProductsSlice";
+import { getCategories } from "../../../redux/categories/getCategoriesSlice";
 
-const Products = ({ data: restaurant }) => {
+const Products = () => {
   const params = useParams();
   const restaurantId = params.id;
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
+  const { categories } = useSelector((s) => s.categories.get);
   const { products, error } = useSelector((s) => s.products.get);
+  const [categoryOptions, setCategoryOptions] = useState([]);
 
-  const categoryOptions = [
-    { label: t("productsList.all_categories"), value: "" },
-    ...categoriesJSON.categories.map((c) => ({
+  function setCategoryOptionsFunc() {
+    const options = (categories || []).map((c) => ({
+      value: c.id,
       label: c.name,
-      value: c.name,
-      id: c.id,
-    })),
-  ];
+      ...c,
+    }));
+    setCategoryOptions(options);
+  }
 
   const statusOptions = [
     { label: t("productsList.all_statuses"), value: null },
@@ -46,7 +48,10 @@ const Products = ({ data: restaurant }) => {
 
   const [searchVal, setSearchVal] = useState("");
   const [statusFilter, setStatusFilter] = useState(statusOptions[0]);
-  const [categoryFilter, setCategoryFilter] = useState(categoryOptions[0]);
+  const [categoryFilter, setCategoryFilter] = useState({
+    label: t("productsList.all_categories"),
+    value: "",
+  });
 
   const [pageNumber, setPageNumber] = useState(1);
   const itemsPerPage = import.meta.env.VITE_ROWS_PER_PAGE;
@@ -98,13 +103,23 @@ const Products = ({ data: restaurant }) => {
   useEffect(() => {
     if (products) {
       setTotalItems(products.totalCount || 3);
-      setProductsData(products);
+      setProductsData(products.data);
       console.log(products);
     }
-    if (error) {
-      setProductsData(DUMMY_DATA.Products);
-    }
+    if (error) dispatch(resetGetProducts());
   }, [products, error]);
+
+  //GET CATEGORIES IF NOT IN STORE
+  useEffect(() => {
+    if (!categories) {
+      dispatch(getCategories({ restaurantId }));
+    }
+  }, [categories]);
+
+  //SET CATEGORIES
+  useEffect(() => {
+    if (categories) setCategoryOptionsFunc();
+  }, [categories, dispatch]);
 
   return (
     <main className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">

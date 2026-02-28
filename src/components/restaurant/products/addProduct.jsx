@@ -27,10 +27,7 @@ import {
   resetAddProduct,
 } from "../../../redux/products/addProductSlice";
 import { resetGetProducts } from "../../../redux/products/getProductsSlice";
-import {
-  getCategories,
-  resetGetCategories,
-} from "../../../redux/categories/getCategoriesSlice";
+import { getCategories } from "../../../redux/categories/getCategoriesSlice";
 import { getSubCategories } from "../../../redux/subCategories/getSubCategoriesSlice";
 
 const emptyPortion = () => ({
@@ -53,11 +50,11 @@ const defaultProduct = {
   categoryName: "",
   subCategoryId: "",
   subCategoryName: "",
-  isNoteAllowed: true,
+  freeTagging: true,
   portions: [emptyPortion()],
 };
 
-const AddProduct = ({ data: restaurant }) => {
+const AddProduct = () => {
   const params = useParams();
   const restaurantId = params.id;
   const dispatch = useDispatch();
@@ -154,6 +151,7 @@ const AddProduct = ({ data: restaurant }) => {
     formData.append("hide", productData.hide);
     formData.append("categoryId", productData.categoryId || "");
     formData.append("subCategoryId", productData.subCategoryId || "");
+    formData.append("freeTagging", productData.freeTagging);
 
     // Append image file if present
     if (productData.image instanceof File) {
@@ -208,6 +206,7 @@ const AddProduct = ({ data: restaurant }) => {
       dispatch(resetGetProducts());
     } else if (error) dispatch(resetAddProduct());
   }, [success, error, dispatch]);
+  console.log(productData);
 
   return (
     <form
@@ -289,7 +288,13 @@ const AddProduct = ({ data: restaurant }) => {
                         }
                   }
                   style={{ backgroundColor: "var(--light-1)" }}
-                  options={getSubcatOptions(productData.categoryId)}
+                  options={[
+                    {
+                      label: t("editProduct.subCategory_placeholder"),
+                      value: "",
+                    },
+                    ...getSubcatOptions(productData.categoryId),
+                  ]}
                   onChange={(opt) =>
                     setProductData((prev) => ({
                       ...prev,
@@ -422,10 +427,10 @@ const AddProduct = ({ data: restaurant }) => {
                   <div className="flex items-center justify-between">
                     <CustomToggle
                       label={t("editProduct.freeTag")}
-                      checked={productData.isNoteAllowed}
+                      checked={productData.freeTagging}
                       className1="text-sm"
                       className="peer-checked:bg-[--green-1] bg-[--border-1] scale-[.9]"
-                      onChange={() => handleToggle("isNoteAllowed")}
+                      onChange={() => handleToggle("freeTagging")}
                     />
                   </div>
                 </div>

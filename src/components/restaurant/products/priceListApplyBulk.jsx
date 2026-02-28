@@ -1,8 +1,8 @@
 //MODULES
 import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
 
 //COMP
 import CheckI from "../../../assets/icon/check";
@@ -10,10 +10,7 @@ import CustomInput from "../../common/customInput";
 import CustomSelect from "../../common/customSelector";
 
 //REEDUX
-import {
-  priceListApplyBulk,
-  resetPriceListApplyBulk,
-} from "../../../redux/products/priceListApplyBulkSlice";
+import { updatePriceList } from "../../../redux/products/updatePriceListSlice";
 
 const BULK_TYPE_OPTIONS = [
   {
@@ -38,12 +35,10 @@ const PriceListApplyBulk = ({ list, setList }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  const { success, error } = useSelector((s) => s.products.applyPriceListBulk);
-
-  const [bulkType, setBulkType] = useState("percent-increase");
+  const [history, setHistory] = useState(null);
   const [bulkValue, setBulkValue] = useState("");
   const [bulkTarget, setBulkTarget] = useState("price");
-  const [history, setHistory] = useState(null);
+  const [bulkType, setBulkType] = useState("percent-increase");
 
   const bulkTypeOptions = BULK_TYPE_OPTIONS.map((opt) => ({
     value: opt.value,
@@ -67,6 +62,7 @@ const PriceListApplyBulk = ({ list, setList }) => {
     setHistory([...list]);
 
     const value = parseFloat(bulkValue);
+
     const updatedList = list.map((product) => {
       const newProduct = { ...product };
       newProduct.portions = (product.portions || []).map((portion) => {
@@ -105,7 +101,6 @@ const PriceListApplyBulk = ({ list, setList }) => {
 
         newPortion.price = Math.max(0, newPrice).toFixed(2);
         newPortion.campaignPrice = Math.max(0, newDiscountedPrice).toFixed(2);
-
         return newPortion;
       });
 
@@ -113,24 +108,17 @@ const PriceListApplyBulk = ({ list, setList }) => {
     });
 
     setList(updatedList);
-    dispatch(priceListApplyBulk(updatedList));
+    dispatch(updatePriceList(updatedList));
     setBulkValue("");
   };
 
   const handleUndo = () => {
     if (history) {
+      dispatch(updatePriceList(history));
       setList(history);
       setHistory(null);
     }
   };
-
-  useEffect(() => {
-    if (success) {
-      toast.success(t("priceList.bulk_success"), { id: "applyInBulk" });
-      dispatch(resetPriceListApplyBulk());
-    }
-    if (error) dispatch(resetPriceListApplyBulk());
-  }, [success, error]);
 
   return (
     <div className="bg-[#222265] rounded-2xl p-6 mb-8 text-white shadow-lg relative">

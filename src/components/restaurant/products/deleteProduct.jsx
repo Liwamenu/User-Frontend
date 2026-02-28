@@ -10,7 +10,7 @@ import { usePopup } from "../../../context/PopupContext";
 //REDUX
 import { deleteProduct } from "../../../redux/products/deleteProductSlice";
 
-const DeleteProduct = ({ product }) => {
+const DeleteProduct = ({ product, onSuccess }) => {
   const dispatch = useDispatch();
   const { setSecondPopupContent } = usePopup();
 
@@ -26,6 +26,7 @@ const DeleteProduct = ({ product }) => {
     if (success) {
       toast.success(t("deleteProduct.success"));
       setSecondPopupContent(null);
+      onSuccess && onSuccess(product.id);
     }
   }, [success]);
 

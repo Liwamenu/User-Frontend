@@ -11,11 +11,11 @@ const initialState = {
   data: null,
 };
 
-const updatePriceListSlice = createSlice({
-  name: "updatePriceList",
+const setRestaurantThemeSlice = createSlice({
+  name: "setRestaurantTheme",
   initialState: initialState,
   reducers: {
-    resetUpdatePriceList: (state) => {
+    resetSetRestaurantTheme: (state) => {
       state.loading = false;
       state.success = false;
       state.error = null;
@@ -24,19 +24,19 @@ const updatePriceListSlice = createSlice({
   },
   extraReducers: (build) => {
     build
-      .addCase(updatePriceList.pending, (state) => {
+      .addCase(setRestaurantTheme.pending, (state) => {
         state.loading = true;
         state.success = false;
         state.error = null;
         state.data = null;
       })
-      .addCase(updatePriceList.fulfilled, (state, action) => {
+      .addCase(setRestaurantTheme.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
         state.error = null;
         state.data = action.payload;
       })
-      .addCase(updatePriceList.rejected, (state, action) => {
+      .addCase(setRestaurantTheme.rejected, (state, action) => {
         state.loading = false;
         state.success = false;
         state.error = action.payload;
@@ -45,23 +45,26 @@ const updatePriceListSlice = createSlice({
   },
 });
 
-export const updatePriceList = createAsyncThunk(
-  "Products/UpdatePriceList",
+export const setRestaurantTheme = createAsyncThunk(
+  "Restaurants/SetRestaurantTheme",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.put(`${baseURL}Products/UpdatePriceList`, data);
+      const res = await api.put(
+        `${baseURL}Restaurants/UpdateRestaurantTheme`,
+        data,
+      );
 
       // console.log(res);
       return res.data;
     } catch (err) {
       console.log(err);
       if (err?.response?.data) {
-        return rejectWithValue(err.response.data);
+        throw rejectWithValue(err.response.data);
       }
-      return rejectWithValue({ message_TR: err.message });
+      throw rejectWithValue({ message_TR: err.message });
     }
   },
 );
 
-export const { resetUpdatePriceList } = updatePriceListSlice.actions;
-export default updatePriceListSlice.reducer;
+export const { resetSetRestaurantTheme } = setRestaurantThemeSlice.actions;
+export default setRestaurantThemeSlice.reducer;

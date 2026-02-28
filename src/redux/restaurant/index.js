@@ -14,6 +14,7 @@ import getAnnouncementSettingsSlice from "./getAnnouncementSettingsSlice";
 import setAnnouncementSettingsSlice from "./setAnnouncementSettingsSlice";
 import getSurveySettingsSlice from "./getSurveySettingsSlice";
 import setSurveySettingsSlice from "./setSurveySettingsSlice";
+import setRestaurantThemeSlice from "./setRestaurantThemeSlice";
 
 const restaurantSlice = combineReducers({
   getWorkingHours: getWorkingHoursSlice,
@@ -29,6 +30,7 @@ const restaurantSlice = combineReducers({
   setAnnouncementSettings: setAnnouncementSettingsSlice,
   getSurveySettings: getSurveySettingsSlice,
   setSurveySettings: setSurveySettingsSlice,
+  setRestaurantTheme: setRestaurantThemeSlice,
 });
 
 export default restaurantSlice;

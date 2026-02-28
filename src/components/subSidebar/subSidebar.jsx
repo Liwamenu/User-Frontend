@@ -120,9 +120,15 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
     },
     {
       icon: <TemplatesI />,
-      text: t("subSidebar.themes"),
-      to: `/restaurant/themes/${id}`,
-      path: "themes",
+      text: t("subSidebar.qrthemes"),
+      to: `/restaurant/qrthemes/${id}`,
+      path: "qrthemes",
+    },
+    {
+      icon: <TemplatesI />,
+      text: t("subSidebar.tvthemes"),
+      to: `/restaurant/tvthemes/${id}`,
+      path: "tvthemes",
     },
     {
       icon: <QRI />,

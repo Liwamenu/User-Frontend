@@ -18,6 +18,8 @@
     "tags": "Etiketler",
     "products": "Ürünler",
     "themes": "Temalar",
+    "qrthemes": "QR Temaları",
+    "tvthemes": "TV Temaları",
     "qr_code": "QR Kod",
     "announcement_settings": "Duyuru Ayarları",
     "survey_settings": "Anket Ayarları"
@@ -506,6 +508,15 @@
     "edit_profile": "Profili Düzenle",
     "security": "Güvenlik",
     "invoice_info": "Fatura Bilgileri"
+  },
+  "surveySettings": {
+    "title": "{{name}} Restoranı Müşteri Geri Bildirim Analitikleri",
+    "add_survey": "Anket Ekle",
+    "new_badge": "YENİ",
+    "reviews": "değerlendirme",
+    "performance_insight": "Performans İçgörüsü",
+    "strongest_category": "Sizin <strong>{{category}}</strong> puanı şu anda en güçlü kategoriniz! Bu alanda iyi işler yapmaya devam edin.",
+    "no_feedback": "Restoranınızın performansı hakkında ayrıntılı analitik ve içgörüler görmek için geri bildirim toplamaya başlayın."
   },
   "notFound": {
     "title": "Sayfa bulunmadı",

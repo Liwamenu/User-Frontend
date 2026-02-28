@@ -44,7 +44,12 @@ import OrderTags from "../components/restaurant/orderTags/orderTags";
 
 //QR
 import QRPage from "../components/qr/qrPage";
+
+//SURVEY
 import SurveySettings from "../components/restaurant/survey/surveySettings";
+
+//THEME
+import ThemeSelector from "../components/restaurant/themes/qrMenuSelector";
 
 const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
   const location = useLocation();
@@ -160,6 +165,9 @@ const RestaurantHome = ({ showS1, setShowS1, openSidebar, setOpenSidebar }) => {
           <Route path={P.prods.add} element={<AddProduct data={data} />} />
           <Route path={P.prods.priceList} element={<PriceList data={data} />} />
           <Route path={P.prods.edit} element={<EditProduct data={data} />} />
+
+          {/* THEME */}
+          <Route path="/qrthemes/:id" element={<ThemeSelector data={data} />} />
 
           {/* QR */}
           <Route path="/qr/:id" element={<QRPage data={data} />} />
