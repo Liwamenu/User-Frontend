@@ -1,10 +1,11 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   initFirebaseMessaging,
   subscribeForegroundMessages,
 } from "../firebase";
 import { getOrders, resetGetOrders } from "../redux/orders/getOrdersSlice";
+import { getAuth } from "../redux/api";
 
 const FirebaseContext = createContext();
 export const useFirebase = () => useContext(FirebaseContext);
@@ -18,19 +19,24 @@ export const FirebaseProvider = ({ children }) => {
 
   const { orders, error } = useSelector((s) => s.orders.get);
 
-  // ── 1. Initialize Firebase & subscribe to foreground messages ───────────────
-  useEffect(() => {
-    let unsubscribe = () => {};
+  // Ref so the async init can always reach the latest unsubscribe fn
+  const unsubscribeRef = useRef(() => {});
+  const isAuthenticated = !!getAuth()?.token;
 
-    // Handler shared by both foreground (FCM) and background (SW postMessage)
-    const handleOrderPush = ({ orderId, newStatus, source }) => {
-      console.log(`[Firebase] 📦 Order push (${source}):`, {
-        orderId,
-        newStatus,
-      });
+  // ── 1. Initialize Firebase & subscribe to foreground/background messages ────
+  useEffect(() => {
+    // Handler shared by foreground (FCM onMessage) and background (SW postMessage)
+    const handlePush = (data, source) => {
+      // Log the RAW data so we can see exactly what the backend sends
+      console.log(`[Firebase] 🔔 Push received (${source}):`, data);
+
+      const orderId = data.orderId || data.OrderId;
+      const newStatus = data.status || data.Status;
+
       if (orderId && newStatus) {
-        // Status change – update in place
-        console.log(`[Firebase] Updating order ${orderId} → ${newStatus}`);
+        console.log(
+          `[Firebase] ✅ Status update: order ${orderId} → ${newStatus}`,
+        );
         setOrdersData((prev) =>
           prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
         );
@@ -38,55 +44,55 @@ export const FirebaseProvider = ({ children }) => {
           prev?.id === orderId ? { ...prev, status: newStatus } : prev,
         );
       } else {
-        // New order or unknown change – re-fetch
-        console.log("[Firebase] New order detected, re-fetching orders...");
-        dispatch(getOrders());
+        console.log(
+          "[Firebase] 🆕 New order or unrecognised push – re-fetching orders",
+        );
+        if (getAuth()?.token) {
+          dispatch(getOrders());
+        } else {
+          console.log(
+            "[Firebase] Ignored re-fetch because user is not authenticated",
+          );
+        }
       }
     };
 
-    (async () => {
-      const { token } = await initFirebaseMessaging();
-      if (token) setPushToken(token);
-
-      // Foreground messages (app is open and focused)
-      unsubscribe = subscribeForegroundMessages((payload) => {
-        const data = payload?.data || {};
-        const type = (data.type || "").toLowerCase();
-        if (!type.includes("order")) return;
-        handleOrderPush({
-          orderId: data.orderId,
-          newStatus: data.status,
-          source: "foreground",
-        });
-      });
-    })();
-
-    // Background messages (app open but not focused – SW posts a message back)
+    // Background messages – SW bridges push events via postMessage
     const onSwMessage = (event) => {
-      console.log("[Firebase] SW postMessage received:", event.data);
+      console.log("[Firebase] SW postMessage raw:", event.data);
       if (event.data?.type !== "FCM_BACKGROUND") return;
-      const data = event.data?.data || {};
-      const type = (data.type || "").toLowerCase();
-      if (!type.includes("order")) return;
-      handleOrderPush({
-        orderId: data.orderId,
-        newStatus: data.status,
-        source: "background-sw",
-      });
+      handlePush(event.data?.data || {}, "background-sw");
     };
 
     navigator.serviceWorker?.addEventListener("message", onSwMessage);
 
+    // Async init – use ref so cleanup always cancels the right listener
+    (async () => {
+      const { token } = await initFirebaseMessaging();
+      if (token) setPushToken(token);
+
+      // Cancel any previous foreground listener before registering a new one
+      unsubscribeRef.current();
+
+      // Foreground messages – app tab is active
+      unsubscribeRef.current = subscribeForegroundMessages((payload) => {
+        console.log("[Firebase] 🔔 Foreground FCM raw payload:", payload);
+        handlePush(payload?.data || {}, "foreground");
+      });
+    })();
+
     return () => {
-      unsubscribe();
+      unsubscribeRef.current();
+      unsubscribeRef.current = () => {};
       navigator.serviceWorker?.removeEventListener("message", onSwMessage);
     };
   }, [dispatch]);
 
   // ── 2. Initial orders fetch ─────────────────────────────────────────────────
   useEffect(() => {
+    if (!isAuthenticated) return;
     dispatch(getOrders());
-  }, [dispatch]);
+  }, [dispatch, isAuthenticated]);
 
   // ── 3. Sync redux response into local state ─────────────────────────────────
   useEffect(() => {

@@ -35,6 +35,13 @@ function Login() {
     e.preventDefault();
 
     if (!emailOrPhone || !password || loading) return;
+
+    if (!pushToken) {
+      toast.error("Push token hazır değil, birkaç saniye sonra tekrar deneyin");
+      return;
+    }
+
+    console.log("[Login] Sending login with push token");
     dispatch(login({ emailOrPhone, password, pushToken }));
   };
 

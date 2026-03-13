@@ -15,8 +15,12 @@ import {
 } from "lucide-react";
 import { useFirebase } from "../../../context/fierebase";
 import { useOrderStatusActions } from "./actions";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { getOrders } from "../../../redux/orders/getOrdersSlice";
 
 const OrdersPage = () => {
+  const dispatch = useDispatch();
   const { t } = useTranslation();
   const { ordersData, selectedOrder, setSelectedOrder } = useFirebase();
   const { updateStatus } = useOrderStatusActions();
@@ -72,6 +76,12 @@ const OrdersPage = () => {
     });
   };
 
+  useEffect(() => {
+    if (!ordersData.length) {
+      dispatch(getOrders());
+    }
+  }, [dispatch, ordersData]);
+
   return (
     <div className="min-h-screen bg-[--white-2] transition-colors duration-300 lg:ml-[280px] pt-16">
       <main className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -96,7 +106,6 @@ const OrdersPage = () => {
                 return (
                   <div
                     key={order.id}
-                    layoutId={order.id}
                     onClick={() => setSelectedOrder(order)}
                     className={`group cursor-pointer p-4 rounded-2xl border transition-all duration-200 text-[--black-1] ${
                       selectedOrder?.id === order.id
@@ -174,7 +183,7 @@ const OrdersPage = () => {
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => setSelectedOrder(null)}
-                      className="lg:hidden p-2 rounded-full bg-white shadow-sm"
+                      className="lg:hidden p-2 rounded-full bg-[--white-1] shadow-sm"
                     >
                       <ArrowLeft className="w-5 h-5" />
                     </button>
