@@ -6,6 +6,7 @@ import {
   MessageSquare,
   Utensils,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 //COMP
 import { BellI } from "../../../assets/icon";
@@ -18,6 +19,7 @@ import { formatDateString } from "../../../utils/utils";
 import { useWaiterCalls } from "../../../context/waiterCallsContext";
 
 const WaiterCallsPage = () => {
+  const { t } = useTranslation();
   const {
     calls,
     pageNumber,
@@ -35,10 +37,11 @@ const WaiterCallsPage = () => {
     const then = new Date(dateString);
     const diffInMinutes = Math.floor((now.getTime() - then.getTime()) / 60000);
 
-    if (diffInMinutes < 1) return "Just now";
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1) return t("waiterCalls.just_now");
+    if (diffInMinutes < 60)
+      return t("waiterCalls.minutes_ago", { count: diffInMinutes });
     const diffInHours = Math.floor(diffInMinutes / 60);
-    return `${diffInHours}h ago`;
+    return t("waiterCalls.hours_ago", { count: diffInHours });
   };
 
   return (
@@ -48,9 +51,10 @@ const WaiterCallsPage = () => {
           {/* TITLE */}
           <div className="w-full text-[--black-2] py-4 text-2xl font-semibold flex items-center gap-3">
             <BellI className="text-red-500 animate-pulse" />
-            <h2>Waiter Call Lists</h2>
+            <h2>{t("waiterCalls.title")}</h2>
             <span className="ml-auto text-sm font-normal text-[--gr-1] bg-[--white-1] px-3 py-1 rounded-full border border-[--border-1]">
-              {calls?.filter((c) => !c.isResolved).length} Active Calls
+              {calls?.filter((c) => !c.isResolved).length}{" "}
+              {t("waiterCalls.active_calls")}
             </span>
 
             <FilterWaiterCalls />
@@ -81,7 +85,7 @@ const WaiterCallsPage = () => {
                       }`}
                     >
                       <span className="text-xs font-bold uppercase tracking-wider">
-                        Table
+                        {t("waiterCalls.table")}
                       </span>
                       <span className="text-2xl font-black">
                         {call.tableNumber}
@@ -118,7 +122,7 @@ const WaiterCallsPage = () => {
                         </div>
                         <div className="flex items-center gap-1.5">
                           <Utensils size={14} />
-                          <span>Dine-in</span>
+                          <span>{t("waiterCalls.dine_in")}</span>
                         </div>
                       </div>
 
@@ -143,12 +147,12 @@ const WaiterCallsPage = () => {
                           className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all flex items-center justify-center gap-2 active:scale-95"
                         >
                           <CheckCircle size={18} />
-                          Resolve Call
+                          {t("waiterCalls.resolve_call")}
                         </button>
                       ) : (
                         <div className="flex items-center gap-2 text-green-600 font-medium px-4 py-2 bg-green-50 rounded-lg border border-green-100">
                           <CheckCircle size={18} />
-                          <span>Resolved</span>
+                          <span>{t("waiterCalls.resolved")}</span>
                         </div>
                       )}
                     </div>
@@ -159,16 +163,17 @@ const WaiterCallsPage = () => {
               {calls.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-20 text-gray-400">
                   <Bell size={48} className="mb-4 opacity-20" />
-                  <p className="text-lg font-medium">No active waiter calls</p>
-                  <p className="text-sm">Everything is running smoothly!</p>
+                  <p className="text-lg font-medium">
+                    {t("waiterCalls.no_active_calls")}
+                  </p>
+                  <p className="text-sm">{t("waiterCalls.running_smoothly")}</p>
                 </div>
               )}
             </div>
           ) : (
             <div className="flex items-center justify-center py-20">
               <p className="text-lg text-[--gr-1]">
-                You Don't have any calls yet. Once you have calls, they will
-                appear here.
+                {t("waiterCalls.no_calls_yet")}
               </p>
             </div>
           )}

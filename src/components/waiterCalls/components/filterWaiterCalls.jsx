@@ -77,7 +77,7 @@ const FilterWaiterCalls = () => {
             className="w-full h-11 flex items-center justify-center text-[--primary-1] px-3 rounded-md text-sm font-normal border-[1.5px] border-solid border-[--primary-1]"
             onClick={() => setOpenFilter(!openFilter)}
           >
-            {t("orders.filter_button")}
+            {t("waiterCalls.filter_button")}
           </button>
 
           <div
@@ -88,7 +88,7 @@ const FilterWaiterCalls = () => {
             <div className="flex gap-6">
               <div>
                 <CustomDatePicker
-                  label={t("orders.start_date")}
+                  label={t("waiterCalls.start_date")}
                   className="text-sm sm:mt-1 w-36 py-2 sm:py-[0.5rem]"
                   style={{ padding: "0 !important" }}
                   popperClassName="react-datepicker-popper-filter-order-1"
@@ -114,7 +114,7 @@ const FilterWaiterCalls = () => {
 
               <div>
                 <CustomDatePicker
-                  label={t("orders.end_date")}
+                  label={t("waiterCalls.end_date")}
                   className="text-sm sm:mt-1 w-36 py-2 sm:py-[0.5rem]"
                   style={{ padding: "0 !important" }}
                   popperClassName="react-datepicker-popper-filter-order-2"
@@ -141,14 +141,14 @@ const FilterWaiterCalls = () => {
 
             <div className="flex gap-6">
               <CustomSelect
-                label={"Is Resolved"}
+                label={t("waiterCalls.is_resolved")}
                 className="text-sm sm:mt-1"
                 className2="sm:mt-3"
                 style={{ padding: "0 !important" }}
                 options={[
-                  { label: "Hepsi", value: null },
-                  { label: "Resolved", value: true },
-                  { label: "Pending", value: false },
+                  { label: t("waiterCalls.status_all"), value: null },
+                  { label: t("waiterCalls.status_resolved"), value: true },
+                  { label: t("waiterCalls.status_pending"), value: false },
                 ]}
                 value={filter.isResolved}
                 onChange={(selectedOption) => {
@@ -188,13 +188,13 @@ const FilterWaiterCalls = () => {
                 className="text-white bg-[--red-1] py-2 px-12 rounded-lg hover:opacity-90"
                 onClick={() => handleFilter(false)}
               >
-                {t("orders.clear")}
+                {t("waiterCalls.clear")}
               </button>
               <button
                 className="text-white bg-[--primary-1] py-2 px-12 rounded-lg hover:opacity-90"
                 onClick={() => handleFilter(true)}
               >
-                {t("orders.apply")}
+                {t("waiterCalls.apply")}
               </button>
             </div>
           </div>

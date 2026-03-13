@@ -572,6 +572,30 @@
     "customer_note": "Müşteri Notu",
     "delivery_fee": "Teslimat Ücreti"
   },
+  "waiterCalls": {
+    "title": "Garson Çağrı Listesi",
+    "active_calls": "Aktif Çağrı",
+    "table": "Masa",
+    "dine_in": "Masa Servisi",
+    "resolve_call": "Çağrıyı Çöz",
+    "resolved": "Çözüldü",
+    "no_active_calls": "Aktif garson çağrısı yok",
+    "running_smoothly": "Her şey sorunsuz ilerliyor!",
+    "no_calls_yet": "Henüz çağrı yok. Çağrılar geldiğinde burada görünecek.",
+    "just_now": "Az önce",
+    "minutes_ago": "{{count}}dk önce",
+    "hours_ago": "{{count}}sa önce",
+    "resolve_success": "Çağrı başarıyla çözüldü",
+    "filter_button": "Filtre",
+    "start_date": "Başlangıç Tarihi",
+    "end_date": "Bitiş Tarihi",
+    "is_resolved": "Çözüm Durumu",
+    "status_all": "Hepsi",
+    "status_resolved": "Çözüldü",
+    "status_pending": "Bekliyor",
+    "clear": "Temizle",
+    "apply": "Uygula"
+  },
   "pages": {
     "ordersPage": {
       "active_orders": "Aktif Siparişler",

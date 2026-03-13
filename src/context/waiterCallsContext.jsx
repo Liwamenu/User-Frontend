@@ -80,7 +80,7 @@ export const WaiterCallsProvider = ({ children }) => {
               call.id === id ? { ...call, isResolved: true } : call,
             ),
           );
-          toast.success("Call resolved successfully");
+          toast.success(i18n.t("waiterCalls.resolve_success"));
         }
       })
       .finally(() => {

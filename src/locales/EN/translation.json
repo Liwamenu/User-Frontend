@@ -571,6 +571,30 @@
     "customer_note": "Customer Note",
     "delivery_fee": "Delivery Fee"
   },
+  "waiterCalls": {
+    "title": "Waiter Call Lists",
+    "active_calls": "Active Calls",
+    "table": "Table",
+    "dine_in": "Dine-in",
+    "resolve_call": "Resolve Call",
+    "resolved": "Resolved",
+    "no_active_calls": "No active waiter calls",
+    "running_smoothly": "Everything is running smoothly!",
+    "no_calls_yet": "You don't have any calls yet. Once you have calls, they will appear here.",
+    "just_now": "Just now",
+    "minutes_ago": "{{count}}m ago",
+    "hours_ago": "{{count}}h ago",
+    "resolve_success": "Call resolved successfully",
+    "filter_button": "Filter",
+    "start_date": "Start Date",
+    "end_date": "End Date",
+    "is_resolved": "Is Resolved",
+    "status_all": "All",
+    "status_resolved": "Resolved",
+    "status_pending": "Pending",
+    "clear": "Clear",
+    "apply": "Apply"
+  },
   "pages": {
     "ordersPage": {
       "active_orders": "Active Orders",
