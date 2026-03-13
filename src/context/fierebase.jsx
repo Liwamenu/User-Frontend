@@ -31,6 +31,26 @@ export const FirebaseProvider = ({ children }) => {
 
   // ── 1. Initialize Firebase & subscribe to foreground/background messages ────
   useEffect(() => {
+    const toCamelFirst = (key) =>
+      typeof key === "string" && key.length > 0
+        ? key.charAt(0).toLowerCase() + key.slice(1)
+        : key;
+
+    const normalizeKeysDeep = (value) => {
+      if (Array.isArray(value)) {
+        return value.map((item) => normalizeKeysDeep(item));
+      }
+
+      if (value && typeof value === "object") {
+        return Object.entries(value).reduce((acc, [key, val]) => {
+          acc[toCamelFirst(key)] = normalizeKeysDeep(val);
+          return acc;
+        }, {});
+      }
+
+      return value;
+    };
+
     const playNewOrderSound = () => {
       const currentLang = (i18n.language || "tr").toLowerCase();
       const soundSrc = currentLang.startsWith("en")
@@ -49,13 +69,13 @@ export const FirebaseProvider = ({ children }) => {
 
       if (typeof rawOrder === "string") {
         try {
-          return JSON.parse(rawOrder);
+          return normalizeKeysDeep(JSON.parse(rawOrder));
         } catch {
           return null;
         }
       }
 
-      return typeof rawOrder === "object" ? rawOrder : null;
+      return typeof rawOrder === "object" ? normalizeKeysDeep(rawOrder) : null;
     };
 
     const getOrderId = (order) =>
