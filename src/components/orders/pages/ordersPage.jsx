@@ -17,7 +17,7 @@ import {
 
 //UTILS
 import { useOrderStatusActions } from "./actions";
-import { useFirebase } from "../../../context/firebase";
+import { useOrders } from "../../../context/ordersContext";
 
 //COMP
 import CustomSelect from "../../common/customSelector";
@@ -31,13 +31,14 @@ const OrdersPage = () => {
     pageNumber,
     pageSize,
     setPageNumber,
+    pageNumbers,
     ordersData,
     selectedOrder,
     setSelectedOrder,
     totalCount,
     handlePageChange,
     handleItemsPerPage,
-  } = useFirebase();
+  } = useOrders();
   const { updateStatus } = useOrderStatusActions();
 
   const STATUS_CONFIG = {
@@ -82,14 +83,6 @@ const OrdersPage = () => {
 
   const handleStatusChange = (orderId, newStatus) => {
     updateStatus(orderId, newStatus);
-  };
-
-  const pageNumbers = () => {
-    const numbersColl = [];
-    for (let i = 5; i < 51; i += 5) {
-      numbersColl.push({ label: `${i}`, value: i });
-    }
-    return numbersColl;
   };
 
   return (

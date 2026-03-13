@@ -2,7 +2,9 @@
   "sidebar": {
     "restaurants": "Restoranlar",
     "licenses": "Lisanslar",
-    "orders": "Siparişler"
+    "orders": "Siparişler",
+    "waiter_calls": "Garson Çağrıları",
+    "reservations": "Rezervasyonlar"
   },
   "subSidebar": {
     "back": "Geri Dön",

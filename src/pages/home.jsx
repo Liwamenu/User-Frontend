@@ -14,6 +14,7 @@ import Licenses from "./licenses";
 import Restourants from "./restourants";
 import RestaurantHome from "./restaurantHome";
 import Orders from "./orders";
+import WaiterCalls from "./waiterCalls";
 
 const Home = () => {
   const [showS1, setShowS1] = useState(true);
@@ -38,6 +39,7 @@ const Home = () => {
             />
           }
         />
+        <Route path="waiterCalls/*" element={<WaiterCalls />} />
         <Route path="/restaurants/*" element={<Restourants />} />
         <Route path="/licenses/*" element={<Licenses />} />
         <Route path="/orders/*" element={<Orders />} />

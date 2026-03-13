@@ -8,7 +8,13 @@ import UserProfile from "./userProfile";
 import logo from "../../assets/img/logo.png";
 
 // ICONS
-import { RestourantI, LicenseI, BoxInI } from "../../assets/icon/index";
+import {
+  RestourantI,
+  LicenseI,
+  BoxInI,
+  WaitI,
+  BellI,
+} from "../../assets/icon/index";
 
 //COMP
 import { usePopup } from "../../context/PopupContext";
@@ -36,6 +42,18 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
       text: t("sidebar.orders"),
       to: "/orders",
       path: "orders",
+    },
+    {
+      icon: <WaitI />,
+      text: t("sidebar.waiter_calls"),
+      to: "/waiterCalls",
+      path: "waiterCalls",
+    },
+    {
+      icon: <BellI />,
+      text: t("sidebar.reservations"),
+      to: "/reservations",
+      path: "reservations",
     },
   ];
 

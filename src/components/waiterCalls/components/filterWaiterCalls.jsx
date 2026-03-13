@@ -1,43 +1,26 @@
-import { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { usePopup } from "../../../context/PopupContext";
-import { useOrders } from "../../../context/ordersContext";
-import { formatDateString } from "../../../utils/utils";
-import { getOrders } from "../../../redux/orders/getOrdersSlice";
+//MODULES
 import { isEqual } from "lodash";
+import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
+import { useEffect, useRef, useState } from "react";
+
+//UTILS
+import { usePopup } from "../../../context/PopupContext";
+import { formatDateString } from "../../../utils/utils";
+import { useWaiterCalls } from "../../../context/waiterCallsContext";
+
+//REDUX
+import { getWaiterCalls } from "../../../redux/waiterCalls/getWaiterCallsSlice";
 import CustomDatePicker from "../../common/customdatePicker";
 import CustomSelect from "../../common/customSelector";
 
-const FilterOrders = () => {
+const FilterWaiterCalls = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const filterOrdersRef = useRef();
+  const filterWaiterCallsRef = useRef();
   const { contentRef, setContentRef } = usePopup();
-
-  const orderFilterDates = [
-    { label: t("orders.filter_today"), value: "0", id: 0, show: true },
-    { label: t("orders.filter_yesterday"), value: "1", id: 1, show: true },
-    { label: t("orders.filter_this_week"), value: "2", id: 2, show: true },
-    { label: t("orders.filter_this_month"), value: "3", id: 3, show: false },
-    { label: t("orders.filter_last_week"), value: "4", id: 4, show: true },
-    {
-      label: t("orders.filter_last_three_months"),
-      value: "5",
-      id: 5,
-      show: false,
-    },
-    {
-      label: t("orders.filter_last_six_months"),
-      value: "6",
-      id: 6,
-      show: false,
-    },
-    { label: t("orders.filter_this_year"), value: "7", id: 7, show: false },
-  ];
-
-  const { filter, pageSize, setFilter, setPageNumber, filterInitialState } =
-    useOrders();
+  const { pageSize, setPageNumber, filterInitialState, filter, setFilter } =
+    useWaiterCalls();
 
   const [openFilter, setOpenFilter] = useState(false);
 
@@ -52,18 +35,18 @@ const FilterOrders = () => {
       const filterData = {
         page: 1,
         pageSize: pageSize.value,
-        dateRange: filter.dateRange,
         startDateTime: filter.endDateTime
           ? formatDate(filter.startDateTime)
           : null,
         endDateTime: filter.endDateTime ? formatDate(filter.endDateTime) : null,
-        status: filter.statusId,
+        isResolved: filter.isResolved.value,
+        tableNUmber: filter.tableNumber,
       };
-      dispatch(getOrders(filterData));
+      dispatch(getWaiterCalls(filterData));
     } else {
       if (!isEqual(filterInitialState, filter)) {
         setFilter(filterInitialState);
-        dispatch(getOrders({ page: 1, pageSize: pageSize.value }));
+        dispatch(getWaiterCalls({ page: 1, pageSize: pageSize.value }));
       }
     }
     setPageNumber(1);
@@ -72,24 +55,24 @@ const FilterOrders = () => {
 
   //HIDE FILTER
   useEffect(() => {
-    if (filterOrdersRef) {
-      const refs = contentRef.filter((ref) => ref.id !== "ordersFilter");
+    if (filterWaiterCallsRef) {
+      const refs = contentRef.filter((ref) => ref.id !== "waiterCallsFilter");
       setContentRef([
         ...refs,
         {
-          id: "ordersFilter",
+          id: "waiterCallsFilter",
           outRef: null,
-          ref: filterOrdersRef,
+          ref: filterWaiterCallsRef,
           callback: () => setOpenFilter(false),
         },
       ]);
     }
-  }, [filterOrdersRef]);
+  }, [filterWaiterCallsRef]);
 
   return (
     <div className="flex justify-end">
       <div className="flex gap-2">
-        <div className="w-full relative" ref={filterOrdersRef}>
+        <div className="w-full relative" ref={filterWaiterCallsRef}>
           <button
             className="w-full h-11 flex items-center justify-center text-[--primary-1] px-3 rounded-md text-sm font-normal border-[1.5px] border-solid border-[--primary-1]"
             onClick={() => setOpenFilter(!openFilter)}
@@ -102,33 +85,6 @@ const FilterOrders = () => {
               openFilter ? "visible" : "hidden"
             }`}
           >
-            <div className="grid grid-flow-row grid-cols-2 gap-1.5 my-2">
-              {orderFilterDates
-                .filter((D) => D.show)
-                .map((D) => (
-                  <div key={D.id} className="text-sm">
-                    <button
-                      onClick={() => {
-                        setFilter((prev) => {
-                          return {
-                            ...prev,
-                            dateRange: D.id,
-                            startDateTime: "",
-                            endDateTime: "",
-                          };
-                        });
-                      }}
-                      className={`p-2 border border-[--border-1] text-[--gr-1] rounded-md w-40 text-center ${
-                        D.id === filter.dateRange &&
-                        "text-white bg-[--primary-1]"
-                      }`}
-                    >
-                      {D.label}
-                    </button>
-                  </div>
-                ))}
-            </div>
-
             <div className="flex gap-6">
               <div>
                 <CustomDatePicker
@@ -185,25 +141,22 @@ const FilterOrders = () => {
 
             <div className="flex gap-6">
               <CustomSelect
-                label={t("orders.status_label")}
+                label={"Is Resolved"}
                 className="text-sm sm:mt-1"
                 className2="sm:mt-3"
                 style={{ padding: "0 !important" }}
                 options={[
-                  { label: t("orders.status_all"), value: null },
-                  { label: t("orders.status_pending"), value: "Pending" },
-                  { label: t("orders.status_accepted"), value: "Accepted" },
-                  { label: t("orders.status_on_the_way"), value: "OnTheWay" },
-                  { label: t("orders.status_delivered"), value: "Delivered" },
-                  { label: t("orders.status_cancelled"), value: "Cancelled" },
+                  { label: "Hepsi", value: null },
+                  { label: "Resolved", value: true },
+                  { label: "Pending", value: false },
                 ]}
-                value={filter.status}
+                value={filter.isResolved}
                 onChange={(selectedOption) => {
                   setFilter((prev) => {
                     return {
                       ...prev,
                       statusId: selectedOption.value,
-                      status: selectedOption,
+                      isResolved: selectedOption,
                     };
                   });
                 }}
@@ -230,7 +183,7 @@ const FilterOrders = () => {
               /> */}
             </div>
 
-            <div className="w-full flex gap-2 justify-center pt-10">
+            <div className="w-full flex gap-2 justify-center pt-10 text-base">
               <button
                 className="text-white bg-[--red-1] py-2 px-12 rounded-lg hover:opacity-90"
                 onClick={() => handleFilter(false)}
@@ -251,4 +204,4 @@ const FilterOrders = () => {
   );
 };
 
-export default FilterOrders;
+export default FilterWaiterCalls;

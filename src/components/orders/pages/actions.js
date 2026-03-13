@@ -1,7 +1,7 @@
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { useFirebase } from "../../../context/firebase";
+import { useOrders } from "../../../context/ordersContext";
 import {
   updateOrderStatus,
   resetUpdateOrderStatus,
@@ -16,7 +16,7 @@ import {
 export function useOrderStatusActions() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { setOrdersData, setSelectedOrder } = useFirebase();
+  const { setOrdersData, setSelectedOrder } = useOrders();
 
   const updateStatus = async (orderId, newStatus) => {
     // ── Optimistic update + snapshot for rollback ───────────────────────────

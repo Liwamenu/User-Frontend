@@ -2,7 +2,9 @@
   "sidebar": {
     "restaurants": "Restaurants",
     "licenses": "Licenses",
-    "orders": "Orders"
+    "orders": "Orders",
+    "waiter_calls": "Waiter Calls",
+    "reservations": "Reservations"
   },
   "subSidebar": {
     "back": "Go Back",

@@ -69,7 +69,8 @@ const CustomPagination = ({
             ) : (
               <button
                 key={index}
-                className={`py-2 px-4 text-sm border-2 border-solid hover:border-[--border-1] rounded-md ${
+                disabled={page === pageNumber}
+                className={`py-2 px-4 text-sm border-2 border-solid hover:border-[--border-1] rounded-md disabled:cursor-not-allowed ${
                   pageNumber === page
                     ? "border-[--border-1]"
                     : "border-transparent"
