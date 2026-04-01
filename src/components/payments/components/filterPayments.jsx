@@ -9,7 +9,7 @@ import paymentLicenseType from "../../../enums/paymentLicenseType";
 
 //COMP
 import CustomSelect from "../../common/customSelector";
-import CustomDatePicker from "../../common/customDatePicker";
+import CustomDatePicker from "../../common/customdatePicker";
 
 //CONTEXT
 import { usePopup } from "../../../context/PopupContext";
