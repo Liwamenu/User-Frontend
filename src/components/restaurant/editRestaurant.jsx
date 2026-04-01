@@ -143,7 +143,6 @@ const EditRestaurant = ({ data: restaurant }) => {
     document2 && formData.append("LogoImage", document2);
 
     dispatch(updateRestaurant(formData));
-    // console.log(restaurantData);
   };
 
   async function handleOpenMap() {
@@ -619,7 +618,7 @@ const EditRestaurant = ({ data: restaurant }) => {
                   msg={t("restaurants.logo_msg")}
                   value={document2}
                   onChange={setDocument2}
-                  accept={"image/png, image/jpeg"}
+                  accept={"image/png, image/jpeg, image/gif, image/webp"}
                 />
               </div>
 
@@ -630,7 +629,7 @@ const EditRestaurant = ({ data: restaurant }) => {
                 <CustomFileInput
                   value={document}
                   onChange={setDocument}
-                  accept={"image/png, image/jpeg"}
+                  accept={"image/png, image/jpeg, image/gif, image/webp"}
                 />
               </div>
 

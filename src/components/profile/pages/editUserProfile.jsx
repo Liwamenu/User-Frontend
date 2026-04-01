@@ -26,11 +26,11 @@ const EditUserProfile = ({ user, cities }) => {
   const dispatch = useDispatch();
 
   const { loading, success, error } = useSelector(
-    (state) => state.user.updateUserData
+    (state) => state.user.updateUserData,
   );
 
   const { success: districtsSuccess, districts } = useSelector(
-    (state) => state.data.getDistricts
+    (state) => state.data.getDistricts,
   );
 
   const [citiesData, setCitiesData] = useState([]);
@@ -61,7 +61,7 @@ const EditUserProfile = ({ user, cities }) => {
         updateUserData({
           ...userData,
           phoneNumber: userData.phoneNumber.slice(1),
-        })
+        }),
       );
     }
   }
@@ -118,7 +118,7 @@ const EditUserProfile = ({ user, cities }) => {
       setCitiesData(cities);
       if (!userData?.city?.id && userData?.city?.label) {
         const city = cities.filter(
-          (city) => city.label === userData.city.label
+          (city) => city.label === userData.city.label,
         )[0];
         if (city) {
           setUserDataBefore((pre) => {
@@ -151,7 +151,7 @@ const EditUserProfile = ({ user, cities }) => {
       setDistrictsData(districts);
       if (!userData?.district?.id && userData?.district?.label) {
         const district = districts.filter(
-          (district) => district.label === userData.district.label
+          (district) => district.label === userData.district.label,
         )[0];
         if (district) {
           setUserDataBefore((pre) => {
@@ -179,7 +179,7 @@ const EditUserProfile = ({ user, cities }) => {
             <CustomInput
               label={t("editUserProfile.first_name")}
               required
-              className="py-3.5"
+              className="py-3.5 bg-[--white-1]"
               value={userData.firstName}
               onChange={(e) => {
                 setUserData((pre) => {
@@ -193,7 +193,7 @@ const EditUserProfile = ({ user, cities }) => {
             <CustomInput
               label={t("editUserProfile.last_name")}
               required
-              className="rounded-2xl py-3.5"
+              className="rounded-2xl py-3.5 bg-[--white-1]"
               value={userData.lastName}
               onChange={(e) => {
                 setUserData((pre) => {

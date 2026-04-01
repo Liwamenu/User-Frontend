@@ -170,7 +170,7 @@ const RestaurantSettings = ({ data: inData }) => {
                   style={{ borderRadius: ".4rem", padding: "0rem 0px" }}
                   value={
                     LanguagesEnums.find(
-                      (L) => L.value == (restaurantData?.menuLang ?? null),
+                      (L) => L.id == (restaurantData?.menuLang ?? null),
                     ) || {
                       label: t("restaurantSettings.menu_language_placeholder"),
                     }
@@ -179,7 +179,7 @@ const RestaurantSettings = ({ data: inData }) => {
                   onChange={(selectedOption) =>
                     setRestaurantData((prev) => ({
                       ...prev,
-                      menuLang: selectedOption.value,
+                      menuLang: selectedOption.id,
                     }))
                   }
                 />

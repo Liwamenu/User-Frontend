@@ -132,7 +132,7 @@ function AddRestaurantPopup({ onSuccess }) {
     formData.append("Image", document);
 
     // console.log(restaurantData);
-    dispatch(addRestaurant({ formData }));
+    dispatch(addRestaurant(formData));
   };
 
   async function handleOpenMap() {

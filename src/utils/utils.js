@@ -406,6 +406,24 @@ export function groupByRestaurantId(data) {
   return Object.values(groupedData);
 }
 
+export function sortByCreatedDateTime(data, direction = "asc") {
+  //desc -> new to old
+  if (!Array.isArray(data) || data.length === 0) return [];
+
+  const sorted = [...data].sort((a, b) => {
+    const aTime = a?.createdDateTime
+      ? new Date(a.createdDateTime).getTime()
+      : 0;
+    const bTime = b?.createdDateTime
+      ? new Date(b.createdDateTime).getTime()
+      : 0;
+
+    return direction === "asc" ? aTime - bTime : bTime - aTime;
+  });
+
+  return sorted;
+}
+
 export function validPrice(price) {
   return parseFloat(price.replace(/\./g, "").replace(",", "."));
 }

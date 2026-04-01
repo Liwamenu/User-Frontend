@@ -11,6 +11,7 @@ import TableSkeleton from "../../common/tableSkeleton";
 import CustomSelect from "../../common/customSelector";
 import CustomPagination from "../../common/pagination";
 import { usePopup } from "../../../context/PopupContext";
+import { sortByCreatedDateTime } from "../../../utils/utils";
 
 // REDUX
 import {
@@ -27,16 +28,16 @@ const RestaurantsPage = () => {
   const dispatch = useDispatch();
 
   const { loading, success, error, restaurants } = useSelector(
-    (state) => state.restaurants.getRestaurants
+    (state) => state.restaurants.getRestaurants,
   );
 
   const { cities: citiesData } = useSelector((state) => state.data.getCities);
 
   const { districts: districtsData, success: districtsSuccess } = useSelector(
-    (state) => state.data.getDistricts
+    (state) => state.data.getDistricts,
   );
   const { neighs: neighsData, success: neighsSuccess } = useSelector(
-    (state) => state.data.getNeighs
+    (state) => state.data.getNeighs,
   );
 
   const [searchVal, setSearchVal] = useState("");
@@ -68,7 +69,7 @@ const RestaurantsPage = () => {
         city: filter?.city?.value,
         district: filter?.district?.value,
         neighbourhood: filter?.neighbourhood?.value,
-      })
+      }),
     );
   }
 
@@ -84,7 +85,7 @@ const RestaurantsPage = () => {
         city: filter?.city?.value,
         district: filter?.district?.value,
         neighbourhood: filter?.neighbourhood?.value,
-      })
+      }),
     );
     setPageNumber(1);
   }
@@ -102,7 +103,7 @@ const RestaurantsPage = () => {
           city: filter?.city?.value,
           district: filter?.district?.value,
           neighbourhood: filter?.neighbourhood?.value,
-        })
+        }),
       );
     } else {
       if (filter) {
@@ -115,7 +116,7 @@ const RestaurantsPage = () => {
             city: null,
             district: null,
             neighbourhood: null,
-          })
+          }),
         );
       }
       setFilter({
@@ -137,7 +138,7 @@ const RestaurantsPage = () => {
         city: filter?.city?.value,
         district: filter?.district?.value,
         neighbourhood: filter?.neighbourhood?.value,
-      })
+      }),
     );
   }
 
@@ -148,12 +149,12 @@ const RestaurantsPage = () => {
         getRestaurants({
           pageNumber,
           pageSize: itemsPerPage,
-        })
+        }),
       );
     }
   }, [restaurantsData, restaurants]);
 
-  // TOAST AND GET MERGED USERS
+  // TOAST AND SET RESTAURANTS
   useEffect(() => {
     if (error) {
       dispatch(resetGetRestaurantsState());
@@ -161,7 +162,7 @@ const RestaurantsPage = () => {
 
     if (restaurants) {
       setTotalItems(restaurants.totalCount);
-      setRestaurantsData(restaurants.data);
+      setRestaurantsData(sortByCreatedDateTime(restaurants.data));
       dispatch(resetGetRestaurantsState());
     }
   }, [success, error, restaurants]);
@@ -202,7 +203,7 @@ const RestaurantsPage = () => {
         getNeighs({
           cityId: filter.city.id,
           districtId: filter.district.id,
-        })
+        }),
       );
       setFilter((prev) => {
         return {
@@ -226,7 +227,7 @@ const RestaurantsPage = () => {
   useEffect(() => {
     if (filterRestaurant) {
       const refs = contentRef.filter(
-        (ref) => ref.id !== "usersRestaurantFilter"
+        (ref) => ref.id !== "usersRestaurantFilter",
       );
       setContentRef([
         ...refs,

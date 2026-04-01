@@ -47,7 +47,7 @@ const EditImageFile = ({ file, onSave }) => {
         onSave(croppedFile);
         onClose();
       }
-    }, file.type);
+    }, "image/jpeg");
   };
 
   const onClose = () => {

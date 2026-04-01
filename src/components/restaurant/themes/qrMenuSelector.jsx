@@ -19,21 +19,27 @@ import { setRestaurantTheme } from "../../../redux/restaurant/setRestaurantTheme
 const THEMES = [
   {
     id: 0,
-    name: "Theme 1",
-    url: "https://theme1.liwamenu.com/",
+    name: "Tema 1",
+    url: "https://demo1.liwamenu.com/",
     color: "hsl(24 95% 53%)",
   },
   {
     id: 1,
-    name: "Theme 2",
-    url: "https://liwamenu2.lovable.app",
+    name: "Tema 2",
+    url: "https://demo2.liwamenu.com",
     color: "hsl(270 65% 65%)",
   },
   {
     id: 2,
-    name: "Theme 3",
-    url: "https://liwamenu3.lovable.app",
+    name: "Tema 3",
+    url: "https://demo3.liwamenu.com",
     color: "hsl(142 58% 26%)",
+  },
+  {
+    id: 3,
+    name: "Tema 4",
+    url: "https://demo4.liwamenu.com",
+    color: "hsl(48 100% 50%)",
   },
 ];
 
@@ -81,7 +87,9 @@ const ThemeSelector = ({ data }) => {
   //TOAST
   useEffect(() => {
     if (success) {
-      toast.success(t("qrThemeSelector.success_updated"));
+      toast.success(t("qrThemeSelector.success_updated"), {
+        id: "set-theme-success",
+      });
     }
   }, [success, t]);
 
@@ -95,8 +103,8 @@ const ThemeSelector = ({ data }) => {
         </div>
         <div className="flex flex-col lg:flex-row min-h-[700px] bg-[--white-1]">
           {/* Left Side: Theme Selection (Compact) */}
-          <div className="w-full lg:w-80 border-r border-[--border-1] p-6 flex flex-col gap-6 bg-[--white-2]">
-            <div>
+          <div className="w-full lg:w-80 border-r border-[--border-1] px-6 flex flex-col gap-6 bg-[--white-2]">
+            <div className="pt-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-sm font-bold uppercase tracking-wider text-gray-400">
                   {t("qrThemeSelector.select_theme")}
@@ -196,7 +204,7 @@ const ThemeSelector = ({ data }) => {
           </div>
 
           {/* Right Side: Device Mockup (Immersive) */}
-          <div className="flex-1 bg-[--gr-4] p-8 flex items-center justify-center overflow-hidden relative">
+          <div className="flex-1 bg-[--gr-4] px-8 flex items-center justify-center overflow-hidden relative">
             {/* Background Decoration */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
               <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-200 rounded-full blur-3xl" />
@@ -215,7 +223,7 @@ const ThemeSelector = ({ data }) => {
                 >
                   {/* Device Frames */}
                   {device === "iphone" && (
-                    <div className="relative w-[300px] h-[620px] bg-black rounded-[3.5rem] border-[10px] border-gray-900 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] ring-1 ring-white/10">
+                    <div className="relative w-[340px] h-[702px] bg-black rounded-[3.5rem] border-[10px] border-gray-900 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] ring-1 ring-white/10">
                       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-36 h-7 bg-gray-900 rounded-b-3xl z-30" />
                       <div className="absolute top-2 right-8 w-2 h-2 bg-gray-800 rounded-full z-30" />
                       <div className="absolute inset-0 rounded-[2.8rem] overflow-hidden bg-white">
@@ -229,7 +237,7 @@ const ThemeSelector = ({ data }) => {
                   )}
 
                   {device === "android" && (
-                    <div className="relative w-[310px] h-[640px] bg-gray-900 rounded-[2rem] border-[8px] border-gray-800 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)]">
+                    <div className="relative w-[340px] h-[702px] bg-gray-900 rounded-[2rem] border-[8px] border-gray-800 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)]">
                       <div
                         className="absolute top-4 left-1/2 -translate-x-1/2 w-3 h-3 bg-black rounded-full z-30 ring-1
                    ring-white/20"
@@ -245,7 +253,7 @@ const ThemeSelector = ({ data }) => {
                   )}
 
                   {device === "tablet" && (
-                    <div className="relative w-[600px] h-[450px] bg-gray-900 rounded-[2.5rem] border-[12px] border-gray-800 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)]">
+                    <div className="relative w-[650px] h-[487px] bg-gray-900 rounded-[2.5rem] border-[12px] border-gray-800 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)]">
                       <div className="absolute top-1/2 -left-1 -translate-y-1/2 w-1 h-8 bg-gray-700 rounded-r-sm" />
                       <div className="absolute inset-0 rounded-[1.8rem] overflow-hidden bg-white">
                         <iframe

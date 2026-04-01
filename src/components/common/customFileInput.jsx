@@ -13,7 +13,7 @@ import EditImageFile from "./editImageFile";
 const CustomFileInput = ({
   onChange,
   value,
-  accept = "image/png, image/jpeg, image/gif, application/pdf",
+  accept = "image/png, image/jpeg, image/gif, image/webp, application/pdf",
   className,
   required,
   msg,
