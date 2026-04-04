@@ -85,6 +85,30 @@ const OrdersPage = () => {
     updateStatus(orderId, newStatus);
   };
 
+  function getDateString(dateString) {
+    const date = new Date(dateString);
+    const today = new Date();
+    const isToday = date.toDateString() === today.toDateString();
+
+    if (isToday) {
+      return formatDateString({
+        dateString,
+        letDay: false,
+        letMonth: false,
+        letYear: false,
+        hour: true,
+        min: true,
+        joint: ":",
+      });
+    } else {
+      return formatDateString({
+        dateString,
+        hour: true,
+        min: true,
+      });
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[--white-2] transition-colors duration-300 lg:ml-[280px] pt-16 flex flex-col">
       <main className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow w-full">
@@ -137,14 +161,7 @@ const OrdersPage = () => {
                         <div className="flex items-center gap-3 text-sm opacity-70">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3.5 h-3.5" />
-                            {formatDateString(
-                              order.createdAt,
-                              false,
-                              false,
-                              false,
-                              true,
-                              true,
-                            )}
+                            {getDateString(order.createdAt)}
                           </span>
                           <span className="flex items-center gap-1">
                             <CreditCard className="w-3.5 h-3.5" />

@@ -26,10 +26,6 @@ import {
   addItemToCart,
   removeItemFromCart,
 } from "../../../redux/cart/cartSlice";
-// import {
-//   getKDVParameters,
-//   resetGetKDVParameters,
-// } from "../../../redux/generalVars/KDVParameters/getKDVParametersSlice";
 
 const FirstStep = ({
   setStep,
@@ -46,13 +42,8 @@ const FirstStep = ({
     (state) => state.restaurants.getRestaurants,
   );
 
-  // const { KDVParameters, error: kdvError } = useSelector(
-  //   (state) => state.generalVars.getKDVParams
-  // );
-
   const cartItems = useSelector((state) => state.cart.items);
 
-  // const [kdvData, setKdvData] = useState(null);
   const [restaurantsData, setRestaurantsData] = useState(null);
   const [licensePackagesData, setLicensePackagesData] = useState(null);
 
@@ -77,23 +68,8 @@ const FirstStep = ({
     }
   }, [licensePackagesData]);
 
-  // // TOAST AND GET KDV PARAMS
-  // useEffect(() => {
-  //   if (error) {
-  //     dispatch(resetGetLicensePackages());
-  //   }
-
-  //   if (success) {
-  //     dispatch(getKDVParameters());
-  //   }
-  // }, [success, error]);
-
   //GET KDV AND SET VALUE
   useEffect(() => {
-    // if (kdvError) {
-    //   dispatch(resetGetKDVParameters());
-    // }
-
     if (/* KDVParameters && */ success) {
       const updatedData = licensePackages.data
         .filter((P) => P.isActive)

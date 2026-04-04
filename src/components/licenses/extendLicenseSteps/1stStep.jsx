@@ -22,10 +22,6 @@ import {
 } from "../../../redux/licensePackages/getLicensePackagesSlice";
 import { getRestaurants } from "../../../redux/restaurants/getRestaurantsSlice";
 import { addItemToCart, clearCart } from "../../../redux/cart/cartSlice";
-// import {
-//   getKDVParameters,
-//   resetGetKDVParameters,
-// } from "../../../redux/generalVars/KDVParameters/getKDVParametersSlice";
 
 const FirstStep = ({
   setStep,
@@ -42,14 +38,10 @@ const FirstStep = ({
   const { restaurantName, restaurantId, userId } = currentLicense || {};
 
   const { success, error, licensePackages } = useSelector(
-    (state) => state.licensePackages.getLicensePackages
+    (state) => state.licensePackages.getLicensePackages,
   );
   const { restaurants } = useSelector(
-    (state) => state.restaurants.getRestaurants
-  );
-
-  const { KDVParameters, error: kdvError } = useSelector(
-    (state) => state.generalVars.getKDVParams
+    (state) => state.restaurants.getRestaurants,
   );
 
   const [kdvData, setKdvData] = useState(null);
@@ -62,55 +54,6 @@ const FirstStep = ({
       dispatch(getLicensePackages());
     }
   }, [licensePackagesData]);
-
-  // // TOAST AND SET PACKAGES
-  // useEffect(() => {
-  //   if (error) {
-  //     dispatch(resetGetLicensePackages());
-  //   }
-
-  //   if (success) {
-  //     dispatch(getKDVParameters());
-  //   }
-  // }, [success, error]);
-
-  // //GET KDV VALUE
-  // useEffect(() => {
-  //   if (kdvError) {
-  //     dispatch(resetGetKDVParameters());
-  //   }
-
-  //   if (KDVParameters && success) {
-  //     setKdvData(KDVParameters);
-  //     const updatedData = licensePackages.data
-  //       .filter((P) => P.isActive)
-  //       .map((pkg) => {
-  //         return {
-  //           ...pkg,
-  //           price: getPriceWithKDV(pkg.userPrice, KDVParameters),
-  //         };
-  //       });
-
-  //     const sameMarketplacePKGS = updatedData.filter(
-  //       (pack) => pack?.licenseTypeId === currentLicense?.licenseTypeId
-  //     );
-
-  //     if (sameMarketplacePKGS.length) {
-  //       const formattedPkgs = formatLisansPackages(sameMarketplacePKGS);
-  //       setLicensePackagesData(formattedPkgs);
-  //       const defaultPkg = formattedPkgs.find((pkg) => pkg.time === 1);
-  //       setLicensePackageData(defaultPkg);
-  //       handleAddToCart({
-  //         ...defaultPkg,
-  //         restaurantId: restaurantData.value,
-  //         restaurantName: restaurantData.label,
-  //       });
-  //     } else setLicensePackagesData(sameMarketplacePKGS);
-
-  //     dispatch(resetGetKDVParameters());
-  //     dispatch(resetGetLicensePackages());
-  //   }
-  // }, [kdvError, KDVParameters]);
 
   // GET RESTAURANTS
   useEffect(() => {
@@ -158,41 +101,6 @@ const FirstStep = ({
     dispatch(clearCart());
     dispatch(addItemToCart(pkg));
   };
-
-  // useEffect(() => {
-  //   const bgColors = [
-  //     "bg-[#4682B4] border-[#4682B4]",
-  //     "bg-[--link-1] border-[--link-1]",
-  //     "bg-[--primary-1] border-[--primary-1]",
-  //     "bg-[--primary-2] border-[--primary-2]",
-  //   ];
-  //   setTestData([
-  //     {
-  //       value: "Trendyol Yemek",
-  //       label: `
-  //         <div class="flex justify-between">
-  //           <p class="w-36">Trendyol Yemek</p>
-  //           <p class="w-20 text-[--link-1] text-center"> 1 Yıllık </p>
-  //           <p class="text-xs text-[--white-1] border rounded-md px-0.5 mx-0.5 py-1 whitespace-nowrap ${bgColors[2]}"> 20% Standart Yıllık </p>
-  //           <p class="w-12">2800</p>
-  //         </div>
-  //       `,
-  //       id: "94eed0fb-11dc-4d92-84e3-b269fc6ab107",
-  //       time: 1,
-  //       price: "3350.00",
-  //       licensePackageId: "94eed0fb-11dc-4d92-84e3-b269fc6ab107",
-  //       entityGuid: "748f9e84-8e17-431b-b0ba-d02b6686d817",
-  //       licenseTypeId: 2,
-  //       userPrice: 200,
-  //       dealerPrice: 2000,
-  //       description: "Standart",
-  //       isActive: true,
-  //       createdDateTime: "2024-12-29T15:49:41.8054539",
-  //       lastUpdateDateTime: "2025-01-26T03:34:38.7710466",
-  //     },
-  //   ]);
-  // }, []);
-  // const [testData, setTestData] = useState([]);
 
   return (
     <form className="size-full flex flex-col" onSubmit={handleSubmit}>

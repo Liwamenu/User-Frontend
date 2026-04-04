@@ -482,7 +482,7 @@ const SubCategories = ({ data: restaurant }) => {
                                     </span>
                                     <span className="text-xs text-[--primary-2] font-medium bg-[--status-primary-2] px-2 py-0.5 rounded-md w-fit whitespace-nowrap">
                                       {t("editCategories.product_count", {
-                                        count: subCat.productCount || 0,
+                                        count: subCat.productsCount || 0,
                                       })}
                                     </span>
                                   </div>

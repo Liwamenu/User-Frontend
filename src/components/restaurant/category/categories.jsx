@@ -306,7 +306,7 @@ const Categories = ({ data: restaurant }) => {
                                 </span>
                                 <span className="text-xs text-[--primary-2] font-medium bg-[--status-primary-2] px-2 py-0.5 rounded-md w-fit whitespace-nowrap">
                                   {t("editCategories.product_count", {
-                                    count: cat.productCount || 0,
+                                    count: cat.productsCount || 0,
                                   })}
                                 </span>
                               </div>
