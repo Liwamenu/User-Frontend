@@ -11,12 +11,18 @@ const KEY = import.meta.env.VITE_LOCAL_KEY;
 const userString = localStorage.getItem(KEY);
 const { user } = JSON.parse(userString) || {};
 const defaultLang = LanguagesEnums.filter(
-  (l) => l.value == user?.defaultLang
+  (l) => l.value == user?.defaultLang,
 )[0]?.id;
 
 const resources = {
   tr: { translation: trTranslation },
   en: { translation: enTranslation },
+};
+
+export const setTranslationLanguage = (id) => {
+  const lang = LanguagesEnums.filter((l) => l.value == id)[0];
+  if (!lang) return;
+  i18n.changeLanguage(lang.id.toLowerCase());
 };
 
 i18n.use(initReactI18next).init({

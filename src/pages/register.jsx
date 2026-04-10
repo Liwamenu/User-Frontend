@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { usePopup } from "../context/PopupContext";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 //COMP
 import PrivacyPolicy from "./privacyPolicy";
@@ -30,18 +31,19 @@ const Register = () => {
   const toastId = useRef();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const { popupContent, setPopupContent } = usePopup();
 
   const { cities, success: citiesSuccess } = useSelector(
-    (state) => state.data.getCities
+    (state) => state.data.getCities,
   );
 
   const { districts: districtsData, success: districtsSuccess } = useSelector(
-    (state) => state.data.getDistricts
+    (state) => state.data.getDistricts,
   );
 
   const { loading, success, error } = useSelector(
-    (state) => state.auth.register
+    (state) => state.auth.register,
   );
 
   const [firstName, setFirstName] = useState("");
@@ -62,16 +64,16 @@ const Register = () => {
     e.preventDefault();
 
     if (password !== password2) {
-      toast.error("Şifreler aynı değil");
+      toast.error(t("register.passwords_not_match"));
       return;
     }
     if (phoneNumber.length < 12) {
-      toast("Lütfen telefon numaranızı tamamlayın");
+      toast(t("register.phone_incomplete"));
       return;
     }
 
     if (!checked) {
-      toast.error("Lütfen kullanım şartılarını kabul edin");
+      toast.error(t("register.accept_terms"));
       return;
     }
     setPopupContent(
@@ -80,7 +82,7 @@ const Register = () => {
         popupContent={popupContent}
         setPopupContent={setPopupContent}
         onClick={register}
-      />
+      />,
     );
   };
 
@@ -104,50 +106,53 @@ const Register = () => {
           city: city.value,
           district: district.value,
           neighbourhood: "string",
-        })
+        }),
       );
     } else {
-      toast("Tüm alanları doldurunuz");
+      toast(t("register.fill_all_fields"));
     }
   };
 
   // USE EFFECTS
   useEffect(() => {
     if (loading) {
-      toastId.current = toast.loading("İşleniyor...");
+      toastId.current = toast.loading(t("register.processing"));
     } else if (success) {
       setToConfirm(true);
       toast.dismiss(toastId.current);
-      toast.success("Doğrulama Kodu Gönderildi");
+      toast.success(t("register.verification_sent"));
       dispatch(resetRgisterState());
     } else if (error) {
       toast.dismiss(toastId.current);
       toast.error(error.message);
       dispatch(resetRgisterState());
     }
-  }, [loading, success, error]);
+  }, [loading, success, error, dispatch, t]);
 
-  useEffect(() => {
-    if (!cities) {
-      dispatch(getCities());
-    }
-    if (citiesSuccess) {
-      setCitiesData(cities);
-    }
-  }, [citiesSuccess, cities]);
+  //GET CITIES
+  // useEffect(() => {
+  //   if (!cities) {
+  //     dispatch(getCities());
+  //   }
+  //   if (citiesSuccess) {
+  //     setCitiesData(cities);
+  //   }
+  // }, [citiesSuccess, cities]);
 
-  useEffect(() => {
-    if (city?.id) {
-      dispatch(getDistricts({ cityId: city.id }));
-      setDistrict(null);
-    }
-  }, [city]);
+  //GET DISTRICTS
+  // useEffect(() => {
+  //   if (city?.id) {
+  //     dispatch(getDistricts({ cityId: city.id }));
+  //     setDistrict(null);
+  //   }
+  // }, [city]);
 
-  useEffect(() => {
-    if (districtsSuccess) {
-      setDistricts(districtsData);
-    }
-  }, [districtsSuccess]);
+  //SET DISTRICTS
+  // useEffect(() => {
+  //   if (districtsSuccess) {
+  //     setDistricts(districtsData);
+  //   }
+  // }, [districtsSuccess]);
 
   return (
     <GlassFrame
@@ -159,59 +164,59 @@ const Register = () => {
           <form onSubmit={confirmRegister} className="light">
             <div className="flex justify-center">
               <h2 className="text-[2.7rem] font-bold text-[--white-1] tracking-tighter">
-                Kayıt ol
+                {t("register.title")}
               </h2>
             </div>
             <div className="flex flex-col max-w-full">
-              <div className="flex max-sm:flex-col w-full sm:gap-2 customInput">
+              <div className="flex max-sm:flex-col w-full sm:gap-2 ">
                 <CustomInput
                   // label="Ad"
                   type="text"
-                  placeholder="Ad"
+                  placeholder={t("register.first_name")}
                   value={firstName}
                   onChange={(e) => setFirstName(e)}
                   required={true}
-                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent"
+                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
                   className2="mt-[5px] sm:mt-[5px]"
                 />
                 <CustomInput
                   // label="Soyad"
                   type="text"
-                  placeholder="Soyad"
+                  placeholder={t("register.last_name")}
                   value={lastName}
                   onChange={(e) => setLastName(e)}
                   required={true}
-                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent"
+                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
                   className2="mt-[5px] sm:mt-[5px]"
                 />
               </div>
 
-              <div className="flex w-full sm:gap-2 max-sm:flex-col customInput">
+              <div className="flex w-full sm:gap-2 max-sm:flex-col ">
                 <CustomPhoneInput
                   // label="Cep Telefonu"
                   type="tel"
-                  placeholder="+90"
+                  placeholder={t("register.phone_placeholder")}
                   value={phoneNumber}
                   onChange={(phone) => setPhoneNumber(phone)}
                   required={true}
-                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent"
+                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
                   className2="mt-[5px] sm:mt-[5px]"
                   maxLength={14}
                 />
                 <CustomInput
                   // label="E-Posta"
                   type="email"
-                  placeholder="E-Posta"
+                  placeholder={t("register.email_placeholder")}
                   value={email}
                   onChange={(e) => setEmail(formatEmail(e))}
                   required={true}
-                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent"
+                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
                   className2="mt-[5px] sm:mt-[5px]"
                 />
               </div>
 
               <div className="flex w-full sm:gap-2 max-sm:flex-col">
-                <CustomSelect
+                {/* <CustomSelect
                   // label="Şehir"
                   options={citiesData || []}
                   value={city ? city : { value: null, label: "Şehir" }}
@@ -225,8 +230,18 @@ const Register = () => {
                   singleValueStyle={{ color: "white" }}
                   className="text-sm mt-[5px] sm:mt-[5px]"
                   className2="container-class mt-[0px] sm:mt-[0px]"
+                /> */}
+                <CustomInput
+                  // label="Soyad"
+                  type="text"
+                  placeholder={t("register.city_placeholder")}
+                  value={city?.value}
+                  onChange={(e) => setCity({ value: e })}
+                  required={true}
+                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
+                  className2="mt-[5px] sm:mt-[5px]"
                 />
-                <CustomSelect
+                {/* <CustomSelect
                   required={true}
                   // label="İlçe"
                   value={
@@ -247,17 +262,27 @@ const Register = () => {
                   singleValueStyle={{ color: "white" }}
                   className="text-sm mt-[5px] sm:mt-[5px]"
                   className2="container-class mt-[0px] sm:mt-[0px]"
+                /> */}
+                <CustomInput
+                  // label="Soyad"
+                  type="text"
+                  placeholder={t("register.district_placeholder")}
+                  value={district?.value}
+                  onChange={(e) => setDistrict({ value: e })}
+                  required={true}
+                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
+                  className2="mt-[5px] sm:mt-[5px]"
                 />
               </div>
 
-              <div className="customInput">
+              <div className="">
                 <CustomInput
                   // label="Şifre"
-                  placeholder="Şifre"
+                  placeholder={t("register.password_placeholder")}
                   value={password}
                   onChange={(e) => setPassword(e)}
                   required={true}
-                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-[var(--white-1)]"
+                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
                   className2="mt-[5px] sm:mt-[5px]"
                   className3="top-[25%]"
                   className5="text-[var(--white-1)]"
@@ -267,11 +292,11 @@ const Register = () => {
                 />
                 <CustomInput
                   // label="Şifreyi onayla"
-                  placeholder="Şifre Tekrar"
+                  placeholder={t("register.password_confirm_placeholder")}
                   value={password2}
                   onChange={(e) => setPassword2(e)}
                   required={true}
-                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-[transparent !important] text-[var(--white-1)]"
+                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
                   className2="mt-[5px] sm:mt-[5px]"
                   className3="top-[25%]"
                   className5="text-[var(--white-1)]"
@@ -297,16 +322,20 @@ const Register = () => {
                   className={`flex justify-center px-7 py-2 text-xl rounded-md bg-[--primary-1] text-white hover:opacity-90 `}
                   disabled={loading}
                 >
-                  {loading ? <LoadingI className="h-7" /> : "Devam"}
+                  {loading ? (
+                    <LoadingI className="h-7" />
+                  ) : (
+                    t("register.continue")
+                  )}
                 </button>
               </div>
             </div>
 
             <div className="flex flex-col mt-4 sm:mt-6 w-full">
               <div className="flex justify-center gap-2 text-white">
-                <p>Hesabınız var mı ?</p>
+                <p>{t("register.have_account")}</p>
                 <a href="/login" className="text-[--link-1]">
-                  Giriş Yapın
+                  {t("register.login_link")}
                 </a>
               </div>
             </div>
@@ -323,6 +352,8 @@ const Register = () => {
 export default Register;
 
 const Confirm = ({ email, setPopupContent, onClick }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="w-full flex justify-center light">
       <div className="w-full max-w-[35rem] bg-[--white-1] shadow-lg py-10 px-5 rounded-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-10 border border-[--gr-1] text-[--white-1]">
@@ -331,9 +362,9 @@ const Confirm = ({ email, setPopupContent, onClick }) => {
             <p className="text-[--primary-2] text-4xl">{email}</p>
           </div>
           <p className="font-[350]">
-            E-Posta Adresinize onay kodu gönderilecektir.
+            {t("register.confirm_line1")}
             <br />
-            E-Posta Adresiniz doğru olduğundan emin misiniz ?
+            {t("register.confirm_line2")}
           </p>
         </div>
         <div className="mt-10 w-full flex gap-4 justify-center">
@@ -341,13 +372,13 @@ const Confirm = ({ email, setPopupContent, onClick }) => {
             className="py-2 px-5 rounded-lg bg-[--light-3] text-[--black-1] hover:opacity-90"
             onClick={() => setPopupContent(null)}
           >
-            Düzelt
+            {t("register.confirm_edit")}
           </button>
           <button
             className="py-2 px-6 rounded-lg bg-[--primary-1] text-white hover:opacity-90"
             onClick={onClick}
           >
-            Evet
+            {t("register.confirm_yes")}
           </button>
         </div>
       </div>
@@ -356,6 +387,7 @@ const Confirm = ({ email, setPopupContent, onClick }) => {
 };
 
 function PrivacyBtn() {
+  const { t } = useTranslation();
   const { setPopupContent } = usePopup();
 
   const closeForm = () => {
@@ -381,7 +413,7 @@ function PrivacyBtn() {
   };
 
   return (
-    <div>
+    <div className="text-[--gr-1]">
       <button
         className="text-[--link-1]"
         type="button"
@@ -389,20 +421,22 @@ function PrivacyBtn() {
           setPopupContent(<PrivacyPopup />);
         }}
       >
-        Kullanım Şartları
+        {t("register.terms_button")}
       </button>
-      nı okudum ve onaylıyorum.
+      {t("register.terms_suffix")}
     </div>
   );
 }
 
 function CheckEmail({ email }) {
+  const { t } = useTranslation();
+
   return (
     <div className="light">
       <div className="flex justify-center relative">
         <div className="w-max">
           <h2 className="text-[2.7rem] font-bold text-[--white-1] tracking-tighter">
-            Onayla
+            {t("register.verify_title")}
           </h2>
         </div>
       </div>
@@ -410,9 +444,8 @@ function CheckEmail({ email }) {
       <div className="flex flex-col items-center mt-5">
         <div className="mt-10 text-[--white-1]">
           <>
-            <span className="text-[--link-1] font-bold">{email}</span> email
-            adresinize bir onay kodu gönderdik. Lütfen e-posta mesajlarınızı
-            kontrol edin ve e-postanızı doğrulayın.
+            <span className="text-[--link-1] font-bold">{email}</span>{" "}
+            {t("register.verify_message")}
           </>
         </div>
 

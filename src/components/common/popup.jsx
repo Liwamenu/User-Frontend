@@ -25,7 +25,7 @@ const Popup = () => {
   return (
     <>
       <div
-        className={`fixed top-0 left-0 right-0 bottom-0 justify-center items-center transition-colors p-[2%] z-[999999] ${
+        className={`fixed top-0 left-0 right-0 bottom-0 justify-center items-center transition-colors p-[2%] z-[9999999] ${
           loadingComponent ? "flex bg-black/20" : "hidden"
         }`}
       >
@@ -39,7 +39,7 @@ const Popup = () => {
       </div>
 
       <div
-        className={`fixed top-0 left-0 right-0 bottom-0 justify-center items-center transition-colors p-[2%] bg-gray-900/60 backdrop-blur-sm z-[99999] ${
+        className={`fixed top-0 left-0 right-0 bottom-0 justify-center items-center transition-colors p-[2%] bg-gray-900/60 backdrop-blur-sm z-[999999] ${
           cropImgPopup ? "flex bg-black/20" : "hidden"
         }`}
       >
@@ -53,7 +53,7 @@ const Popup = () => {
       </div>
 
       <div
-        className={`fixed top-0 left-0 right-0 bottom-0 justify-center items-center transition-colors p-[2%] z-[9999] ${
+        className={`fixed top-0 left-0 right-0 bottom-0 justify-center items-center transition-colors p-[2%] z-[99999] ${
           secondPopupContent ? "flex bg-black/20" : "hidden"
         } ${className || "bg-gray-900/60 backdrop-blur-sm"}`}
       >
@@ -67,7 +67,7 @@ const Popup = () => {
       </div>
 
       <div
-        className={`fixed top-0 left-0 right-0 bottom-0 justify-center items-center transition-colors p-[2%] z-[999] ${
+        className={`fixed top-0 left-0 right-0 bottom-0 justify-center items-center transition-colors p-[2%] z-[9999] ${
           popupContent ? "flex bg-black/20" : "hidden"
         } ${className || "bg-gray-900/60 backdrop-blur-sm"}`}
       >

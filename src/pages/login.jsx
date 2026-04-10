@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 // ICONS
 import LoadingI from "../assets/anim/loading";
@@ -22,6 +23,7 @@ import CustomInput from "../components/common/customInput";
 function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { pushToken, notificationPermission, requestNotificationAccess } =
     useFirebase();
 
@@ -36,14 +38,12 @@ function Login() {
     const { permission, token } = await requestNotificationAccess();
 
     if (permission === "granted" && token) {
-      toast.success("Bildirim izni verildi");
+      toast.success(t("auth.notification_granted"));
       return;
     }
 
     if (permission === "denied") {
-      window.alert(
-        "Bildirimler engellendi. Lütfen adres çubuğundaki kilit ikonundan veya Site Settings > Notifications bölümünden 'Allow' seçin ve sayfayı yenileyin.",
-      );
+      window.alert(t("auth.notification_blocked"));
     }
   };
 
@@ -58,12 +58,12 @@ function Login() {
 
   useEffect(() => {
     if (loading) {
-      toast.loading("Giriş Yapılıyor...");
+      toast.loading(t("auth.login_loading"));
     } else if (error) {
       toast.dismiss();
       if (error?.statusCode == 422) navigate("/verify");
       if (error.statusCode == 403) {
-        toast.error("Hesabınız aktif değil");
+        toast.error(t("auth.login_inactive"));
       } else {
         toast.error(error.message);
       }
@@ -71,10 +71,10 @@ function Login() {
     } else if (success) {
       navigate("/restaurants");
       toast.dismiss();
-      toast.success("Başarıyla Giriş Yapıldı");
+      toast.success(t("auth.login_success"));
       dispatch(resetLoginState());
     }
-  }, [loading, success, error, dispatch, navigate]);
+  }, [loading, success, error, dispatch, navigate, t]);
 
   useEffect(() => {
     if (token) {
@@ -86,47 +86,47 @@ function Login() {
     <GlassFrame
       className="pt-[4rem]"
       component={
-        <form onSubmit={handleLogin} className="text-white light customInput">
-          <h1 className="text-4xl font-bold text-center mb-8">Login</h1>
+        <form onSubmit={handleLogin} className="text-white light">
+          <h1 className="text-4xl font-bold text-center mb-8">
+            {t("auth.login_title")}
+          </h1>
 
           {notificationPermission !== "granted" && (
-            <div className="mb-4 text-xs rounded-md border border-[--link-1]/40 bg-[--gr-5] p-3">
-              <p className="mb-2">
-                Sipariş güncellemelerini anlık almak için bildirim iznini açın.
-              </p>
+            <div className="mb-4 text-xs rounded-md border border-dashed border-[--primary-1] p-3">
+              <p className="mb-2">{t("auth.enable_notifications_text")}</p>
               <button
                 type="button"
                 onClick={handleEnableNotifications}
                 className="px-3 py-1 rounded bg-[--primary-1] text-white"
               >
-                Bildirimleri Etkinleştir
+                {t("auth.enable_notifications_button")}
               </button>
             </div>
           )}
 
           <CustomInput
-            label="E-posta/Telefon"
+            label={t("auth.email_or_phone_label")}
             type="text"
-            placeholder="E-posta/Telefon"
+            placeholder={t("auth.email_or_phone_placeholder")}
             value={emailOrPhone}
             onChange={(e) => setEmailOrPhone(e)}
             required={true}
-            className="py-2 bg-transparent"
+            className="py-2 bg-transparent text-white"
             autoComplete="on"
           />
           <CustomInput
-            label="Şifre"
-            placeholder="Şifre"
+            label={t("auth.password_label")}
+            placeholder={t("auth.password_placeholder")}
             value={password}
             onChange={(e) => setPassword(e)}
             letIcon={true}
-            className="py-2 bg-transparent"
+            className="py-2 bg-transparent text-white"
             autoComplete="on"
             minLength={4}
             maxLength={20}
           />
           <div className="text-right text-[--link-1] mt-4">
-            <a href="/forgotPassword">Şifremi unuttum ?</a>
+            <a href="/forgotPassword">{t("auth.forgot_password")}</a>
           </div>
 
           <TurnstileWidget setToken={setTurnstileToken} pageName={"login"} />
@@ -136,13 +136,17 @@ function Login() {
             type="submit"
             className="w-full flex justify-center px-7 py-2 text-xl rounded-md bg-[--primary-1] text-white mt-10 disabled:cursor-not-allowed"
           >
-            {loading ? <LoadingI className="h-7 text-white" /> : "Giriş"}
+            {loading ? (
+              <LoadingI className="h-7 text-white" />
+            ) : (
+              t("auth.login_button")
+            )}
           </button>
 
           <div className="flex mt-4 justify-center gap-2">
-            <p>Hesabınız yok mu ?</p>
+            <p>{t("auth.no_account")}</p>
             <a href="/register" className="text-[--link-1]">
-              Kayıt ol
+              {t("auth.register_link")}
             </a>
           </div>
         </form>

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../api";
+import { setTranslationLanguage } from "../../config/i18n";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -57,6 +58,7 @@ export const login = createAsyncThunk(
       // console.log(res);
       const KEY = import.meta.env.VITE_LOCAL_KEY;
       localStorage.setItem(`${KEY}`, JSON.stringify(res.data));
+      setTranslationLanguage(res.data.user.defaultLang);
       return res.data.sessionId;
     } catch (err) {
       console.log(err);

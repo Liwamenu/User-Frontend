@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 //REDUX
 import {
@@ -21,9 +22,10 @@ import CustomPhoneInput from "../components/common/customPhoneInput";
 const ForgotPassword = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const { success, loading, error } = useSelector(
-    (state) => state.auth.forgotPassword
+    (state) => state.auth.forgotPassword,
   );
 
   const [email, setEmail] = useState("");
@@ -47,13 +49,13 @@ const ForgotPassword = () => {
     if (success) {
       setToVerify(true);
       dispatch(resetForgotPassword());
-      toast.success("Onay kodu gönderildi");
+      toast.success(t("forgotPassword.code_sent"));
     }
     if (error) {
       toast.error(error.message);
       dispatch(resetForgotPassword());
     }
-  }, [success, error]);
+  }, [success, error, dispatch, t]);
 
   return (
     <GlassFrame
@@ -65,7 +67,7 @@ const ForgotPassword = () => {
             <div className="flex justify-center relative">
               <div className="w-max">
                 <h2 className="text-[2.3rem] font-bold text-[--white-1] tracking-tighter">
-                  Şifre Hatırlatma
+                  {t("forgotPassword.title")}
                 </h2>
               </div>
             </div>
@@ -89,11 +91,11 @@ const ForgotPassword = () => {
                 className2="whitespace-nowrap"
               />
             </div> */}
-            <div className="flex flex-col max-w-full customInput">
+            <div className="flex flex-col max-w-full">
               {checked ? (
                 <CustomPhoneInput
-                  label="Telefon"
-                  placeholder="Telefon"
+                  label={t("forgotPassword.phone_label")}
+                  placeholder={t("forgotPassword.phone_placeholder")}
                   value={phoneNumber}
                   onChange={(phone) => setPhoneNumber(phone)}
                   className="py-2 bg-transparent text-[var(--white-1)]"
@@ -101,10 +103,10 @@ const ForgotPassword = () => {
                 />
               ) : (
                 <CustomInput
-                  label="E-Posta"
+                  label={t("forgotPassword.email_label")}
                   type="email"
                   name="email"
-                  placeholder="E-Posta"
+                  placeholder={t("forgotPassword.email_placeholder")}
                   value={email}
                   onChange={(e) => setEmail(e)}
                   required={true}
@@ -114,17 +116,18 @@ const ForgotPassword = () => {
               )}
               <div className="flex flex-col w-full">
                 <div className="font-[300] text-[--link-1] mt-5 text-sm">
-                  <p>
-                    Onay kodu göndermek için sistemde kayıtlı olan telefon
-                    numaranızı veya mail adresinizi giriniz.
-                  </p>
+                  <p>{t("forgotPassword.help_text")}</p>
                 </div>
                 <button
                   disabled={loading}
                   type="submit"
                   className="flex justify-center px-7 py-2 mt-5 text-lg rounded-md bg-[--primary-1] text-white hover:opacity-90 disabled:opacity-90 disabled:cursor-not-allowed"
                 >
-                  {loading ? <LoadingI className="h-7" /> : "Gönder"}
+                  {loading ? (
+                    <LoadingI className="h-7" />
+                  ) : (
+                    t("forgotPassword.send")
+                  )}
                 </button>
                 {/* <div className="shrink-0 mt-5 h-px bg-slate-200 w-full" /> */}
               </div>
@@ -138,7 +141,7 @@ const ForgotPassword = () => {
                 onClick={() => (window.location.href = "/login")}
                 className="px-7 py-2 text-xl rounded-md border border-solid border-[--gr-1] mt-5 text-center text-white"
               >
-                Giriş yap
+                {t("forgotPassword.back_to_login")}
               </button>
             </div>
           </form>

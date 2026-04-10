@@ -40,7 +40,7 @@ function Header({ openSidebar, setOpenSidebar }) {
 
   const { loading, success, error } = useSelector((state) => state.auth.logout);
   const { success: lngSucc, error: lngErr } = useSelector(
-    (s) => s.user.updateUserLang
+    (s) => s.user.updateUserLang,
   );
 
   //LOGOUT
