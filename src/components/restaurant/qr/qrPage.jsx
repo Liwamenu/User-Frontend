@@ -53,7 +53,7 @@ const QRPage = ({ data: restaurant }) => {
   };
 
   const getTableUrl = (tableNumber) => {
-    return `https://${config.tenant}.liwamenu.com?restaurantId=${config.restaurantId}&tableNumber=${encodeURIComponent(getTableId(tableNumber))}`;
+    return `https://${config.tenant}.liwamenu.com?&tableNumber=${encodeURIComponent(getTableId(tableNumber))}`;
   };
 
   const getFileSafeTableId = (tableId) => {

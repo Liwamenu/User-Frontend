@@ -387,7 +387,7 @@ const EditRestaurant = ({ data: restaurant }) => {
               </div>
 
               <div className="mt-4 flex max-sm:flex-col items-center">
-                <div className="w-full max-w-40 mb-2">
+                <div className="w-full max-w-32 mb-2 mr-4">
                   <img src={preview2} alt="preview_liwamenu_logo" />
                 </div>
                 <CustomFileInput
@@ -399,7 +399,7 @@ const EditRestaurant = ({ data: restaurant }) => {
               </div>
 
               <div className="mt-4 flex max-sm:flex-col items-center">
-                <div className="w-full max-w-40 mb-2">
+                <div className="w-full max-w-40 mb-2 mr-4">
                   <img src={preview} alt="preview_liwamenu" />
                 </div>
                 <CustomFileInput
