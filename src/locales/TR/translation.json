@@ -584,9 +584,9 @@
     "select_theme": "Tema Seçin",
     "save": "Kaydet",
     "device_preview": "Cihaz Önizlemesi",
-    "screen1": "Ekran 1",
-    "screen2": "Ekran 2",
-    "screen3": "Ekran 3",
+    "iphone": "iPhone",
+    "android": "Android",
+    "tablet": "Tablet",
     "live_url": "Canlı URL",
     "open_new_tab": "Yeni Sekmede Aç",
     "loading_theme": "Canlı Tema Yüklüyor",
@@ -604,7 +604,10 @@
     "live_url": "Canlı URL",
     "open_new_tab": "Yeni Sekmede Aç",
     "loading_theme": "TV Teması Yükleniyor",
-    "success_updated": "TV menü teması başarıyla güncellendi!"
+    "success_updated": "TV menü teması başarıyla güncellendi!",
+    "screen1": "Screen 1",
+    "screen2": "Screen 2",
+    "screen3": "Screen 3"
   },
   "orders": {
     "active_orders": "Aktif Siparişler",

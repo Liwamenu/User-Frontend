@@ -583,9 +583,9 @@
     "select_theme": "Select Theme",
     "save": "Save",
     "device_preview": "Device Preview",
-    "screen1": "Screen 1",
-    "screen2": "Screen 2",
-    "screen3": "Screen 3",
+    "iphone": "iPhone",
+    "android": "Android",
+    "tablet": "Tablet",
     "live_url": "Live URL",
     "open_new_tab": "Open in New Tab",
     "loading_theme": "Loading Live Theme",
@@ -603,7 +603,10 @@
     "live_url": "Live URL",
     "open_new_tab": "Open in New Tab",
     "loading_theme": "Loading TV Theme",
-    "success_updated": "TV menu theme updated successfully!"
+    "success_updated": "TV menu theme updated successfully!",
+    "screen1": "Screen 1",
+    "screen2": "Screen 2",
+    "screen3": "Screen 3"
   },
   "orders": {
     "active_orders": "Active Orders",

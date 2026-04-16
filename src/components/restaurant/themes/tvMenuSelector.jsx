@@ -62,7 +62,7 @@ const ThemeSelector = ({ data }) => {
 
   const { success } = useSelector((s) => s.restaurant.setRestaurantTheme);
 
-  const [device, setDevice] = useState("iphone");
+  const [device, setDevice] = useState("screen1");
   const [isLoading, setIsLoading] = useState(true);
   const [selectedThemeId, setSelectedThemeId] = useState(
     data?.tvMenuId || THEMES[0].id,
@@ -98,7 +98,7 @@ const ThemeSelector = ({ data }) => {
   //TOAST
   useEffect(() => {
     if (success) {
-      toast.success(t("qrThemeSelector.success_updated"), {
+      toast.success(t("tvThemeSelector.success_updated"), {
         id: "set-theme-success",
       });
     }
@@ -109,7 +109,7 @@ const ThemeSelector = ({ data }) => {
       <div className="flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between items-center bg-indigo-800 text-white py-5 px-6">
           <h1 className="text-xl font-bold mb-4 sm:mb-0">
-            {t("qrThemeSelector.title", { name: data?.name })}
+            {t("tvThemeSelector.title", { name: data?.name })}
           </h1>
         </div>
         <div className="flex flex-col lg:flex-row min-h-[700px] bg-[--white-1]">
@@ -118,13 +118,13 @@ const ThemeSelector = ({ data }) => {
             <div className="pt-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-sm font-bold uppercase tracking-wider text-gray-400">
-                  {t("qrThemeSelector.select_theme")}
+                  {t("tvThemeSelector.select_theme")}
                 </h2>
                 <button
                   onClick={handleSaveThemeId}
                   className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors"
                 >
-                  {t("qrThemeSelector.save")}
+                  {t("tvThemeSelector.save")}
                 </button>
               </div>
               <div className="space-y-2">
@@ -165,7 +165,7 @@ const ThemeSelector = ({ data }) => {
 
             <div className="mt-auto pt-6 border-t border-gray-100">
               <h2 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">
-                {t("qrThemeSelector.device_preview")}
+                {t("tvThemeSelector.device_preview")}
               </h2>
               <div className="flex gap-2">
                 {["screen1", "screen2", "screen3" /* , "monitor" */].map(
@@ -186,7 +186,7 @@ const ThemeSelector = ({ data }) => {
                       {d === "screen3" && <Tablet className="w-4 h-4" />}
                       {/* {d === "monitor" && <Monitor className="w-4 h-4" />} */}
                       <span className="text-[10px] font-bold uppercase">
-                        {t(`qrThemeSelector.${d}`)}
+                        {t(`tvThemeSelector.${d}`)}
                       </span>
                     </button>
                   ),
@@ -198,7 +198,7 @@ const ThemeSelector = ({ data }) => {
               <div className="flex items-center gap-2 text-indigo-700 mb-2">
                 <Globe className="w-4 h-4" />
                 <span className="text-xs font-bold uppercase">
-                  {t("qrThemeSelector.live_url")}
+                  {t("tvThemeSelector.live_url")}
                 </span>
               </div>
               <p className="text-[10px] text-indigo-600 font-mono break-all mb-3 opacity-80">
@@ -210,7 +210,7 @@ const ThemeSelector = ({ data }) => {
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-2 bg-[--white-1] rounded-lg text-xs font-bold text-indigo-600 border border-[--gr-4] hover:bg-[--white-2] transition-colors shadow-sm"
               >
-                {t("qrThemeSelector.open_new_tab")}
+                {t("tvThemeSelector.open_new_tab")}
                 <ExternalLink className="w-3 h-3" />
               </a>
             </div>
@@ -287,7 +287,7 @@ const ThemeSelector = ({ data }) => {
                       <div className="flex flex-col items-center gap-4">
                         <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin" />
                         <p className="text-xs font-bold text-indigo-900/40 uppercase tracking-widest">
-                          {t("qrThemeSelector.loading_theme")}
+                          {t("tvThemeSelector.loading_theme")}
                         </p>
                       </div>
                     </div>
