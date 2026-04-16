@@ -8,20 +8,33 @@ import { useTranslation } from "react-i18next";
 //COMP
 import { googleMap } from "../../utils/utils";
 import CustomInput from "../common/customInput";
-import CustomSelect from "../common/customSelector";
 import CustomTextarea from "../common/customTextarea";
 import CustomFileInput from "../common/customFileInput";
 import CustomPhoneInput from "../common/customPhoneInput";
 
 //REDUX
 import {
-  getLocation,
-  resetGetLocationState,
-} from "../../redux/data/getLocationSlice";
-import {
   updateRestaurant,
   resetUpdateRestaurant,
 } from "../../redux/restaurants/updateRestaurantSlice";
+
+function formatCoordinate(value) {
+  if (value === null || value === undefined || value === "") {
+    return value;
+  }
+
+  const stringValue = String(value);
+  if (stringValue.includes(".")) {
+    return stringValue;
+  }
+
+  const cleanedValue = stringValue.replace(/\D/g, "");
+  if (cleanedValue.length <= 2) {
+    return stringValue;
+  }
+
+  return `${cleanedValue.slice(0, 2)}.${cleanedValue.slice(2)}`;
+}
 
 const EditRestaurant = ({ data: restaurant }) => {
   const { t } = useTranslation();
@@ -55,8 +68,8 @@ const EditRestaurant = ({ data: restaurant }) => {
       userId,
       name,
       phoneNumber,
-      latitude,
-      longitude,
+      latitude: formatCoordinate(latitude),
+      longitude: formatCoordinate(longitude),
       city,
       district,
       neighbourhood,
@@ -75,12 +88,8 @@ const EditRestaurant = ({ data: restaurant }) => {
     (state) => state.data.getLocation,
   );
 
-  const [lat, setLat] = useState(restaurant?.latitude);
-  const [lng, setLng] = useState(restaurant?.longitude);
-  const [locationData, setLocationData] = useState({
-    location: null,
-    before: null,
-  });
+  const [lat, setLat] = useState(formatCoordinate(restaurant.latitude));
+  const [lng, setLng] = useState(formatCoordinate(restaurant.longitude));
   const [document, setDocument] = useState("");
   const [document2, setDocument2] = useState("");
   const [isMapOpen, setIsMapOpen] = useState(false);
@@ -123,7 +132,15 @@ const EditRestaurant = ({ data: restaurant }) => {
 
   async function handleOpenMap() {
     setIsMapOpen(true);
-    googleMap(lat, lng, setLat, setLng, locationData.location);
+    googleMap(
+      formatCoordinate(lat),
+      formatCoordinate(lng),
+      setLat,
+      setLng,
+      null,
+      15,
+      false,
+    );
   }
 
   function handleSetMap() {
@@ -162,54 +179,6 @@ const EditRestaurant = ({ data: restaurant }) => {
     }
   }, [loading, success, error]);
 
-  // SET LOCATION
-  useEffect(() => {
-    if (locationSuccess) {
-      const boundaryCoords = location.boundaryCoords;
-      const averageLat = (
-        boundaryCoords.reduce((sum, loc) => sum + loc.lat, 0) /
-        boundaryCoords.length
-      ).toFixed(6);
-      const averageLng = (
-        boundaryCoords.reduce((sum, loc) => sum + loc.lng, 0) /
-        boundaryCoords.length
-      ).toFixed(6);
-
-      setRestaurantData((prev) => {
-        return {
-          ...prev,
-          latitude: averageLat,
-          longitude: averageLng,
-        };
-      });
-      setLocationData((prev) => {
-        return {
-          ...prev,
-          location: boundaryCoords,
-        };
-      });
-      setLat(averageLat);
-      setLng(averageLng);
-      setRestaurantData((prev) => {
-        return {
-          ...prev,
-          city: location.city,
-          district: location.district,
-          neighbourhood: location.neighborhood,
-          address: location.fullAddress,
-        };
-      });
-      dispatch(resetGetLocationState());
-    }
-  }, [locationSuccess]);
-
-  //SET THE USER LOCATIOn
-  useEffect(() => {
-    if (!lat || !lng) {
-      dispatch(getLocation());
-    }
-  }, [lat, lng]);
-
   //PREVIEW
   useEffect(() => {
     let objectUrl;
@@ -240,7 +209,7 @@ const EditRestaurant = ({ data: restaurant }) => {
     <div className=" w-full pb-8 mt-1 bg-[--white-1] rounded-lg text-[--black-2] text-base overflow-visible relative">
       <div className="flex flex-col bg-[--white-1] px-4 sm:px-14 relative">
         <div
-          className={`absolute bg-black/15 w-full -top-12 -bottom-8 z-[999] rounded-lg flex flex-col justify-start items-center ${
+          className={`fixed bg-[--white-1] border border-[--border-1] w-full top-0 bottom-0 right-0 left-0 max-w-xl max-h-[75dvh] m-auto z-[999] rounded-lg flex flex-col justify-start items-center ${
             !isMapOpen && "hidden"
           }`}
         >

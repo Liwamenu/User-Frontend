@@ -276,7 +276,15 @@ export function groupedLicensePackages(data, active = true) {
 // }
 
 let marker = null;
-export function googleMap(lat, lng, setLat, setLng, boundaryCoords, zoom = 15) {
+export function googleMap(
+  lat,
+  lng,
+  setLat,
+  setLng,
+  boundaryCoords,
+  zoom = 15,
+  checkBoundary = false,
+) {
   const position = {
     lat: parseFloat(lat),
     lng: parseFloat(lng),
@@ -289,27 +297,35 @@ export function googleMap(lat, lng, setLat, setLng, boundaryCoords, zoom = 15) {
     mapId: "VITE_LIWAMENU_MAP_ID",
   });
 
-  // Define the boundary polygon
+  const canUseBoundary =
+    checkBoundary && Array.isArray(boundaryCoords) && boundaryCoords.length > 2;
+
+  // Define and display boundary polygon only when boundary checks are enabled.
   // eslint-disable-next-line no-undef
-  const boundaryPolygon = new google.maps.Polygon({
-    paths: boundaryCoords,
-    strokeColor: "#0B8A00",
-    strokeOpacity: 0.8,
-    strokeWeight: 2,
-    fillColor: "#E9FFEF",
-    fillOpacity: 0.35,
-    clickable: false,
-  });
+  const boundaryPolygon = canUseBoundary
+    ? new google.maps.Polygon({
+        paths: boundaryCoords,
+        strokeColor: "#0B8A00",
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: "#E9FFEF",
+        fillOpacity: 0.35,
+        clickable: false,
+      })
+    : null;
 
-  boundaryPolygon.setMap(map);
+  if (boundaryPolygon) {
+    boundaryPolygon.setMap(map);
+  }
 
-  // Helper function to check if a position is within the allowed bounds
-  // function isPositionWithinBounds(lat, lng) {
-  //   // eslint-disable-next-line no-undef
-  //   const point = new google.maps.LatLng(lat, lng);
-  //   // eslint-disable-next-line no-undef
-  //   return google.maps.geometry.poly.containsLocation(point, boundaryPolygon);
-  // }
+  // Helper function to check if a position is within the allowed bounds.
+  function isPositionWithinBounds(lat, lng) {
+    if (!canUseBoundary) return true;
+    // eslint-disable-next-line no-undef
+    const point = new google.maps.LatLng(lat, lng);
+    // eslint-disable-next-line no-undef
+    return google.maps.geometry.poly.containsLocation(point, boundaryPolygon);
+  }
 
   // Create a marker when the map initially loads
   // eslint-disable-next-line no-undef
@@ -325,8 +341,7 @@ export function googleMap(lat, lng, setLat, setLng, boundaryCoords, zoom = 15) {
     const newLat = e.latLng.lat();
     const newLng = e.latLng.lng();
 
-    // if (isPositionWithinBounds(newLat, newLng)) {
-    if (true) {
+    if (isPositionWithinBounds(newLat, newLng)) {
       setLat(newLat.toFixed(6));
       setLng(newLng.toFixed(6));
       map.panTo({ lat: newLat, lng: newLng });
@@ -341,8 +356,7 @@ export function googleMap(lat, lng, setLat, setLng, boundaryCoords, zoom = 15) {
     const latitude = e.latLng.lat();
     const longitude = e.latLng.lng();
     //console.log(latitude, longitude);
-    // if (isPositionWithinBounds(latitude, longitude)) {
-    if (true) {
+    if (isPositionWithinBounds(latitude, longitude)) {
       if (marker) {
         marker.setMap(null);
       }
