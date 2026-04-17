@@ -107,14 +107,14 @@ const WaiterCallsPage = () => {
                         <div className="flex items-center gap-1.5">
                           <Clock size={14} />
                           <span>
-                            {formatDateString(
-                              call.createdDateTime,
-                              true,
-                              true,
-                              true,
-                              true,
-                              true,
-                            )}
+                            {formatDateString({
+                              dateString: call.createdDateTime,
+                              letDay: true,
+                              letMonth: true,
+                              letYear: true,
+                              hour: true,
+                              min: true,
+                            })}
                           </span>
                           <span className="text-xs opacity-60">
                             ({getTimeAgo(call.createdDateTime)})
