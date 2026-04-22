@@ -117,7 +117,6 @@ const OnlinePayment = ({
       expiryYear: year,
       cvv,
       userAddress: address,
-      userId: id,
     };
 
     if (isPageExtend) {

@@ -85,6 +85,16 @@ const OrdersPage = () => {
     updateStatus(orderId, newStatus);
   };
 
+  function getOrderTypeLabel(orderType) {
+    if (orderType === "InPerson") {
+      return t("orders.order_type_in_person");
+    }
+    if (orderType === "Online") {
+      return t("orders.order_type_online");
+    }
+    return orderType || "-";
+  }
+
   function getDateString(dateString) {
     const date = new Date(dateString);
     const today = new Date();
@@ -108,6 +118,7 @@ const OrdersPage = () => {
       });
     }
   }
+  console.log(ordersData);
 
   return (
     <div className="min-h-screen bg-[--white-2] transition-colors duration-300 lg:ml-[280px] pt-16 flex flex-col">
@@ -167,6 +178,18 @@ const OrdersPage = () => {
                             <CreditCard className="w-3.5 h-3.5" />
                             {order.paymentMethodName}
                           </span>
+                          <span className="flex items-center gap-1">
+                            <ShoppingBag className="w-3.5 h-3.5" />
+                            {getOrderTypeLabel(order.orderType)}
+                          </span>
+                          {order.orderType === "InPerson" &&
+                            order.tableNumber && (
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3.5 h-3.5" />
+                                {t("orders.table_number_label")}{" "}
+                                {order.tableNumber}
+                              </span>
+                            )}
                         </div>
                       </div>
                       <div className="text-right">
@@ -279,6 +302,25 @@ const OrdersPage = () => {
                       {t("orders.customer_information")}
                     </p>
                     <div className="space-y-3 bg-[--gr-4] dark:bg-[--gr-5] p-4 rounded-2xl">
+                      <div className="flex items-center justify-between text-xs border-b border-[--border-1] pb-3">
+                        <p className="opacity-60">
+                          {t("orders.order_type_label")}
+                        </p>
+                        <p className="font-semibold">
+                          {getOrderTypeLabel(selectedOrder.orderType)}
+                        </p>
+                      </div>
+                      {selectedOrder.orderType === "InPerson" &&
+                        selectedOrder.tableNumber && (
+                          <div className="flex items-center justify-between text-xs border-b border-[--border-1] pb-3">
+                            <p className="opacity-60">
+                              {t("orders.table_number_label")}
+                            </p>
+                            <p className="font-semibold">
+                              {selectedOrder.tableNumber}
+                            </p>
+                          </div>
+                        )}
                       <div className="flex items-start gap-3">
                         <User className="w-4 h-4 mt-1 text-[--primary-1]" />
                         <div>
@@ -305,28 +347,53 @@ const OrdersPage = () => {
                     <p className="text-xs font-bold uppercase tracking-widest opacity-50">
                       {t("orders.order_items")}
                     </p>
-                    <div className="space-y-3">
+                    <div className="">
                       {selectedOrder.items.map((item, idx) => (
                         <div
                           key={idx}
                           className="flex justify-between items-start pb-3 border-b border-[--border-1] last:border-0"
                         >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span className="w-6 h-6 rounded-lg bg-[--gr-4] dark:bg-[--gr-5] flex items-center justify-center text-xs font-bold">
-                                {item.quantity}x
-                              </span>
-                              <span className="font-bold">
-                                {item.productName}
-                              </span>
-                              <span className="text-xs opacity-50">
-                                ({item.portionName})
-                              </span>
+                          <div className="w-full">
+                            <div className="flex justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="w-6 h-6 rounded-lg bg-[--gr-4] dark:bg-[--gr-5] flex items-center justify-center text-xs font-bold">
+                                  {item.quantity}x
+                                </span>
+                                <span className="font-bold">
+                                  {item.productName}
+                                </span>
+                                <span className="text-xs opacity-50">
+                                  ({item.portionName})
+                                </span>
+                              </div>
+                              <div>{item.lineTotal.toFixed(2)}</div>
                             </div>
                             {item.selectedTags.map((tag, tIdx) => (
-                              <p key={tIdx} className="text-xs opacity-60 ml-8">
-                                + {tag.itemName}
-                              </p>
+                              <div
+                                key={tIdx}
+                                className="text-xs opacity-60 ml-8 flex items-center justify-between gap-4"
+                              >
+                                <p>
+                                  <span>+ {tag.itemName}</span>
+                                  {tag.quantity > 1 && (
+                                    <>
+                                      <span> x</span>
+                                      <span>{tag.quantity}</span>
+                                    </>
+                                  )}
+                                </p>
+                                {tag.price !== null &&
+                                  tag.price !== undefined &&
+                                  tag.price > 0 && (
+                                    <span className="font-medium text-[--black-1] whitespace-nowrap tabular-nums">
+                                      {(
+                                        Number(tag.price) *
+                                        Number(tag.quantity) *
+                                        Number(item.quantity)
+                                      ).toFixed(2)}
+                                    </span>
+                                  )}
+                              </div>
                             ))}
                             {item.note && (
                               <p className="text-xs italic text-[--primary-1] ml-8">
@@ -334,9 +401,9 @@ const OrdersPage = () => {
                               </p>
                             )}
                           </div>
-                          <span className="font-bold text-sm">
-                            ₺{item.lineTotal.toFixed(2)}
-                          </span>
+                          {/* <span className="font-bold text-sm">
+                            {item.lineTotal.toFixed(2)}
+                          </span> */}
                         </div>
                       ))}
                     </div>

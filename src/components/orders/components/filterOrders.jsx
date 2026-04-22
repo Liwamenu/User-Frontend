@@ -1,19 +1,31 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { usePopup } from "../../../context/PopupContext";
 import { useOrders } from "../../../context/ordersContext";
-import { formatDateString } from "../../../utils/utils";
+import { formatDateString, formatSelectorData } from "../../../utils/utils";
 import { getOrders } from "../../../redux/orders/getOrdersSlice";
+import { getRestaurants } from "../../../redux/restaurants/getRestaurantsSlice";
 import { isEqual } from "lodash";
 import { useTranslation } from "react-i18next";
 import CustomDatePicker from "../../common/customdatePicker";
 import CustomSelect from "../../common/customSelector";
+import CustomInput from "../../common/customInput";
+import OrderTypeEnums from "../../../enums/orderTypeEnums";
 
 const FilterOrders = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const filterOrdersRef = useRef();
   const { contentRef, setContentRef } = usePopup();
+  const { restaurants } = useSelector(
+    (state) => state.restaurants.getRestaurants,
+  );
+
+  const restaurantOptions = [
+    { label: t("orders.all"), value: null },
+    ...formatSelectorData(restaurants?.data || []),
+  ];
 
   const orderFilterDates = [
     { label: t("orders.filter_today"), value: "0", id: 0, show: true },
@@ -58,6 +70,13 @@ const FilterOrders = () => {
           : null,
         endDateTime: filter.endDateTime ? formatDate(filter.endDateTime) : null,
         status: filter.statusId,
+        restaurantId: filter.restaurantId || null,
+        paymentMethodId: filter.paymentMethodId || null,
+        orderType: filter.orderType || null,
+        minTotalAmount:
+          filter.minTotalAmount !== "" ? Number(filter.minTotalAmount) : null,
+        maxTotalAmount:
+          filter.maxTotalAmount !== "" ? Number(filter.maxTotalAmount) : null,
       };
       dispatch(getOrders(filterData));
     } else {
@@ -69,6 +88,13 @@ const FilterOrders = () => {
     setPageNumber(1);
     setOpenFilter(false);
   }
+
+  // FETCH RESTAURANTS ONLY WHEN RESETTED (NULL)
+  useEffect(() => {
+    if (!restaurants) {
+      dispatch(getRestaurants({}));
+    }
+  }, [restaurants]);
 
   //HIDE FILTER
   useEffect(() => {
@@ -118,7 +144,7 @@ const FilterOrders = () => {
                           };
                         });
                       }}
-                      className={`p-2 border border-[--border-1] text-[--gr-1] rounded-md w-40 text-center ${
+                      className={`p-2 border border-[--border-1] text-[--gr-1] rounded-md w-full text-center ${
                         D.id === filter.dateRange &&
                         "text-white bg-[--primary-1]"
                       }`}
@@ -129,14 +155,15 @@ const FilterOrders = () => {
                 ))}
             </div>
 
-            <div className="flex gap-6">
+            <div className="flex gap-2">
               <div>
                 <CustomDatePicker
                   label={t("orders.start_date")}
-                  className="text-sm sm:mt-1 w-36 py-2 sm:py-[0.5rem]"
+                  className="text-sm sm:mt-1 py-2 sm:py-[0.5rem]"
                   style={{ padding: "0 !important" }}
-                  popperClassName="react-datepicker-popper-filter-order-1"
                   value={filter.startDateTime}
+                  dateOnly
+                  calendarClassName=""
                   onChange={(selectedDate) => {
                     setFilter((prev) => {
                       return {
@@ -147,22 +174,16 @@ const FilterOrders = () => {
                     });
                   }}
                 />
-                <style>
-                  {`
-                  .react-datepicker-popper-filter-order-1 {
-                    right: -2rem
-                  }
-                `}
-                </style>
               </div>
 
               <div>
                 <CustomDatePicker
                   label={t("orders.end_date")}
-                  className="text-sm sm:mt-1 w-36 py-2 sm:py-[0.5rem]"
+                  className="text-sm sm:mt-1 py-2 sm:py-[0.5rem]"
                   style={{ padding: "0 !important" }}
-                  popperClassName="react-datepicker-popper-filter-order-2"
                   value={filter.endDateTime}
+                  dateOnly
+                  calendarClassName=""
                   onChange={(selectedDate) => {
                     setFilter((prev) => {
                       return {
@@ -173,24 +194,35 @@ const FilterOrders = () => {
                     });
                   }}
                 />
-                <style>
-                  {`
-                  .react-datepicker-popper-filter-order-2 {
-                    right: -22rem
-                  }
-                `}
-                </style>
               </div>
             </div>
 
-            <div className="flex gap-6">
+            <div className="flex gap-2">
+              <CustomSelect
+                label={t("orders.restaurant_label")}
+                className="text-sm sm:mt-1"
+                className2="sm:mt-3"
+                style={{ padding: "0 !important" }}
+                options={restaurantOptions}
+                value={filter.restaurant}
+                onChange={(selectedOption) => {
+                  setFilter((prev) => {
+                    return {
+                      ...prev,
+                      restaurantId: selectedOption.value,
+                      restaurant: selectedOption,
+                    };
+                  });
+                }}
+              />
+
               <CustomSelect
                 label={t("orders.status_label")}
                 className="text-sm sm:mt-1"
                 className2="sm:mt-3"
                 style={{ padding: "0 !important" }}
                 options={[
-                  { label: t("orders.status_all"), value: null },
+                  { label: t("orders.all"), value: null },
                   { label: t("orders.status_pending"), value: "Pending" },
                   { label: t("orders.status_accepted"), value: "Accepted" },
                   { label: t("orders.status_on_the_way"), value: "OnTheWay" },
@@ -208,26 +240,83 @@ const FilterOrders = () => {
                   });
                 }}
               />
+            </div>
+
+            <div className="flex gap-2">
               {/* <CustomSelect
-                label="Pazaryeri"
+                label={t("orders.payment_method_label", "Payment Method")}
                 className="text-sm sm:mt-1"
                 className2="sm:mt-3"
                 style={{ padding: "0 !important" }}
                 options={[
-                  { value: null, label: "Hepsi", id: null },
-                  ...filteredMarketplaces,
+                  { value: null, label: t("orders.status_all") },
+                  ...PaymentMethod,
                 ]}
-                value={filter.marketplace}
+                value={filter.paymentMethod}
                 onChange={(selectedOption) => {
                   setFilter((prev) => {
                     return {
                       ...prev,
-                      marketplaceId: selectedOption.id,
-                      marketplace: selectedOption,
+                      paymentMethodId: selectedOption.value,
+                      paymentMethod: selectedOption,
                     };
                   });
                 }}
               /> */}
+
+              <CustomSelect
+                label={t("orders.order_type_label", "Order Type")}
+                className="text-sm sm:mt-1"
+                className2="sm:mt-3"
+                style={{ padding: "0 !important" }}
+                options={[
+                  { value: null, label: t("orders.all") },
+                  ...OrderTypeEnums,
+                ]}
+                value={filter.orderTypeOption}
+                onChange={(selectedOption) => {
+                  setFilter((prev) => {
+                    return {
+                      ...prev,
+                      orderType: selectedOption.value,
+                      orderTypeOption: selectedOption,
+                    };
+                  });
+                }}
+              />
+
+              <CustomInput
+                type="number"
+                label={t("orders.min_total_amount_label", "Min Total")}
+                className="text-sm sm:mt-1 py-[0.5rem]"
+                className2="sm:mt-3"
+                value={filter.minTotalAmount}
+                onChange={(e) => {
+                  setFilter((prev) => {
+                    return {
+                      ...prev,
+                      minTotalAmount: e,
+                    };
+                  });
+                }}
+              />
+            </div>
+            <div className="flex gap-6 w-1/2">
+              <CustomInput
+                type="number"
+                label={t("orders.max_total_amount_label", "Max Total")}
+                className="text-sm sm:mt-1 py-[0.5rem]"
+                className2="sm:mt-3"
+                value={filter.maxTotalAmount}
+                onChange={(e) => {
+                  setFilter((prev) => {
+                    return {
+                      ...prev,
+                      maxTotalAmount: e,
+                    };
+                  });
+                }}
+              />
             </div>
 
             <div className="w-full flex gap-2 justify-center pt-10">

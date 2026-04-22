@@ -8,13 +8,21 @@ import { useFirebase } from "./firebase";
 import newOrderEnSound from "../assets/sounds/orders/newOrder-EN.mp3";
 import newOrderTrSound from "../assets/sounds/orders/newOrder-TR.mp3";
 
+const { t } = i18n;
 export const filterInitialState = {
   dateRange: 0,
   startDateTime: "",
   endDateTime: "",
   statusId: "",
-  status: { label: "Hepsi", value: null },
-  restaurant: { label: "Tümü", value: null },
+  status: { label: t("orders.all"), value: null },
+  restaurantId: "",
+  restaurant: { label: t("orders.all"), value: null },
+  paymentMethodId: "",
+  paymentMethod: { label: t("orders.all"), value: null },
+  orderType: "",
+  orderTypeOption: { label: t("orders.all"), value: null },
+  minTotalAmount: "",
+  maxTotalAmount: "",
 };
 
 const OrdersContext = createContext();
@@ -207,6 +215,13 @@ export const OrdersProvider = ({ children }) => {
           : null,
         endDateTime: filter.endDateTime ? formatDate(filter.endDateTime) : null,
         status: filter.statusId,
+        restaurantId: filter.restaurantId || null,
+        paymentMethodId: filter.paymentMethodId || null,
+        orderType: filter.orderType || null,
+        minTotalAmount:
+          filter.minTotalAmount !== "" ? Number(filter.minTotalAmount) : null,
+        maxTotalAmount:
+          filter.maxTotalAmount !== "" ? Number(filter.maxTotalAmount) : null,
       }),
     );
   };
@@ -222,6 +237,13 @@ export const OrdersProvider = ({ children }) => {
           : null,
         endDateTime: filter.endDateTime ? formatDate(filter.endDateTime) : null,
         status: filter.statusId,
+        restaurantId: filter.restaurantId || null,
+        paymentMethodId: filter.paymentMethodId || null,
+        orderType: filter.orderType || null,
+        minTotalAmount:
+          filter.minTotalAmount !== "" ? Number(filter.minTotalAmount) : null,
+        maxTotalAmount:
+          filter.maxTotalAmount !== "" ? Number(filter.maxTotalAmount) : null,
       }),
     );
 

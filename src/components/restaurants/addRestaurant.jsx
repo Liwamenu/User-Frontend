@@ -77,7 +77,7 @@ function AddRestaurantPopup({ onSuccess }) {
   const [preview2, setPreview2] = useState();
   const [restaurantData, setRestaurantData] = useState({
     name: "",
-    phoneNumber: "",
+    phoneNumber: "+90",
     latitude: "",
     longitude: "",
     city: "",

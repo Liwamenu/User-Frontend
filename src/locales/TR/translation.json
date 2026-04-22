@@ -629,7 +629,6 @@
     "select_order": "Detayları görüntülemek için bir sipariş seçin",
     "realtime_updates": "Gerçek zamanlı güncellemeler burada görünecek",
     "status_label": "Durum",
-    "status_all": "Hepsi",
     "status_pending": "Bekliyor",
     "status_accepted": "Onaylandı",
     "status_preparing": "Hazırlanıyor",
@@ -651,7 +650,13 @@
     "clear": "Temizle",
     "apply": "Uygula",
     "customer_note": "Müşteri Notu",
-    "delivery_fee": "Teslimat Ücreti"
+    "delivery_fee": "Teslimat Ücreti",
+    "order_type_label": "Sipariş Tipi",
+    "order_type_online": "Online",
+    "order_type_in_person": "Masa Servisi",
+    "table_number_label": "Masa",
+    "restaurant_label": "Restoran",
+    "all": "Tümü"
   },
   "waiterCalls": {
     "title": "Garson Çağrı Listesi",

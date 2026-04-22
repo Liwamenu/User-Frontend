@@ -628,7 +628,6 @@
     "select_order": "Select an order to view details",
     "realtime_updates": "Real-time updates will appear here",
     "status_label": "Status",
-    "status_all": "All",
     "status_pending": "Pending",
     "status_accepted": "Accepted",
     "status_preparing": "Preparing",
@@ -650,7 +649,13 @@
     "clear": "Clear",
     "apply": "Apply",
     "customer_note": "Customer Note",
-    "delivery_fee": "Delivery Fee"
+    "delivery_fee": "Delivery Fee",
+    "order_type_label": "Order Type",
+    "order_type_online": "Online",
+    "order_type_in_person": "In Person",
+    "table_number_label": "Table",
+    "restaurant_label": "Restaurant",
+    "all": "All"
   },
   "waiterCalls": {
     "title": "Waiter Call Lists",

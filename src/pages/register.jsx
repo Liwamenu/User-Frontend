@@ -48,7 +48,7 @@ const Register = () => {
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("+90");
   const [email, setEmail] = useState("");
   const [city, setCity] = useState(null);
   const [district, setDistrict] = useState(null);
@@ -450,8 +450,15 @@ function CheckEmail({ email }) {
         </div>
 
         <div className="flex flex-col mt-10 w-full">
-          <div className="shrink-0 h-px bg-slate-200 w-full mt-24" />
+          <div className="shrink-0 h-px bg-slate-200 w-full" />
         </div>
+
+        <a
+          href="/login"
+          className="w-full text-center py-2 px-6 rounded-lg bg-[--primary-1] text-white hover:opacity-90 mt-10"
+        >
+          {t("login")}
+        </a>
       </div>
     </div>
   );
