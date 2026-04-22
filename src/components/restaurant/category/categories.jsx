@@ -108,6 +108,8 @@ const Categories = ({ data: restaurant }) => {
   };
 
   const handleAddCategory = (category) => {
+    setCategoriesData(null); // Show loading state
+    return;
     const newCategories = [
       ...(categoriesData || []),
       {

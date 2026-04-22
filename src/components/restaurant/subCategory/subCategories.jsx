@@ -269,6 +269,8 @@ const SubCategories = ({ data: restaurant }) => {
   };
 
   const handleAddSubCategory = (subCategory) => {
+    setSubCategoriesData(null); // Clear to trigger loading state if needed
+    return;
     const updatedGroups =
       subCategoriesData?.length > 0 &&
       subCategoriesData.map((group) => {
