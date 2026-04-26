@@ -12,7 +12,7 @@ import Popup from "./components/common/popup";
 // import PrivacyPolicy from "./pages/privacyPolicy";
 import ProtectedRoute from "./components/protect";
 import VerifyEmail from "./pages/verifyEmail";
-// import SetNewPassword from "./pages/setNewPassword";
+import SetNewPassword from "./pages/setNewPassword";
 import ForgotPassword from "./pages/forgotPassword";
 // import PaymentSuccess from "./pages/paymentSuccess";
 // import SlideBar from "./components/common/slideBar";
@@ -32,8 +32,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/verify-email/*" element={<VerifyEmail />} />
         <Route path="/forgotPassword" element={<ForgotPassword />} />
-        {/*  <Route path="/setNewPassword" element={<SetNewPassword />} />
-          <Route path="/verify" element={<Verify />} />
+        <Route path="/reset-password" element={<SetNewPassword />} />
+        {/*  <Route path="/verify" element={<Verify />} />
           <Route path="/privacyPolicy" element={<PrivacyPolicy />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} /> */}

@@ -1,6 +1,12 @@
+import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
+
 const AddLicense = ({ user, restaurant, licenses }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -14,11 +20,14 @@ const AddLicense = ({ user, restaurant, licenses }) => {
 
   return (
     <button
-      className="h-11 whitespace-nowrap text-[--primary-2] px-3 rounded-md text-sm font-normal border-[1.5px] border-solid border-[--primary-2]"
+      type="button"
       onClick={handleClick}
       disabled={!licenses}
+      className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl text-white text-sm font-semibold shadow-md shadow-indigo-500/20 transition hover:shadow-indigo-500/30 hover:brightness-110 active:brightness-95 whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+      style={{ background: PRIMARY_GRADIENT }}
     >
-      Lisans Ekle
+      <Plus className="size-4" strokeWidth={2.5} />
+      {t("licenses.add")}
     </button>
   );
 };

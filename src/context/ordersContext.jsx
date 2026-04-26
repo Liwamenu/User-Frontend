@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import i18n from "../config/i18n";
 import { formatDate } from "../utils/utils";
@@ -15,8 +22,8 @@ export const filterInitialState = {
   endDateTime: "",
   statusId: "",
   status: { label: t("orders.all"), value: null },
-  restaurantId: "",
-  restaurant: { label: t("orders.all"), value: null },
+  restaurantIds: [],
+  restaurants: [],
   paymentMethodId: "",
   paymentMethod: { label: t("orders.all"), value: null },
   orderType: "",
@@ -51,6 +58,12 @@ export const OrdersProvider = ({ children }) => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [filter, setFilter] = useState(filterInitialState);
   const [pageSize, setPageSize] = useState(localItemsPerPage);
+
+  // Always-current snapshot of filter for push handler (avoids stale closures)
+  const filterRef = useRef(filter);
+  useEffect(() => {
+    filterRef.current = filter;
+  }, [filter]);
 
   const { orders, error } = useSelector((s) => s.orders.get);
 
@@ -160,6 +173,17 @@ export const OrdersProvider = ({ children }) => {
       (orderId && !newStatus);
 
     if (incomingOrder && incomingOrderId) {
+      // Restaurant filter: ignore pushes for restaurants not in active filter
+      const activeRestaurantIds = filterRef.current?.restaurantIds || [];
+      const incomingRestaurantId =
+        incomingOrder.restaurantId || incomingOrder.RestaurantId;
+      const passesRestaurantFilter =
+        activeRestaurantIds.length === 0 ||
+        !incomingRestaurantId ||
+        activeRestaurantIds.includes(incomingRestaurantId);
+
+      if (!passesRestaurantFilter) return;
+
       setOrdersData((prev) => {
         const existingIndex = prev.findIndex(
           (o) => (o.id || o.Id || o.orderId || o.OrderId) === incomingOrderId,
@@ -215,7 +239,9 @@ export const OrdersProvider = ({ children }) => {
           : null,
         endDateTime: filter.endDateTime ? formatDate(filter.endDateTime) : null,
         status: filter.statusId,
-        restaurantId: filter.restaurantId || null,
+        restaurantIds: filter.restaurantIds?.length
+          ? filter.restaurantIds
+          : null,
         paymentMethodId: filter.paymentMethodId || null,
         orderType: filter.orderType || null,
         minTotalAmount:
@@ -237,7 +263,9 @@ export const OrdersProvider = ({ children }) => {
           : null,
         endDateTime: filter.endDateTime ? formatDate(filter.endDateTime) : null,
         status: filter.statusId,
-        restaurantId: filter.restaurantId || null,
+        restaurantIds: filter.restaurantIds?.length
+          ? filter.restaurantIds
+          : null,
         paymentMethodId: filter.paymentMethodId || null,
         orderType: filter.orderType || null,
         minTotalAmount:

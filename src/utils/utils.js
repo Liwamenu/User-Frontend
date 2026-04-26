@@ -163,6 +163,75 @@ export function formatEmail(email) {
   return formattedEmail;
 }
 
+export function toNameCase(value) {
+  if (!value) return value;
+  return value.replace(
+    /(^|[\s\-'])(\p{L})/gu,
+    (_, sep, ch) => sep + ch.toLocaleUpperCase("tr"),
+  );
+}
+
+const COMMON_EMAIL_DOMAINS = [
+  "gmail.com",
+  "googlemail.com",
+  "hotmail.com",
+  "outlook.com",
+  "live.com",
+  "yahoo.com",
+  "icloud.com",
+  "me.com",
+  "yandex.com",
+  "yandex.com.tr",
+  "mail.com",
+  "protonmail.com",
+  "proton.me",
+  "aol.com",
+];
+
+function levenshtein(a, b) {
+  const m = a.length;
+  const n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  let prev = new Array(n + 1);
+  let curr = new Array(n + 1);
+  for (let j = 0; j <= n; j++) prev[j] = j;
+  for (let i = 1; i <= m; i++) {
+    curr[0] = i;
+    for (let j = 1; j <= n; j++) {
+      const cost = a.charCodeAt(i - 1) === b.charCodeAt(j - 1) ? 0 : 1;
+      curr[j] = Math.min(curr[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+    }
+    [prev, curr] = [curr, prev];
+  }
+  return prev[n];
+}
+
+export function suggestEmailDomain(email) {
+  if (!email || typeof email !== "string") return null;
+  const at = email.lastIndexOf("@");
+  if (at < 1 || at === email.length - 1) return null;
+  const local = email.slice(0, at);
+  const domain = email.slice(at + 1).toLowerCase();
+  if (domain.length < 3 || !domain.includes(".")) return null;
+  if (COMMON_EMAIL_DOMAINS.includes(domain)) return null;
+
+  let best = null;
+  let bestDist = Infinity;
+  for (const d of COMMON_EMAIL_DOMAINS) {
+    const dist = levenshtein(domain, d);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = d;
+    }
+  }
+  // Suggest when 1-2 edits away (typo) but not 0 (already correct, handled above)
+  if (best && bestDist >= 1 && bestDist <= 2) {
+    return `${local}@${best}`;
+  }
+  return null;
+}
+
 export const formatSelectorData = (
   data,
   withPhoneNumber = false,

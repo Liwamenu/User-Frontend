@@ -1,3 +1,4 @@
+import "./bootstrap/handoffAuth.js";
 import "./index.css";
 import App from "./App.jsx";
 import { Toaster } from "react-hot-toast";

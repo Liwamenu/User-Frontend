@@ -1,20 +1,14 @@
-const StepFrame = ({ step, steps, component, percent, measure }) => {
-  const stepsArray = Array.from({ length: steps }, (_, index) => index + 1);
-
-  return stepsArray.map((num, index) => (
+const StepFrame = ({ step, component }) => {
+  // Render all steps but only show the active one — content flows naturally,
+  // so the page grows with content instead of scrolling inside a fixed box.
+  return component.map((c, i) => (
     <div
-      key={num}
-      className={`absolute left-1 right-1 top-1 bottom-1 transition-transform duration-500 ease-in-out ${
-        step === num ? "opacity-100" : "opacity-0"
+      key={i}
+      className={`transition-opacity duration-300 ${
+        step === i + 1 ? "block opacity-100" : "hidden opacity-0"
       }`}
-      style={{
-        transform:
-          step === num
-            ? "translateX(0)"
-            : `translateX(${(num - step) * percent}${measure})`,
-      }}
     >
-      {component[index]}
+      {c}
     </div>
   ));
 };

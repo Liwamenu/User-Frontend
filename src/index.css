@@ -173,6 +173,40 @@ body {
   overflow-x: hidden;
   font-family: "Lexend Deca", sans-serif;
 }
+
+/* Sidebar item entrance animation — staggered slide-in */
+@keyframes sidebar-item-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Sidebar active accent bar grow-in */
+@keyframes sidebar-accent-in {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* Sidebar logo subtle pulse-in on mount */
+@keyframes sidebar-logo-in {
+  from {
+    opacity: 0;
+    letter-spacing: -0.05em;
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0;
+  }
+}
 /* Chrome, Safari, Edge, Opera */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
@@ -324,6 +358,53 @@ input[type="number"] {
 
 .react-tel-input .flag-dropdown.open .selected-flag {
   background-color: var(--light-3) !important;
+}
+
+/* Auth phone input — scoped overrides, theme-aware via CSS vars */
+.auth-phone-field .react-tel-input .form-control {
+  width: 100% !important;
+  height: 3rem !important;
+  padding-left: 3.25rem !important;
+  padding-right: 1rem !important;
+  border-radius: 0.75rem !important;
+  border: 1px solid var(--border-1) !important;
+  background: var(--white-1) !important;
+  color: var(--black-1) !important;
+  font-family: "Lexend Deca", sans-serif !important;
+  font-size: 0.95rem !important;
+  font-weight: 400 !important;
+  outline: none !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+.auth-phone-field .react-tel-input .form-control:focus {
+  border-color: var(--primary-1) !important;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.18) !important;
+}
+.auth-phone-field .react-tel-input .form-control::placeholder {
+  color: var(--gr-1) !important;
+  opacity: 0.7;
+}
+.auth-phone-field .react-tel-input .flag-dropdown {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0.75rem 0 0 0.75rem !important;
+}
+.auth-phone-field .react-tel-input .selected-flag {
+  background: transparent !important;
+  border-radius: 0.75rem 0 0 0.75rem !important;
+  width: 2.75rem !important;
+  padding-left: 0.875rem !important;
+}
+.auth-phone-field .react-tel-input .selected-flag:hover,
+.auth-phone-field .react-tel-input .flag-dropdown.open .selected-flag {
+  background: var(--white-2) !important;
+}
+.auth-phone-field .react-tel-input .country-list {
+  background: var(--white-1) !important;
+  color: var(--black-1) !important;
+  border-radius: 0.75rem !important;
+  margin-top: 0.5rem !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25) !important;
 }
 .react-tel-input .country-list {
   background-color: var(--white-2) !important;

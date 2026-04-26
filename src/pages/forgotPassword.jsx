@@ -1,9 +1,10 @@
 //MODULES
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+import { ArrowLeft, ArrowRight, Inbox, Mail, MailCheck } from "lucide-react";
 
 //REDUX
 import {
@@ -13,15 +14,15 @@ import {
 
 //COMP
 import LoadingI from "../assets/anim/loading";
-import VerifyCode from "../components/common/verifyCode";
-import GlassFrame from "../components/common/glassFrame";
-import CustomInput from "../components/common/customInput";
-import CustomCheckbox from "../components/common/customCheckbox";
-import CustomPhoneInput from "../components/common/customPhoneInput";
+import AuthShell from "../components/auth/AuthShell";
+import AuthField from "../components/auth/AuthField";
+
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
+const RESEND_COOLDOWN = 60;
 
 const ForgotPassword = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { t } = useTranslation();
 
   const { success, loading, error } = useSelector(
@@ -29,27 +30,18 @@ const ForgotPassword = () => {
   );
 
   const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [checked, setChecked] = useState(false); //it was true before
-  const [checked2, setChecked2] = useState(false);
-  const [toVerify, setToVerify] = useState(false);
+  const [sent, setSent] = useState(false);
 
-  const sendCode = (e) => {
+  const sendLink = (e) => {
     e?.preventDefault();
-    // if (checked && phoneNumber) {
-    //   dispatch(
-    //     forgotPassword({ toAddress: phoneNumber.slice(1), isEmail: false })
-    //   );
-    // } else if (email) {
-    // }
-    dispatch(forgotPassword({ toAddress: email, isEmail: true }));
+    dispatch(forgotPassword({ toAddress: email }));
   };
 
   useEffect(() => {
     if (success) {
-      setToVerify(true);
+      setSent(true);
       dispatch(resetForgotPassword());
-      toast.success(t("forgotPassword.code_sent"));
+      toast.success(t("forgotPassword.link_sent"));
     }
     if (error) {
       toast.error(error.message);
@@ -57,106 +49,147 @@ const ForgotPassword = () => {
     }
   }, [success, error, dispatch, t]);
 
+  if (sent) {
+    return (
+      <AuthShell>
+        <EmailSentStep
+          email={email}
+          loading={loading}
+          onResend={() => sendLink()}
+          onBack={() => setSent(false)}
+        />
+      </AuthShell>
+    );
+  }
+
   return (
-    <GlassFrame
-      className="pt-[4rem]"
-      component={
-        !toVerify ? (
-          /* Send code via Email or PhoneNumber */
-          <form className="flex flex-col w-full light" onSubmit={sendCode}>
-            <div className="flex justify-center relative">
-              <div className="w-max">
-                <h2 className="text-[2.3rem] font-bold text-[--white-1] tracking-tighter">
-                  {t("forgotPassword.title")}
-                </h2>
-              </div>
-            </div>
-            {/* <div className="w-full flex justify-center gap-4 mt-16">
-              <CustomCheckbox
-                checked={checked}
-                onChange={() => {
-                  setChecked(!checked);
-                  setChecked2(checked);
-                }}
-                label="SMS ile gönder"
-                className2="whitespace-nowrap"
-              />
-              <CustomCheckbox
-                checked={checked2}
-                onChange={() => {
-                  setChecked2(!checked2);
-                  setChecked(checked2);
-                }}
-                label="E-Posta ile gönder"
-                className2="whitespace-nowrap"
-              />
-            </div> */}
-            <div className="flex flex-col max-w-full">
-              {checked ? (
-                <CustomPhoneInput
-                  label={t("forgotPassword.phone_label")}
-                  placeholder={t("forgotPassword.phone_placeholder")}
-                  value={phoneNumber}
-                  onChange={(phone) => setPhoneNumber(phone)}
-                  className="py-2 bg-transparent text-[var(--white-1)]"
-                  className5="text-[var(--white-1)]"
-                />
-              ) : (
-                <CustomInput
-                  label={t("forgotPassword.email_label")}
-                  type="email"
-                  name="email"
-                  placeholder={t("forgotPassword.email_placeholder")}
-                  value={email}
-                  onChange={(e) => setEmail(e)}
-                  required={true}
-                  className="py-2 bg-transparent text-[var(--white-1)]"
-                  className5="text-[var(--white-1)]"
-                />
-              )}
-              <div className="flex flex-col w-full">
-                <div className="font-[300] text-[--link-1] mt-5 text-sm">
-                  <p>{t("forgotPassword.help_text")}</p>
-                </div>
-                <button
-                  disabled={loading}
-                  type="submit"
-                  className="flex justify-center px-7 py-2 mt-5 text-lg rounded-md bg-[--primary-1] text-white hover:opacity-90 disabled:opacity-90 disabled:cursor-not-allowed"
-                >
-                  {loading ? (
-                    <LoadingI className="h-7" />
-                  ) : (
-                    t("forgotPassword.send")
-                  )}
-                </button>
-                {/* <div className="shrink-0 mt-5 h-px bg-slate-200 w-full" /> */}
-              </div>
-            </div>
-            <div className="flex flex-col mt-10 w-full">
-              <div className="text-sm leading-5 text-[--link-1] w-full text-center">
-                {/* <p>Zaten Hesabınız var mı ?</p> */}
-              </div>
-              <button
-                type="button"
-                onClick={() => (window.location.href = "/login")}
-                className="px-7 py-2 text-xl rounded-md border border-solid border-[--gr-1] mt-5 text-center text-white"
-              >
-                {t("forgotPassword.back_to_login")}
-              </button>
-            </div>
-          </form>
-        ) : (
-          /* Verify the code */
-          <VerifyCode
-            setToConfirm={setToVerify}
-            phoneNumber={checked ? phoneNumber : email}
-            onSuccess={() => navigate("/setNewPassword")}
-            reSend={() => sendCode()}
-          />
-        )
+    <AuthShell
+      title={t("forgotPassword.title")}
+      subtitle={t("forgotPassword.subtitle")}
+      formFooter={
+        <Link
+          to="/login"
+          className="inline-flex items-center gap-1.5 font-semibold text-[--primary-1] hover:underline"
+        >
+          <ArrowLeft className="size-3.5" />
+          {t("forgotPassword.back_to_login")}
+        </Link>
       }
-    />
+    >
+      <form onSubmit={sendLink} className="space-y-4" noValidate>
+        <AuthField
+          id="email"
+          label={t("forgotPassword.email_label")}
+          icon={Mail}
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          placeholder={t("forgotPassword.email_placeholder")}
+          autoComplete="email"
+        />
+
+        <p className="text-xs text-slate-500 leading-relaxed">
+          {t("forgotPassword.help_text")}
+        </p>
+
+        <button
+          type="submit"
+          disabled={loading || !email}
+          className="group w-full h-12 inline-flex items-center justify-center gap-2 rounded-xl text-white text-base font-semibold shadow-lg shadow-indigo-500/25 transition-all hover:shadow-indigo-500/40 hover:brightness-110 active:brightness-95 disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+          style={{ background: PRIMARY_GRADIENT }}
+        >
+          {loading ? (
+            <LoadingI className="size-5 text-white fill-white/40" />
+          ) : (
+            <>
+              {t("forgotPassword.send")}
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+            </>
+          )}
+        </button>
+      </form>
+    </AuthShell>
   );
 };
 
 export default ForgotPassword;
+
+// ----- Email-sent step -----
+
+const EmailSentStep = ({ email, loading, onResend, onBack }) => {
+  const { t } = useTranslation();
+  const [cooldown, setCooldown] = useState(RESEND_COOLDOWN);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = setInterval(() => {
+      setCooldown((c) => Math.max(0, c - 1));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [cooldown <= 0]);
+
+  const handleResend = () => {
+    if (cooldown > 0 || loading) return;
+    onResend();
+    setCooldown(RESEND_COOLDOWN);
+  };
+
+  return (
+    <div className="text-center">
+      <div className="grid place-items-center size-16 rounded-full bg-indigo-50 text-[--primary-1] mx-auto mb-6">
+        <MailCheck className="size-8" />
+      </div>
+
+      <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">
+        {t("forgotPassword.email_sent_title")}
+      </h2>
+
+      <p className="text-sm text-slate-600 leading-relaxed">
+        <span className="font-semibold text-[--primary-1] break-all">
+          {email}
+        </span>{" "}
+        {t("forgotPassword.email_sent_message")}
+      </p>
+
+      <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4 flex gap-3 text-left">
+        <Inbox className="size-5 text-[--primary-1] shrink-0 mt-0.5" />
+        <div className="space-y-1.5 min-w-0">
+          <p className="text-sm text-slate-700 font-medium leading-snug">
+            {t("forgotPassword.email_sent_instruction")}
+          </p>
+          <p className="text-xs text-slate-500 leading-snug">
+            {t("forgotPassword.spam_hint")}
+          </p>
+        </div>
+      </div>
+
+      <p className="mt-6 text-sm text-slate-500">
+        {t("forgotPassword.didnt_receive")}{" "}
+        {cooldown > 0 ? (
+          <span className="text-slate-400">
+            {t("forgotPassword.resend_in", { seconds: cooldown })}
+          </span>
+        ) : (
+          <button
+            type="button"
+            disabled={loading}
+            onClick={handleResend}
+            className="font-semibold text-[--primary-1] hover:underline disabled:text-slate-400 disabled:no-underline disabled:cursor-not-allowed"
+          >
+            {t("forgotPassword.resend")}
+          </button>
+        )}
+      </p>
+
+      <button
+        type="button"
+        onClick={onBack}
+        className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-900 transition"
+      >
+        <ArrowLeft className="size-3.5" />
+        {t("forgotPassword.change_email")}
+      </button>
+    </div>
+  );
+};

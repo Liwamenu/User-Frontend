@@ -23,16 +23,17 @@ const GlassFrame = ({ component, className, className2 }) => {
 
   useEffect(() => {
     const savedLang = localStorage.getItem(LANG_STORAGE_KEY);
-    const fallbackLang = LanguagesEnums?.[0]?.value ?? "0";
-    const nextLang = savedLang || fallbackLang;
-    const matched = LanguagesEnums.find((lang) => lang.value === nextLang);
-
-    if (matched) {
-      setSelectedLang(matched.value);
-      i18n.changeLanguage(matched.id.toLowerCase());
-    } else {
-      setSelectedLang(fallbackLang);
+    let matched = savedLang
+      ? LanguagesEnums.find((lang) => lang.value === savedLang)
+      : null;
+    if (!matched) {
+      const currentIso = i18n.language?.split("-")[0]?.toLowerCase();
+      matched =
+        LanguagesEnums.find((lang) => lang.id === currentIso) ||
+        LanguagesEnums[0];
     }
+    setSelectedLang(matched.value);
+    i18n.changeLanguage(matched.id.toLowerCase());
   }, []);
 
   // Close dropdown on outside click

@@ -1,13 +1,25 @@
 //MODULES
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import React, { useEffect, useState } from "react";
-
-//COMP
-import BackButton from "../stepsAssets/backButton";
-import ForwardButton from "../stepsAssets/forwardButton";
+import { useTranslation } from "react-i18next";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Building,
+  CreditCard,
+  Landmark,
+  ShoppingCart,
+  Sparkles,
+  Store,
+  Wallet,
+} from "lucide-react";
 
 //FUNC
 import { formatToPrice, groupedLicensePackages } from "../../../utils/utils";
+import { getLicenseTypeLabel } from "../../../enums/licenseTypeEnums";
+
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
 
 const SecondStep = ({
   step,
@@ -16,6 +28,7 @@ const SecondStep = ({
   paymentMethod,
   setPaymentMethod,
 }) => {
+  const { t } = useTranslation();
   const cartItems = useSelector((state) => state.cart.items);
   const [licensePackagesData, setLicensePackagesData] = useState();
 
@@ -36,131 +49,189 @@ const SecondStep = ({
     }
   }, [step]);
 
+  const total = cartItems.reduce(
+    (acc, item) => acc + parseFloat(item.price),
+    0,
+  );
+
+  const methodMeta = {
+    onlinePayment: {
+      icon: CreditCard,
+      title: t("addLicense.online_payment"),
+      desc: t("addLicense.online_payment_desc"),
+    },
+    bankPayment: {
+      icon: Landmark,
+      title: t("addLicense.bank_payment"),
+      desc: t("addLicense.bank_payment_desc"),
+    },
+  };
+
   return (
-    step === 2 && (
-      <form
-        onSubmit={handleSubmit}
-        className="min-h-full flex flex-col justify-between overflow-y-autoo"
-      >
-        <div className="w-full px-4 min-h-max">
-          <div className="w-full flex justify-center pt-2">
-            <div>
-              <p className="text-center py-2">Ödeme Yontemı Seç</p>
-              <div className="flex gap-2">
-                {paymentMethod.options.map((option) => (
-                  <button
-                    type="button"
-                    key={option.value}
-                    onClick={() => {
-                      setPaymentMethod((prev) => {
-                        return {
-                          ...prev,
-                          selectedOption: option,
-                        };
-                      });
-                      option.id == 0 ? setSteps(6) : setSteps(6);
-                    }}
-                    className={`py-2.5 px-2  text-white text-sm rounded-md ${
-                      option.value === paymentMethod.selectedOption.value
-                        ? "bg-[--green-1]"
-                        : "bg-[--status-primary-1]"
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+    <form onSubmit={handleSubmit} className="flex flex-col">
+      <div className="px-4 sm:px-5 pt-5 pb-4 space-y-5">
+        {/* PAYMENT METHOD SELECTION */}
+        <div>
+          <div className="mb-3">
+            <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[--gr-1]">
+              <Wallet className="size-3.5" />
+              {t("addLicense.payment_method")}
+            </label>
+            <p className="mt-1 text-xs text-[--gr-1]">
+              {t("addLicense.payment_method_subtitle")}
+            </p>
           </div>
-
-          <main className="w-max mt-16 flex flex-col gap-1">
-            {licensePackagesData &&
-              licensePackagesData.map((licensePkg, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-8 even:bg-[--white-1] odd:bg-[--table-odd] relative"
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {paymentMethod.options.map((option) => {
+              const meta = methodMeta[option.value] || {
+                icon: Wallet,
+                title: option.label,
+                desc: "",
+              };
+              const Icon = meta.icon;
+              const isSelected =
+                option.value === paymentMethod.selectedOption.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    setPaymentMethod((prev) => ({
+                      ...prev,
+                      selectedOption: option,
+                    }));
+                    setSteps(6);
+                  }}
+                  className={`relative text-left p-4 rounded-xl border-2 transition-all ${
+                    isSelected
+                      ? "border-[--primary-1] bg-[--primary-1]/5 ring-2 ring-[--primary-1]/30"
+                      : "border-[--border-1] bg-[--white-1] hover:border-[--primary-1]/50 hover:shadow-sm"
+                  }`}
                 >
-                  <div className="flex gap-4 py-1">
-                    {licensePkg.map((pkg) => {
-                      const isSelected = true;
-
-                      return (
-                        <React.Fragment key={pkg.restaurantId}>
-                          <div className="flex flex-col items-center text-center text-white text-[12px] leading-snug relative">
-                            {i === 0 && (
-                              <p className="absolute -top-6 left-0 right-0 text-sm">
-                                Restoran Adı
-                              </p>
-                            )}
-                            <p className="text-[8px] whitespace-nowrap">
-                              {pkg.restaurantName}
-                            </p>
-                            <div
-                              className={`py-1 px-6 rounded w-28 ${
-                                isSelected
-                                  ? "bg-[--primary-1]"
-                                  : "bg-[--light-3]"
-                              }`}
-                            >
-                              <p className="whitespace-nowrap">
-                                {pkg.time} Yıllık
-                              </p>
-                              <p className={`text-sm whitespace-nowrap`}>
-                                {pkg.price} ₺
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex gap-8 py-1">
-                            <div className="text-center flex flex-col justify-center px-3 relative">
-                              {i === 0 && (
-                                <p className="absolute -top-8 left-0 right-0">
-                                  Toplam
-                                </p>
-                              )}
-                              <p className="font-normal">
-                                {formatToPrice(
-                                  String(pkg.price.toFixed(2))
-                                    .replace(".", "d")
-                                    .replace(",", ".")
-                                    .replace("d", ",")
-                                )}{" "}
-                                ₺
-                              </p>
-                            </div>
-                          </div>
-                        </React.Fragment>
-                      );
-                    })}
+                  <div className="flex items-start gap-3">
+                    <span
+                      className={`grid place-items-center size-10 shrink-0 rounded-lg transition ${
+                        isSelected
+                          ? "text-white shadow-md shadow-indigo-500/20"
+                          : "bg-[--primary-1]/10 text-[--primary-1]"
+                      }`}
+                      style={
+                        isSelected
+                          ? { background: PRIMARY_GRADIENT }
+                          : undefined
+                      }
+                    >
+                      <Icon className="size-5" strokeWidth={2} />
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={`text-sm font-bold ${
+                          isSelected
+                            ? "text-[--primary-1]"
+                            : "text-[--black-1]"
+                        }`}
+                      >
+                        {meta.title}
+                      </p>
+                      <p className="mt-0.5 text-xs text-[--gr-1] leading-snug">
+                        {meta.desc}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
-          </main>
-        </div>
-
-        {/* BTNS */}
-        <div
-          className={`w-full flex justify-end gap-4 ${
-            cartItems.length > 5 && "py-6"
-          }`}
-        >
-          <div className="w-max flex gap-3 self-en">
-            <BackButton
-              text="Geri"
-              letIcon={true}
-              onClick={() => setStep(1)}
-              // disabled={loading}
-            />
-            <ForwardButton
-              text="Devam"
-              letIcon={true}
-              type="submit"
-              // disabled={loading}
-            />
+                </button>
+              );
+            })}
           </div>
         </div>
-      </form>
-    )
+
+        {/* CART SUMMARY */}
+        <div>
+          <label className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[--gr-1] mb-2">
+            <ShoppingCart className="size-3.5" />
+            {t("addLicense.cart_summary")}
+            <span className="ml-auto inline-flex items-center px-1.5 rounded-full bg-[--primary-1]/15 text-[--primary-1] tabular-nums">
+              {cartItems.length}
+            </span>
+          </label>
+
+          <div className="rounded-xl border border-[--border-1] overflow-hidden divide-y divide-[--border-1]">
+            {licensePackagesData?.map((group, gi) => (
+              <div key={gi}>
+                <div className="px-3.5 py-2 bg-[--white-2] flex items-center gap-2">
+                  <Sparkles
+                    className="size-3.5 text-[--primary-1]"
+                    strokeWidth={2.5}
+                  />
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[--black-1]">
+                    {getLicenseTypeLabel(group[0]?.licensePackageType)}
+                  </h4>
+                </div>
+                <ul className="divide-y divide-[--border-1]">
+                  {group.map((pkg) => {
+                    const isYearly = pkg.timeId == 0;
+                    return (
+                      <li
+                        key={`${pkg.id}-${pkg.restaurantId}`}
+                        className="flex items-center gap-3 px-3.5 py-2.5"
+                      >
+                        <span className="grid place-items-center size-8 shrink-0 rounded-lg bg-[--primary-1]/10 text-[--primary-1]">
+                          <Store className="size-4" />
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-[--black-1] truncate">
+                            {pkg.restaurantName}
+                          </p>
+                          <p className="text-[11px] text-[--gr-1]">
+                            {pkg.time}{" "}
+                            {isYearly
+                              ? t("addLicense.yearly")
+                              : t("addLicense.monthly")}
+                            {pkg.description ? ` · ${pkg.description}` : ""}
+                          </p>
+                        </div>
+                        <p className="text-sm font-bold text-[--black-1] tabular-nums shrink-0">
+                          {formatToPrice(pkg.price.toFixed(2).replace(".", ","))} ₺
+                        </p>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="border-t border-[--border-1] bg-[--white-2]/40 px-4 sm:px-5 py-3 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1]">
+            {t("addLicense.total")}
+          </p>
+          <p className="text-lg sm:text-xl font-black text-[--black-1] tabular-nums">
+            {formatToPrice(total.toFixed(2).replace(".", ","))} ₺
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="inline-flex items-center justify-center gap-2 h-11 px-4 rounded-xl border border-[--border-1] bg-[--white-1] text-[--black-1] text-sm font-medium hover:bg-[--white-2] transition"
+          >
+            <ArrowLeft className="size-4" />
+            {t("addLicense.back")}
+          </button>
+          <button
+            type="submit"
+            className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl text-white text-sm font-semibold shadow-md shadow-indigo-500/20 transition hover:shadow-indigo-500/30 hover:brightness-110 active:brightness-95"
+            style={{ background: PRIMARY_GRADIENT }}
+          >
+            {t("addLicense.continue")}
+            <ArrowRight className="size-4" />
+          </button>
+        </div>
+      </div>
+    </form>
   );
 };
 

@@ -1,71 +1,129 @@
 //MODULES
-import { useEffect, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
-import { useTranslation } from "react-i18next"; // <-- Add this import
+import toast from "react-hot-toast";
+import { useEffect, useMemo, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+import {
+  Bell,
+  CreditCard,
+  Lock,
+  PackageOpen,
+  ShieldCheck,
+  ShoppingBag,
+  Store,
+} from "lucide-react";
 
 //ASSETS
 import UserProfile from "./userProfile";
-import logo from "../../assets/img/logo.png";
-
-// ICONS
-import {
-  RestourantI,
-  LicenseI,
-  BoxInI,
-  WaitI,
-  BellI,
-  PaymentI,
-} from "../../assets/icon/index";
 
 //COMP
 import { usePopup } from "../../context/PopupContext";
 
+//REDUX
+import { getRestaurants } from "../../redux/restaurants/getRestaurantsSlice";
+
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
+
 function Sidebar({ openSidebar, setOpenSidebar }) {
-  const { t } = useTranslation(); // <-- Add this line
-  const param = useParams();
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const sidebarRef = useRef();
   const { showPopup, contentRef, setContentRef } = usePopup();
-  const sidebarItems = [
+
+  const { restaurants, loading } = useSelector(
+    (state) => state.restaurants.getRestaurants,
+  );
+
+  // Eagerly fetch restaurants once so gating logic has data even on a deep-linked route.
+  useEffect(() => {
+    if (!restaurants && !loading) {
+      dispatch(getRestaurants({ pageNumber: 1, pageSize: 50 }));
+    }
+  }, []);
+
+  const { hasRestaurants, hasActiveLicense } = useMemo(() => {
+    const data = restaurants?.data || [];
+    return {
+      hasRestaurants: (restaurants?.totalCount || data.length) > 0,
+      hasActiveLicense: data.some(
+        (r) => r.isActive && r.licenseIsActive && !r.licenseIsExpired,
+      ),
+    };
+  }, [restaurants]);
+
+  const sections = [
     {
-      icon: <RestourantI />,
-      text: t("sidebar.restaurants"),
-      to: "/restaurants",
-      path: "restaurants",
+      label: t("sidebar.section_management"),
+      items: [
+        {
+          icon: Store,
+          text: t("sidebar.restaurants"),
+          to: "/restaurants",
+          path: "restaurants",
+          // always enabled
+        },
+        {
+          icon: ShieldCheck,
+          text: t("sidebar.licenses"),
+          to: "/licenses",
+          path: "licenses",
+          disabled: !hasRestaurants,
+          disabledReason: t("sidebar.locked_no_restaurant"),
+        },
+        {
+          icon: CreditCard,
+          text: t("sidebar.payments"),
+          to: "/payments",
+          path: "payments",
+          disabled: !hasRestaurants || !hasActiveLicense,
+          disabledReason: !hasRestaurants
+            ? t("sidebar.locked_no_restaurant")
+            : t("sidebar.locked_no_license"),
+        },
+      ],
     },
     {
-      icon: <LicenseI />,
-      text: t("sidebar.licenses"),
-      to: "/licenses",
-      path: "licenses",
-    },
-    {
-      icon: <PaymentI />,
-      text: "Ödemeler",
-      to: "/payments",
-      path: "payments",
-    },
-    {
-      icon: <BoxInI />,
-      text: t("sidebar.orders"),
-      to: "/orders",
-      path: "orders",
-    },
-    {
-      icon: <WaitI />,
-      text: t("sidebar.waiter_calls"),
-      to: "/waiterCalls",
-      path: "waiterCalls",
-    },
-    {
-      icon: <BellI />,
-      text: t("sidebar.reservations"),
-      to: "/reservations",
-      path: "reservations",
+      label: t("sidebar.section_operations"),
+      items: [
+        {
+          icon: ShoppingBag,
+          text: t("sidebar.orders"),
+          to: "/orders",
+          path: "orders",
+          disabled: !hasActiveLicense,
+          disabledReason: !hasRestaurants
+            ? t("sidebar.locked_no_restaurant")
+            : t("sidebar.locked_no_license"),
+        },
+        {
+          icon: PackageOpen,
+          text: t("sidebar.waiter_calls"),
+          to: "/waiterCalls",
+          path: "waiterCalls",
+          disabled: !hasActiveLicense,
+          disabledReason: !hasRestaurants
+            ? t("sidebar.locked_no_restaurant")
+            : t("sidebar.locked_no_license"),
+        },
+        {
+          icon: Bell,
+          text: t("sidebar.reservations"),
+          to: "/reservations",
+          path: "reservations",
+          disabled: !hasActiveLicense,
+          disabledReason: !hasRestaurants
+            ? t("sidebar.locked_no_restaurant")
+            : t("sidebar.locked_no_license"),
+        },
+      ],
     },
   ];
 
-  const route = Object.values(param)[0].split("/")[0];
-  const path = route.length > 1 ? route : "dashboard";
+  const currentPath = location.pathname.split("/")[1] || "restaurants";
 
   useEffect(() => {
     if (sidebarRef) {
@@ -82,51 +140,119 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
     }
   }, [sidebarRef, openSidebar]);
 
+  const handleItemClick = (e, item) => {
+    if (item.disabled) {
+      e.preventDefault();
+      e.stopPropagation();
+      toast.dismiss();
+      toast(item.disabledReason, { icon: "🔒", id: "sidebar-locked" });
+      return;
+    }
+    setOpenSidebar(false);
+  };
+
   return (
     <nav
-      className={`fixed -left-[280px] lg:left-0 top-0 flex flex-col justify-between bg-[--white-1] border-r shadow-2xl border-[--border-1] w-[280px] transition-all ${
+      ref={sidebarRef}
+      className={`fixed -left-[280px] lg:left-0 top-0 flex flex-col bg-[--white-1] border-r border-[--border-1] shadow-2xl w-[280px] h-[100dvh] transition-all ${
         !showPopup && "z-[999]"
       } ${openSidebar && "left-[0]"}`}
-      ref={sidebarRef}
     >
-      <div className="flex flex-col w-full relative">
-        <header className="flex items-center justify-center pr-6 h-16 w-full text-xl font-[500] leading-7 text-[--black-2]">
-          <Link to="/" className="flex gap-1 w-max mr-6">
-            <img
-              loading="lazy"
-              src={logo}
-              alt=""
-              className="shrink-0 w-7 aspect-square rounded-full"
-            />
-            <p className="whitespace-nowrap">Liwamenu</p>
-          </Link>
-        </header>
+      {/* Brand header */}
+      <header className="flex items-center gap-3 h-16 px-5 shrink-0 border-b border-[--border-1]">
+        <Link
+          to="/"
+          onClick={() => setOpenSidebar(false)}
+          className="flex items-center gap-2.5"
+        >
+          <span
+            className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/20"
+            style={{ background: PRIMARY_GRADIENT }}
+          >
+            <Store className="size-4" strokeWidth={2.5} />
+          </span>
+          <span className="font-[conthrax] text-lg tracking-wide text-[--black-1]">
+            Liwamenu
+          </span>
+        </Link>
+      </header>
 
-        <div className="flex flex-col justify-top w-full py-16 h-[100dvh] -mt-16">
-          <div className="flex flex-col gap-1 px-6 pb-4 w-full overflow-y-auto">
-            {sidebarItems.map((item, index) => (
-              <Link to={item.to} key={index}>
-                <div
-                  onClick={() => {
-                    setOpenSidebar(!openSidebar);
-                  }}
-                  className={`flex flex-col justify-center px-4 py-2 rounded-[99px] text-sm text-[--gr-1] cursor-pointer sidebar-item hover:bg-[--light-1] hover:text-[--primary-1] transition-colors ${
-                    path === item.path && "bg-[--light-1] text-[--primary-1]"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex justify-center items-center p-1">
-                      {item.icon}
-                    </div>
-                    <div>{item.text}</div>
-                  </div>
-                </div>
-              </Link>
-            ))}
+      {/* Nav body */}
+      <div className="flex-1 overflow-y-auto px-3 py-4">
+        {sections.map((section) => (
+          <div key={section.label} className="mb-6 last:mb-0">
+            <p className="px-3 mb-2 text-[10px] font-bold tracking-widest text-[--gr-1]">
+              {section.label}
+            </p>
+            <ul className="flex flex-col gap-0.5">
+              {section.items.map((item) => {
+                const isActive = currentPath === item.path;
+                const Icon = item.icon;
+                const baseClasses = `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all`;
+                const stateClasses = isActive
+                  ? "text-[--primary-1] bg-[--primary-1]/10 font-semibold"
+                  : item.disabled
+                    ? "text-[--gr-1]/60 cursor-not-allowed"
+                    : "text-[--black-1] hover:bg-[--white-2] hover:text-[--primary-1]";
+
+                const inner = (
+                  <>
+                    {isActive && (
+                      <span
+                        className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full"
+                        style={{ background: PRIMARY_GRADIENT }}
+                        aria-hidden="true"
+                      />
+                    )}
+                    <Icon
+                      className={`size-4 shrink-0 ${
+                        isActive
+                          ? "text-[--primary-1]"
+                          : item.disabled
+                            ? "text-[--gr-1]/60"
+                            : "text-[--gr-1] group-hover:text-[--primary-1]"
+                      }`}
+                      strokeWidth={isActive ? 2.5 : 2}
+                    />
+                    <span className="flex-1 truncate">{item.text}</span>
+                    {item.disabled && (
+                      <Lock
+                        className="size-3.5 text-[--gr-1]/60 shrink-0"
+                        strokeWidth={2}
+                      />
+                    )}
+                  </>
+                );
+
+                return (
+                  <li key={item.path}>
+                    {item.disabled ? (
+                      <button
+                        type="button"
+                        onClick={(e) => handleItemClick(e, item)}
+                        title={item.disabledReason}
+                        className={`${baseClasses} ${stateClasses} w-full text-left`}
+                      >
+                        {inner}
+                      </button>
+                    ) : (
+                      <Link
+                        to={item.to}
+                        onClick={(e) => handleItemClick(e, item)}
+                        className={`${baseClasses} ${stateClasses}`}
+                      >
+                        {inner}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           </div>
-        </div>
+        ))}
       </div>
 
+      {/* User profile footer */}
       <UserProfile setOpenSidebar={setOpenSidebar} />
     </nav>
   );

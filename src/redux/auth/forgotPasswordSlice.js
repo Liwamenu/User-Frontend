@@ -42,21 +42,18 @@ const forgotPasswordSlice = createSlice({
 
 export const forgotPassword = createAsyncThunk(
   "Auth/forgotPassword",
-  async ({ toAddress, isEmail }, { rejectWithValue }) => {
-    const API = isEmail
-      ? `${baseURL}Email/SendEmailPasswordReset`
-      : `${baseURL}SMS/SendSMSPasswordReset`;
+  async ({ toAddress }, { rejectWithValue }) => {
     try {
-      const res = await api.get(API, {
-        params: {
-          [isEmail ? "toAddress" : "phoneNumber"]: toAddress,
-        },
+      const res = await api.post(`${baseURL}Email/send-password-reset`, {
+        emailOrPhone: toAddress,
       });
-      // console.log(res.data);
       return res.data;
     } catch (err) {
       console.log(err);
-      const errorMessage = err.response.data.message_TR || err.message;
+      const errorMessage =
+        err?.response?.data?.message_TR ||
+        err?.response?.data?.message ||
+        err.message;
       return rejectWithValue({ message: errorMessage });
     }
   }

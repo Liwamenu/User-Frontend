@@ -9,6 +9,7 @@ import forgotPasswordSlice from "./forgotPasswordSlice";
 import changePasswordSlice from "./changePasswordSlice";
 import sendVerificationSlice from "./sendVerificationSlice";
 import verifyEmailSlice from "./verifyEmailSlice";
+import setNewPasswordSlice from "./setNewPasswordSlice";
 
 const authSlice = combineReducers({
   login: loginSlice,
@@ -19,6 +20,7 @@ const authSlice = combineReducers({
   sendVerification: sendVerificationSlice,
   verifyCode: verifyCodeSlice,
   verifyEmail: verifyEmailSlice,
+  setNewPassword: setNewPasswordSlice,
 });
 
 export default authSlice;

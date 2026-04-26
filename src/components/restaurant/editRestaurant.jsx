@@ -4,11 +4,20 @@ import toast from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+import {
+  Building2,
+  Phone,
+  MapPin,
+  Map,
+  Image as ImageIcon,
+  Save,
+  X,
+  Check,
+  Compass,
+} from "lucide-react";
 
 //COMP
-import { googleMap } from "../../utils/utils";
-import CustomInput from "../common/customInput";
-import CustomTextarea from "../common/customTextarea";
+import { googleMap, toNameCase } from "../../utils/utils";
 import CustomFileInput from "../common/customFileInput";
 import CustomPhoneInput from "../common/customPhoneInput";
 
@@ -130,18 +139,23 @@ const EditRestaurant = ({ data: restaurant }) => {
     dispatch(updateRestaurant(formData));
   };
 
-  async function handleOpenMap() {
+  function handleOpenMap() {
     setIsMapOpen(true);
-    googleMap(
-      formatCoordinate(lat),
-      formatCoordinate(lng),
-      setLat,
-      setLng,
-      null,
-      15,
-      false,
-    );
   }
+
+  // Initialize Google Map AFTER the modal is rendered & visible — otherwise the
+  // map container has 0 dimensions and tiles never load.
+  useEffect(() => {
+    if (!isMapOpen) return;
+    const id = requestAnimationFrame(() => {
+      const latNum = parseFloat(formatCoordinate(lat));
+      const lngNum = parseFloat(formatCoordinate(lng));
+      const validLat = Number.isFinite(latNum) ? latNum : 39.0;
+      const validLng = Number.isFinite(lngNum) ? lngNum : 35.0;
+      googleMap(validLat, validLng, setLat, setLng, null, 15, false);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [isMapOpen]);
 
   function handleSetMap() {
     setRestaurantData((prev) => ({
@@ -161,6 +175,9 @@ const EditRestaurant = ({ data: restaurant }) => {
       setRestaurantDataBefore(formatted);
       setPreview(formatted?.imageAbsoluteUrl);
       setPreview2(formatted?.logoImageUrl);
+      // Sync map coords so the map opens at the saved location.
+      if (formatted?.latitude) setLat(formatted.latitude);
+      if (formatted?.longitude) setLng(formatted.longitude);
     }
   }, [restaurant]);
 
@@ -205,218 +222,318 @@ const EditRestaurant = ({ data: restaurant }) => {
     };
   }, [document, document2]);
 
+  const inputCls =
+    "w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
+  const labelCls =
+    "block text-[11px] font-semibold text-slate-600 mb-1 tracking-wide";
+
+  const SectionHeader = ({ icon: Icon, label }) => (
+    <header className="flex items-center gap-1.5 mb-2.5">
+      <Icon className="size-3.5 text-indigo-600" />
+      <h2 className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.12em]">
+        {label}
+      </h2>
+    </header>
+  );
+
   return (
-    <div className=" w-full pb-8 mt-1 bg-[--white-1] rounded-lg text-[--black-2] text-base overflow-visible relative">
-      <div className="flex flex-col bg-[--white-1] px-4 sm:px-14 relative">
-        <div
-          className={`fixed bg-[--white-1] border border-[--border-1] w-full top-0 bottom-0 right-0 left-0 max-w-xl max-h-[75dvh] m-auto z-[999] rounded-lg flex flex-col justify-start items-center ${
-            !isMapOpen && "hidden"
-          }`}
-        >
-          <div id="map" className="size-full rounded-t-md"></div>
+    <div className="w-full pb-8 mt-1 text-slate-900">
+      {/* MAP MODAL */}
+      <div
+        className={`fixed bg-white border border-slate-200 w-[calc(100%-2rem)] top-0 bottom-0 right-0 left-0 max-w-2xl max-h-[80dvh] m-auto z-[999] rounded-2xl flex flex-col justify-start items-center shadow-2xl overflow-hidden ${
+          !isMapOpen && "hidden"
+        }`}
+      >
+        <div id="map" className="size-full"></div>
 
-          <div className="w-full px-2 py-1 pt-2 flex rounded-b-md">
-            <div className="w-full gap-2 flex">
-              <div className="text-sm">
-                <span className="text-xs text-[--gr-1]">
-                  {t("restaurants.latitude")}
-                </span>
-                <p className="border border-solid border-[--border-1]  px-2">
-                  {lat}
-                </p>
-              </div>
-
-              <div className="text-sm">
-                <span className="text-xs text-[--gr-1]">
-                  {t("restaurants.longitude")}
-                </span>
-                <p className="border border-solid border-[--border-1]  px-2">
-                  {lng}
-                </p>
-              </div>
+        <div className="w-full px-3 py-2.5 flex items-center gap-3 border-t border-slate-200 bg-white">
+          <div className="flex flex-1 gap-3 min-w-0">
+            <div className="flex-1 min-w-0">
+              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">
+                {t("restaurants.latitude")}
+              </span>
+              <p className="rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-900 font-medium truncate">
+                {lat}
+              </p>
             </div>
+            <div className="flex-1 min-w-0">
+              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">
+                {t("restaurants.longitude")}
+              </span>
+              <p className="rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-900 font-medium truncate">
+                {lng}
+              </p>
+            </div>
+          </div>
 
-            <div className="flex gap-2">
-              <button
-                className="px-5 py-1 text-sm text-[--red-1] rounded-sm bg-[--status-red] border border-solid border-[--red-1]"
-                onClick={() => setIsMapOpen(false)}
-              >
+          <div className="flex gap-2 shrink-0">
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition"
+              onClick={() => setIsMapOpen(false)}
+            >
+              <X className="size-4" />
+              <span className="hidden sm:inline">
                 {t("restaurants.map_close")}
-              </button>
-              <button
-                className="px-5 py-1 text-sm text-[--green-1] rounded-sm bg-[--status-green] border border-solid border-[--green-1]"
-                onClick={handleSetMap}
-              >
-                {t("restaurants.map_save")}
-              </button>
+              </span>
+            </button>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 px-3 py-2 text-sm font-semibold rounded-lg text-white shadow-md shadow-indigo-500/25 transition hover:brightness-110"
+              style={{
+                background:
+                  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)",
+              }}
+              onClick={handleSetMap}
+            >
+              <Check className="size-4" strokeWidth={3} />
+              {t("restaurants.map_save")}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* CARD */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        {/* Slim gradient accent strip */}
+        <div
+          className="h-0.5"
+          style={{
+            background:
+              "linear-gradient(90deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)",
+          }}
+        />
+        {/* HERO HEADER — slim & elegant */}
+        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+          <span
+            className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
+            style={{
+              background:
+                "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)",
+            }}
+          >
+            <Building2 className="size-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+                {restaurantData?.name || t("restaurants.name")}
+              </h1>
+              {restaurantData?.isActive && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 shrink-0">
+                  AKTİF
+                </span>
+              )}
             </div>
+            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+              {[restaurantData?.city, restaurantData?.district]
+                .filter(Boolean)
+                .join(" / ") || "—"}
+            </p>
           </div>
         </div>
 
-        <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
-          {t("restaurants.edit_title", { name: restaurantData?.name })}
-        </h1>
-
-        <div className="flex flex-col mt-9 w-full text-left">
+        <div className="p-4 sm:p-5">
           {restaurantData && (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-              <div className="flex max-sm:flex-col gap-4">
-                <CustomInput
-                  required={true}
-                  label={t("restaurants.name") + "*"}
-                  placeholder={t("restaurants.name")}
-                  className="py-[.45rem] text-sm bg-[--white-1]"
-                  value={restaurantData.name}
-                  onChange={(e) => {
-                    setRestaurantData((prev) => {
-                      return {
-                        ...prev,
-                        name: e,
-                      };
-                    });
-                  }}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              {/* RESTORAN BİLGİLERİ */}
+              <div>
+                <SectionHeader
+                  icon={Building2}
+                  label={t("restaurants.name")}
                 />
-                <CustomPhoneInput
-                  required={true}
-                  label={t("restaurants.phone") + "*"}
-                  placeholder={t("restaurants.phone")}
-                  className="py-[.45rem] text-sm bg-[--white-1]"
-                  value={restaurantData.phoneNumber}
-                  onChange={(phone) => {
-                    setRestaurantData((prev) => {
-                      return {
-                        ...prev,
-                        phoneNumber: phone,
-                      };
-                    });
-                  }}
-                  maxLength={14}
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className={labelCls}>
+                      {t("restaurants.name")}
+                      <span className="text-rose-500 ml-0.5">*</span>
+                    </label>
+                    <input
+                      required
+                      type="text"
+                      className={inputCls}
+                      placeholder={t("restaurants.name")}
+                      value={restaurantData.name || ""}
+                      onChange={(e) =>
+                        setRestaurantData((prev) => ({
+                          ...prev,
+                          name: toNameCase(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className={labelCls}>
+                      {t("restaurants.phone")}
+                      <span className="text-rose-500 ml-0.5">*</span>
+                    </label>
+                    <CustomPhoneInput
+                      required
+                      placeholder={t("restaurants.phone")}
+                      className="!h-10 !rounded-lg !border-slate-200 !text-sm !bg-white"
+                      value={restaurantData.phoneNumber}
+                      onChange={(phone) =>
+                        setRestaurantData((prev) => ({
+                          ...prev,
+                          phoneNumber: phone,
+                        }))
+                      }
+                      maxLength={14}
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="flex max-sm:flex-col gap-4">
-                <CustomInput
-                  required
-                  label={t("restaurants.city")}
-                  placeholder={t("restaurants.city")}
-                  className="py-[.45rem] text-sm bg-[--white-1]"
-                  value={restaurantData.city}
-                  onChange={(e) => {
-                    setRestaurantData((prev) => {
-                      return {
-                        ...prev,
-                        city: e,
-                      };
-                    });
-                  }}
+              {/* ADRES */}
+              <div>
+                <SectionHeader
+                  icon={MapPin}
+                  label={t("restaurants.address")}
                 />
-                <CustomInput
-                  required
-                  label={t("restaurants.district")}
-                  placeholder={t("restaurants.district")}
-                  className="py-[.45rem] text-sm bg-[--white-1]"
-                  value={restaurantData.district}
-                  onChange={(e) => {
-                    setRestaurantData((prev) => {
-                      return {
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className={labelCls}>{t("restaurants.city")}</label>
+                    <input
+                      required
+                      type="text"
+                      className={inputCls}
+                      placeholder={t("restaurants.city")}
+                      value={restaurantData.city || ""}
+                      onChange={(e) =>
+                        setRestaurantData((prev) => ({
+                          ...prev,
+                          city: toNameCase(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className={labelCls}>
+                      {t("restaurants.district")}
+                    </label>
+                    <input
+                      required
+                      type="text"
+                      className={inputCls}
+                      placeholder={t("restaurants.district")}
+                      value={restaurantData.district || ""}
+                      onChange={(e) =>
+                        setRestaurantData((prev) => ({
+                          ...prev,
+                          district: toNameCase(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className={labelCls}>
+                      {t("restaurants.neighbourhood")}
+                    </label>
+                    <input
+                      required
+                      type="text"
+                      className={inputCls}
+                      placeholder={t("restaurants.neighbourhood")}
+                      value={restaurantData.neighbourhood || ""}
+                      onChange={(e) =>
+                        setRestaurantData((prev) => ({
+                          ...prev,
+                          neighbourhood: toNameCase(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <label className={labelCls}>
+                    {t("restaurants.address")}
+                    <span className="text-rose-500 ml-0.5">*</span>
+                  </label>
+                  <textarea
+                    required
+                    rows={2}
+                    className={`${inputCls} h-auto py-2 resize-none`}
+                    placeholder={t("restaurants.address")}
+                    value={restaurantData.address || ""}
+                    onChange={(e) =>
+                      setRestaurantData((prev) => ({
                         ...prev,
-                        district: e,
-                      };
-                    });
-                  }}
-                />
-              </div>
-
-              <div className="flex max-sm:flex-col gap-4">
-                <CustomInput
-                  required
-                  label={t("restaurants.neighbourhood")}
-                  placeholder={t("restaurants.neighbourhood")}
-                  className="py-[.45rem] text-sm bg-[--white-1]"
-                  value={restaurantData.neighbourhood}
-                  onChange={(e) => {
-                    setRestaurantData((prev) => {
-                      return {
-                        ...prev,
-                        neighbourhood: e,
-                      };
-                    });
-                  }}
-                />
-
-                <CustomTextarea
-                  required={true}
-                  label={t("restaurants.address") + "*"}
-                  placeholder={t("restaurants.address")}
-                  className="text-sm h-14 bg-[--white-1]"
-                  value={restaurantData.address}
-                  onChange={(e) => {
-                    setRestaurantData((prev) => {
-                      return {
-                        ...prev,
-                        address: e.target.value,
-                      };
-                    });
-                  }}
-                />
-              </div>
-
-              <div onClick={handleOpenMap}>
-                <div className="flex max-sm:flex-col gap-4 pointer-events-none">
-                  <CustomInput
-                    required={true}
-                    label={t("restaurants.latitude") + "*"}
-                    placeholder={t("restaurants.latitude")}
-                    className="py-[.45rem] text-sm bg-[--white-1]"
-                    value={restaurantData.latitude}
-                    onChange={() => {}}
-                    onClick={() => {}}
-                    readOnly={true}
+                        address: toNameCase(e.target.value),
+                      }))
+                    }
                   />
-                  <CustomInput
-                    required={true}
-                    label={t("restaurants.longitude") + "*"}
-                    placeholder={t("restaurants.longitude")}
-                    className="py-[.45rem] text-sm bg-[--white-1]"
-                    value={restaurantData.longitude}
-                    onChange={() => {}}
-                    onClick={() => {}}
-                    readOnly={true}
-                  />
                 </div>
               </div>
 
-              <div className="mt-4 flex max-sm:flex-col items-center">
-                <div className="w-full max-w-32 mb-2 mr-4">
-                  <img src={preview2} alt="preview_liwamenu_logo" />
-                </div>
-                <CustomFileInput
-                  msg={t("restaurants.logo_msg")}
-                  value={document2}
-                  onChange={setDocument2}
-                  accept={"image/png, image/jpeg, image/gif, image/webp"}
+              {/* KONUM — tek satır button */}
+              <div>
+                <SectionHeader
+                  icon={Compass}
+                  label={`${t("restaurants.latitude")} / ${t(
+                    "restaurants.longitude",
+                  )}`}
                 />
-              </div>
-
-              <div className="mt-4 flex max-sm:flex-col items-center">
-                <div className="w-full max-w-40 mb-2 mr-4">
-                  <img src={preview} alt="preview_liwamenu" />
-                </div>
-                <CustomFileInput
-                  value={document}
-                  onChange={setDocument}
-                  accept={"image/png, image/jpeg, image/gif, image/webp"}
-                />
-              </div>
-
-              <div className="w-full flex justify-end mt-10">
                 <button
-                  disabled={false}
-                  className={`py-2 px-3 bg-[--primary-1] text-white rounded-lg ${
+                  type="button"
+                  onClick={handleOpenMap}
+                  className="w-full flex items-center gap-3 p-2.5 rounded-lg border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-indigo-300 hover:shadow-sm transition text-left group"
+                >
+                  <div className="grid place-items-center size-9 rounded-lg bg-white border border-slate-200 shrink-0 group-hover:border-indigo-200 group-hover:bg-indigo-50 transition">
+                    <Map className="size-4 text-indigo-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">
+                      {t("restaurants.latitude")} ·{" "}
+                      {t("restaurants.longitude")}
+                    </div>
+                    <div className="text-sm font-medium text-slate-900 truncate font-mono">
+                      {restaurantData.latitude || "—"},{" "}
+                      {restaurantData.longitude || "—"}
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-semibold text-indigo-600 hidden sm:inline shrink-0 mr-1">
+                    {t("restaurants.map_save")} →
+                  </span>
+                </button>
+              </div>
+
+              {/* GÖRSELLER — kompakt yan yana */}
+              <div>
+                <SectionHeader
+                  icon={ImageIcon}
+                  label={t("restaurants.logo_msg")}
+                />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                  <ImageField
+                    label={t("restaurants.logo_msg")}
+                    preview={preview2}
+                    document={document2}
+                    onChange={setDocument2}
+                    contain
+                  />
+                  <ImageField
+                    label={t("restaurants.file-info")}
+                    preview={preview}
+                    document={document}
+                    onChange={setDocument}
+                  />
+                </div>
+              </div>
+
+              {/* SUBMIT */}
+              <div className="flex justify-end pt-3 border-t border-slate-100">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`group inline-flex items-center justify-center gap-2 h-10 px-5 rounded-lg text-white text-sm font-semibold shadow-lg shadow-indigo-500/25 transition-all hover:shadow-indigo-500/40 hover:brightness-110 active:brightness-95 disabled:opacity-70 disabled:cursor-not-allowed ${
                     isMapOpen && "invisible"
                   }`}
-                  type="submit"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)",
+                  }}
                 >
+                  <Save className="size-4" />
                   {t("restaurants.save")}
                 </button>
               </div>
@@ -427,5 +544,34 @@ const EditRestaurant = ({ data: restaurant }) => {
     </div>
   );
 };
+
+const ImageField = ({ label, preview, document: doc, onChange, contain }) => (
+  <div>
+    <span className="block text-[11px] font-semibold text-slate-600 mb-1 tracking-wide">
+      {label}
+    </span>
+    <div className="flex gap-3 items-stretch">
+      <div className="w-20 sm:w-24 aspect-square rounded-lg bg-slate-50 ring-1 ring-slate-200 grid place-items-center overflow-hidden shrink-0">
+        {preview ? (
+          <img
+            src={preview}
+            alt="preview"
+            className={`size-full ${contain ? "object-contain" : "object-cover"}`}
+          />
+        ) : (
+          <ImageIcon className="size-7 text-slate-300" />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <CustomFileInput
+          msg={label}
+          value={doc}
+          onChange={onChange}
+          accept={"image/png, image/jpeg, image/gif, image/webp"}
+        />
+      </div>
+    </div>
+  </div>
+);
 
 export default EditRestaurant;

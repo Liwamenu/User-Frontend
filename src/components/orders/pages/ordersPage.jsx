@@ -1,35 +1,99 @@
 //MODULES
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import {
-  Clock,
-  User,
-  MapPin,
-  Phone,
-  CreditCard,
-  ShoppingBag,
-  X,
-  ArrowLeft,
+  Ban,
   CheckCircle2,
   ChefHat,
+  ChevronRight,
+  Clock,
+  CreditCard,
+  MapPin,
+  Search,
+  ShoppingBag,
+  Store,
   Truck,
-  Ban,
+  Utensils,
+  X,
 } from "lucide-react";
-
-//UTILS
-import { useOrderStatusActions } from "./actions";
-import { useOrders } from "../../../context/ordersContext";
 
 //COMP
 import CustomSelect from "../../common/customSelector";
 import CustomPagination from "../../common/pagination";
 import FilterOrders from "../components/filterOrders";
-import { formatDateString } from "../../../utils/utils";
+import OrderDetailDrawer from "../components/orderDetailDrawer";
+
+//CONTEXT
+import { useOrders } from "../../../context/ordersContext";
+
+//REDUX
+import { getOrders } from "../../../redux/orders/getOrdersSlice";
+import { getRestaurants } from "../../../redux/restaurants/getRestaurantsSlice";
+
+//UTILS
+import { formatDate, formatDateString } from "../../../utils/utils";
+
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
+
+const STATUS_META = {
+  Pending: {
+    labelKey: "orders.status_pending",
+    icon: Clock,
+    cls: "amber",
+  },
+  Accepted: {
+    labelKey: "orders.status_accepted",
+    icon: CheckCircle2,
+    cls: "indigo",
+  },
+  Preparing: {
+    labelKey: "orders.status_preparing",
+    icon: ChefHat,
+    cls: "orange",
+  },
+  OnTheWay: {
+    labelKey: "orders.status_on_the_way",
+    icon: Truck,
+    cls: "violet",
+  },
+  Delivered: {
+    labelKey: "orders.status_delivered",
+    icon: ShoppingBag,
+    cls: "emerald",
+  },
+  Cancelled: {
+    labelKey: "orders.status_cancelled",
+    icon: Ban,
+    cls: "rose",
+  },
+};
+
+const STATUS_PILL = {
+  amber: "text-amber-600 bg-amber-500/10 ring-amber-500/30",
+  indigo: "text-indigo-600 bg-indigo-500/10 ring-indigo-500/30",
+  orange: "text-orange-600 bg-orange-500/10 ring-orange-500/30",
+  violet: "text-violet-600 bg-violet-500/10 ring-violet-500/30",
+  emerald: "text-emerald-600 bg-emerald-500/10 ring-emerald-500/30",
+  rose: "text-rose-600 bg-rose-500/10 ring-rose-500/30",
+};
+
+const STATUS_DOT = {
+  amber: "bg-amber-500",
+  indigo: "bg-indigo-500",
+  orange: "bg-orange-500",
+  violet: "bg-violet-500",
+  emerald: "bg-emerald-500",
+  rose: "bg-rose-500",
+};
 
 const OrdersPage = () => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const {
-    pageNumber,
     pageSize,
+    pageNumber,
     setPageNumber,
     pageNumbers,
     ordersData,
@@ -38,458 +102,194 @@ const OrdersPage = () => {
     totalCount,
     handlePageChange,
     handleItemsPerPage,
+    filter,
+    setFilter,
   } = useOrders();
-  const { updateStatus } = useOrderStatusActions();
 
-  const STATUS_CONFIG = {
-    Pending: {
-      label: t("orders.status_pending"),
-      icon: Clock,
-      color: "var(--orange-1)",
-      bgColor: "var(--status-orange)",
-    },
-    Accepted: {
-      label: t("orders.status_accepted"),
-      icon: CheckCircle2,
-      color: "var(--green-1)",
-      bgColor: "var(--status-green)",
-    },
+  // Make sure restaurants are loaded for filtering
+  useEffect(() => {
+    dispatch(getRestaurants({}));
+  }, [dispatch]);
 
-    Preparing: {
-      label: t("orders.status_preparing"),
-      icon: ChefHat,
-      color: "var(--orange-1)",
-      bgColor: "var(--status-orange)",
-    },
-    OnTheWay: {
-      label: t("orders.status_on_the_way"),
-      icon: Truck,
-      color: "var(--purple-1)",
-      bgColor: "var(--status-purple)",
-    },
-    Delivered: {
-      label: t("orders.status_delivered"),
-      icon: ShoppingBag,
-      color: "var(--green-1)",
-      bgColor: "var(--status-green)",
-    },
-    Cancelled: {
-      label: t("orders.status_cancelled"),
-      icon: Ban,
-      color: "var(--red-1)",
-      bgColor: "var(--status-red)",
-    },
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchVal, setSearchVal] = useState("");
+
+  const handleOpenOrder = (order) => {
+    setSelectedOrder(order);
+    setDrawerOpen(true);
+  };
+  const handleCloseDrawer = () => setDrawerOpen(false);
+
+  const refetchWithFilter = (next) => {
+    dispatch(
+      getOrders({
+        page: 1,
+        pageSize: pageSize.value,
+        dateRange: next.dateRange,
+        startDateTime: next.endDateTime
+          ? formatDate(next.startDateTime)
+          : null,
+        endDateTime: next.endDateTime ? formatDate(next.endDateTime) : null,
+        status: next.statusId || null,
+        restaurantIds: next.restaurantIds?.length ? next.restaurantIds : null,
+        paymentMethodId: next.paymentMethodId || null,
+        orderType: next.orderType || null,
+        minTotalAmount:
+          next.minTotalAmount !== "" && next.minTotalAmount != null
+            ? Number(next.minTotalAmount)
+            : null,
+        maxTotalAmount:
+          next.maxTotalAmount !== "" && next.maxTotalAmount != null
+            ? Number(next.maxTotalAmount)
+            : null,
+      }),
+    );
+    setPageNumber(1);
   };
 
-  const handleStatusChange = (orderId, newStatus) => {
-    updateStatus(orderId, newStatus);
+  const removeRestaurantFilter = (restaurant) => {
+    const nextIds = (filter.restaurantIds || []).filter(
+      (id) => id !== restaurant.value,
+    );
+    const nextRestaurants = (filter.restaurants || []).filter(
+      (r) => r.value !== restaurant.value,
+    );
+    const next = {
+      ...filter,
+      restaurantIds: nextIds,
+      restaurants: nextRestaurants,
+    };
+    setFilter(next);
+    refetchWithFilter(next);
   };
 
-  function getOrderTypeLabel(orderType) {
-    if (orderType === "InPerson") {
-      return t("orders.order_type_in_person");
-    }
-    if (orderType === "Online") {
-      return t("orders.order_type_online");
-    }
-    return orderType || "-";
-  }
+  const clearAllRestaurantFilters = () => {
+    const next = { ...filter, restaurantIds: [], restaurants: [] };
+    setFilter(next);
+    refetchWithFilter(next);
+  };
 
-  function getDateString(dateString) {
-    const date = new Date(dateString);
-    const today = new Date();
-    const isToday = date.toDateString() === today.toDateString();
-
-    if (isToday) {
-      return formatDateString({
-        dateString,
-        letDay: false,
-        letMonth: false,
-        letYear: false,
-        hour: true,
-        min: true,
-        joint: ":",
-      });
-    } else {
-      return formatDateString({
-        dateString,
-        hour: true,
-        min: true,
-      });
-    }
-  }
-  console.log(ordersData);
+  const filteredOrders = !searchVal
+    ? ordersData
+    : ordersData?.filter((o) =>
+        [
+          o.customerName,
+          o.tableNumber,
+          o.id,
+          o.restaurantName,
+          o.customerTel,
+        ]
+          .filter(Boolean)
+          .some((v) =>
+            String(v).toLowerCase().includes(searchVal.toLowerCase()),
+          ),
+      );
 
   return (
-    <div className="min-h-screen bg-[--white-2] transition-colors duration-300 lg:ml-[280px] pt-16 flex flex-col">
-      <main className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow w-full">
-        {/* Orders List */}
+    <section className="lg:ml-[280px] pt-16 px-4 sm:px-6 lg:px-8 pb-8 min-h-[100dvh] section_row flex flex-col">
+      {/* HERO */}
+      <header className="flex items-start gap-3 sm:gap-4 mt-4 mb-6">
         <div
-          className={`lg:col-span-7 space-y-4 ${selectedOrder ? "hidden lg:block" : "block"}`}
+          className="grid place-items-center size-11 sm:size-12 shrink-0 rounded-xl text-white shadow-md shadow-indigo-500/20"
+          style={{ background: PRIMARY_GRADIENT }}
         >
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold flex items-center gap-2 text-[--black-1]">
-              <ShoppingBag className="w-5 h-5 text-[--primary-1]" />
-              {t("orders.active_orders")}
-              <span className="ml-2 px-2 py-0.5 bg-[--primary-1] text-white text-xs rounded-full">
-                {ordersData?.length}
-              </span>
-            </h2>
-
-            <FilterOrders />
-          </div>
-
-          <div className="space-y-3">
-            {ordersData &&
-              ordersData.map((order) => {
-                const StatusIcon = STATUS_CONFIG[order.status]?.icon;
-                return (
-                  <div
-                    key={order.id}
-                    onClick={() => setSelectedOrder(order)}
-                    className={`group cursor-pointer p-4 rounded-2xl border transition-all duration-200 text-[--black-1] ${
-                      selectedOrder?.id === order.id
-                        ? "bg-[--primary-1] border-[--primary-1] text-white  shadow-xl shadow-indigo-500/20"
-                        : "bg-[--white-1] border-[--border-1] hover:border-[--primary-1] hover:shadow-lg"
-                    }`}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-lg">
-                            {order.customerName}
-                          </span>
-                          <span
-                            className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter ${
-                              selectedOrder?.id === order.id
-                                ? "bg-white/20"
-                                : "bg-[--gr-4] dark:bg-[--gr-5]"
-                            }`}
-                          >
-                            #{order.id.split("-")[1]}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3 text-sm opacity-70">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5" />
-                            {getDateString(order.createdAt)}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <CreditCard className="w-3.5 h-3.5" />
-                            {order.paymentMethodName}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <ShoppingBag className="w-3.5 h-3.5" />
-                            {getOrderTypeLabel(order.orderType)}
-                          </span>
-                          {order.orderType === "InPerson" &&
-                            order.tableNumber && (
-                              <span className="flex items-center gap-1">
-                                <MapPin className="w-3.5 h-3.5" />
-                                {t("orders.table_number_label")}{" "}
-                                {order.tableNumber}
-                              </span>
-                            )}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xl font-bold">
-                          ₺{order.totalAmount.toFixed(2)}
-                        </div>
-                        <div
-                          className={`mt-2 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                            selectedOrder?.id === order.id
-                              ? "bg-white/20 text-white"
-                              : ""
-                          }`}
-                          style={
-                            selectedOrder?.id !== order.id
-                              ? {
-                                  backgroundColor:
-                                    STATUS_CONFIG[order.status].bgColor,
-                                  color: STATUS_CONFIG[order.status].color,
-                                }
-                              : {}
-                          }
-                        >
-                          <StatusIcon className="w-3.5 h-3.5" />
-                          {STATUS_CONFIG[order.status].label}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
+          <ShoppingBag className="size-5" strokeWidth={2.5} />
         </div>
-
-        {/* Order Details */}
-        <div
-          className={`lg:col-span-5 ${selectedOrder ? "block" : "hidden lg:block"}`}
-        >
-          <div>
-            {selectedOrder ? (
-              <div className="bg-[--white-1] text-[--black-1] rounded-3xl border border-[--border-1] shadow-2xl overflow-hidden sticky top-24">
-                {/* Details Header */}
-                <div className="p-6 border-b border-[--border-1] flex justify-between items-center bg-[--gr-4] dark:bg-[--gr-5]">
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => setSelectedOrder(null)}
-                      className="lg:hidden p-2 rounded-full bg-[--white-1] shadow-sm"
-                    >
-                      <ArrowLeft className="w-5 h-5" />
-                    </button>
-                    <div>
-                      <h3 className="font-bold text-lg">
-                        {t("orders.order_details")}
-                      </h3>
-                      <p className="text-xs opacity-60">
-                        {t("orders.id_label")} {selectedOrder.id}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setSelectedOrder(null)}
-                    className="hidden lg:block p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <div className="p-6 space-y-8 max-h-[calc(100vh-200px)] overflow-y-auto custom-scrollbar">
-                  {/* Status Actions */}
-                  <div className="space-y-3">
-                    <p className="text-xs font-bold uppercase tracking-widest opacity-50">
-                      {t("orders.change_status")}
-                    </p>
-                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                      {Object.keys(STATUS_CONFIG).map((status) => {
-                        const config = STATUS_CONFIG[status];
-                        const Icon = config.icon;
-                        const isActive = selectedOrder.status === status;
-                        return (
-                          <button
-                            key={status}
-                            onClick={() =>
-                              handleStatusChange(selectedOrder.id, status)
-                            }
-                            className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${
-                              isActive
-                                ? "border-[--primary-1] bg-[--status-primary-1] dark:bg-[--status-primary-2] scale-105 shadow-md"
-                                : "border-[--border-1] hover:border-[--gr-3]"
-                            }`}
-                          >
-                            <Icon
-                              className="w-5 h-5"
-                              style={{
-                                color: isActive ? "--primary-1)" : "inherit",
-                              }}
-                            />
-                            <span
-                              className={`text-[10px] font-bold text-center ${isActive ? "text-[--primary-1]" : "opacity-60"}`}
-                            >
-                              {config.label}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Customer Info */}
-                  <div className="space-y-4">
-                    <p className="text-xs font-bold uppercase tracking-widest opacity-50">
-                      {t("orders.customer_information")}
-                    </p>
-                    <div className="space-y-3 bg-[--gr-4] dark:bg-[--gr-5] p-4 rounded-2xl">
-                      <div className="flex items-center justify-between text-xs border-b border-[--border-1] pb-3">
-                        <p className="opacity-60">
-                          {t("orders.order_type_label")}
-                        </p>
-                        <p className="font-semibold">
-                          {getOrderTypeLabel(selectedOrder.orderType)}
-                        </p>
-                      </div>
-                      {selectedOrder.orderType === "InPerson" &&
-                        selectedOrder.tableNumber && (
-                          <div className="flex items-center justify-between text-xs border-b border-[--border-1] pb-3">
-                            <p className="opacity-60">
-                              {t("orders.table_number_label")}
-                            </p>
-                            <p className="font-semibold">
-                              {selectedOrder.tableNumber}
-                            </p>
-                          </div>
-                        )}
-                      <div className="flex items-start gap-3">
-                        <User className="w-4 h-4 mt-1 text-[--primary-1]" />
-                        <div>
-                          <p className="font-bold">
-                            {selectedOrder.customerName}
-                          </p>
-                          <p className="text-xs opacity-60 flex items-center gap-1">
-                            <Phone className="w-3 h-3" />
-                            {selectedOrder.customerTel}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3 border-t border-[--border-1] pt-3">
-                        <MapPin className="w-4 h-4 mt-1 text-[--primary-1]" />
-                        <p className="text-sm leading-relaxed">
-                          {selectedOrder.customerAddress}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Items */}
-                  <div className="space-y-4">
-                    <p className="text-xs font-bold uppercase tracking-widest opacity-50">
-                      {t("orders.order_items")}
-                    </p>
-                    <div className="">
-                      {selectedOrder.items.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="flex justify-between items-start pb-3 border-b border-[--border-1] last:border-0"
-                        >
-                          <div className="w-full">
-                            <div className="flex justify-between">
-                              <div className="flex items-center gap-2">
-                                <span className="w-6 h-6 rounded-lg bg-[--gr-4] dark:bg-[--gr-5] flex items-center justify-center text-xs font-bold">
-                                  {item.quantity}x
-                                </span>
-                                <span className="font-bold">
-                                  {item.productName}
-                                </span>
-                                <span className="text-xs opacity-50">
-                                  ({item.portionName})
-                                </span>
-                              </div>
-                              <div>{item.lineTotal.toFixed(2)}</div>
-                            </div>
-                            {item.selectedTags.map((tag, tIdx) => (
-                              <div
-                                key={tIdx}
-                                className="text-xs opacity-60 ml-8 flex items-center justify-between gap-4"
-                              >
-                                <p>
-                                  <span>+ {tag.itemName}</span>
-                                  {tag.quantity > 1 && (
-                                    <>
-                                      <span> x</span>
-                                      <span>{tag.quantity}</span>
-                                    </>
-                                  )}
-                                </p>
-                                {tag.price !== null &&
-                                  tag.price !== undefined &&
-                                  tag.price > 0 && (
-                                    <span className="font-medium text-[--black-1] whitespace-nowrap tabular-nums">
-                                      {(
-                                        Number(tag.price) *
-                                        Number(tag.quantity) *
-                                        Number(item.quantity)
-                                      ).toFixed(2)}
-                                    </span>
-                                  )}
-                              </div>
-                            ))}
-                            {item.note && (
-                              <p className="text-xs italic text-[--primary-1] ml-8">
-                                {t("orders.note_label")} {item.note}
-                              </p>
-                            )}
-                          </div>
-                          {/* <span className="font-bold text-sm">
-                            {item.lineTotal.toFixed(2)}
-                          </span> */}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Order Note */}
-                  {selectedOrder.orderNote && (
-                    <div className="p-4 rounded-2xl bg-[--status-yellow] border border-[--yellow-1]/20">
-                      <p className="text-xs font-bold text-[--status-yellow] uppercase mb-1">
-                        {t("orders.general_note")}
-                      </p>
-                      <p className="text-sm italic opacity-80">
-                        {selectedOrder.orderNote}
-                      </p>
-                    </div>
-                  )}
-
-                  <div>
-                    {selectedOrder.customerNote && (
-                      <div className="p-2 rounded-md flex max-sm:flex-col max-sm:items-start items-center justify-between border border-[--border-1]">
-                        <p className="text-xs font-bold uppercase mb-1">
-                          {t("orders.customer_note")}
-                        </p>
-                        <p className="text-sm italic opacity-80">
-                          {selectedOrder.customerNote}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Summary */}
-                  <div className="space-y-3 pt-4 border-t border-[--border-1]">
-                    <div className="flex justify-between text-sm opacity-60">
-                      <span>{t("orders.subtotal")}</span>
-                      <span>₺{selectedOrder.subTotal.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm opacity-60">
-                      <span>{t("orders.delivery_fee")}</span>
-                      <span>
-                        ₺{selectedOrder?.deliveryFee?.toFixed(2) || "null"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm text-[--green-1] font-medium">
-                      <span>{t("orders.online_discount")}</span>
-                      <span>-₺{selectedOrder.discountAmount.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center pt-2">
-                      <span className="font-bold text-lg">
-                        {t("orders.total")}
-                      </span>
-                      <span className="text-2xl font-bold text-[--orange-1]">
-                        ₺{selectedOrder.totalAmount.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="h-[400px] flex flex-col items-center justify-center text-center p-8 bg-[--gr-4] dark:bg-[--gr-5] rounded-3xl border-2 border-dashed border-[--border-1]">
-                <div className="w-16 h-16 bg-[--white-1] rounded-full flex items-center justify-center mb-4 shadow-sm">
-                  <ShoppingBag className="w-8 h-8 opacity-20" />
-                </div>
-                <h3 className="font-bold opacity-40">
-                  {t("orders.select_order")}
-                </h3>
-                <p className="text-sm opacity-30 mt-1">
-                  {t("orders.realtime_updates")}
-                </p>
-              </div>
-            )}
-          </div>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[--black-1] leading-tight">
+            {t("orders.active_orders")}
+          </h1>
+          <p className="mt-1 text-sm text-[--gr-1]">
+            Gelen siparişleri canlı olarak takip edin
+            {typeof totalCount === "number" && totalCount > 0
+              ? ` · Toplam ${totalCount} sipariş`
+              : ""}
+          </p>
         </div>
-      </main>
+      </header>
+
+      {/* ACTIVE RESTAURANT FILTER CHIPS */}
+      {filter.restaurants?.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 mb-3">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1] mr-1">
+            Filtrelenen Restoranlar
+          </span>
+          {filter.restaurants.map((r) => (
+            <button
+              key={r.value}
+              type="button"
+              onClick={() => removeRestaurantFilter(r)}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[--primary-1]/10 text-[--primary-1] text-xs font-semibold ring-1 ring-[--primary-1]/30 hover:bg-[--primary-1]/15 transition"
+              title="Filtreden kaldır"
+            >
+              <Store className="size-3" />
+              {r.label}
+              <X className="size-3 opacity-70" />
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={clearAllRestaurantFilters}
+            className="text-xs font-semibold text-rose-600 hover:underline ml-1"
+          >
+            Tümünü temizle
+          </button>
+        </div>
+      )}
+
+      {/* TOOLBAR */}
+      <div className="flex flex-col sm:flex-row gap-2.5 mb-4">
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[--gr-1] pointer-events-none" />
+          <input
+            type="text"
+            value={searchVal}
+            onChange={(e) => setSearchVal(e.target.value)}
+            placeholder="Sipariş ID, müşteri veya masa ara..."
+            className="w-full h-11 pl-10 pr-10 rounded-xl border border-[--border-1] bg-[--white-1] text-sm text-[--black-1] placeholder:text-[--gr-1] outline-none transition focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-100"
+          />
+          {searchVal && (
+            <button
+              type="button"
+              onClick={() => setSearchVal("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 grid place-items-center size-6 rounded-full hover:bg-[--white-2] text-[--gr-1] transition"
+              aria-label="Aramayı temizle"
+            >
+              <X className="size-3.5" />
+            </button>
+          )}
+        </div>
+        <FilterOrders />
+      </div>
+
+      {/* LIST */}
+      {!filteredOrders || filteredOrders.length === 0 ? (
+        <EmptyState searchActive={Boolean(searchVal)} />
+      ) : (
+        <ul className="space-y-2.5">
+          {filteredOrders.map((order) => (
+            <OrderRow
+              key={order.id}
+              order={order}
+              onSelect={() => handleOpenOrder(order)}
+              isActive={selectedOrder?.id === order.id && drawerOpen}
+              t={t}
+            />
+          ))}
+        </ul>
+      )}
+
       {/* PAGINATION */}
-      {ordersData && typeof totalCount === "number" && (
-        <div className="w-full self-end flex justify-center py-4 text-[--black-2]">
-          <div className="scale-[.8] min-w-20">
+      {ordersData && typeof totalCount === "number" && totalCount > 0 && (
+        <div className="w-full mt-auto flex flex-wrap justify-center items-center gap-3 pt-8 text-[--black-1]">
+          <div className="w-20">
             <CustomSelect
               className="mt-[0] sm:mt-[0]"
               className2="mt-[0] sm:mt-[0]"
               menuPlacement="top"
               value={pageSize}
               options={pageNumbers()}
-              onChange={(option) => {
-                handleItemsPerPage(option.value);
-              }}
+              onChange={(option) => handleItemsPerPage(option.value)}
             />
           </div>
           <CustomPagination
@@ -501,8 +301,129 @@ const OrdersPage = () => {
           />
         </div>
       )}
-    </div>
+
+      {/* DETAIL DRAWER */}
+      <OrderDetailDrawer
+        open={drawerOpen}
+        order={selectedOrder}
+        onClose={handleCloseDrawer}
+      />
+    </section>
   );
 };
 
 export default OrdersPage;
+
+// ====== Helpers ======
+
+const OrderRow = ({ order, onSelect, isActive, t }) => {
+  const meta = STATUS_META[order.status] || STATUS_META.Pending;
+  const isInPerson = order.orderType === "InPerson";
+  const TypeIcon = isInPerson ? Utensils : Truck;
+  const typeLabel = isInPerson
+    ? t("orders.order_type_in_person")
+    : t("orders.order_type_online");
+  const itemCount = order.items?.length || 0;
+
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onSelect}
+        className={`w-full text-left rounded-2xl border bg-[--white-1] hover:border-[--primary-1]/40 hover:shadow-md hover:shadow-indigo-500/5 transition-all p-4 sm:p-5 ${
+          isActive
+            ? "border-[--primary-1]/60 shadow-md shadow-indigo-500/10 ring-2 ring-[--primary-1]/15"
+            : "border-[--border-1]"
+        }`}
+      >
+        <div className="grid grid-cols-[auto_1fr_auto] gap-3 sm:gap-4 items-center">
+          {/* Avatar */}
+          <div
+            className="grid place-items-center size-10 sm:size-12 shrink-0 rounded-xl text-white shadow-md shadow-indigo-500/20"
+            style={{ background: PRIMARY_GRADIENT }}
+          >
+            <TypeIcon className="size-5" strokeWidth={2.2} />
+          </div>
+
+          {/* Body */}
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm font-bold text-[--black-1] truncate">
+                {order.customerName ||
+                  (isInPerson && order.tableNumber) ||
+                  "—"}
+              </p>
+              <span
+                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ring-1 whitespace-nowrap ${
+                  STATUS_PILL[meta.cls]
+                }`}
+              >
+                <span
+                  className={`size-1.5 rounded-full ${STATUS_DOT[meta.cls]}`}
+                />
+                {t(meta.labelKey)}
+              </span>
+            </div>
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[--gr-1]">
+              <span className="inline-flex items-center gap-1">
+                <Clock className="size-3 shrink-0" />
+                {formatDateString({
+                  dateString: order.createdAt,
+                  hour: true,
+                  min: true,
+                })}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <TypeIcon className="size-3 shrink-0" />
+                {typeLabel}
+              </span>
+              {isInPerson && order.tableNumber && (
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="size-3 shrink-0" />
+                  {order.tableNumber}
+                </span>
+              )}
+              {order.paymentMethodName && (
+                <span className="inline-flex items-center gap-1">
+                  <CreditCard className="size-3 shrink-0" />
+                  {order.paymentMethodName}
+                </span>
+              )}
+              {itemCount > 0 && (
+                <span className="text-[--gr-1]">
+                  · {itemCount} ürün
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Right */}
+          <div className="text-right flex flex-col items-end gap-1">
+            <p className="font-bold text-[--black-1] text-base sm:text-lg whitespace-nowrap tabular-nums">
+              {Number(order.totalAmount || 0).toFixed(2)} ₺
+            </p>
+            <ChevronRight className="size-4 text-[--gr-1]" />
+          </div>
+        </div>
+      </button>
+    </li>
+  );
+};
+
+const EmptyState = ({ searchActive }) => (
+  <div className="grid place-items-center min-h-[24rem] rounded-2xl border border-[--border-1] bg-[--white-1]">
+    <div className="text-center px-6">
+      <div className="mx-auto mb-3 grid place-items-center size-12 rounded-2xl bg-[--white-2] ring-1 ring-[--border-1] text-[--gr-1]">
+        <ShoppingBag className="size-6" />
+      </div>
+      <p className="text-[--black-1] font-semibold">
+        {searchActive ? "Eşleşen sipariş bulunamadı" : "Aktif sipariş yok"}
+      </p>
+      <p className="text-xs text-[--gr-1] mt-1 max-w-xs">
+        {searchActive
+          ? "Aramanızla eşleşen sipariş yok. Filtreleri değiştirin veya aramayı temizleyin."
+          : "Yeni siparişler buraya canlı olarak düşecek."}
+      </p>
+    </div>
+  </div>
+);

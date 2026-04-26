@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
+import { CalendarClock, Clock, Users, Save, Power } from "lucide-react";
 
 // COMP
-import CustomInput from "../common/customInput";
 import CustomToggle from "../common/customToggle";
 import CustomDatePicker from "../common/customdatePicker";
 
@@ -88,109 +88,208 @@ const RestaurantReservationSettings = ({ data }) => {
     }
   }, [success, error]);
 
+  const inputCls =
+    "w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
+  const labelCls =
+    "block text-[11px] font-semibold text-slate-600 mb-1 tracking-wide";
+
+  const SectionHeader = ({ icon: Icon, label }) => (
+    <header className="flex items-center gap-1.5 mb-2.5">
+      <Icon className="size-3.5 text-indigo-600" />
+      <h2 className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.12em]">
+        {label}
+      </h2>
+    </header>
+  );
+
   return (
-    <div className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2] overflow-hidden">
-      <div className="flex flex-col">
-        <h1 className="text-xl font-bold bg-indigo-800 text-white py-5 px-6 sm:px-14">
-          {t("restaurantReservationSettings.title", { name: data?.name })}
-        </h1>
-
-        <form onSubmit={handleSubmit} className="mt-16 space-y-5">
-          <main className="flex flex-col gap-4">
-            {/*  Interval Minutes && Max Guests */}
-            <div className="max-w-md mb-4">
-              <CustomToggle
-                label={t("restaurantReservationSettings.is_active_label")}
-                checked={reservationData?.isActive}
-                onChange={(e) =>
-                  setReservationData((prev) => ({
-                    ...prev,
-                    isActive: e.target.checked,
-                  }))
-                }
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <CustomInput
-                type="number"
-                min={1}
-                placeholder={t(
-                  "restaurantReservationSettings.interval_minutes_label",
-                )}
-                label={t(
-                  "restaurantReservationSettings.interval_minutes_label",
-                )}
-                className="w-full pl-7 pr-2 py-1.5 text-sm border border-[--border-1] rounded-lg outline-none focus:border-[--primary-1] bg-[--white-1] text-[--black-1]"
-                value={reservationData?.intervalMinutes}
-                onChange={(e) =>
-                  setReservationData((prev) => ({
-                    ...prev,
-                    intervalMinutes: e,
-                  }))
-                }
-              />
-
-              <CustomInput
-                type="number"
-                min={1}
-                placeholder={t(
-                  "restaurantReservationSettings.max_guests_label",
-                )}
-                label={t("restaurantReservationSettings.max_guests_label")}
-                className="w-full pl-7 pr-2 py-1.5 text-sm border border-[--border-1] rounded-lg outline-none focus:border-[--primary-1] bg-[--white-1] text-[--black-1]"
-                value={reservationData?.maxGuests}
-                onChange={(e) =>
-                  setReservationData((prev) => ({
-                    ...prev,
-                    maxGuests: e,
-                  }))
-                }
-              />
-            </div>
-
-            {/* Times */}
-            <div className="flex items-center gap-3">
-              <CustomDatePicker
-                label={t("restaurantReservationSettings.start_time_label")}
-                value={parseTimeToDate(reservationData?.startTime)}
-                onChange={(date) =>
-                  setReservationData((prev) => ({
-                    ...prev,
-                    startTime: formatDateToTime(date),
-                  }))
-                }
-                timeOnly
-                calendarClassName
-                className2="mt-0 sm:mt-0 w-auto"
-                className="w-full py-1.5 text-sm bg-[--white-1] text-[--black-1]"
-              />
-
-              <CustomDatePicker
-                label={t("restaurantReservationSettings.end_time_label")}
-                value={parseTimeToDate(reservationData?.endTime)}
-                onChange={(date) =>
-                  setReservationData((prev) => ({
-                    ...prev,
-                    endTime: formatDateToTime(date),
-                  }))
-                }
-                timeOnly
-                calendarClassName
-                className2="mt-0 sm:mt-0 w-auto"
-                className="w-full py-1.5 text-sm bg-[--white-1] text-[--black-1]"
-              />
-            </div>
-          </main>
-          <div className="w-full flex justify-end pt-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full sm:w-auto px-6 py-3 rounded-md bg-[--primary-1] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {t("restaurantReservationSettings.save")}
-            </button>
+    <div className="w-full pb-8 mt-1 text-slate-900">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        {/* gradient strip */}
+        <div
+          className="h-0.5"
+          style={{
+            background:
+              "linear-gradient(90deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)",
+          }}
+        />
+        {/* HERO HEADER */}
+        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+          <span
+            className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
+            style={{
+              background:
+                "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)",
+            }}
+          >
+            <CalendarClock className="size-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+              {t("restaurantReservationSettings.title", {
+                name: data?.name || "",
+              })}
+            </h1>
+            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+              {reservationData?.isActive
+                ? `${reservationData?.startTime || "--:--"} – ${reservationData?.endTime || "--:--"}`
+                : "—"}
+            </p>
           </div>
-        </form>
+        </div>
+
+        <div className="p-4 sm:p-5">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            {/* DURUM */}
+            <div>
+              <SectionHeader
+                icon={Power}
+                label={t("restaurantReservationSettings.is_active_label")}
+              />
+              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 flex items-center justify-between gap-3">
+                <span className="text-sm font-medium text-slate-900 whitespace-nowrap">
+                  {t("restaurantReservationSettings.is_active_label")}
+                </span>
+                <CustomToggle
+                  label=""
+                  swap
+                  className1="!w-auto !shrink-0"
+                  checked={reservationData?.isActive}
+                  onChange={(e) =>
+                    setReservationData((prev) => ({
+                      ...prev,
+                      isActive: e.target.checked,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+
+            {/* SAATLER */}
+            <div>
+              <SectionHeader
+                icon={Clock}
+                label={`${t(
+                  "restaurantReservationSettings.start_time_label",
+                )} / ${t("restaurantReservationSettings.end_time_label")}`}
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className={labelCls}>
+                    {t("restaurantReservationSettings.start_time_label")}
+                  </label>
+                  <CustomDatePicker
+                    value={parseTimeToDate(reservationData?.startTime)}
+                    onChange={(date) =>
+                      setReservationData((prev) => ({
+                        ...prev,
+                        startTime: formatDateToTime(date),
+                      }))
+                    }
+                    timeOnly
+                    calendarClassName
+                    className2="mt-0 sm:mt-0"
+                    className="!w-full !h-10 !px-3 !rounded-lg !border !border-slate-200 !bg-white !text-slate-900 !text-sm focus:!border-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>
+                    {t("restaurantReservationSettings.end_time_label")}
+                  </label>
+                  <CustomDatePicker
+                    value={parseTimeToDate(reservationData?.endTime)}
+                    onChange={(date) =>
+                      setReservationData((prev) => ({
+                        ...prev,
+                        endTime: formatDateToTime(date),
+                      }))
+                    }
+                    timeOnly
+                    calendarClassName
+                    className2="mt-0 sm:mt-0"
+                    className="!w-full !h-10 !px-3 !rounded-lg !border !border-slate-200 !bg-white !text-slate-900 !text-sm focus:!border-indigo-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* KAPASİTE */}
+            <div>
+              <SectionHeader
+                icon={Users}
+                label={t("restaurantReservationSettings.max_guests_label")}
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className={labelCls}>
+                    {t("restaurantReservationSettings.interval_minutes_label")}
+                  </label>
+                  <div className="flex items-stretch rounded-lg border border-slate-200 bg-white focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition overflow-hidden">
+                    <input
+                      type="number"
+                      min={1}
+                      className="flex-1 min-w-0 h-10 px-3 outline-none text-sm bg-transparent"
+                      placeholder={t(
+                        "restaurantReservationSettings.interval_minutes_label",
+                      )}
+                      value={reservationData?.intervalMinutes ?? ""}
+                      onChange={(e) =>
+                        setReservationData((prev) => ({
+                          ...prev,
+                          intervalMinutes: e.target.value,
+                        }))
+                      }
+                    />
+                    <span className="bg-slate-50 text-slate-500 text-xs font-semibold px-3 grid place-items-center border-l border-slate-200">
+                      dk
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <label className={labelCls}>
+                    {t("restaurantReservationSettings.max_guests_label")}
+                  </label>
+                  <div className="flex items-stretch rounded-lg border border-slate-200 bg-white focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition overflow-hidden">
+                    <input
+                      type="number"
+                      min={1}
+                      className="flex-1 min-w-0 h-10 px-3 outline-none text-sm bg-transparent"
+                      placeholder={t(
+                        "restaurantReservationSettings.max_guests_label",
+                      )}
+                      value={reservationData?.maxGuests ?? ""}
+                      onChange={(e) =>
+                        setReservationData((prev) => ({
+                          ...prev,
+                          maxGuests: e.target.value,
+                        }))
+                      }
+                    />
+                    <span className="bg-slate-50 text-slate-500 text-xs font-semibold px-3 grid place-items-center border-l border-slate-200">
+                      <Users className="size-3.5" />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* SUBMIT */}
+            <div className="flex justify-end pt-3 border-t border-slate-100">
+              <button
+                type="submit"
+                disabled={loading}
+                className="group inline-flex items-center justify-center gap-2 h-10 px-5 rounded-lg text-white text-sm font-semibold shadow-lg shadow-indigo-500/25 transition-all hover:shadow-indigo-500/40 hover:brightness-110 active:brightness-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)",
+                }}
+              >
+                <Save className="size-4" />
+                {t("restaurantReservationSettings.save")}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -1,46 +1,45 @@
 // MODULES
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import { usePopup } from "../context/PopupContext";
+import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+import {
+  ArrowRight,
+  Check,
+  FileText,
+  Lock,
+  Mail,
+  MailCheck,
+  User,
+  X,
+} from "lucide-react";
 
-//COMP
+// CONTEXT
+import { usePopup } from "../context/PopupContext";
+
+// COMP
 import PrivacyPolicy from "./privacyPolicy";
 import LoadingI from "../assets/anim/loading";
-import CustomInput from "../components/common/customInput";
-import CustomSelect from "../components/common/customSelector";
-import CustomCheckbox from "../components/common/customCheckbox";
-import CustomPhoneInput from "../components/common/customPhoneInput";
+import AuthShell from "../components/auth/AuthShell";
+import AuthField from "../components/auth/AuthField";
+import AuthPhoneField from "../components/auth/AuthPhoneField";
+import { EmailSuggestion } from "./login";
 
-//FUNC
-import { formatEmail } from "../utils/utils";
+// FUNC
+import { formatEmail, toNameCase } from "../utils/utils";
 
 // REDUX
-import { getCities } from "../redux/data/getCitiesSlice";
-import { getDistricts } from "../redux/data/getDistrictsSlice";
 import { registerUser, resetRgisterState } from "../redux/auth/registerSlice";
 
-// ASSETS
-import { CancelI } from "../assets/icon";
-import VerifyCode from "../components/common/verifyCode";
-import GlassFrame from "../components/common/glassFrame";
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
 
 const Register = () => {
   const toastId = useRef();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { popupContent, setPopupContent } = usePopup();
-
-  const { cities, success: citiesSuccess } = useSelector(
-    (state) => state.data.getCities,
-  );
-
-  const { districts: districtsData, success: districtsSuccess } = useSelector(
-    (state) => state.data.getDistricts,
-  );
 
   const { loading, success, error } = useSelector(
     (state) => state.auth.register,
@@ -50,15 +49,10 @@ const Register = () => {
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("+90");
   const [email, setEmail] = useState("");
-  const [city, setCity] = useState(null);
-  const [district, setDistrict] = useState(null);
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [checked, setChecked] = useState(false);
   const [toConfirm, setToConfirm] = useState(false);
-
-  const [citiesData, setCitiesData] = useState(null);
-  const [districts, setDistricts] = useState([]);
 
   const confirmRegister = (e) => {
     e.preventDefault();
@@ -71,7 +65,6 @@ const Register = () => {
       toast(t("register.phone_incomplete"));
       return;
     }
-
     if (!checked) {
       toast.error(t("register.accept_terms"));
       return;
@@ -88,14 +81,7 @@ const Register = () => {
 
   const register = () => {
     setPopupContent(null);
-    if (
-      firstName &&
-      lastName &&
-      phoneNumber &&
-      city?.value &&
-      district?.value &&
-      password
-    ) {
+    if (firstName && lastName && phoneNumber && password) {
       dispatch(
         registerUser({
           email,
@@ -103,9 +89,6 @@ const Register = () => {
           password,
           firstName,
           lastName,
-          city: city.value,
-          district: district.value,
-          neighbourhood: "string",
         }),
       );
     } else {
@@ -113,7 +96,6 @@ const Register = () => {
     }
   };
 
-  // USE EFFECTS
   useEffect(() => {
     if (loading) {
       toastId.current = toast.loading(t("register.processing"));
@@ -129,337 +111,307 @@ const Register = () => {
     }
   }, [loading, success, error, dispatch, t]);
 
-  //GET CITIES
-  // useEffect(() => {
-  //   if (!cities) {
-  //     dispatch(getCities());
-  //   }
-  //   if (citiesSuccess) {
-  //     setCitiesData(cities);
-  //   }
-  // }, [citiesSuccess, cities]);
-
-  //GET DISTRICTS
-  // useEffect(() => {
-  //   if (city?.id) {
-  //     dispatch(getDistricts({ cityId: city.id }));
-  //     setDistrict(null);
-  //   }
-  // }, [city]);
-
-  //SET DISTRICTS
-  // useEffect(() => {
-  //   if (districtsSuccess) {
-  //     setDistricts(districtsData);
-  //   }
-  // }, [districtsSuccess]);
+  if (toConfirm) {
+    return (
+      <AuthShell>
+        <CheckEmail email={email} />
+      </AuthShell>
+    );
+  }
 
   return (
-    <GlassFrame
-      className="pt-[3.5rem] sm:pt-[4.5rem] pb-16 overflow-y-auto"
-      className2="pt-[0rem] pb-[1rem] sm:max-w-[34rem]"
-      component={
-        !toConfirm ? (
-          /* Register Page */
-          <form onSubmit={confirmRegister} className="light">
-            <div className="flex justify-center">
-              <h2 className="text-[2.7rem] font-bold text-[--white-1] tracking-tighter">
-                {t("register.title")}
-              </h2>
-            </div>
-            <div className="flex flex-col max-w-full">
-              <div className="flex max-sm:flex-col w-full sm:gap-2 ">
-                <CustomInput
-                  // label="Ad"
-                  type="text"
-                  placeholder={t("register.first_name")}
-                  value={firstName}
-                  onChange={(e) => setFirstName(e)}
-                  required={true}
-                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
-                  className2="mt-[5px] sm:mt-[5px]"
-                />
-                <CustomInput
-                  // label="Soyad"
-                  type="text"
-                  placeholder={t("register.last_name")}
-                  value={lastName}
-                  onChange={(e) => setLastName(e)}
-                  required={true}
-                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
-                  className2="mt-[5px] sm:mt-[5px]"
-                />
-              </div>
-
-              <div className="flex w-full sm:gap-2 max-sm:flex-col ">
-                <CustomPhoneInput
-                  // label="Cep Telefonu"
-                  type="tel"
-                  placeholder={t("register.phone_placeholder")}
-                  value={phoneNumber}
-                  onChange={(phone) => setPhoneNumber(phone)}
-                  required={true}
-                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
-                  className2="mt-[5px] sm:mt-[5px]"
-                  maxLength={14}
-                />
-                <CustomInput
-                  // label="E-Posta"
-                  type="email"
-                  placeholder={t("register.email_placeholder")}
-                  value={email}
-                  onChange={(e) => setEmail(formatEmail(e))}
-                  required={true}
-                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
-                  className2="mt-[5px] sm:mt-[5px]"
-                />
-              </div>
-
-              <div className="flex w-full sm:gap-2 max-sm:flex-col">
-                {/* <CustomSelect
-                  // label="Şehir"
-                  options={citiesData || []}
-                  value={city ? city : { value: null, label: "Şehir" }}
-                  onChange={setCity}
-                  style={{
-                    padding: "1px 0px",
-                    fontSize: ".8rem",
-                    backgroundColor: "transparent",
-                  }}
-                  inputStyle={{ color: "var(--white-1)" }}
-                  singleValueStyle={{ color: "white" }}
-                  className="text-sm mt-[5px] sm:mt-[5px]"
-                  className2="container-class mt-[0px] sm:mt-[0px]"
-                /> */}
-                <CustomInput
-                  // label="Soyad"
-                  type="text"
-                  placeholder={t("register.city_placeholder")}
-                  value={city?.value}
-                  onChange={(e) => setCity({ value: e })}
-                  required={true}
-                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
-                  className2="mt-[5px] sm:mt-[5px]"
-                />
-                {/* <CustomSelect
-                  required={true}
-                  // label="İlçe"
-                  value={
-                    district ? district : { value: null, label: "İlçe seç" }
-                  }
-                  options={
-                    districts
-                      ? [{ value: null, label: "İlçe seç" }, ...districts]
-                      : [{ value: null, label: "İlçe seç" }]
-                  }
-                  onChange={setDistrict}
-                  style={{
-                    padding: "1px 0px",
-                    fontSize: ".8rem",
-                    backgroundColor: "transparent",
-                  }}
-                  inputStyle={{ color: "var(--white-1)" }}
-                  singleValueStyle={{ color: "white" }}
-                  className="text-sm mt-[5px] sm:mt-[5px]"
-                  className2="container-class mt-[0px] sm:mt-[0px]"
-                /> */}
-                <CustomInput
-                  // label="Soyad"
-                  type="text"
-                  placeholder={t("register.district_placeholder")}
-                  value={district?.value}
-                  onChange={(e) => setDistrict({ value: e })}
-                  required={true}
-                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
-                  className2="mt-[5px] sm:mt-[5px]"
-                />
-              </div>
-
-              <div className="">
-                <CustomInput
-                  // label="Şifre"
-                  placeholder={t("register.password_placeholder")}
-                  value={password}
-                  onChange={(e) => setPassword(e)}
-                  required={true}
-                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
-                  className2="mt-[5px] sm:mt-[5px]"
-                  className3="top-[25%]"
-                  className5="text-[var(--white-1)]"
-                  letIcon={true}
-                  minLength={6}
-                  maxLength={20}
-                />
-                <CustomInput
-                  // label="Şifreyi onayla"
-                  placeholder={t("register.password_confirm_placeholder")}
-                  value={password2}
-                  onChange={(e) => setPassword2(e)}
-                  required={true}
-                  className="mt-[0px] sm:mt-[0px] py-[.5rem] bg-transparent text-white"
-                  className2="mt-[5px] sm:mt-[5px]"
-                  className3="top-[25%]"
-                  className5="text-[var(--white-1)]"
-                  letIcon={true}
-                  minLength={4}
-                  maxLength={20}
-                />
-              </div>
-
-              <div className="flex w-full mt-4">
-                {/* /privacyPolicy target='_blank' rel='noopener noreferrer */}
-                <CustomCheckbox
-                  label={<PrivacyBtn />}
-                  className="text-sm"
-                  checked={checked}
-                  onChange={() => setChecked(!checked)}
-                />
-              </div>
-
-              <div className="flex flex-col mt-4 sm:mt-10 w-full">
-                <button
-                  type="submit"
-                  className={`flex justify-center px-7 py-2 text-xl rounded-md bg-[--primary-1] text-white hover:opacity-90 `}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <LoadingI className="h-7" />
-                  ) : (
-                    t("register.continue")
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex flex-col mt-4 sm:mt-6 w-full">
-              <div className="flex justify-center gap-2 text-white">
-                <p>{t("register.have_account")}</p>
-                <a href="/login" className="text-[--link-1]">
-                  {t("register.login_link")}
-                </a>
-              </div>
-            </div>
-          </form>
-        ) : (
-          /* Verify Page*/
-          <CheckEmail email={email} />
-        )
+    <AuthShell
+      title={t("register.title")}
+      subtitle={t("register.subtitle")}
+      maxWidth="xl"
+      formFooter={
+        <>
+          {t("register.have_account")}{" "}
+          <Link
+            to="/login"
+            className="font-semibold text-[--primary-1] hover:underline"
+          >
+            {t("register.login_link")}
+          </Link>
+        </>
       }
-    />
+    >
+      <form onSubmit={confirmRegister} className="space-y-4" noValidate>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <AuthField
+            id="firstName"
+            label={t("register.first_name")}
+            icon={User}
+            value={firstName}
+            onChange={(e) => setFirstName(toNameCase(e.target.value))}
+            required
+            placeholder={t("register.first_name")}
+            autoComplete="given-name"
+            maxLength={40}
+          />
+          <AuthField
+            id="lastName"
+            label={t("register.last_name")}
+            icon={User}
+            value={lastName}
+            onChange={(e) => setLastName(toNameCase(e.target.value))}
+            required
+            placeholder={t("register.last_name")}
+            autoComplete="family-name"
+            maxLength={40}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <AuthPhoneField
+            id="phoneNumber"
+            label={t("register.phone_label", { defaultValue: "Telefon" })}
+            value={phoneNumber}
+            onChange={(phone) => setPhoneNumber(phone)}
+            required
+            placeholder={t("register.phone_placeholder")}
+          />
+          <div>
+            <AuthField
+              id="email"
+              label={t("register.email_label", { defaultValue: "E-Posta" })}
+              icon={Mail}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(formatEmail(e.target.value))}
+              required
+              placeholder={t("register.email_placeholder")}
+              autoComplete="email"
+            />
+            <EmailSuggestion email={email} onApply={setEmail} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <AuthField
+            id="password"
+            label={t("register.password_placeholder")}
+            icon={Lock}
+            password
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            placeholder={t("register.password_placeholder")}
+            autoComplete="new-password"
+            minLength={6}
+            maxLength={20}
+          />
+          <AuthField
+            id="password2"
+            label={t("register.password_confirm_placeholder")}
+            icon={Lock}
+            password
+            value={password2}
+            onChange={(e) => setPassword2(e.target.value)}
+            required
+            placeholder={t("register.password_confirm_placeholder")}
+            autoComplete="new-password"
+            minLength={6}
+            maxLength={20}
+          />
+        </div>
+
+        <TermsCheckbox checked={checked} setChecked={setChecked} />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="group w-full h-12 inline-flex items-center justify-center gap-2 rounded-xl text-white text-base font-semibold shadow-lg shadow-indigo-500/25 transition-all hover:shadow-indigo-500/40 hover:brightness-110 active:brightness-95 disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+          style={{ background: PRIMARY_GRADIENT }}
+        >
+          {loading ? (
+            <LoadingI className="size-5 text-white fill-white/40" />
+          ) : (
+            <>
+              {t("register.continue")}
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+            </>
+          )}
+        </button>
+      </form>
+    </AuthShell>
   );
 };
 
 export default Register;
 
-const Confirm = ({ email, setPopupContent, onClick }) => {
+// ----- Subcomponents -----
+
+const TermsCheckbox = ({ checked, setChecked }) => {
   const { t } = useTranslation();
+  const { setPopupContent } = usePopup();
+
+  const openPrivacy = () =>
+    setPopupContent(
+      <PrivacyPopup
+        onAccept={() => {
+          setChecked(true);
+          setPopupContent(null);
+        }}
+      />,
+    );
 
   return (
-    <div className="w-full flex justify-center light">
-      <div className="w-full max-w-[35rem] bg-[--white-1] shadow-lg py-10 px-5 rounded-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-10 border border-[--gr-1] text-[--white-1]">
-        <div className="text-center">
-          <div className="w-full flex justify-center mb-8">
-            <p className="text-[--primary-2] text-4xl">{email}</p>
-          </div>
-          <p className="font-[350]">
-            {t("register.confirm_line1")}
-            <br />
-            {t("register.confirm_line2")}
+    <label className="flex items-start gap-3 cursor-pointer text-sm select-none pt-1">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => setChecked(e.target.checked)}
+        className="sr-only"
+      />
+      <span
+        className={`mt-0.5 grid place-items-center size-5 shrink-0 rounded-md border-2 transition ${
+          checked
+            ? "bg-[--primary-1] border-[--primary-1]"
+            : "bg-white border-slate-300"
+        }`}
+      >
+        {checked && <Check className="size-3.5 text-white" strokeWidth={3} />}
+      </span>
+      <span className="text-slate-600 leading-snug">
+        <button
+          type="button"
+          onClick={openPrivacy}
+          className="text-[--primary-1] font-medium hover:underline"
+        >
+          {t("register.terms_button")}
+        </button>
+        {t("register.terms_suffix")}
+      </span>
+    </label>
+  );
+};
+
+const PrivacyPopup = ({ onAccept }) => {
+  const { t } = useTranslation();
+  const { setPopupContent } = usePopup();
+  const close = () => setPopupContent(null);
+
+  return (
+    <div className="light bg-white shadow-2xl ring-1 ring-slate-200 max-w-3xl w-full mx-auto flex flex-col rounded-none sm:rounded-2xl overflow-hidden max-h-[100dvh] sm:max-h-[90dvh] h-[100dvh] sm:h-auto">
+      {/* Top gradient strip */}
+      <div
+        className="h-1 shrink-0"
+        style={{ background: PRIMARY_GRADIENT }}
+        aria-hidden="true"
+      />
+
+      {/* Header */}
+      <div className="flex items-start gap-3 sm:gap-4 px-5 sm:px-7 py-4 sm:py-5 border-b border-slate-100 shrink-0">
+        <div className="grid place-items-center size-10 shrink-0 rounded-xl bg-indigo-50 text-[--primary-1]">
+          <FileText className="size-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900 leading-tight">
+            {t("register.terms_modal_title")}
+          </h2>
+          <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
+            {t("register.terms_modal_subtitle")}
           </p>
         </div>
-        <div className="mt-10 w-full flex gap-4 justify-center">
-          <button
-            className="py-2 px-5 rounded-lg bg-[--light-3] text-[--black-1] hover:opacity-90"
-            onClick={() => setPopupContent(null)}
-          >
-            {t("register.confirm_edit")}
-          </button>
-          <button
-            className="py-2 px-6 rounded-lg bg-[--primary-1] text-white hover:opacity-90"
-            onClick={onClick}
-          >
-            {t("register.confirm_yes")}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={close}
+          aria-label="Close"
+          className="grid place-items-center size-9 shrink-0 -mt-0.5 rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition"
+        >
+          <X className="size-5" />
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="flex-1 overflow-y-auto px-5 sm:px-7 py-5 sm:py-6">
+        <PrivacyPolicy />
+      </div>
+
+      {/* Footer */}
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 sm:gap-3 px-5 sm:px-7 py-3 sm:py-4 border-t border-slate-100 bg-slate-50/60 shrink-0">
+        <button
+          type="button"
+          onClick={close}
+          className="h-11 sm:h-10 px-5 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50 transition"
+        >
+          {t("register.terms_close")}
+        </button>
+        <button
+          type="button"
+          onClick={onAccept}
+          className="h-11 sm:h-10 px-5 inline-flex items-center justify-center gap-2 rounded-xl text-white font-semibold shadow-md shadow-indigo-500/25 transition hover:shadow-indigo-500/30 hover:brightness-110 active:brightness-95"
+          style={{ background: PRIMARY_GRADIENT }}
+        >
+          <Check className="size-4" strokeWidth={3} />
+          {t("register.terms_accept")}
+        </button>
       </div>
     </div>
   );
 };
 
-function PrivacyBtn() {
+const Confirm = ({ email, setPopupContent, onClick }) => {
   const { t } = useTranslation();
-  const { setPopupContent } = usePopup();
-
-  const closeForm = () => {
-    setPopupContent(null);
-  };
-
-  const PrivacyPopup = () => {
-    return (
-      <div className="pt-8 bg-[--white-1] rounded-lg overflow-clip">
-        <div className="overflow-y-auto h-[95dvh]">
-          <div className="absolute top-2 right-3 z-[50]">
-            <div
-              className="text-[--primary-2] p-2 border border-solid border-[--primary-2] rounded-full cursor-pointer hover:bg-[--primary-2] hover:text-white transition-colors"
-              onClick={closeForm}
-            >
-              <CancelI />
-            </div>
-          </div>
-          <PrivacyPolicy />
-        </div>
-      </div>
-    );
-  };
-
   return (
-    <div className="text-[--gr-1]">
-      <button
-        className="text-[--link-1]"
-        type="button"
-        onClick={() => {
-          setPopupContent(<PrivacyPopup />);
-        }}
-      >
-        {t("register.terms_button")}
-      </button>
-      {t("register.terms_suffix")}
-    </div>
-  );
-}
-
-function CheckEmail({ email }) {
-  const { t } = useTranslation();
-
-  return (
-    <div className="light">
-      <div className="flex justify-center relative">
-        <div className="w-max">
-          <h2 className="text-[2.7rem] font-bold text-[--white-1] tracking-tighter">
-            {t("register.verify_title")}
-          </h2>
-        </div>
+    <div className="w-full max-w-sm mx-auto bg-white rounded-2xl p-6 sm:p-8 shadow-2xl ring-1 ring-slate-100">
+      <div className="grid place-items-center size-14 rounded-full bg-indigo-50 text-[--primary-1] mx-auto mb-5">
+        <MailCheck className="size-7" />
       </div>
-
-      <div className="flex flex-col items-center mt-5">
-        <div className="mt-10 text-[--white-1]">
-          <>
-            <span className="text-[--link-1] font-bold">{email}</span>{" "}
-            {t("register.verify_message")}
-          </>
-        </div>
-
-        <div className="flex flex-col mt-10 w-full">
-          <div className="shrink-0 h-px bg-slate-200 w-full" />
-        </div>
-
-        <a
-          href="/login"
-          className="w-full text-center py-2 px-6 rounded-lg bg-[--primary-1] text-white hover:opacity-90 mt-10"
+      <p className="text-center text-sm text-slate-500">
+        {t("register.confirm_line1")}
+      </p>
+      <p className="text-center text-base font-semibold text-[--primary-1] break-all mt-1">
+        {email}
+      </p>
+      <p className="text-center text-sm text-slate-500 mt-3 mb-6">
+        {t("register.confirm_line2")}
+      </p>
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          type="button"
+          onClick={() => setPopupContent(null)}
+          className="h-11 rounded-xl border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 transition"
         >
-          {t("login")}
-        </a>
+          {t("register.confirm_edit")}
+        </button>
+        <button
+          type="button"
+          onClick={onClick}
+          className="h-11 rounded-xl text-white font-semibold shadow-lg shadow-indigo-500/25 transition hover:shadow-indigo-500/40 hover:brightness-110"
+          style={{ background: PRIMARY_GRADIENT }}
+        >
+          {t("register.confirm_yes")}
+        </button>
       </div>
     </div>
   );
-}
+};
+
+const CheckEmail = ({ email }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="text-center">
+      <div className="grid place-items-center size-16 rounded-full bg-indigo-50 text-[--primary-1] mx-auto mb-6">
+        <MailCheck className="size-8" />
+      </div>
+      <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">
+        {t("register.verify_title")}
+      </h2>
+      <p className="text-slate-500 text-sm leading-relaxed">
+        <span className="font-semibold text-[--primary-1] break-all">
+          {email}
+        </span>{" "}
+        {t("register.verify_message")}
+      </p>
+      <Link
+        to="/login"
+        className="mt-8 inline-flex items-center justify-center w-full h-12 rounded-xl text-white font-semibold shadow-lg shadow-indigo-500/25 transition hover:shadow-indigo-500/40 hover:brightness-110"
+        style={{ background: PRIMARY_GRADIENT }}
+      >
+        {t("register.login_link")}
+      </Link>
+    </div>
+  );
+};

@@ -1,14 +1,15 @@
 //MODULES
-import { useDispatch } from "react-redux";
 import { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import { Check, Filter, X } from "lucide-react";
 
 //UTILS
 import statuses from "../../../enums/statuses";
 import { formatDate } from "../../../utils/utils";
 import paymentLicenseType from "../../../enums/paymentLicenseType";
+import PaymentMethod from "../../../enums/paymentMethods";
 
 //COMP
-import CustomSelect from "../../common/customSelector";
 import CustomDatePicker from "../../common/customdatePicker";
 
 //CONTEXT
@@ -16,7 +17,9 @@ import { usePopup } from "../../../context/PopupContext";
 
 //REDUX
 import { getPayments } from "../../../redux/payments/getPaymentsSlice";
-import PaymentMethod from "../../../enums/paymentMethods";
+
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
 
 const FilterPayments = ({
   filter,
@@ -25,39 +28,46 @@ const FilterPayments = ({
   pageNumber,
   itemsPerPage,
   setPageNumber,
+  activeFilterCount = 0,
 }) => {
   const dispatch = useDispatch();
   const filterPaymentsRef = useRef();
   const { contentRef, setContentRef } = usePopup();
 
   const [openFilter, setOpenFilter] = useState(false);
+  const [draft, setDraft] = useState(filter || {});
 
-  function handleFilter(bool) {
-    if (bool) {
-      const filterData = {
-        pageNumber: 1,
-        pageSize: itemsPerPage,
-        searchKey: searchVal,
-        startDateTime: filter?.endDateTime
-          ? formatDate(filter.startDateTime)
-          : null,
-        endDateTime: filter?.endDateTime
-          ? formatDate(filter.endDateTime)
-          : null,
-        status: filter?.statusId,
-        type: filter?.typeId,
-        paymentMethod: filter?.paymentMethodId,
-      };
-      dispatch(getPayments(filterData));
-    } else {
-      setFilter(null);
-      dispatch(getPayments({ pageNumber, pageSize: itemsPerPage }));
-    }
+  useEffect(() => {
+    if (openFilter) setDraft(filter || {});
+  }, [openFilter]);
+
+  function handleApply() {
+    const filterData = {
+      pageNumber: 1,
+      pageSize: itemsPerPage,
+      searchKey: searchVal,
+      startDateTime: draft?.startDateTime
+        ? formatDate(draft.startDateTime)
+        : null,
+      endDateTime: draft?.endDateTime ? formatDate(draft.endDateTime) : null,
+      status: draft?.statusId ?? null,
+      type: draft?.typeId ?? null,
+      paymentMethod: draft?.paymentMethodId ?? null,
+    };
+    setFilter(draft);
+    dispatch(getPayments(filterData));
     setPageNumber(1);
     setOpenFilter(false);
   }
 
-  //HIDE FILTER
+  function handleClear() {
+    setFilter(null);
+    setDraft({});
+    dispatch(getPayments({ pageNumber: 1, pageSize: itemsPerPage }));
+    setPageNumber(1);
+    setOpenFilter(false);
+  }
+
   useEffect(() => {
     if (filterPaymentsRef) {
       const refs = contentRef.filter((ref) => ref.id !== "getPaymentsFilter");
@@ -74,165 +84,148 @@ const FilterPayments = ({
   }, [filterPaymentsRef]);
 
   return (
-    <div className="flex justify-end">
-      <div className="flex gap-2">
-        <div className="w-full relative" ref={filterPaymentsRef}>
-          <button
-            className="w-full h-11 flex items-center justify-center text-[--primary-2] px-3 rounded-md text-sm font-normal border-[1.5px] border-solid border-[--primary-2]"
-            onClick={() => setOpenFilter(!openFilter)}
-          >
-            Filtre
-          </button>
+    <div className="relative" ref={filterPaymentsRef}>
+      <button
+        type="button"
+        onClick={() => setOpenFilter((v) => !v)}
+        className={`h-11 inline-flex items-center justify-center gap-2 px-4 rounded-xl text-sm font-semibold transition whitespace-nowrap ${
+          activeFilterCount > 0
+            ? "text-white shadow-md shadow-indigo-500/20"
+            : "border border-[--border-1] bg-[--white-1] text-[--black-1] hover:border-[--primary-1]/40"
+        }`}
+        style={
+          activeFilterCount > 0 ? { background: PRIMARY_GRADIENT } : undefined
+        }
+      >
+        <Filter className="size-4" />
+        Filtrele
+        {activeFilterCount > 0 && (
+          <span className="grid place-items-center min-w-5 h-5 px-1 rounded-full bg-white text-[--primary-1] text-[10px] font-bold">
+            {activeFilterCount}
+          </span>
+        )}
+      </button>
 
-          <div
-            className={`absolute right-0 top-12 px-4 pb-3 flex flex-col bg-[--white-1] w-[22rem] border border-solid border-[--light-3] rounded-lg drop-shadow-md -drop-shadow-md z-[999] min-w-max ${
-              openFilter ? "visible" : "hidden"
-            }`}
-          >
-            <div className="flex gap-6">
-              <div>
+      {openFilter && (
+        <div className="absolute right-0 top-12 z-50 w-[20rem] sm:w-[24rem] rounded-2xl bg-[--white-1] border border-[--border-1] shadow-2xl shadow-indigo-500/10 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[--border-1] bg-[--white-2]/60">
+            <h3 className="text-sm font-bold text-[--black-1]">Filtreler</h3>
+            <button
+              type="button"
+              onClick={() => setOpenFilter(false)}
+              className="grid place-items-center size-7 rounded-md hover:bg-[--white-2] text-[--gr-1]"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+
+          <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-[--gr-1] mb-1.5">
+                Tarih Aralığı
+              </label>
+              <div className="grid grid-cols-2 gap-2">
                 <CustomDatePicker
                   dateOnly
-                  label="Başlangıç Tarihi"
+                  label=""
                   calendarClassName="dateOnly"
-                  className="text-sm sm:mt-1 w-36 py-2 sm:py-[0.5rem]"
-                  style={{ padding: "0 !important" }}
-                  popperClassName="react-datepicker-popper-filter-order-1"
-                  value={filter?.startDateTime}
-                  onChange={(selectedDate) => {
-                    setFilter((prev) => {
-                      return {
-                        ...prev,
-                        dateRange: 0,
-                        startDateTime: selectedDate,
-                      };
-                    });
-                  }}
-                />
-                <style>
-                  {`
-                  .react-datepicker-popper-filter-order-1 {
-                    right: -2rem
+                  className="text-sm w-full"
+                  value={draft?.startDateTime}
+                  onChange={(d) =>
+                    setDraft((p) => ({ ...p, startDateTime: d }))
                   }
-                `}
-                </style>
-              </div>
-
-              <div>
+                />
                 <CustomDatePicker
                   dateOnly
-                  label="Bitiş Tarihi"
+                  label=""
                   calendarClassName="dateOnly"
-                  className="text-sm sm:mt-1 w-36 py-2 sm:py-[0.5rem]"
-                  style={{ padding: "0 !important" }}
-                  popperClassName="react-datepicker-popper-filter-order-2"
-                  value={filter?.endDateTime}
-                  onChange={(selectedDate) => {
-                    setFilter((prev) => {
-                      return {
-                        ...prev,
-                        dateRange: 0,
-                        endDateTime: selectedDate,
-                      };
-                    });
-                  }}
+                  className="text-sm w-full"
+                  value={draft?.endDateTime}
+                  onChange={(d) => setDraft((p) => ({ ...p, endDateTime: d }))}
                 />
-                <style>
-                  {`
-                  .react-datepicker-popper-filter-order-2 {
-                    right: -22rem
-                  }
-                `}
-                </style>
               </div>
             </div>
 
-            <div className="flex gap-6">
-              <CustomSelect
-                label="Durum"
-                className="text-sm sm:mt-1"
-                className2="sm:mt-3"
-                style={{ padding: "0 !important" }}
-                options={[
-                  { value: null, label: "Hepsi", id: null },
-                  ...statuses,
-                ]}
-                value={filter?.status || { label: "Hepsi" }}
-                onChange={(selectedOption) => {
-                  setFilter((prev) => {
-                    return {
-                      ...prev,
-                      statusId: selectedOption.value,
-                      status: selectedOption,
-                    };
-                  });
-                }}
-              />
+            <ChipSelect
+              label="Durum"
+              options={statuses}
+              value={draft?.statusId ?? null}
+              onChange={(v) => setDraft((p) => ({ ...p, statusId: v }))}
+            />
 
-              <CustomSelect
-                label="Type"
-                className="text-sm sm:mt-1"
-                className2="sm:mt-3"
-                style={{ padding: "0 !important" }}
-                options={[
-                  { value: null, label: "Hepsi", id: null },
-                  ...paymentLicenseType,
-                ]}
-                value={filter?.type || { label: "Hepsi" }}
-                onChange={(selectedOption) => {
-                  setFilter((prev) => {
-                    return {
-                      ...prev,
-                      typeId: selectedOption.value,
-                      type: selectedOption,
-                    };
-                  });
-                }}
-              />
-            </div>
+            <ChipSelect
+              label="İşlem Tipi"
+              options={paymentLicenseType}
+              value={draft?.typeId ?? null}
+              onChange={(v) => setDraft((p) => ({ ...p, typeId: v }))}
+            />
 
-            <div className="flex gap-6">
-              <CustomSelect
-                label="Ödeme Yöntemi"
-                className="text-sm sm:mt-1"
-                className2="sm:mt-3"
-                style={{ padding: "0 !important" }}
-                options={[
-                  { value: null, label: "Hepsi", id: null },
-                  ...PaymentMethod,
-                ]}
-                value={filter?.paymentMethod || { label: "Hepsi" }}
-                onChange={(selectedOption) => {
-                  setFilter((prev) => {
-                    return {
-                      ...prev,
-                      paymentMethodId: selectedOption.value,
-                      paymentMethod: selectedOption,
-                    };
-                  });
-                }}
-              />
-            </div>
+            <ChipSelect
+              label="Ödeme Yöntemi"
+              options={PaymentMethod}
+              value={draft?.paymentMethodId ?? null}
+              onChange={(v) => setDraft((p) => ({ ...p, paymentMethodId: v }))}
+            />
+          </div>
 
-            <div className="w-full flex gap-2 justify-center pt-10">
-              <button
-                className="text-white bg-[--red-1] py-2 px-12 rounded-lg hover:opacity-90"
-                onClick={() => handleFilter(false)}
-              >
-                Temizle
-              </button>
-              <button
-                className="text-white bg-[--primary-1] py-2 px-12 rounded-lg hover:opacity-90"
-                onClick={() => handleFilter(true)}
-              >
-                Uygula
-              </button>
-            </div>
+          <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-[--border-1] bg-[--white-2]/40">
+            <button
+              type="button"
+              onClick={handleClear}
+              className="h-10 px-3.5 rounded-lg text-sm font-medium text-[--gr-1] hover:bg-[--white-2] transition"
+            >
+              Temizle
+            </button>
+            <button
+              type="button"
+              onClick={handleApply}
+              className="inline-flex items-center gap-1.5 h-10 px-4 rounded-lg text-white text-sm font-semibold shadow-md shadow-indigo-500/20 hover:brightness-110 transition"
+              style={{ background: PRIMARY_GRADIENT }}
+            >
+              <Check className="size-4" />
+              Uygula
+            </button>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
 
 export default FilterPayments;
+
+const ChipSelect = ({ label, options, value, onChange }) => (
+  <div>
+    <label className="block text-[10px] font-bold uppercase tracking-wider text-[--gr-1] mb-1.5">
+      {label}
+    </label>
+    <div className="flex flex-wrap gap-1.5">
+      <Chip selected={value == null} onClick={() => onChange(null)}>
+        Hepsi
+      </Chip>
+      {options.map((o) => (
+        <Chip
+          key={o.value}
+          selected={value === o.value}
+          onClick={() => onChange(o.value)}
+        >
+          {o.label}
+        </Chip>
+      ))}
+    </div>
+  </div>
+);
+
+const Chip = ({ selected, onClick, children }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`h-8 px-3 rounded-full text-xs font-semibold transition ${
+      selected
+        ? "bg-[--primary-1] text-white ring-1 ring-[--primary-1]"
+        : "bg-[--white-2] text-[--black-1] ring-1 ring-[--border-1] hover:ring-[--primary-1]/40"
+    }`}
+  >
+    {children}
+  </button>
+);

@@ -10,6 +10,7 @@ const FourthStep = ({
   setStep,
   paymentMethod,
   setPaymentStatus,
+  userInvData,
 }) => {
   const value = paymentMethod.selectedOption.value;
   return (
@@ -28,6 +29,7 @@ const FourthStep = ({
                 step={step}
                 setStep={setStep}
                 setPaymentStatus={setPaymentStatus}
+                userInvData={userInvData}
               />
             )
           )}

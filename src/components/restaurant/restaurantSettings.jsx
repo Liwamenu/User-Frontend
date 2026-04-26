@@ -1,12 +1,28 @@
 //MODULES
 import { isEqual } from "lodash";
 import toast from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import {
+  Settings,
+  Globe,
+  ShoppingBag,
+  UtensilsCrossed,
+  Eye,
+  Tag,
+  Save,
+  Check,
+  Languages,
+  CircleDollarSign,
+  ChartLine,
+  Quote,
+  CreditCard,
+  ArrowRight,
+} from "lucide-react";
 
 //COMP
-import CustomInput from "../common/customInput";
 import CustomToggle from "../common/customToggle";
 import CustomSelect from "../common/customSelector";
 import LanguagesEnums from "../../enums/languagesEnums";
@@ -20,10 +36,13 @@ import {
   checkTenantAvailability,
   resetCheckTenantAvailability,
 } from "../../redux/restaurant/checkTenantAvailabilitySlice";
+import { getPaymentMethods } from "../../redux/restaurant/getPaymentMethodsSlice";
 
 const RestaurantSettings = ({ data: inData }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const restaurantId = useParams()["*"]?.split("/")[1];
   const { success, error } = useSelector(
     (state) => state.restaurant.setRestaurantSettings,
   );
@@ -33,6 +52,20 @@ const RestaurantSettings = ({ data: inData }) => {
     data: tenantCheckData,
     error: tenantCheckError,
   } = useSelector((state) => state.restaurant.checkTenantAvailability);
+
+  // Payment methods (needed to gate Paket Sipariş toggle)
+  const paymentMethods = useSelector(
+    (s) => s.restaurant.getPaymentMethods?.data,
+  );
+  const hasEnabledPaymentMethod =
+    Array.isArray(paymentMethods) && paymentMethods.some((pm) => pm.enabled);
+
+  // Fetch payment methods once so we can validate online-order toggle.
+  useEffect(() => {
+    if (restaurantId && !paymentMethods) {
+      dispatch(getPaymentMethods({ restaurantId }));
+    }
+  }, [restaurantId, paymentMethods, dispatch]);
 
   const initialData = useMemo(
     () => ({
@@ -66,6 +99,41 @@ const RestaurantSettings = ({ data: inData }) => {
   const [restaurantData, setRestaurantData] = useState(initialData);
   const [restaurantDataBefore, setRestaurantDataBefore] = useState(initialData);
 
+  const handleToggleOnlineOrder = () => {
+    const next = !restaurantData?.onlineOrder;
+    if (next && !hasEnabledPaymentMethod) {
+      toast.error(
+        (toastT) => (
+          <div className="flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-slate-900">
+                {t("restaurantSettings.payment_required_title")}
+              </p>
+              <p className="text-xs text-slate-600 mt-0.5">
+                {t("restaurantSettings.payment_required_desc")}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                toast.dismiss(toastT.id);
+                navigate(`/restaurant/payments/${restaurantId}`);
+              }}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-indigo-600 text-white text-xs font-semibold hover:brightness-110 active:brightness-95 transition shrink-0"
+            >
+              <CreditCard className="size-3.5" />
+              {t("restaurantSettings.payment_required_cta")}
+              <ArrowRight className="size-3" />
+            </button>
+          </div>
+        ),
+        { id: "online-order-payment-required", duration: 6000 },
+      );
+      return;
+    }
+    setRestaurantData((prev) => ({ ...prev, onlineOrder: next }));
+  };
+
   const handleCheckTenantAvailability = async () => {
     const tenantValue = restaurantData?.tenant?.trim();
 
@@ -84,6 +152,17 @@ const RestaurantSettings = ({ data: inData }) => {
       toast.error(t("restaurantSettings.not_changed"));
       return;
     }
+
+    if (
+      restaurantData?.onlineOrder &&
+      !(Number(restaurantData?.maxDistance) > 0)
+    ) {
+      toast.error(t("restaurantSettings.max_distance_required"), {
+        id: "max-distance-required",
+      });
+      return;
+    }
+
     dispatch(setRestaurantSettings(restaurantData));
   };
 
@@ -128,80 +207,204 @@ const RestaurantSettings = ({ data: inData }) => {
     dispatch(resetCheckTenantAvailability());
   }, [tenantCheckSuccess, tenantCheckData, tenantCheckError, dispatch, t]);
 
+  const inputCls =
+    "w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
+  const labelCls =
+    "block text-[11px] font-semibold text-slate-600 mb-1 tracking-wide";
+  const moneySign = restaurantData?.moneySign || "₺";
+
+  const SectionHeader = ({ icon: Icon, label }) => (
+    <header className="flex items-center gap-1.5 mb-2.5">
+      <Icon className="size-3.5 text-indigo-600" />
+      <h2 className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.12em]">
+        {label}
+      </h2>
+    </header>
+  );
+
+  const NumberWithSuffix = ({
+    label,
+    suffix,
+    value,
+    onChange,
+    placeholder,
+    required,
+  }) => (
+    <div>
+      <label className={labelCls}>
+        {label}
+        {required && <span className="text-rose-500 ml-0.5">*</span>}
+      </label>
+      <div className="flex items-stretch rounded-lg border border-slate-200 bg-white focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition overflow-hidden">
+        <input
+          type="number"
+          className="flex-1 min-w-0 h-10 px-3 outline-none text-sm bg-transparent"
+          placeholder={placeholder}
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        <span className="bg-slate-50 text-slate-500 text-xs font-semibold px-3 grid place-items-center border-l border-slate-200">
+          {suffix}
+        </span>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="w-full pb-8 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
-      <div className="flex flex-col px-4 sm:px-14">
-        {/* <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
-          {t("restaurantSettings.title", { name: restaurantData?.name })}
-        </h1> */}
+    <div className="w-full pb-8 mt-1 text-slate-900">
+      {/* CARD */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        {/* gradient strip */}
+        <div
+          className="h-0.5"
+          style={{
+            background:
+              "linear-gradient(90deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)",
+          }}
+        />
+        {/* HERO HEADER */}
+        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+          <span
+            className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
+            style={{
+              background:
+                "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)",
+            }}
+          >
+            <Settings className="size-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+              {t("restaurantSettings.title", {
+                name: restaurantData?.name || "",
+              })}
+            </h1>
+            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+              {restaurantData?.tenant
+                ? `${restaurantData.tenant}.liwamenu.com`
+                : "—"}
+            </p>
+          </div>
+        </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="w-full flex max-lg:flex-col gap-x-16 gap-y-3 mt-10">
-            {/* LEFT SIDE */}
-            <div className="flex-1 flex flex-col gap-y-8 text-sm max-w-md">
-              {/* TENANT */}
-              <div>
-                <label className="text-xs font-semibold tracking-wide text-[--gr-1] max-md:max-w-full text-left">
-                  {t("restaurantSettings.tenant")}{" "}
-                  <span className="text-[--primary-1]">
-                    {t("restaurantSettings.tenant_note", {
-                      url: `${
-                        restaurantData?.tenant || "restaurant"
-                      }.liwamenu.com`,
-                    })}
-                  </span>
+        <div className="p-4 sm:p-5">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            {/* GENEL */}
+            <div>
+              <SectionHeader icon={Globe} label={t("restaurantSettings.tenant")} />
+
+              {/* Tenant URL */}
+              <div className="mb-3">
+                <label className={labelCls}>
+                  {t("restaurantSettings.tenant")}
                 </label>
-
-                <div className="flex items-end gap-2">
-                  <span className="bg-[--gr-4] text-[--gr-1] pl-3 py-[7.5px] rounded-l-md">
-                    https://
-                  </span>
-                  <CustomInput
-                    type="text"
-                    placeholder={t("restaurantSettings.tenant_placeholder")}
-                    className="py-[.4rem] px-[2px] rounded-none bg-[--white-1]"
-                    value={restaurantData?.tenant ?? ""}
-                    onChange={(e) =>
-                      setRestaurantData((prev) => ({
-                        ...prev,
-                        tenant: e,
-                      }))
-                    }
-                  />
-                  <span className="bg-[--gr-4] text-[--gr-1] pr-3 py-[7.5px] rounded-r-md">
-                    .liwamenu.com
-                  </span>
-
+                <div className="flex flex-col sm:flex-row items-stretch gap-2">
+                  <div className="flex flex-1 rounded-lg border border-slate-200 bg-white focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition overflow-hidden">
+                    <span className="bg-slate-50 text-slate-500 text-xs font-medium px-2.5 grid place-items-center border-r border-slate-200 shrink-0">
+                      https://
+                    </span>
+                    <input
+                      type="text"
+                      placeholder={t("restaurantSettings.tenant_placeholder")}
+                      className="flex-1 min-w-0 h-10 px-2 outline-none text-sm bg-transparent"
+                      value={restaurantData?.tenant ?? ""}
+                      onChange={(e) =>
+                        setRestaurantData((prev) => ({
+                          ...prev,
+                          tenant: e.target.value,
+                        }))
+                      }
+                    />
+                    <span className="bg-slate-50 text-slate-500 text-xs font-medium px-2.5 grid place-items-center border-l border-slate-200 shrink-0">
+                      .liwamenu.com
+                    </span>
+                  </div>
                   <button
                     type="button"
                     onClick={handleCheckTenantAvailability}
                     disabled={isCheckingTenant}
-                    className="h-[39px] px-3 rounded-md border border-[--border-1] bg-[--white-1] text-[--black-2] whitespace-nowrap hover:bg-[--white-2] transition-colors disabled:opacity-60"
+                    className="h-10 px-3.5 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-indigo-300 transition disabled:opacity-60 inline-flex items-center justify-center gap-1.5 shrink-0"
                   >
+                    <Check className="size-4 text-indigo-600" />
                     {isCheckingTenant
                       ? t("restaurantSettings.tenant_check_loading")
                       : t("restaurantSettings.tenant_check")}
                   </button>
                 </div>
+                <p className="text-[11px] text-indigo-600 mt-1">
+                  {t("restaurantSettings.tenant_note", {
+                    url: `${restaurantData?.tenant || "restaurant"}.liwamenu.com`,
+                  })}
+                </p>
               </div>
 
-              {/* GOOGLE ANALYTICS */}
-              <div>
-                <CustomInput
+              {/* Menu Lang + Money Sign */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label className={labelCls}>
+                    <Languages className="size-3 inline-block -mt-0.5 mr-1 text-indigo-600" />
+                    {t("restaurantSettings.menu_language")}
+                  </label>
+                  <CustomSelect
+                    className="text-sm"
+                    placeholder={t(
+                      "restaurantSettings.menu_language_placeholder",
+                    )}
+                    style={{
+                      borderRadius: "0.5rem",
+                      borderColor: "#e2e8f0",
+                      minHeight: "40px",
+                      height: "40px",
+                    }}
+                    value={
+                      LanguagesEnums.find(
+                        (L) => L.id == (restaurantData?.menuLang ?? null),
+                      ) || {
+                        label: t(
+                          "restaurantSettings.menu_language_placeholder",
+                        ),
+                      }
+                    }
+                    options={LanguagesEnums}
+                    onChange={(selectedOption) =>
+                      setRestaurantData((prev) => ({
+                        ...prev,
+                        menuLang: selectedOption.id,
+                      }))
+                    }
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>
+                    <CircleDollarSign className="size-3 inline-block -mt-0.5 mr-1 text-indigo-600" />
+                    {t("restaurantSettings.money_sign")}
+                  </label>
+                  <input
+                    type="text"
+                    className={inputCls}
+                    placeholder={t(
+                      "restaurantSettings.money_sign_placeholder",
+                    )}
+                    value={restaurantData?.moneySign ?? ""}
+                    onChange={(e) =>
+                      setRestaurantData((prev) => ({
+                        ...prev,
+                        moneySign: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Google Analytics */}
+              <div className="mb-3">
+                <label className={labelCls}>
+                  <ChartLine className="size-3 inline-block -mt-0.5 mr-1 text-indigo-600" />
+                  {t("restaurantSettings.google_analytics")}
+                </label>
+                <input
                   type="text"
-                  label={
-                    <span>
-                      <a
-                        href="https://analytics.google.com/analytics/web"
-                        target="_blank"
-                        className="text-[--link-1]"
-                      >
-                        {t("restaurantSettings.google_analytics")}
-                      </a>{" "}
-                      websitesinden ulaşabilirsiniz.
-                    </span>
-                  }
-                  className="py-[.4rem] bg-[--white-1]"
+                  className={inputCls}
                   placeholder={t(
                     "restaurantSettings.google_analytics_placeholder",
                   )}
@@ -209,203 +412,174 @@ const RestaurantSettings = ({ data: inData }) => {
                   onChange={(e) =>
                     setRestaurantData((prev) => ({
                       ...prev,
-                      googleAnalytics: e,
+                      googleAnalytics: e.target.value,
                     }))
                   }
                 />
+                <p className="text-[10px] text-slate-500 mt-1">
+                  <a
+                    href="https://analytics.google.com/analytics/web"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-600 underline-offset-2 hover:underline"
+                  >
+                    analytics.google.com
+                  </a>{" "}
+                  websitesinden ulaşabilirsiniz.
+                </p>
               </div>
 
-              {/* MENU LANGUAGE */}
-              <div>
-                <CustomSelect
-                  type="text"
-                  className="text-sm"
-                  label={t("restaurantSettings.menu_language")}
-                  placeholder={t(
-                    "restaurantSettings.menu_language_placeholder",
-                  )}
-                  style={{ borderRadius: ".4rem", padding: "0rem 0px" }}
-                  value={
-                    LanguagesEnums.find(
-                      (L) => L.id == (restaurantData?.menuLang ?? null),
-                    ) || {
-                      label: t("restaurantSettings.menu_language_placeholder"),
+              {/* Sloganlar */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className={labelCls}>
+                    <Quote className="size-3 inline-block -mt-0.5 mr-1 text-indigo-600" />
+                    {t("restaurantSettings.slogan1")}
+                  </label>
+                  <input
+                    type="text"
+                    className={inputCls}
+                    placeholder={t("restaurantSettings.slogan1_placeholder")}
+                    value={restaurantData?.slogan1 ?? ""}
+                    onChange={(e) =>
+                      setRestaurantData((prev) => ({
+                        ...prev,
+                        slogan1: e.target.value,
+                      }))
                     }
-                  }
-                  options={LanguagesEnums}
-                  onChange={(selectedOption) =>
-                    setRestaurantData((prev) => ({
-                      ...prev,
-                      menuLang: selectedOption.id,
-                    }))
-                  }
-                />
-              </div>
-
-              {/* MONEY SIGN */}
-              <div>
-                <CustomInput
-                  type="text"
-                  label={t("restaurantSettings.money_sign")}
-                  placeholder={t("restaurantSettings.money_sign_placeholder")}
-                  className="py-[.4rem] bg-[--white-1]"
-                  value={restaurantData?.moneySign ?? ""}
-                  onChange={(e) =>
-                    setRestaurantData((prev) => ({
-                      ...prev,
-                      moneySign: e,
-                    }))
-                  }
-                />
-              </div>
-
-              {/* SLOGAN 1 */}
-              <div>
-                <CustomInput
-                  type="text"
-                  label={t("restaurantSettings.slogan1")}
-                  placeholder={t("restaurantSettings.slogan1_placeholder")}
-                  className="py-[.4rem] bg-[--white-1]"
-                  value={restaurantData?.slogan1 ?? ""}
-                  onChange={(e) =>
-                    setRestaurantData((prev) => ({
-                      ...prev,
-                      slogan1: e,
-                    }))
-                  }
-                />
-              </div>
-
-              {/* SLOGAN 2 */}
-              <div>
-                <CustomInput
-                  label={t("restaurantSettings.slogan2")}
-                  placeholder={t("restaurantSettings.slogan2_placeholder")}
-                  className="py-[.4rem] bg-[--white-1]"
-                  value={restaurantData?.slogan2 ?? ""}
-                  onChange={(e) =>
-                    setRestaurantData((prev) => ({
-                      ...prev,
-                      slogan2: e,
-                    }))
-                  }
-                />
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>
+                    <Quote className="size-3 inline-block -mt-0.5 mr-1 text-indigo-600" />
+                    {t("restaurantSettings.slogan2")}
+                  </label>
+                  <input
+                    type="text"
+                    className={inputCls}
+                    placeholder={t("restaurantSettings.slogan2_placeholder")}
+                    value={restaurantData?.slogan2 ?? ""}
+                    onChange={(e) =>
+                      setRestaurantData((prev) => ({
+                        ...prev,
+                        slogan2: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
               </div>
             </div>
 
-            {/* RIGHT SIDE */}
-            <div className="flex-1 flex flex-col gap-y-9 text-sm  max-w-md">
-              {/* ONLINE ORDER */}
-              <main className="max-w-md flex flex-col gap-4 border border-[--border-1] px-2.5 py-4 rounded-md bg-[--light-1]">
-                <div>
+            {/* ONLINE SİPARİŞ */}
+            <div>
+              <SectionHeader
+                icon={ShoppingBag}
+                label={t("restaurantSettings.online_order")}
+              />
+              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3">
+                <div
+                  className={`flex items-center justify-between gap-3 ${
+                    restaurantData?.onlineOrder
+                      ? "pb-3 mb-3 border-b border-slate-200"
+                      : ""
+                  }`}
+                >
+                  <span className="text-sm font-medium text-slate-900 whitespace-nowrap">
+                    {t("restaurantSettings.online_order")}
+                  </span>
                   <CustomToggle
-                    label={t("restaurantSettings.online_order")}
-                    className2="font-medium"
+                    label=""
+                    swap
+                    className1="!w-auto !shrink-0"
                     checked={restaurantData?.onlineOrder}
-                    onChange={() =>
-                      setRestaurantData((prev) => ({
-                        ...prev,
-                        onlineOrder: !restaurantData.onlineOrder,
-                      }))
-                    }
+                    onChange={handleToggleOnlineOrder}
                   />
                 </div>
+                {restaurantData?.onlineOrder && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <NumberWithSuffix
+                      label={t("restaurantSettings.online_order_discount")}
+                      suffix="%"
+                      value={restaurantData?.onlineOrderDiscountRate}
+                      onChange={(v) =>
+                        setRestaurantData((prev) => ({
+                          ...prev,
+                          onlineOrderDiscountRate: v,
+                        }))
+                      }
+                      placeholder={t(
+                        "restaurantSettings.online_order_discount_placeholder",
+                      )}
+                    />
+                    <NumberWithSuffix
+                      label={t("restaurantSettings.delivery_fee")}
+                      suffix={moneySign}
+                      value={restaurantData?.deliveryFee}
+                      onChange={(v) =>
+                        setRestaurantData((prev) => ({
+                          ...prev,
+                          deliveryFee: v,
+                        }))
+                      }
+                      placeholder={t(
+                        "restaurantSettings.delivery_fee_placeholder",
+                      )}
+                    />
+                    <NumberWithSuffix
+                      label={t("restaurantSettings.min_order_amount")}
+                      suffix={moneySign}
+                      value={restaurantData?.minOrderAmount}
+                      onChange={(v) =>
+                        setRestaurantData((prev) => ({
+                          ...prev,
+                          minOrderAmount: v,
+                        }))
+                      }
+                      placeholder={t(
+                        "restaurantSettings.min_order_amount_placeholder",
+                      )}
+                    />
+                    <NumberWithSuffix
+                      label={t("restaurantSettings.max_distance")}
+                      suffix="km"
+                      required
+                      value={restaurantData?.maxDistance}
+                      onChange={(v) =>
+                        setRestaurantData((prev) => ({
+                          ...prev,
+                          maxDistance: v,
+                        }))
+                      }
+                      placeholder={t(
+                        "restaurantSettings.max_distance_placeholder",
+                      )}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
 
-                {/* ONLINE ORDER DISCOUNT */}
-                <div className="flex gap-2 items-end">
-                  <CustomInput
-                    type="number"
-                    label={t("restaurantSettings.online_order_discount")}
-                    placeholder={t(
-                      "restaurantSettings.online_order_discount_placeholder",
-                    )}
-                    className="py-[.4rem] bg-[--white-1] mt-2"
-                    value={restaurantData?.onlineOrderDiscountRate ?? ""}
-                    onChange={(e) =>
-                      setRestaurantData((prev) => ({
-                        ...prev,
-                        onlineOrderDiscountRate: e,
-                      }))
-                    }
-                  />
-                  <span className="bg-[--gr-4] border border-[--border-1] px-3 py-[7px] rounded-md">
-                    %
+            {/* MASA SİPARİŞ */}
+            <div>
+              <SectionHeader
+                icon={UtensilsCrossed}
+                label={t("restaurantSettings.in_person_order")}
+              />
+              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3">
+                <div
+                  className={`flex items-center justify-between gap-3 ${
+                    restaurantData?.inPersonOrder
+                      ? "pb-3 mb-3 border-b border-slate-200"
+                      : ""
+                  }`}
+                >
+                  <span className="text-sm font-medium text-slate-900 whitespace-nowrap">
+                    {t("restaurantSettings.in_person_order")}
                   </span>
-                </div>
-
-                {/* DELIVERY PRICE */}
-                <div className="flex gap-2 items-end">
-                  <CustomInput
-                    type="number"
-                    label={t("restaurantSettings.delivery_fee")}
-                    placeholder={t(
-                      "restaurantSettings.delivery_fee_placeholder",
-                    )}
-                    className="py-[.4rem] bg-[--white-1] mt-2"
-                    value={restaurantData?.deliveryFee ?? ""}
-                    onChange={(v) =>
-                      setRestaurantData((prev) => ({
-                        ...prev,
-                        deliveryFee: v,
-                      }))
-                    }
-                  />
-                  <span className="bg-[--gr-4] border border-[--border-1] px-3 py-[7px] rounded-md">
-                    {restaurantData?.moneySign || "₺"}
-                  </span>
-                </div>
-
-                {/* MIN ORDER AMOUNT */}
-                <div className="flex gap-2 items-end">
-                  <CustomInput
-                    type="number"
-                    label={t("restaurantSettings.min_order_amount")}
-                    placeholder={t(
-                      "restaurantSettings.min_order_amount_placeholder",
-                    )}
-                    className="py-[.4rem] bg-[--white-1] mt-2"
-                    value={restaurantData?.minOrderAmount ?? ""}
-                    onChange={(e) =>
-                      setRestaurantData((prev) => ({
-                        ...prev,
-                        minOrderAmount: e,
-                      }))
-                    }
-                  />
-                  <span className="bg-[--gr-4] border border-[--border-1] px-3 py-[7px] rounded-md">
-                    {restaurantData?.moneySign || "₺"}
-                  </span>
-                </div>
-
-                {/* MAXIMUM DISTANCE */}
-                <div className="flex gap-2 items-end">
-                  <CustomInput
-                    type="number"
-                    label={t("restaurantSettings.max_distance")}
-                    placeholder={t(
-                      "restaurantSettings.max_distance_placeholder",
-                    )}
-                    className="py-[.4rem] bg-[--white-1] mt-2"
-                    value={restaurantData?.maxDistance ?? ""}
-                    onChange={(e) =>
-                      setRestaurantData((prev) => ({
-                        ...prev,
-                        maxDistance: e,
-                      }))
-                    }
-                  />
-                  <span className="bg-[--gr-4] border border-[--border-1] px-3 py-[7px] rounded-md">
-                    ㎞
-                  </span>
-                </div>
-              </main>
-
-              {/* IN PERSON ORDER */}
-              <main className="max-w-md flex flex-col gap-4 border border-[--border-1] px-2.5 py-4 rounded-md bg-[--light-1]">
-                <div>
                   <CustomToggle
-                    label={t("restaurantSettings.in_person_order")}
-                    className2="font-medium"
+                    label=""
+                    swap
+                    className1="!w-auto !shrink-0"
                     checked={restaurantData?.inPersonOrder}
                     onChange={() =>
                       setRestaurantData((prev) => ({
@@ -415,149 +589,144 @@ const RestaurantSettings = ({ data: inData }) => {
                     }
                   />
                 </div>
+                {restaurantData?.inPersonOrder && (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <NumberWithSuffix
+                        label={t("restaurantSettings.table_order_discount")}
+                        suffix="%"
+                        value={restaurantData?.tableOrderDiscountRate}
+                        onChange={(v) =>
+                          setRestaurantData((prev) => ({
+                            ...prev,
+                            tableOrderDiscountRate: v,
+                          }))
+                        }
+                        placeholder={t(
+                          "restaurantSettings.table_order_discount_placeholder",
+                        )}
+                      />
+                      {restaurantData?.checkTableOrderDistance && (
+                        <NumberWithSuffix
+                          label={t(
+                            "restaurantSettings.max_table_order_distance_meter",
+                          )}
+                          suffix="m"
+                          value={restaurantData?.maxTableOrderDistanceMeter}
+                          onChange={(v) =>
+                            setRestaurantData((prev) => ({
+                              ...prev,
+                              maxTableOrderDistanceMeter: v,
+                            }))
+                          }
+                          placeholder={t(
+                            "restaurantSettings.max_table_order_distance_meter_placeholder",
+                          )}
+                        />
+                      )}
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-slate-200">
+                      <CustomToggle
+                        label={t(
+                          "restaurantSettings.check_table_order_distance",
+                        )}
+                        className2="text-sm font-medium text-slate-900"
+                        checked={restaurantData?.checkTableOrderDistance}
+                        onChange={() =>
+                          setRestaurantData((prev) => ({
+                            ...prev,
+                            checkTableOrderDistance:
+                              !restaurantData.checkTableOrderDistance,
+                          }))
+                        }
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
 
-                {/* TABLE ORDER DISCOUNT */}
-                <div className="flex items-end gap-2">
-                  <CustomInput
-                    type="number"
-                    label={t("restaurantSettings.table_order_discount")}
-                    placeholder={t(
-                      "restaurantSettings.table_order_discount_placeholder",
-                    )}
-                    className="py-[.4rem] bg-[--white-1] mt-2"
-                    value={restaurantData?.tableOrderDiscountRate ?? ""}
-                    onChange={(e) =>
-                      setRestaurantData((prev) => ({
-                        ...prev,
-                        tableOrderDiscountRate: e,
-                      }))
-                    }
-                  />
-                  <span className="bg-[--gr-4] px-3 py-[7px] border border-[--border-1] rounded-md">
-                    %
-                  </span>
-                </div>
-
-                {/* CHECK TABLE ORDER DISTANCE */}
-                <div>
+            {/* GÖRÜNÜRLÜK & ÖZEL FİYAT */}
+            <div>
+              <SectionHeader
+                icon={Eye}
+                label={t("restaurantSettings.special_price_section")}
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="rounded-xl border border-slate-200 bg-white p-3">
                   <CustomToggle
-                    label={t("restaurantSettings.check_table_order_distance")}
-                    className2="font-medium"
-                    checked={restaurantData?.checkTableOrderDistance}
+                    label={t("restaurantSettings.is_special_price_active")}
+                    className2="text-sm font-medium text-slate-900"
+                    checked={restaurantData?.isSpecialPriceActive}
                     onChange={() =>
                       setRestaurantData((prev) => ({
                         ...prev,
-                        checkTableOrderDistance:
-                          !restaurantData.checkTableOrderDistance,
+                        isSpecialPriceActive:
+                          !restaurantData.isSpecialPriceActive,
                       }))
                     }
                   />
                 </div>
+                <div className="rounded-xl border border-slate-200 bg-white p-3">
+                  <CustomToggle
+                    label={t("restaurantSettings.hide_restaurant")}
+                    className2="text-sm font-medium text-slate-900"
+                    checked={restaurantData?.hide}
+                    onChange={() =>
+                      setRestaurantData((prev) => ({
+                        ...prev,
+                        hide: !restaurantData.hide,
+                      }))
+                    }
+                  />
+                </div>
+              </div>
 
-                {/* MAX TABLE ORDER DISTANCE METER */}
-                {restaurantData?.checkTableOrderDistance && (
-                  <div>
-                    <CustomInput
-                      type="number"
-                      label={t(
-                        "restaurantSettings.max_table_order_distance_meter",
-                      )}
-                      placeholder={t(
-                        "restaurantSettings.max_table_order_distance_meter_placeholder",
-                      )}
-                      className="py-[.4rem] bg-[--white-1] mt-2"
-                      value={restaurantData?.maxTableOrderDistanceMeter ?? ""}
-                      onChange={(e) =>
-                        setRestaurantData((prev) => ({
-                          ...prev,
-                          maxTableOrderDistanceMeter: e,
-                        }))
-                      }
-                    />
+              {restaurantData?.isSpecialPriceActive && (
+                <div className="mt-3 rounded-xl bg-amber-50 border border-amber-200 p-3">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Tag className="size-3.5 text-amber-600" />
+                    <span className="text-[11px] font-bold text-amber-700 uppercase tracking-[0.12em]">
+                      {t("restaurantSettings.special_price_label")}
+                    </span>
                   </div>
-                )}
-              </main>
-            </div>
-          </div>
-
-          {/* The Bottom Section */}
-          <main className="text-sm sm:flex sm:max-w-[60rem] w-full items-between gap-4 pt-4 mt-8 max-sm:max-w-md border-t border-[--border-1]">
-            {/* HIDE RESTAURANT */}
-            <div className="w-full border border-[--border-1] rounded-md p-2.5 mt-3">
-              <CustomToggle
-                label={t("restaurantSettings.hide_restaurant")}
-                checked={restaurantData?.hide}
-                onChange={() =>
-                  setRestaurantData((prev) => ({
-                    ...prev,
-                    hide: !restaurantData.hide,
-                  }))
-                }
-              />
-            </div>
-
-            {/* IS SPECIAL PRICE ACTIVE */}
-            <div className="w-full border border-[--border-1] rounded-md p-2.5 mt-3">
-              <CustomToggle
-                label={t("restaurantSettings.is_special_price_active")}
-                checked={restaurantData?.isSpecialPriceActive}
-                onChange={() =>
-                  setRestaurantData((prev) => ({
-                    ...prev,
-                    isSpecialPriceActive: !restaurantData.isSpecialPriceActive,
-                  }))
-                }
-              />
+                  <input
+                    type="text"
+                    className="w-full h-10 px-3 rounded-lg border border-amber-200 bg-white text-slate-900 placeholder:text-slate-400 text-sm outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-100"
+                    placeholder={t(
+                      "restaurantSettings.special_price_placeholder",
+                    )}
+                    value={restaurantData.specialPriceName || ""}
+                    onChange={(e) =>
+                      setRestaurantData((prev) => ({
+                        ...prev,
+                        specialPriceName: e.target.value,
+                      }))
+                    }
+                  />
+                  <p className="text-[10px] text-amber-700/80 mt-1.5 italic">
+                    {t("restaurantSettings.special_price_note")}
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* IS RESERVATION LICENSE ACTIVE */}
-            {/* <div className="w-full border border-[--border-1] rounded-md p-2.5 mt-3">
-              <CustomToggle
-                label={t("restaurantSettings.is_reservation_active")}
-                checked={restaurantData?.isReservationActive}
-                onChange={() =>
-                  setRestaurantData((prev) => ({
-                    ...prev,
-                    isReservationActive: !restaurantData.isReservationActive,
-                  }))
-                }
-              />
-            </div> */}
-          </main>
-
-          {/* SPECIAL PRICE NAME */}
-          <div className="bg-amber-400/15 p-4 rounded-xl border border-amber-400/15 my-4 max-w-[60rem]">
-            <span className="text-xs font-semibold text-[--orange-1] uppercase tracking-wider mb-3 block">
-              {t("restaurantSettings.special_price_section")}
-            </span>
-            <CustomInput
-              type="text"
-              label={t("restaurantSettings.special_price_label")}
-              placeholder={t("restaurantSettings.special_price_placeholder")}
-              className="w-full border border-[--border-1] rounded-lg px-3 py-[7px] text-sm text-[--black-1] outline-none focus:border-[--orange-1] bg-[--white-1] mt-2"
-              value={restaurantData.specialPriceName || ""}
-              onChange={(e) =>
-                setRestaurantData((prev) => ({
-                  ...prev,
-                  specialPriceName: e,
-                }))
-              }
-            />
-            <p className="text-[10px] text-[--gr-1] mt-1 italic">
-              {t("restaurantSettings.special_price_note")}
-            </p>
-          </div>
-
-          {/* SUBMIT */}
-          <div className="w-full flex justify-end">
-            <button
-              type="submit"
-              className="px-6 py-2 rounded-md bg-[--primary-1] text-white"
-            >
-              {t("restaurantSettings.save")}
-            </button>
-          </div>
-        </form>
+            {/* SUBMIT */}
+            <div className="flex justify-end pt-3 border-t border-slate-100">
+              <button
+                type="submit"
+                className="group inline-flex items-center justify-center gap-2 h-10 px-5 rounded-lg text-white text-sm font-semibold shadow-lg shadow-indigo-500/25 transition-all hover:shadow-indigo-500/40 hover:brightness-110 active:brightness-95"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)",
+                }}
+              >
+                <Save className="size-4" />
+                {t("restaurantSettings.save")}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

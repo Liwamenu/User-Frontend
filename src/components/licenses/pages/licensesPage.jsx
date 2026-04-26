@@ -1,18 +1,13 @@
 //MODULES
 import toast from "react-hot-toast";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+import { Search, ShieldCheck, X } from "lucide-react";
 
 //COMP
 import AddLicense from "../actions/addLicense";
-import CloseI from "../../../assets/icon/close";
-import CustomInput from "../../common/customInput";
 import LicensesTable from "../../common/licensesTable";
-import CustomPagination from "../../common/pagination";
-import TableSkeleton from "../../common/tableSkeleton";
-import CustomSelect from "../../common/customSelector";
-import { usePopup } from "../../../context/PopupContext";
-import licenseFilterDates from "../../../enums/licenseFilterDates";
 
 // REDUX
 import {
@@ -25,10 +20,11 @@ import {
 } from "../../../redux/restaurants/getRestaurantsMapSlice";
 
 const LicensesPage = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
 
   const { loading, success, error, licenses } = useSelector(
-    (state) => state.licenses.getLicenses
+    (state) => state.licenses.getLicenses,
   );
 
   const {
@@ -38,100 +34,40 @@ const LicensesPage = () => {
   } = useSelector((state) => state.restaurants.getRestaurantsMap);
 
   const [searchVal, setSearchVal] = useState("");
-  const [filter, setFilter] = useState({});
   const [licensesData, setLicensesData] = useState(null);
-  const [openFilter, setOpenFilter] = useState(false);
-
-  const itemsPerPage = 8;
-  const [pageNumber, setPageNumber] = useState(1);
   const [totalItems, setTotalItems] = useState(null);
 
-  function handlePageChange(number) {
+  const PAGE_SIZE = 50;
+
+  function fetchAll(opts = {}) {
     dispatch(
       getLicenses({
-        pageNumber: number,
-        pageSize: itemsPerPage,
-        isActive: filter?.status?.value,
-        isSettingsAdded: filter?.isSettingsAdded?.value,
-        licenseTypeId: filter?.licenseTypeId?.id,
-        dateRange: filter?.dateRange?.value,
-      })
+        pageNumber: 1,
+        pageSize: PAGE_SIZE,
+        searchKey: opts.searchKey ?? searchVal ?? null,
+      }),
     );
   }
 
-  //SEARCH
   function handleSearch(e) {
     e.preventDefault();
     if (!searchVal) return;
-    console.log(searchVal);
-    dispatch(
-      getLicenses({
-        pageNumber: 1,
-        pageSize: itemsPerPage,
-        searchKey: searchVal,
-        isActive: filter?.status?.value,
-        isSettingsAdded: filter?.isSettingsAdded?.value,
-        licenseTypeId: filter?.licenseTypeId?.id,
-        dateRange: filter?.dateRange?.value,
-      })
-    );
-    setPageNumber(1);
+    fetchAll({ searchKey: searchVal });
   }
 
-  //FILTER AND CLEAR FILTER
-  function handleFilter(bool) {
-    if (bool) {
-      const filterData = {
-        pageNumber: 1,
-        pageSize: itemsPerPage,
-        isActive: filter?.status?.value,
-        isSettingsAdded: filter?.isSettingsAdded?.value,
-        licenseTypeId: filter?.licenseTypeId?.id,
-        dateRange: filter?.dateRange?.value,
-      };
-      dispatch(getLicenses(filterData));
-    } else {
-      dispatch(
-        getLicenses({
-          pageNumber,
-          pageSize: itemsPerPage,
-        })
-      );
-      setFilter({});
-    }
-    setPageNumber(1);
-    setOpenFilter(false);
-  }
-
-  //CLEAR SEARCH
   function clearSearch() {
     setSearchVal("");
-    dispatch(
-      getLicenses({
-        pageNumber,
-        pageSize: itemsPerPage,
-        searchKey: null,
-        isActive: filter?.status?.value,
-        isSettingsAdded: filter?.isSettingsAdded?.value,
-        licenseTypeId: filter?.licenseTypeId?.id,
-        dateRange: filter?.dateRange?.value,
-      })
-    );
+    fetchAll({ searchKey: null });
   }
 
-  // GET LICENSES
+  // INITIAL FETCH
   useEffect(() => {
     if (!licensesData) {
-      dispatch(
-        getLicenses({
-          pageNumber,
-          pageSize: itemsPerPage,
-        })
-      );
+      dispatch(getLicenses({ pageNumber: 1, pageSize: PAGE_SIZE }));
     }
   }, [licensesData]);
 
-  // TOAST AND GET LICENSES
+  // SET LICENSES + chain restaurants
   useEffect(() => {
     if (error) {
       toast.error(error.message);
@@ -144,7 +80,6 @@ const LicensesPage = () => {
     }
   }, [success, error, licenses]);
 
-  // TOAST GET AND SET RESTAURANTS
   useEffect(() => {
     if (restaurantsError) {
       toast.error(restaurantsError.message);
@@ -156,172 +91,126 @@ const LicensesPage = () => {
     }
   }, [entities, restaurantsError, licenses]);
 
-  //HIDE POPUP
-  const { contentRef, setContentRef } = usePopup();
-  const filterLicense = useRef();
-  useEffect(() => {
-    if (filterLicense) {
-      const refs = contentRef.filter((ref) => ref.id !== "licensesFilter");
-      setContentRef([
-        ...refs,
-        {
-          id: "licensesFilter",
-          outRef: null,
-          ref: filterLicense,
-          callback: () => setOpenFilter(false),
-        },
-      ]);
-    }
-  }, [filterLicense]);
+  const isLoading = loading || restaurantsLoading;
+  const isEmpty = licensesData && licensesData.length === 0;
+  const hasActiveSearch = Boolean(searchVal);
 
   return (
-    <section className="lg:ml-[280px] pt-16 px-[4%] pb-4 grid grid-cols-1 section_row">
-      {/* TITLE */}
-      <div className="w-full text-[--black-2] py-4 text-2xl font-semibold">
-        <h2>Lisanslar</h2>
+    <section className="lg:ml-[280px] pt-16 px-4 sm:px-6 lg:px-8 pb-8 min-h-[100dvh] section_row">
+      {/* HEADER */}
+      <header className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pt-4 pb-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[--black-1] leading-tight">
+            {t("licenses.title")}
+          </h1>
+          <p className="mt-1 text-sm text-[--gr-1]">
+            {typeof totalItems === "number"
+              ? t("licenses.total_count", {
+                  count: totalItems,
+                  defaultValue: `${totalItems} lisans`,
+                })
+              : t("licenses.subtitle")}
+          </p>
+        </div>
+        <AddLicense
+          licenses={licensesData}
+          onSuccess={() => setLicensesData(null)}
+        />
+      </header>
+
+      {/* TOOLBAR — search only */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+        <form onSubmit={handleSearch} className="relative flex-1 sm:max-w-md">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[--gr-1] pointer-events-none" />
+          <input
+            type="text"
+            value={searchVal}
+            onChange={(e) => {
+              const v = e.target.value;
+              setSearchVal(v);
+              if (!v) clearSearch();
+            }}
+            placeholder={t("licenses.search_placeholder")}
+            className="w-full h-11 pl-10 pr-10 rounded-xl border border-[--border-1] bg-[--white-1] text-[--black-1] placeholder:text-[--gr-1] outline-none transition focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-100"
+          />
+          {searchVal && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              aria-label="Clear"
+              className="absolute right-2 top-1/2 -translate-y-1/2 grid place-items-center size-7 rounded-md text-[--gr-1] hover:text-[--black-1] hover:bg-[--white-2] transition"
+            >
+              <X className="size-4" />
+            </button>
+          )}
+        </form>
       </div>
 
-      {/* ACTIONS/BUTTONS */}
-      <div className="w-full flex justify-between items-end mb-6 flex-wrap gap-2">
-        <div className="flex items-center w-full max-w-sm max-sm:order-2">
-          <form className="w-full" onSubmit={handleSearch}>
-            <CustomInput
-              onChange={(e) => {
-                setSearchVal(e);
-                !e && clearSearch();
-              }}
-              value={searchVal}
-              placeholder="Ara..."
-              className2="mt-[0px] w-full"
-              className="mt-[0px] py-[.7rem] w-[100%] focus:outline-none"
-              icon={<CloseI className="w-4 text-[--red-1]" />}
-              className4={`top-[20px] right-2 hover:bg-[--light-4] rounded-full px-2 py-1 ${
-                searchVal ? "block" : "hidden"
-              }`}
-              iconClick={clearSearch}
-            />
-          </form>
-        </div>
-
-        <div className="max-sm:w-full flex justify-end">
-          <div className="flex gap-2 max-sm:order-1 ">
-            <div>
-              <AddLicense
-                licenses={licensesData}
-                onSuccess={() => setLicensesData(null)}
-              />
-            </div>
-
-            <div className="w-full relative" ref={filterLicense}>
-              <button
-                className="w-full h-11 flex items-center justify-center text-[--primary-2] px-3 rounded-md text-sm font-normal border-[1.5px] border-solid border-[--primary-2]"
-                onClick={() => setOpenFilter(!openFilter)}
-              >
-                Filtre
-              </button>
-
-              <div
-                className={`absolute right-[-60px] sm:right-0 top-12 px-4 pb-3 flex flex-col bg-[--white-1] w-[22rem] border border-solid border-[--light-3] rounded-lg drop-shadow-md -drop-shadow-md z-50 ${
-                  openFilter ? "visible" : "hidden"
-                }`}
-              >
-                <div className="flex gap-6">
-                  <CustomSelect
-                    label="Durum"
-                    className="text-sm sm:mt-1"
-                    className2="sm:mt-3"
-                    style={{ padding: "0 !important" }}
-                    options={[
-                      { value: null, label: "Hepsi" },
-                      { value: true, label: "Aktif" },
-                      { value: false, label: "Pasif" },
-                    ]}
-                    value={
-                      filter?.status
-                        ? filter.status
-                        : { value: null, label: "Hepsi" }
-                    }
-                    onChange={(selectedOption) => {
-                      setFilter((prev) => {
-                        return {
-                          ...prev,
-                          status: selectedOption,
-                        };
-                      });
-                    }}
-                  />
-
-                  <CustomSelect
-                    label="Bitiş Zamanı"
-                    className="text-sm sm:mt-1"
-                    className2="sm:mt-3"
-                    isSearchable={false}
-                    style={{ padding: "0 !important" }}
-                    optionStyle={{ fontSize: ".8rem" }}
-                    options={[
-                      { value: null, label: "Hepsi", id: null },
-                      ...licenseFilterDates,
-                    ]}
-                    value={
-                      filter?.dateRange
-                        ? filter.dateRange
-                        : { value: null, label: "Hepsi" }
-                    }
-                    onChange={(selectedOption) => {
-                      setFilter((prev) => {
-                        return {
-                          ...prev,
-                          dateRange: selectedOption,
-                        };
-                      });
-                    }}
-                  />
-                </div>
-
-                <div className="w-full flex gap-2 justify-center pt-10">
-                  <button
-                    className="text-[--white-1] bg-[--red-1] py-2 px-12 rounded-lg hover:opacity-90"
-                    onClick={() => handleFilter(false)}
-                  >
-                    Temizle
-                  </button>
-                  <button
-                    className="text-[--white-1] bg-[--primary-1] py-2 px-12 rounded-lg hover:opacity-90"
-                    onClick={() => handleFilter(true)}
-                  >
-                    Uygula
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* TABLE */}
-      {licensesData && !loading && !restaurantsLoading ? (
+      {/* CONTENT */}
+      {isLoading && !licensesData ? (
+        <SkeletonGrid />
+      ) : isEmpty ? (
+        <EmptyState
+          searching={hasActiveSearch}
+          licenses={licensesData}
+          onSuccess={() => setLicensesData(null)}
+        />
+      ) : licensesData ? (
         <LicensesTable
           inData={licensesData}
           onSuccess={() => setLicensesData(null)}
         />
-      ) : loading || restaurantsLoading ? (
-        <TableSkeleton />
       ) : null}
-
-      {/* PAGINATION */}
-      {licensesData && typeof totalItems === "number" && (
-        <div className="w-full self-end flex justify-center pt-4 text-[--black-2]">
-          <CustomPagination
-            pageNumber={pageNumber}
-            setPageNumber={setPageNumber}
-            itemsPerPage={itemsPerPage}
-            totalItems={totalItems}
-            handlePageChange={handlePageChange}
-          />
-        </div>
-      )}
     </section>
   );
 };
 
 export default LicensesPage;
+
+// ----- Skeleton -----
+
+const SkeletonGrid = () => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+    {Array.from({ length: 6 }).map((_, i) => (
+      <div
+        key={i}
+        className="rounded-2xl border border-[--border-1] bg-[--white-1] overflow-hidden"
+      >
+        <div className="px-4 py-3 border-b border-[--border-1] flex items-center justify-between">
+          <div className="h-5 w-20 rounded-full bg-[--white-2] animate-pulse" />
+          <div className="h-5 w-14 rounded-full bg-[--white-2] animate-pulse" />
+        </div>
+        <div className="p-4 space-y-3">
+          <div className="h-5 w-3/4 rounded bg-[--white-2] animate-pulse" />
+          <div className="h-3 w-1/2 rounded bg-[--white-2] animate-pulse" />
+          <div className="pt-3 border-t border-[--border-1] space-y-2">
+            <div className="h-4 w-full rounded bg-[--white-2] animate-pulse" />
+            <div className="h-4 w-2/3 rounded bg-[--white-2] animate-pulse" />
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+// ----- Empty state -----
+
+const EmptyState = ({ searching, licenses, onSuccess }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center">
+      <div className="grid place-items-center size-20 rounded-2xl bg-indigo-50 text-[--primary-1] mb-5">
+        <ShieldCheck className="size-10" strokeWidth={1.5} />
+      </div>
+      <h3 className="text-lg sm:text-xl font-semibold text-[--black-1] mb-2">
+        {searching ? t("licenses.no_results") : t("licenses.no_licenses")}
+      </h3>
+      <p className="text-sm text-[--gr-1] max-w-md mb-6 px-4">
+        {searching
+          ? t("licenses.no_results_description")
+          : t("licenses.no_licenses_description")}
+      </p>
+      {!searching && <AddLicense licenses={licenses} onSuccess={onSuccess} />}
+    </div>
+  );
+};
