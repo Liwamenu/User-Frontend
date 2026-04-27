@@ -167,7 +167,7 @@ const SurveySettings = ({ data }) => {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1.5">
-                        <h3 className="font-semibold text-sm text-slate-900 truncate">
+                        <h3 className="font-semibold text-sm text-slate-900 truncate capitalize">
                           {t(category.key)}
                         </h3>
                         <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider shrink-0">
@@ -263,7 +263,7 @@ const SurveySettings = ({ data }) => {
                 <h4 className="text-xs font-bold text-indigo-900">
                   {t("surveySettings.performance_insight")}
                 </h4>
-                <p className="text-[11px] sm:text-xs text-indigo-700/90 leading-relaxed mt-0.5">
+                <p className="text-[11px] sm:text-xs text-indigo-700/90 leading-relaxed mt-0.5 [&_strong]:capitalize">
                   {ratedCategories.length > 0 ? (
                     <span
                       dangerouslySetInnerHTML={{
