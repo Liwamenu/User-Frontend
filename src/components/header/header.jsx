@@ -1,5 +1,4 @@
 //MODULES
-import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
@@ -14,15 +13,13 @@ import { SettingsI, MenuI, SunI, MoonI } from "../../assets/icon";
 import LanguagesEnums from "../../enums/languagesEnums";
 
 //REDUX
-import { getAuth, clearAuth } from "../../redux/api";
-import { logout, resetLogoutState } from "../../redux/auth/logoutSlice";
+import { clearAuth } from "../../redux/api";
 import {
   updateUserLang,
   resetUpdateUserLangSlice,
 } from "../../redux/user/updateUserLangSlice";
 
 function Header({ openSidebar, setOpenSidebar }) {
-  const toastId = useRef();
   const langRef = useRef();
   const param = useParams();
   const dispatch = useDispatch();
@@ -38,36 +35,19 @@ function Header({ openSidebar, setOpenSidebar }) {
   const [langOpen, setLangOpen] = useState(false);
   const [selectedLang, setSelectedLang] = useState(user?.defaultLang || "0");
 
-  const { loading, success, error } = useSelector((state) => state.auth.logout);
   const { success: lngSucc, error: lngErr } = useSelector(
     (s) => s.user.updateUserLang,
   );
 
-  //LOGOUT
+  // LOGOUT — purely client-side: drop the persisted auth + reset Redux,
+  // no backend call so the user can sign out even when offline / when the
+  // session has already expired on the server.
   const handleLogout = () => {
-    const userSessionId = getAuth().sessionId;
-    setOpen(!open);
-    dispatch(logout({ userSessionId }));
+    setOpen(false);
+    clearAuth();
+    dispatch({ type: "LOGOUT" });
+    window.location.href = "/login";
   };
-
-  //LOGOUT TOAST
-  useEffect(() => {
-    if (loading) {
-      toastId.current = toast.loading("Çıkış Yapılıyor...");
-    }
-    if (success) {
-      clearAuth();
-      window.location.href = "/login";
-      dispatch({ type: "LOGOUT" });
-      dispatch(resetLogoutState());
-      toast.dismiss(toastId.current);
-    }
-    if (error) {
-      clearAuth();
-      window.location.href = "/login";
-      dispatch(resetLogoutState());
-    }
-  }, [success, loading, error]);
 
   //REF
   const { contentRef, setContentRef } = usePopup();

@@ -462,7 +462,10 @@
     "whatsapp_placeholder": "https://wa.me/{{phone}}",
     "save": "Kaydet",
     "success": "Sosyal medya linkleri güncellendi.",
-    "processing": "İşleniyor..."
+    "processing": "İşleniyor...",
+    "subtitle": "Müşterilerinizin sizi bulabileceği sosyal medya bağlantılarını ekleyin.",
+    "open_link": "Aç",
+    "summary": "{{count}} bağlantı ekli · {{empty}} boş"
   },
   "paymentMethods": {
     "title": "{{name}} Restoranı için Ödeme Yöntemleri",
@@ -514,7 +517,21 @@
     "status_passive": "Pasif",
     "manage_products": "Ürünleri Yönet",
     "product_count": "{{count}} Ürün",
-    "category_image_optional": "Kategori Görseli (Opsiyonel)"
+    "category_image_optional": "Kategori Görseli (Opsiyonel)",
+    "tab_list": "Kategoriler",
+    "tab_bulk_images": "Toplu Kategori Düzenle",
+    "summary": "{{count}} kategori",
+    "bulk_subtitle": "Resim seç, kaydet — birden fazla kategoriyi tek seferde güncelle.",
+    "bulk_pick_image": "Resim Seç",
+    "bulk_change_image": "Resmi Değiştir",
+    "bulk_revert": "Geri al",
+    "bulk_save_all": "Toplu Kaydet",
+    "bulk_pending": "{{count}} değişiklik bekliyor",
+    "bulk_no_changes": "Değişiklik yapılmadı.",
+    "bulk_invalid_file": "Geçersiz dosya türü",
+    "bulk_too_large": "Maksimum {{size}}MB",
+    "view_list": "Liste",
+    "view_tile": "Kart"
   },
   "categoryProducts": {
     "title": "Kategori Ürünleri",
@@ -524,7 +541,14 @@
     "no_products": "Bu kategoride henüz ürün yok.",
     "portions": "{{count}} Porsiyon",
     "edit": "Düzenle",
-    "delete": "Sil"
+    "delete": "Sil",
+    "summary": "{{count}} ürün",
+    "save_order": "Sıralamayı Kaydet",
+    "saving_order": "Sıralama kaydediliyor...",
+    "order_saved": "Ürün sıralaması güncellendi.",
+    "order_save_failed": "Sıralama kaydedilemedi.",
+    "drag_to_reorder": "Sıralamayı değiştirmek için sürükleyin.",
+    "no_changes": "Değişiklik yapılmadı."
   },
   "listCategoryProducts": {
     "title": "Ürün Seçimi",
@@ -588,7 +612,9 @@
     "tip_content": "Alt kategoriler ana kategorilerinizi daha detaylı gruplandırmanıza olanak tanır.",
     "unknown_category": "Bilinmeyen Kategori",
     "subcategory_count": "{{count}} Alt Kategori",
-    "no_subcategories_in_category": "Bu kategoride alt kategori bulunmuyor."
+    "no_subcategories_in_category": "Bu kategoride alt kategori bulunmuyor.",
+    "summary": "{{groups}} kategori · {{count}} alt kategori",
+    "save_order": "Sıralamayı Kaydet"
   },
   "addSubCategories": {
     "title": "{{name}} Restoranı için Alt Kategori Ekle",

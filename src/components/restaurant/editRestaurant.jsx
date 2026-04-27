@@ -14,6 +14,7 @@ import {
   X,
   Check,
   Compass,
+  Search,
 } from "lucide-react";
 
 //COMP
@@ -102,6 +103,7 @@ const EditRestaurant = ({ data: restaurant }) => {
   const [document, setDocument] = useState("");
   const [document2, setDocument2] = useState("");
   const [isMapOpen, setIsMapOpen] = useState(false);
+  const mapSearchInputRef = useRef(null);
   const [restaurantDataBefore, setRestaurantDataBefore] = useState(
     formatRestaurant(restaurant),
   );
@@ -143,18 +145,87 @@ const EditRestaurant = ({ data: restaurant }) => {
     setIsMapOpen(true);
   }
 
-  // Initialize Google Map AFTER the modal is rendered & visible — otherwise the
-  // map container has 0 dimensions and tiles never load.
+  // When the map overlay opens, resolve a sensible center in priority order:
+  //   1) coordinates already saved on the restaurant / typed in the form,
+  //   2) browser geolocation (asks for permission),
+  //   3) geocoding the user-supplied city/district,
+  //   4) world view fallback so the user can pan/search freely.
   useEffect(() => {
     if (!isMapOpen) return;
-    const id = requestAnimationFrame(() => {
-      const latNum = parseFloat(formatCoordinate(lat));
-      const lngNum = parseFloat(formatCoordinate(lng));
-      const validLat = Number.isFinite(latNum) ? latNum : 39.0;
-      const validLng = Number.isFinite(lngNum) ? lngNum : 35.0;
-      googleMap(validLat, validLng, setLat, setLng, null, 15, false);
-    });
-    return () => cancelAnimationFrame(id);
+    let cancelled = false;
+    const FALLBACK_LAT = 20;
+    const FALLBACK_LNG = 0;
+    const FALLBACK_ZOOM = 2;
+
+    const init = (centerLat, centerLng, zoom = 15) => {
+      if (cancelled) return;
+      setLat(centerLat.toFixed(6));
+      setLng(centerLng.toFixed(6));
+      // requestAnimationFrame so the #map div has its painted dimensions.
+      requestAnimationFrame(() => {
+        if (cancelled) return;
+        googleMap(
+          centerLat,
+          centerLng,
+          setLat,
+          setLng,
+          null,
+          zoom,
+          false,
+          mapSearchInputRef.current,
+        );
+      });
+    };
+
+    const tryGeocodeCity = () => {
+      const Geocoder = window.google?.maps?.Geocoder;
+      const cityQuery = [restaurantData?.city, restaurantData?.district]
+        .filter(Boolean)
+        .join(", ");
+      if (!Geocoder || !cityQuery) {
+        init(FALLBACK_LAT, FALLBACK_LNG, FALLBACK_ZOOM);
+        return;
+      }
+      const geocoder = new Geocoder();
+      geocoder.geocode({ address: cityQuery }, (results, status) => {
+        if (cancelled) return;
+        if (status === "OK" && results && results.length) {
+          const loc = results[0].geometry.location;
+          init(loc.lat(), loc.lng(), 12);
+        } else {
+          init(FALLBACK_LAT, FALLBACK_LNG, FALLBACK_ZOOM);
+        }
+      });
+    };
+
+    // 1) Honor coordinates already entered/saved.
+    const typedLat = parseFloat(formatCoordinate(lat));
+    const typedLng = parseFloat(formatCoordinate(lng));
+    const hasTypedCoords =
+      Number.isFinite(typedLat) &&
+      Number.isFinite(typedLng) &&
+      typedLat >= -90 &&
+      typedLat <= 90 &&
+      typedLng >= -180 &&
+      typedLng <= 180 &&
+      !(typedLat === 0 && typedLng === 0);
+
+    if (hasTypedCoords) {
+      init(typedLat, typedLng, 15);
+    } else if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => init(pos.coords.latitude, pos.coords.longitude, 15),
+        () => tryGeocodeCity(),
+        { timeout: 10000, maximumAge: 60000 },
+      );
+    } else {
+      tryGeocodeCity();
+    }
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMapOpen]);
 
   function handleSetMap() {
@@ -244,7 +315,21 @@ const EditRestaurant = ({ data: restaurant }) => {
           !isMapOpen && "hidden"
         }`}
       >
-        <div id="map" className="size-full"></div>
+        {/* Map area with overlaid Places Autocomplete search bar */}
+        <div className="relative w-full flex-1 min-h-0">
+          <div id="map" className="absolute inset-0 w-full h-full" />
+          <div className="absolute top-3 left-[calc(50%+60px)] -translate-x-1/2 z-10 w-[min(320px,calc(100%-9rem))]">
+            <div className="flex items-center gap-2 h-11 px-3 rounded-xl bg-white shadow-lg ring-1 ring-black/10">
+              <Search className="size-4 text-slate-400 shrink-0" />
+              <input
+                ref={mapSearchInputRef}
+                type="text"
+                placeholder={t("restaurants.map_search_placeholder")}
+                className="flex-1 min-w-0 h-full bg-transparent outline-none text-sm text-slate-900 placeholder:text-slate-400"
+              />
+            </div>
+          </div>
+        </div>
 
         <div className="w-full px-3 py-2.5 flex items-center gap-3 border-t border-slate-200 bg-white">
           <div className="flex flex-1 gap-3 min-w-0">
