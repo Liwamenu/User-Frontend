@@ -462,7 +462,10 @@
     "whatsapp_placeholder": "https://wa.me/{{phone}}",
     "save": "Save",
     "success": "Social media links updated successfully.",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "subtitle": "Add the social media links where your customers can find you.",
+    "open_link": "Open",
+    "summary": "{{count}} linked · {{empty}} empty"
   },
   "paymentMethods": {
     "title": "Payment Methods for {{name}} Restaurant",
@@ -513,7 +516,21 @@
     "status_active": "Active",
     "status_passive": "Passive",
     "manage_products": "Manage Products",
-    "product_count": "{{count}} Products"
+    "product_count": "{{count}} Products",
+    "tab_list": "Categories",
+    "tab_bulk_images": "Bulk Edit Categories",
+    "summary": "{{count}} categories",
+    "bulk_subtitle": "Pick images and save — update multiple categories in one go.",
+    "bulk_pick_image": "Pick Image",
+    "bulk_change_image": "Change Image",
+    "bulk_revert": "Revert",
+    "bulk_save_all": "Save All",
+    "bulk_pending": "{{count}} pending change(s)",
+    "bulk_no_changes": "No changes made.",
+    "bulk_invalid_file": "Invalid file type",
+    "bulk_too_large": "Maximum {{size}}MB",
+    "view_list": "List",
+    "view_tile": "Tile"
   },
   "categoryProducts": {
     "title": "Category Products",
@@ -523,7 +540,14 @@
     "no_products": "No products in this category yet.",
     "portions": "{{count}} Portions",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "summary": "{{count}} products",
+    "save_order": "Save Order",
+    "saving_order": "Saving order...",
+    "order_saved": "Product order updated.",
+    "order_save_failed": "Could not save order.",
+    "drag_to_reorder": "Drag to reorder.",
+    "no_changes": "No changes made."
   },
   "listCategoryProducts": {
     "title": "Product Selection",
@@ -587,7 +611,9 @@
     "tip_content": "Subcategories allow you to group your main categories in more detail.",
     "unknown_category": "Unknown Category",
     "subcategory_count": "{{count}} Subcategories",
-    "no_subcategories_in_category": "There are no subcategories in this category."
+    "no_subcategories_in_category": "There are no subcategories in this category.",
+    "summary": "{{groups}} categories · {{count}} subcategories",
+    "save_order": "Save Order"
   },
   "addSubCategories": {
     "title": "Add Subcategory for {{name}} Restaurant",

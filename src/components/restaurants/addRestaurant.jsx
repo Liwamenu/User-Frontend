@@ -305,7 +305,7 @@ function AddRestaurantPopup({ onSuccess }) {
         <div className="absolute inset-0 z-40 bg-[--white-1] flex flex-col">
           <div className="relative flex-1 w-full">
             <div id="map" className="absolute inset-0 w-full h-full" />
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-[min(420px,calc(100%-1.5rem))]">
+            <div className="absolute top-3 left-[calc(50%+60px)] -translate-x-1/2 z-10 w-[min(320px,calc(100%-9rem))]">
               <div className="flex items-center gap-2 h-11 px-3 rounded-xl bg-white shadow-lg ring-1 ring-black/10">
                 <Search className="size-4 text-[--gr-1] shrink-0" />
                 <input

@@ -1,24 +1,29 @@
-//MODULES
+// MODULES
 import { isEqual } from "lodash";
 import { toast } from "react-hot-toast";
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import {
+  FolderTree,
+  Layers,
+  Plus,
+  GripVertical,
+  Pencil,
+  Trash2,
+  Save,
+  Loader2,
+} from "lucide-react";
 
-//ICONS
-import { DeleteI, EditI } from "../../../assets/icon";
-import { DragI, StackI } from "../../../assets/icon";
-
-//COMP
-import SubCategoriesHeader from "./header";
+// COMP
 import EditSubCategory from "./editSubCategory";
 import DeleteSubCategory from "./deleteSubCategory";
+import AddSubCategory from "./addSubCategory";
 import { usePopup } from "../../../context/PopupContext";
 import fallbackImg from "../../../assets/img/No_Img.svg";
 
-//REDUX
+// REDUX
 import {
   updateSubOrders,
   resetUpdateSubOrders,
@@ -26,281 +31,52 @@ import {
 import { getSubCategories } from "../../../redux/subCategories/getSubCategoriesSlice";
 import { getCategories } from "../../../redux/categories/getCategoriesSlice";
 
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
+
 const SubCategories = ({ data: restaurant }) => {
-  const params = useParams();
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { setPopupContent } = usePopup();
 
   const { categories } = useSelector((state) => state.categories.get);
-
-  const { subCategories, error: getError } = useSelector(
-    (s) => s.subCategories.get,
-  );
-  const { success: updateSuccess, error: updateError } = useSelector(
+  const { subCategories } = useSelector((s) => s.subCategories.get);
+  const { success: updateSuccess, error: updateError, loading } = useSelector(
     (s) => s.subCategories.updateSubOrders,
   );
 
-  // Store grouped data directly (array of category groups)
   const [categoriesData, setCategoriesData] = useState(null);
   const [subCategoriesData, setSubCategoriesData] = useState(null);
   const [subCategoriesDataBefore, setSubCategoriesDataBefore] = useState(null);
 
-  // Helper: Convert flat array to grouped structure
-  // Uses `categoriesData` if available, otherwise falls back to `categories` from redux
-  const groupSubCategories = (flatArray) => {
-    const groups = {};
+  // Group flat sub-category list by parent category id, preserving sortOrder.
+  const groupSubCategories = (flat) => {
     const cats = categoriesData || categories;
     if (!cats) return [];
-
-    flatArray.forEach((subCat) => {
-      const categoryId = subCat.categoryId;
-      if (!groups[categoryId]) {
-        const category = cats.find((c) => c.id === categoryId);
-        groups[categoryId] = {
-          category: category || {
-            id: categoryId,
-            name: t("editSubCategories.unknown_category"),
-          },
+    const groups = {};
+    flat.forEach((sc) => {
+      const id = sc.categoryId;
+      if (!groups[id]) {
+        const cat = cats.find((c) => c.id === id);
+        groups[id] = {
+          category: cat || { id, name: t("editSubCategories.unknown_category") },
           subCategories: [],
         };
       }
-      groups[categoryId].subCategories.push(subCat);
+      groups[id].subCategories.push(sc);
     });
-
-    // Convert to array and sort each group's subcategories by sortOrder
-    return Object.values(groups).map((group) => ({
-      ...group,
-      subCategories: group.subCategories.sort(
+    return Object.values(groups).map((g) => ({
+      ...g,
+      subCategories: g.subCategories.sort(
         (a, b) => a.sortOrder - b.sortOrder,
       ),
     }));
   };
 
-  // Helper: Convert grouped structure back to flat array
-  const flattenGroupedData = (groupedData) => {
-    if (!groupedData) return [];
-    return groupedData.flatMap((group) => group.subCategories);
-  };
+  const flattenGroupedData = (grouped) =>
+    grouped ? grouped.flatMap((g) => g.subCategories) : [];
 
-  const handleDragEnd = (result) => {
-    if (!result.destination) return;
-
-    const { source, destination } = result;
-
-    // Extract categoryId from droppableId (format: "subCategories#{categoryId}")
-    const sourceCategoryId = source.droppableId.split("#")[1];
-    const destCategoryId = destination.droppableId.split("#")[1];
-
-    // Only allow reordering within same category
-    if (sourceCategoryId !== destCategoryId) return;
-
-    // Clone the groups array
-    const updatedGroups = subCategoriesData.map((group) => {
-      // Only update the group that matches the source category
-      if (group.category.id !== sourceCategoryId) {
-        return group;
-      }
-
-      // Clone subcategories array for this group
-      const newSubCategories = Array.from(group.subCategories);
-
-      // Perform the reorder
-      const [movedItem] = newSubCategories.splice(source.index, 1);
-      newSubCategories.splice(destination.index, 0, movedItem);
-
-      // Update sortOrder for all items in this category
-      const updatedSubCategories = newSubCategories.map((subCat, index) => ({
-        ...subCat,
-        sortOrder: index,
-      }));
-
-      return {
-        ...group,
-        subCategories: updatedSubCategories,
-      };
-    });
-
-    setSubCategoriesData(updatedGroups);
-  };
-
-  const handleEditSubCategory = (updatedSubCategory) => {
-    console.log(updatedSubCategory);
-    console.log(subCategoriesData);
-    if (!subCategoriesData) return;
-
-    // Find which group currently contains the subcategory (if any)
-    let originGroupIndex = -1;
-    subCategoriesData.forEach((group, gi) => {
-      if (group.subCategories.some((sc) => sc.id === updatedSubCategory.id)) {
-        originGroupIndex = gi;
-      }
-    });
-
-    // If not found, treat as an add to the target category
-    if (originGroupIndex === -1) {
-      const targetIndex = subCategoriesData.findIndex(
-        (g) => g.category.id === updatedSubCategory.categoryId,
-      );
-
-      const updatedGroups = subCategoriesData.map((g) => ({ ...g }));
-      if (targetIndex !== -1) {
-        updatedGroups[targetIndex] = {
-          ...updatedGroups[targetIndex],
-          subCategories: [
-            ...updatedGroups[targetIndex].subCategories,
-            {
-              ...updatedSubCategory,
-              sortOrder: updatedGroups[targetIndex].subCategories.length,
-            },
-          ],
-        };
-      } else {
-        const category = categoriesData?.find(
-          (c) => c.id === updatedSubCategory.categoryId,
-        ) || {
-          id: updatedSubCategory.categoryId,
-          name: t("editSubCategories.unknown_category"),
-        };
-        updatedGroups.push({
-          category,
-          subCategories: [{ ...updatedSubCategory, sortOrder: 0 }],
-        });
-      }
-
-      setSubCategoriesData(updatedGroups);
-      setSubCategoriesDataBefore(updatedGroups);
-      return;
-    }
-
-    const originCategoryId = subCategoriesData[originGroupIndex].category.id;
-
-    // If category didn't change, update in-place preserving sortOrder
-    if (originCategoryId === updatedSubCategory.categoryId) {
-      const updatedGroups = subCategoriesData.map((group) => ({
-        ...group,
-        subCategories: group.subCategories.map((subCat) =>
-          subCat.id === updatedSubCategory.id
-            ? { ...subCat, ...updatedSubCategory }
-            : subCat,
-        ),
-      }));
-
-      setSubCategoriesData(updatedGroups);
-      setSubCategoriesDataBefore(updatedGroups);
-      return;
-    }
-
-    // Category changed: remove from origin and reassign sortOrder in origin
-    const removed = subCategoriesData.map((group) => ({
-      ...group,
-      subCategories: group.subCategories
-        .filter((sc) => sc.id !== updatedSubCategory.id)
-        .map((sc, idx) => ({ ...sc, sortOrder: idx })),
-    }));
-
-    // Insert into target group (append to end) or create new group if missing
-    const targetIdx = removed.findIndex(
-      (g) => g.category.id === updatedSubCategory.categoryId,
-    );
-    if (targetIdx !== -1) {
-      const target = removed[targetIdx];
-      removed[targetIdx] = {
-        ...target,
-        subCategories: [
-          ...target.subCategories,
-          { ...updatedSubCategory, sortOrder: target.subCategories.length },
-        ],
-      };
-    } else {
-      const category = categoriesData?.find(
-        (c) => c.id === updatedSubCategory.categoryId,
-      ) || {
-        id: updatedSubCategory.categoryId,
-        name: t("editSubCategories.unknown_category"),
-      };
-      removed.push({
-        category,
-        subCategories: [{ ...updatedSubCategory, sortOrder: 0 }],
-      });
-    }
-
-    setSubCategoriesData(removed);
-    setSubCategoriesDataBefore(removed);
-  };
-
-  const handleDelete = (deletedSubCategoryId) => {
-    const updatedGroups = subCategoriesData.map((group) => ({
-      ...group,
-      subCategories: group.subCategories
-        .filter((subCat) => subCat.id !== deletedSubCategoryId)
-        .map((subCat, index) => ({
-          ...subCat,
-          sortOrder: index, // Reassign sortOrder after deletion
-        })),
-    }));
-
-    setSubCategoriesData(updatedGroups);
-    setSubCategoriesDataBefore(updatedGroups);
-  };
-
-  const getStatusBadge = (value, type) => {
-    const configs = {
-      isActive: {
-        true: {
-          label: t("editCategories.status_open"),
-          class: "bg-[--status-green] text-[--green-1]",
-        },
-        false: {
-          label: t("editCategories.status_closed"),
-          class: "bg-[--status-gray] text-[--gr-1]",
-        },
-      },
-    };
-
-    const config = configs[type]?.[value];
-    if (!config) return null;
-
-    return (
-      <span className={`px-3 py-1 rounded-full text-xs ${config.class}`}>
-        {config.label}
-      </span>
-    );
-  };
-
-  const handleAddSubCategory = (subCategory) => {
-    setSubCategoriesData(null); // Clear to trigger loading state if needed
-    return;
-    const updatedGroups =
-      subCategoriesData?.length > 0 &&
-      subCategoriesData.map((group) => {
-        // Only add to the matching category group
-        if (group.category.id !== subCategory.categoryId) {
-          return group;
-        }
-
-        const maxSortOrder =
-          group.subCategories.length > 0
-            ? Math.max(...group.subCategories.map((sc) => sc.sortOrder))
-            : -1;
-
-        return {
-          ...group,
-          subCategories: [
-            ...group.subCategories,
-            {
-              ...subCategory,
-              sortOrder: maxSortOrder + 1,
-            },
-          ],
-        };
-      });
-
-    setSubCategoriesData(updatedGroups);
-    setSubCategoriesDataBefore(updatedGroups);
-  };
-
-  //GET SUBCATEGORIES & CATEGORIES
+  // GET data
   useEffect(() => {
     if (!subCategoriesData) {
       dispatch(getSubCategories({ restaurantId: restaurant?.id }));
@@ -310,242 +86,413 @@ const SubCategories = ({ data: restaurant }) => {
     }
   }, [subCategoriesData, categoriesData, restaurant]);
 
-  //SET SUBCATEGORIES
   useEffect(() => {
     if (subCategories && categories) {
-      const flatData = [...subCategories];
-      const grouped = groupSubCategories(flatData);
-
+      const grouped = groupSubCategories([...subCategories]);
       setSubCategoriesData(grouped);
       setSubCategoriesDataBefore(grouped);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subCategories, categories]);
 
-  //SET CATEGORIES
   useEffect(() => {
-    if (categories) {
-      setCategoriesData(categories);
-    }
+    if (categories) setCategoriesData(categories);
   }, [categories]);
 
-  // TOAST
+  // Toast
   useEffect(() => {
     if (updateSuccess) {
-      toast.success(t("editSubCategories.success"), {
-        id: "subCategories",
-      });
+      toast.success(t("editSubCategories.success"), { id: "subCategories" });
       setSubCategoriesDataBefore(subCategoriesData);
       dispatch(resetUpdateSubOrders());
     }
-    if (updateError) {
-      dispatch(resetUpdateSubOrders());
-    }
+    if (updateError) dispatch(resetUpdateSubOrders());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updateSuccess, updateError]);
 
-  //SAVE NEW ORDER
-  const saveNewOrder = (e) => {
-    e?.preventDefault();
+  const handleDragEnd = (result) => {
+    if (!result.destination) return;
+    const { source, destination } = result;
+    const sourceCategoryId = source.droppableId.split("#")[1];
+    const destCategoryId = destination.droppableId.split("#")[1];
+    if (sourceCategoryId !== destCategoryId) return; // same-category only
 
-    if (isEqual(subCategoriesData, subCategoriesDataBefore)) {
-      toast.error(t("editSubCategories.not_changed"), {
-        id: "subCategories",
-      });
+    setSubCategoriesData((prev) =>
+      prev.map((group) => {
+        if (group.category.id !== sourceCategoryId) return group;
+        const next = Array.from(group.subCategories);
+        const [moved] = next.splice(source.index, 1);
+        next.splice(destination.index, 0, moved);
+        return {
+          ...group,
+          subCategories: next.map((sc, i) => ({ ...sc, sortOrder: i })),
+        };
+      }),
+    );
+  };
+
+  const handleEditSubCategory = (updated) => {
+    if (!subCategoriesData) return;
+    let originGroupIndex = -1;
+    subCategoriesData.forEach((group, gi) => {
+      if (group.subCategories.some((sc) => sc.id === updated.id)) {
+        originGroupIndex = gi;
+      }
+    });
+
+    if (originGroupIndex === -1) {
+      const targetIndex = subCategoriesData.findIndex(
+        (g) => g.category.id === updated.categoryId,
+      );
+      const next = subCategoriesData.map((g) => ({ ...g }));
+      if (targetIndex !== -1) {
+        next[targetIndex] = {
+          ...next[targetIndex],
+          subCategories: [
+            ...next[targetIndex].subCategories,
+            { ...updated, sortOrder: next[targetIndex].subCategories.length },
+          ],
+        };
+      } else {
+        const cat =
+          categoriesData?.find((c) => c.id === updated.categoryId) || {
+            id: updated.categoryId,
+            name: t("editSubCategories.unknown_category"),
+          };
+        next.push({ category: cat, subCategories: [{ ...updated, sortOrder: 0 }] });
+      }
+      setSubCategoriesData(next);
+      setSubCategoriesDataBefore(next);
       return;
     }
 
-    try {
-      const formData = new FormData();
-
-      // Flatten both current and before data for comparison
-      const currentFlat = flattenGroupedData(subCategoriesData);
-      const beforeFlat = flattenGroupedData(subCategoriesDataBefore);
-
-      const changedOnes = currentFlat.filter((a) => {
-        const original = beforeFlat.find((b) => b.id === a.id);
-        return original && original.sortOrder !== a.sortOrder;
-      });
-
-      const dataToSend = changedOnes.map(({ id, categoryId, sortOrder }) => ({
-        id,
-        categoryId,
-        sortOrder,
+    const originCategoryId = subCategoriesData[originGroupIndex].category.id;
+    if (originCategoryId === updated.categoryId) {
+      const next = subCategoriesData.map((g) => ({
+        ...g,
+        subCategories: g.subCategories.map((sc) =>
+          sc.id === updated.id ? { ...sc, ...updated } : sc,
+        ),
       }));
-
-      formData.append("restaurantId", restaurant?.id);
-      formData.append("subCategoriesData", JSON.stringify(dataToSend));
-
-      console.log("Saving subcategories:", dataToSend);
-
-      dispatch(updateSubOrders(formData));
-    } catch (error) {
-      console.error("Error preparing form data:", error);
+      setSubCategoriesData(next);
+      setSubCategoriesDataBefore(next);
+      return;
     }
+
+    const removed = subCategoriesData.map((g) => ({
+      ...g,
+      subCategories: g.subCategories
+        .filter((sc) => sc.id !== updated.id)
+        .map((sc, i) => ({ ...sc, sortOrder: i })),
+    }));
+    const targetIdx = removed.findIndex(
+      (g) => g.category.id === updated.categoryId,
+    );
+    if (targetIdx !== -1) {
+      const target = removed[targetIdx];
+      removed[targetIdx] = {
+        ...target,
+        subCategories: [
+          ...target.subCategories,
+          { ...updated, sortOrder: target.subCategories.length },
+        ],
+      };
+    } else {
+      const cat =
+        categoriesData?.find((c) => c.id === updated.categoryId) || {
+          id: updated.categoryId,
+          name: t("editSubCategories.unknown_category"),
+        };
+      removed.push({ category: cat, subCategories: [{ ...updated, sortOrder: 0 }] });
+    }
+    setSubCategoriesData(removed);
+    setSubCategoriesDataBefore(removed);
   };
 
+  const handleDelete = (deletedId) => {
+    setSubCategoriesData((prev) =>
+      prev.map((g) => ({
+        ...g,
+        subCategories: g.subCategories
+          .filter((sc) => sc.id !== deletedId)
+          .map((sc, i) => ({ ...sc, sortOrder: i })),
+      })),
+    );
+    setSubCategoriesDataBefore((prev) =>
+      prev?.map((g) => ({
+        ...g,
+        subCategories: g.subCategories
+          .filter((sc) => sc.id !== deletedId)
+          .map((sc, i) => ({ ...sc, sortOrder: i })),
+      })),
+    );
+  };
+
+  const handleAddSubCategory = () => {
+    setSubCategoriesData(null); // refetch
+  };
+
+  const openAddPopup = () => {
+    setPopupContent(
+      <AddSubCategory
+        onSuccess={handleAddSubCategory}
+        restaurant={restaurant}
+      />,
+    );
+  };
+
+  // SAVE NEW ORDER — only push items whose sortOrder changed.
+  const saveNewOrder = (e) => {
+    e?.preventDefault();
+    if (isEqual(subCategoriesData, subCategoriesDataBefore)) {
+      toast.error(t("editSubCategories.not_changed"), { id: "subCategories" });
+      return;
+    }
+    const currentFlat = flattenGroupedData(subCategoriesData);
+    const beforeFlat = flattenGroupedData(subCategoriesDataBefore);
+    const changedOnes = currentFlat.filter((a) => {
+      const orig = beforeFlat.find((b) => b.id === a.id);
+      return orig && orig.sortOrder !== a.sortOrder;
+    });
+    // Forward sambaId (if present) so the backend doesn't null it out on save.
+    const dataToSend = changedOnes.map(({ id, categoryId, sortOrder, sambaId }) => ({
+      id,
+      categoryId,
+      sortOrder,
+      sambaId: sambaId ?? null,
+    }));
+    const formData = new FormData();
+    formData.append("restaurantId", restaurant?.id);
+    formData.append("subCategoriesData", JSON.stringify(dataToSend));
+    dispatch(updateSubOrders(formData));
+  };
+
+  const orderDirty = useMemo(
+    () =>
+      subCategoriesData &&
+      subCategoriesDataBefore &&
+      !isEqual(subCategoriesData, subCategoriesDataBefore),
+    [subCategoriesData, subCategoriesDataBefore],
+  );
+
+  const totalSubCount = subCategoriesData
+    ? subCategoriesData.reduce((s, g) => s + g.subCategories.length, 0)
+    : 0;
+
   return (
-    <div className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
-      <div className="flex flex-col sm:px-14">
-        <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
-          {t("editSubCategories.title", { name: restaurant?.name })}
-        </h1>
+    <div className="w-full pb-8 mt-1 text-slate-900">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
 
-        <SubCategoriesHeader
-          restaurant={restaurant}
-          after={subCategoriesData}
-          saveNewOrder={saveNewOrder}
-          before={subCategoriesDataBefore}
-          onSuccess={handleAddSubCategory}
-        />
+        {/* HERO HEADER */}
+        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+          <span
+            className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
+            style={{ background: PRIMARY_GRADIENT }}
+          >
+            <FolderTree className="size-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+              {t("editSubCategories.title", { name: restaurant?.name || "" })}
+            </h1>
+            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+              {subCategoriesData
+                ? t("editSubCategories.summary", {
+                    groups: subCategoriesData.length,
+                    count: totalSubCount,
+                  })
+                : t("editSubCategories.header_subtitle")}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={openAddPopup}
+            className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg text-white text-xs font-semibold shadow-md shadow-indigo-500/25 hover:brightness-110 active:brightness-95 transition shrink-0"
+            style={{ background: PRIMARY_GRADIENT }}
+          >
+            <Plus className="size-4" />
+            <span className="hidden sm:inline">
+              {t("editSubCategories.add_button")}
+            </span>
+          </button>
+        </div>
 
-        <div className="space-y-4 overflow-x-auto">
-          {/* Render each category group */}
-          {!subCategoriesData || subCategoriesData.length === 0 ? (
-            <div className="p-8 text-center text-[--gr-1] italic bg-[--light-2] rounded-xl">
-              {t("editSubCategories.no_subcategories")}
+        <div className="p-3 sm:p-5 space-y-3">
+          {orderDirty && (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={saveNewOrder}
+                disabled={loading}
+                className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg text-white text-xs font-semibold shadow-md shadow-indigo-500/25 hover:brightness-110 active:brightness-95 transition disabled:opacity-60"
+                style={{ background: PRIMARY_GRADIENT }}
+              >
+                {loading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Save className="size-4" />
+                )}
+                {t("editSubCategories.save_order")}
+              </button>
+            </div>
+          )}
+
+          {!subCategoriesData ? (
+            <div className="grid place-items-center py-10 text-slate-400">
+              <Loader2 className="size-5 animate-spin" />
+            </div>
+          ) : subCategoriesData.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-8 grid place-items-center text-center">
+              <span className="grid place-items-center size-12 rounded-xl bg-indigo-50 text-indigo-600 mb-3">
+                <FolderTree className="size-6" />
+              </span>
+              <h3 className="text-sm font-semibold text-slate-900">
+                {t("editSubCategories.no_subcategories")}
+              </h3>
+              <p className="text-xs text-slate-500 mt-1 max-w-sm">
+                {t("editSubCategories.no_subcategories_info")}
+              </p>
             </div>
           ) : (
             <DragDropContext onDragEnd={handleDragEnd}>
-              {subCategoriesData.map((group) => (
-                <div
-                  key={group.category.id}
-                  className="bg-[--light-4] border border-[--light-3] rounded-xl min-w-max overflow-hidden"
-                >
-                  {/* Category Header */}
-                  <div className="flex items-center gap-4 p-2 bg-[--light-3] border-b border-[--light-3]">
-                    <div className="text-center text-[--primary-1]">
-                      <StackI className="size-[1.1rem]" />
-                    </div>
-
-                    <div>
-                      <p className="uppercase font-semibold text-xs tracking-wider text-[--black-2]">
+              <div className="space-y-3">
+                {subCategoriesData.map((group) => (
+                  <div
+                    key={group.category.id}
+                    className="rounded-xl border border-slate-200 bg-white overflow-hidden"
+                  >
+                    {/* Group header */}
+                    <div className="flex items-center gap-2.5 px-3 py-2 bg-slate-50/80 border-b border-slate-100">
+                      <span className="grid place-items-center size-7 rounded-md bg-indigo-50 text-indigo-600 shrink-0">
+                        <Layers className="size-3.5" />
+                      </span>
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 truncate flex-1 min-w-0">
                         {group.category.name}
-                      </p>
-                      <p className="text-xs text-[--primary-1] bg-[--status-primary-1] px-2 w-max rounded-md">
+                      </h3>
+                      <span className="inline-flex items-center text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 shrink-0">
                         {t("editSubCategories.subcategory_count", {
                           count: group.subCategories.length,
                         })}
-                      </p>
+                      </span>
                     </div>
-                  </div>
 
-                  {/* SubCategory Rows */}
-                  <Droppable droppableId={`subCategories#${group.category.id}`}>
-                    {(provided, snapshot) => (
-                      <div
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        className={`${
-                          snapshot.isDraggingOver ? "bg-[--light-3]" : ""
-                        }`}
-                      >
-                        {group.subCategories.length === 0 ? (
-                          <div className="p-8 text-center text-[--gr-1] italic">
-                            {t(
-                              "editSubCategories.no_subcategories_in_category",
-                            )}
-                          </div>
-                        ) : (
-                          group.subCategories.map((subCat, index) => (
-                            <Draggable
-                              key={subCat.id || `temp-${subCat.sortOrder}`}
-                              draggableId={
-                                subCat.id || `temp-${subCat.sortOrder}`
-                              }
-                              index={index}
-                            >
-                              {(provided, snapshot) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                  className={`p-4 grid grid-cols-[0.3fr_1fr_4fr_1fr_2fr] gap-4 items-center text-sm border-b border-[--light-3] last:border-b-0 group ${
-                                    snapshot.isDragging
-                                      ? "bg-[--white-1] px-2 py-1 border border-[--primary-1] border-dashed rounded-md"
-                                      : "bg-[--white-1]"
-                                  }`}
-                                >
-                                  <div className="flex justify-center text-[--gr-2] group-hover:text-[--primary-1] transition-colors cursor-move">
-                                    <DragI className="size-5" />
-                                  </div>
-
-                                  <div className="flex items-center size-16">
-                                    <img
-                                      src={
-                                        subCat.imageAbsoluteUrl || fallbackImg
-                                      }
-                                      alt={subCat.name}
-                                    />
-                                  </div>
-
-                                  {/* SubCategory Name & Product Count */}
-                                  <div className="font-medium text-[--black-2] flex flex-col sm:flex-row sm:items-center gap-2">
-                                    <span className="text-base font-semibold text-[--black-1] whitespace-nowrap">
-                                      {subCat.name}
-                                    </span>
-                                    <span className="text-xs text-[--primary-2] font-medium bg-[--status-primary-2] px-2 py-0.5 rounded-md w-fit whitespace-nowrap">
-                                      {t("editCategories.product_count", {
-                                        count: subCat.productsCount || 0,
-                                      })}
-                                    </span>
-                                  </div>
-
-                                  {/* Status */}
-                                  <div className="text-center">
-                                    {getStatusBadge(
-                                      subCat.isActive,
-                                      "isActive",
-                                    )}
-                                  </div>
-
-                                  {/* Actions */}
-                                  <div className="flex space-x-2 justify-end pr-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                                    <button
-                                      onClick={() =>
-                                        setPopupContent(
-                                          <EditSubCategory
-                                            subCategory={subCat}
-                                            categories={categoriesData}
-                                            onSuccess={handleEditSubCategory}
-                                          />,
-                                        )
-                                      }
-                                      className="p-2 text-[--primary-1] bg-[--status-primary-1] hover:bg-[--status-primary-2] rounded-lg transition-colors"
-                                      title={t("categoryProducts.edit")}
-                                    >
-                                      <EditI
-                                        className="size-[1.1rem]"
-                                        strokeWidth={1}
-                                      />
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        setPopupContent(
-                                          <DeleteSubCategory
-                                            onSuccess={handleDelete}
-                                            subCategory={subCat}
-                                          />,
-                                        );
-                                      }}
-                                      className="p-2 text-[--red-1] bg-[--status-red] hover:bg-[--red-2] hover:text-white rounded-lg transition-colors"
-                                      title={t("categoryProducts.delete")}
-                                    >
-                                      <DeleteI
-                                        className="size-[1.1rem]"
-                                        strokeWidth={1}
-                                      />
-                                    </button>
-                                  </div>
-                                </div>
+                    <Droppable droppableId={`subCategories#${group.category.id}`}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
+                          className={`flex flex-col gap-2 p-2 transition-colors ${
+                            snapshot.isDraggingOver ? "bg-indigo-50/40" : ""
+                          }`}
+                        >
+                          {group.subCategories.length === 0 ? (
+                            <div className="text-[11px] text-slate-400 italic text-center py-4">
+                              {t(
+                                "editSubCategories.no_subcategories_in_category",
                               )}
-                            </Draggable>
-                          ))
-                        )}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </div>
-              ))}
+                            </div>
+                          ) : (
+                            group.subCategories.map((subCat, index) => (
+                              <Draggable
+                                key={subCat.id || `temp-${subCat.sortOrder}`}
+                                draggableId={subCat.id || `temp-${subCat.sortOrder}`}
+                                index={index}
+                              >
+                                {(provided, snapshot) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    className={`flex items-center gap-3 p-2.5 rounded-lg border bg-white transition ${
+                                      snapshot.isDragging
+                                        ? "border-indigo-400 ring-2 ring-indigo-200 shadow-lg"
+                                        : "border-slate-200 hover:border-indigo-200 hover:shadow-sm"
+                                    }`}
+                                  >
+                                    <button
+                                      type="button"
+                                      {...provided.dragHandleProps}
+                                      aria-label="drag"
+                                      className="grid place-items-center size-7 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition cursor-grab active:cursor-grabbing shrink-0"
+                                    >
+                                      <GripVertical className="size-4" />
+                                    </button>
+                                    <div className="size-11 sm:size-12 rounded-lg ring-1 ring-slate-200 bg-slate-50 grid place-items-center overflow-hidden shrink-0">
+                                      <img
+                                        src={
+                                          subCat.imageAbsoluteUrl || fallbackImg
+                                        }
+                                        alt={subCat.name}
+                                        className="size-full object-cover pointer-events-none"
+                                        draggable={false}
+                                      />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <div className="text-sm font-semibold text-slate-900 truncate">
+                                        {subCat.name}
+                                      </div>
+                                      <div className="mt-0.5 flex flex-wrap items-center gap-1">
+                                        <StatusBadge
+                                          active={!!subCat.isActive}
+                                          labelOn={t(
+                                            "editCategories.status_open",
+                                          )}
+                                          labelOff={t(
+                                            "editCategories.status_closed",
+                                          )}
+                                        />
+                                        <span className="text-[10px] font-medium text-slate-600 bg-slate-50 ring-1 ring-slate-200 px-1.5 py-0.5 rounded-md">
+                                          {t("editCategories.product_count", {
+                                            count: subCat.productsCount || 0,
+                                          })}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="flex gap-1 shrink-0">
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          setPopupContent(
+                                            <EditSubCategory
+                                              subCategory={subCat}
+                                              categories={categoriesData}
+                                              onSuccess={handleEditSubCategory}
+                                            />,
+                                          )
+                                        }
+                                        title={t("categoryProducts.edit")}
+                                        className="grid place-items-center size-8 rounded-md text-indigo-600 hover:bg-indigo-50 transition"
+                                      >
+                                        <Pencil className="size-3.5" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          setPopupContent(
+                                            <DeleteSubCategory
+                                              onSuccess={handleDelete}
+                                              subCategory={subCat}
+                                            />,
+                                          )
+                                        }
+                                        title={t("categoryProducts.delete")}
+                                        className="grid place-items-center size-8 rounded-md text-rose-600 hover:bg-rose-50 transition"
+                                      >
+                                        <Trash2 className="size-3.5" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))
+                          )}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </div>
+                ))}
+              </div>
             </DragDropContext>
           )}
         </div>
@@ -553,5 +500,17 @@ const SubCategories = ({ data: restaurant }) => {
     </div>
   );
 };
+
+const StatusBadge = ({ active, labelOn, labelOff }) => (
+  <span
+    className={`inline-flex items-center text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md ${
+      active
+        ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+        : "bg-slate-100 text-slate-500 ring-1 ring-slate-200"
+    }`}
+  >
+    {active ? labelOn : labelOff}
+  </span>
+);
 
 export default SubCategories;
