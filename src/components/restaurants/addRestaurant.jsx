@@ -11,6 +11,7 @@ import {
   Plus,
   RefreshCw,
   Save,
+  Search,
   Sparkles,
   Trash2,
   Upload,
@@ -82,6 +83,7 @@ function AddRestaurantPopup({ onSuccess }) {
   const [lng, setLng] = useState(null);
   const [locationData, setLocationData] = useState({ location: null });
   const [isMapOpen, setIsMapOpen] = useState(false);
+  const mapSearchInputRef = useRef(null);
   const [doc, setDoc] = useState("");
   const [doc2, setDoc2] = useState("");
   const [preview, setPreview] = useState(null);
@@ -117,17 +119,91 @@ function AddRestaurantPopup({ onSuccess }) {
     dispatch(addRestaurant(fd));
   };
 
-  async function handleOpenMap() {
-    if (locationData.location) {
-      setIsMapOpen(true);
-      googleMap(lat, lng, setLat, setLng, locationData.location);
-    }
+  function handleOpenMap() {
+    setIsMapOpen(true);
   }
 
   function handleSetMap() {
     setR((p) => ({ ...p, latitude: lat, longitude: lng }));
     setIsMapOpen(false);
   }
+
+  // When the map overlay opens, resolve a sensible center in priority order:
+  //   1) coordinates already entered in the Latitude/Longitude form fields,
+  //   2) browser geolocation (asks for permission),
+  //   3) geocoding the user-supplied city/district,
+  //   4) world view fallback so the user can pan/search freely.
+  useEffect(() => {
+    if (!isMapOpen) return;
+    let cancelled = false;
+    const FALLBACK_LAT = 20;
+    const FALLBACK_LNG = 0;
+    const FALLBACK_ZOOM = 2;
+
+    const init = (centerLat, centerLng, zoom = 15) => {
+      if (cancelled) return;
+      setLat(centerLat.toFixed(6));
+      setLng(centerLng.toFixed(6));
+      googleMap(
+        centerLat,
+        centerLng,
+        setLat,
+        setLng,
+        locationData.location,
+        zoom,
+        false,
+        mapSearchInputRef.current,
+      );
+    };
+
+    const tryGeocodeCity = () => {
+      const Geocoder = window.google?.maps?.Geocoder;
+      const cityQuery = [r.city, r.district].filter(Boolean).join(", ");
+      if (!Geocoder || !cityQuery) {
+        init(FALLBACK_LAT, FALLBACK_LNG, FALLBACK_ZOOM);
+        return;
+      }
+      const geocoder = new Geocoder();
+      geocoder.geocode({ address: cityQuery }, (results, status) => {
+        if (cancelled) return;
+        if (status === "OK" && results && results.length) {
+          const loc = results[0].geometry.location;
+          init(loc.lat(), loc.lng(), 12);
+        } else {
+          init(FALLBACK_LAT, FALLBACK_LNG, FALLBACK_ZOOM);
+        }
+      });
+    };
+
+    // 1) Honor coordinates already entered in the form, if both are valid.
+    const typedLat = parseFloat(r.latitude);
+    const typedLng = parseFloat(r.longitude);
+    const hasTypedCoords =
+      Number.isFinite(typedLat) &&
+      Number.isFinite(typedLng) &&
+      typedLat >= -90 &&
+      typedLat <= 90 &&
+      typedLng >= -180 &&
+      typedLng <= 180 &&
+      !(typedLat === 0 && typedLng === 0);
+
+    if (hasTypedCoords) {
+      init(typedLat, typedLng, 15);
+    } else if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => init(pos.coords.latitude, pos.coords.longitude, 15),
+        () => tryGeocodeCity(),
+        { timeout: 10000, maximumAge: 60000 },
+      );
+    } else {
+      tryGeocodeCity();
+    }
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMapOpen]);
 
   // toast/feedback
   useEffect(() => {
@@ -227,7 +303,20 @@ function AddRestaurantPopup({ onSuccess }) {
       {/* Map overlay */}
       {isMapOpen && (
         <div className="absolute inset-0 z-40 bg-[--white-1] flex flex-col">
-          <div id="map" className="flex-1 w-full" />
+          <div className="relative flex-1 w-full">
+            <div id="map" className="absolute inset-0 w-full h-full" />
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-[min(420px,calc(100%-1.5rem))]">
+              <div className="flex items-center gap-2 h-11 px-3 rounded-xl bg-white shadow-lg ring-1 ring-black/10">
+                <Search className="size-4 text-[--gr-1] shrink-0" />
+                <input
+                  ref={mapSearchInputRef}
+                  type="text"
+                  placeholder={t("restaurants.map_search_placeholder")}
+                  className="flex-1 min-w-0 h-full bg-transparent outline-none text-sm text-[--black-1] placeholder:text-[--gr-1]"
+                />
+              </div>
+            </div>
+          </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between px-5 sm:px-7 py-3 border-t border-[--border-1] bg-[--white-2]">
             <div className="flex gap-3 text-xs">
               <div>
@@ -396,8 +485,7 @@ function AddRestaurantPopup({ onSuccess }) {
           <button
             type="button"
             onClick={handleOpenMap}
-            disabled={!locationData.location}
-            className="inline-flex items-center justify-center gap-2 h-12 px-4 rounded-xl border border-[--primary-1] text-[--primary-1] text-sm font-semibold hover:bg-[--primary-1]/10 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center justify-center gap-2 h-12 px-4 rounded-xl border border-[--primary-1] text-[--primary-1] text-sm font-semibold hover:bg-[--primary-1]/10 transition"
           >
             <MapPin className="size-4" />
             {t("restaurants.select_on_map")}

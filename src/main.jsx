@@ -39,7 +39,7 @@ function loadGoogleMaps(apiKey) {
     const script = document.createElement("script");
     script.async = true;
     script.defer = true;
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap&v=weekly&libraries=marker&language=tr`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap&v=weekly&libraries=marker,places&language=tr`;
     document.head.appendChild(script);
     script.onload = () => resolve();
     script.onerror = (error) => reject(error);

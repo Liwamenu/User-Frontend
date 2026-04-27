@@ -3,7 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { registerLocale } from "react-datepicker";
 import tr from "date-fns/locale/tr"; // Import Turkish locale from date-fns
-//import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 registerLocale("tr", tr);
 
 const CustomDatePicker = ({
@@ -19,8 +19,12 @@ const CustomDatePicker = ({
   dateFormat = "dd.MM.yyyy HH:mm",
   timeOnly = false,
   dateOnly = false,
+  timeCaption,
 }) => {
-  //const { i18n } = useTranslation();
+  const { i18n } = useTranslation();
+  const resolvedTimeCaption =
+    timeCaption ||
+    (String(i18n.language).toLowerCase().startsWith("tr") ? "Saat" : "Time");
 
   return (
     <div className={`flex flex-col mt-3 sm:mt-6 w-full relative ${className2}`}>
@@ -35,6 +39,7 @@ const CustomDatePicker = ({
         showTimeSelect={!dateOnly}
         dateFormat={timeOnly ? "HH:mm" : dateOnly ? "dd.MM.yyyy" : dateFormat}
         timeFormat="HH:mm"
+        timeCaption={resolvedTimeCaption}
         placeholderText={placeholder}
         className={`px-4 sm:py-3 mt-1 sm:mt-2.5 border border-[--border-1] border-solid rounded-md bg-[--btn-txt] text-[--gr-1] font-[350] text-sm cursor-pointer ${className}`}
         disabled={isDisabled}

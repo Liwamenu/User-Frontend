@@ -47,11 +47,12 @@ const addPaymentMethodSlice = createSlice({
 
 export const addPaymentMethod = createAsyncThunk(
   "Restaurants/AddPaymentMethod",
-  async ({ restaurantId, name }, { rejectWithValue }) => {
+  async ({ restaurantId, paymentMethodName }, { rejectWithValue }) => {
     try {
       const res = await api.post(`${baseURL}Restaurants/AddPaymentMethod`, {
         restaurantId,
-        name,
+        paymentMethodName,
+        sambaId: null,
       });
       return res.data;
     } catch (err) {

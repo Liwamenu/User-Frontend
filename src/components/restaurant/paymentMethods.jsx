@@ -353,7 +353,9 @@ const AddMethodPopup = ({ restaurantId, onClose }) => {
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) return;
-    dispatch(addPaymentMethod({ restaurantId, name: trimmed })).then((res) => {
+    dispatch(
+      addPaymentMethod({ restaurantId, paymentMethodName: trimmed }),
+    ).then((res) => {
       if (!res.error) onClose();
     });
   };

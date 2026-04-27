@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+import { Clock, Save, Check } from "lucide-react";
 
 // COMP
 import CustomToggle from "../common/customToggle";
@@ -16,6 +17,28 @@ import {
 } from "../../redux/restaurant/setWorkingHoursSlice";
 import { getWorkingHours } from "../../redux/restaurant/getWorkingHoursSlice";
 
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
+
+// Default open/close used when a day is toggled to "Açık" without saved values.
+const DEFAULT_OPEN_HHMM = "08:00";
+const DEFAULT_CLOSE_HHMM = "23:59";
+
+function parseTimeToDate(str) {
+  if (!str) return null;
+  const [h, m] = str.split(":").map(Number);
+  const d = new Date();
+  d.setHours(h || 0, m || 0, 0, 0);
+  return d;
+}
+
+function formatTimeHHmm(d) {
+  if (!d || isNaN(d.getTime())) return "";
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
 const WorkingHours = ({ data }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -23,36 +46,17 @@ const WorkingHours = ({ data }) => {
 
   const { success, loading } = useSelector((s) => s.restaurant.setWorkingHours);
   const { data: workingHours } = useSelector(
-    (s) => s.restaurant.getWorkingHours
+    (s) => s.restaurant.getWorkingHours,
   );
 
   const [workingHoursData, setWorkingHoursData] = useState([]);
 
-  // Parse "HH:mm" string to Date object
-  function parseTimeToDate(str) {
-    if (!str) return null;
-    const [h, m] = str.split(":").map(Number);
-    const d = new Date();
-    d.setHours(h || 0, m || 0, 0, 0);
-    return d;
-  }
-
-  // Format Date object to "HH:mm" string
-  function formatTimeHHmm(d) {
-    if (!d || isNaN(d.getTime())) return "";
-    const hh = String(d.getHours()).padStart(2, "0");
-    const mm = String(d.getMinutes()).padStart(2, "0");
-    return `${hh}:${mm}`;
-  }
-
-  //GET WORKING HOURS
   useEffect(() => {
     if (!workingHoursData?.length) {
       dispatch(getWorkingHours({ restaurantId: id }));
     }
   }, [workingHours, dispatch, id]);
 
-  // Update working hours data when fetched from server
   useEffect(() => {
     if (workingHours) {
       const mapped = workingHours.days.map((item) => ({
@@ -66,30 +70,45 @@ const WorkingHours = ({ data }) => {
     }
   }, [workingHours]);
 
-  // Toast notifications
   useEffect(() => {
     if (loading)
       toast.loading(t("workingHours.processing"), { id: "workingHours" });
     if (success) {
-      toast.success(t("workingHours.success"), {
-        id: "workingHours",
-      });
+      toast.success(t("workingHours.success"), { id: "workingHours" });
       dispatch(resetSetWorkingHours());
     }
   }, [loading, success, dispatch]);
 
-  // Update a specific day's data
   const setDay = (day, patch) =>
     setWorkingHoursData((prev) =>
-      prev.map((r) => (r.Day === day ? { ...r, ...patch } : r))
+      prev.map((r) => (r.Day === day ? { ...r, ...patch } : r)),
     );
+
+  // When a day is toggled to "Open" without existing times, seed sensible
+  // defaults (08:00 – 23:59) so the user doesn't start from empty pickers.
+  const toggleDayOpen = (day) => {
+    setWorkingHoursData((prev) =>
+      prev.map((r) => {
+        if (r.Day !== day) return r;
+        const becomingOpen = r.IsClosed; // currently closed → opening
+        if (becomingOpen) {
+          return {
+            ...r,
+            IsClosed: false,
+            Open: r.Open || parseTimeToDate(DEFAULT_OPEN_HHMM),
+            Close: r.Close || parseTimeToDate(DEFAULT_CLOSE_HHMM),
+          };
+        }
+        return { ...r, IsClosed: true };
+      }),
+    );
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Validate open days have both times set
     const invalid = workingHoursData.find(
-      (r) => !r.IsClosed && (!r.Open || !r.Close)
+      (r) => !r.IsClosed && (!r.Open || !r.Close),
     );
     if (invalid) {
       toast.error(t("workingHours.select_time"));
@@ -110,96 +129,196 @@ const WorkingHours = ({ data }) => {
   };
 
   const dayDefs = [
-    { label: t("workingHours.monday"), day: 1 },
-    { label: t("workingHours.tuesday"), day: 2 },
-    { label: t("workingHours.wednesday"), day: 3 },
-    { label: t("workingHours.thursday"), day: 4 },
-    { label: t("workingHours.friday"), day: 5 },
-    { label: t("workingHours.saturday"), day: 6 },
-    { label: t("workingHours.sunday"), day: 7 },
+    {
+      label: t("workingHours.monday"),
+      short: t("workingHours.monday_short"),
+      day: 1,
+    },
+    {
+      label: t("workingHours.tuesday"),
+      short: t("workingHours.tuesday_short"),
+      day: 2,
+    },
+    {
+      label: t("workingHours.wednesday"),
+      short: t("workingHours.wednesday_short"),
+      day: 3,
+    },
+    {
+      label: t("workingHours.thursday"),
+      short: t("workingHours.thursday_short"),
+      day: 4,
+    },
+    {
+      label: t("workingHours.friday"),
+      short: t("workingHours.friday_short"),
+      day: 5,
+    },
+    {
+      label: t("workingHours.saturday"),
+      short: t("workingHours.saturday_short"),
+      day: 6,
+    },
+    {
+      label: t("workingHours.sunday"),
+      short: t("workingHours.sunday_short"),
+      day: 7,
+    },
   ];
 
+  const openDayCount = workingHoursData.filter((r) => !r.IsClosed).length;
+  const closedDayCount = workingHoursData.length - openDayCount;
+
   return (
-    <div className="w-full pb-5 mt-1 bg-[--white-1] rounded-lg text-[--black-2]">
-      <div className="flex flex-col px-4 sm:px-14">
-        <h1 className="text-2xl font-bold bg-indigo-800 text-white py-4 -mx-4 sm:-mx-14 px-4 sm:px-14 rounded-t-lg">
-          {t("workingHours.title", { name: data?.name })}
-        </h1>
+    <div className="w-full pb-8 mt-1 text-slate-900">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
 
-        <form onSubmit={handleSubmit} className="mt-16 space-y-5">
-          {workingHoursData.length > 0 &&
-            dayDefs.map(({ label, day }) => {
-              const row = workingHoursData.find((r) => r.Day === day) || {
-                Day: day,
-                IsClosed: true,
-                Open: null,
-                Close: null,
-              };
-              const disabled = row.IsClosed;
+        {/* HERO HEADER */}
+        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+          <span
+            className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
+            style={{ background: PRIMARY_GRADIENT }}
+          >
+            <Clock className="size-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+              {t("workingHours.title", { name: data?.name || "" })}
+            </h1>
+            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+              {workingHoursData.length > 0
+                ? t("workingHours.open_count", {
+                    count: openDayCount,
+                    closed: closedDayCount,
+                  })
+                : t("workingHours.subtitle")}
+            </p>
+          </div>
+        </div>
 
-              return (
-                <div
-                  key={day}
-                  className="w-full flex items-center max-md:flex-col max-md:items-start"
-                >
-                  <div className="w-28 font-semibold mb-2">{label}</div>
+        <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
+          <div className="flex flex-col gap-2">
+            {workingHoursData.length > 0 &&
+              dayDefs.map(({ label, short, day }) => {
+                const row = workingHoursData.find((r) => r.Day === day) || {
+                  Day: day,
+                  IsClosed: true,
+                  Open: null,
+                  Close: null,
+                };
+                const isOpen = !row.IsClosed;
 
-                  <div className="flex gap-3 items-center">
-                    <div className="flex items-center">
+                return (
+                  <div
+                    key={day}
+                    className={`group flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 rounded-xl border transition-all ${
+                      isOpen
+                        ? "border-indigo-200 bg-white ring-1 ring-indigo-50 shadow-sm"
+                        : "border-slate-200 bg-slate-50/40"
+                    }`}
+                  >
+                    {/* Header row: badge + label + toggle (toggle moves right on mobile) */}
+                    <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                      <span
+                        className={`grid place-items-center size-9 rounded-lg shrink-0 text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                          isOpen
+                            ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/25"
+                            : "bg-slate-100 text-slate-500"
+                        }`}
+                      >
+                        {short}
+                      </span>
+                      <div className="min-w-0 flex-1 sm:w-32">
+                        <div
+                          className={`text-sm truncate transition-colors ${
+                            isOpen
+                              ? "font-semibold text-slate-900"
+                              : "font-medium text-slate-700"
+                          }`}
+                        >
+                          {label}
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+                          {isOpen
+                            ? t("workingHours.open")
+                            : t("workingHours.closed")}
+                        </div>
+                      </div>
                       <CustomToggle
-                        label={
-                          row.IsClosed ? (
-                            <div className="w-14">
-                              {t("workingHours.closed")}
-                            </div>
-                          ) : (
-                            <div className="w-14">{t("workingHours.open")}</div>
-                          )
-                        }
-                        checked={!row.IsClosed}
-                        onChange={() =>
-                          setDay(day, { IsClosed: !row.IsClosed })
-                        }
-                        className="max-sm:scale-[0.8]"
+                        label=""
+                        className1="!w-auto !shrink-0 sm:hidden"
+                        checked={isOpen}
+                        onChange={() => toggleDayOpen(day)}
                       />
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    {/* Toggle (desktop only — mobile version is inside the header row) */}
+                    <CustomToggle
+                      label=""
+                      className1="!w-auto !shrink-0 hidden sm:flex"
+                      checked={isOpen}
+                      onChange={() => toggleDayOpen(day)}
+                    />
+
+                    {/* Time pickers — only when open */}
+                    <div
+                      className={`flex items-center gap-2 sm:flex-1 sm:min-w-0 sm:justify-end transition-opacity ${
+                        isOpen
+                          ? "opacity-100"
+                          : "opacity-40 pointer-events-none"
+                      }`}
+                    >
                       <CustomDatePicker
                         label=""
                         timeOnly={true}
                         value={row.Open}
-                        calendarClassName
                         placeholder="--:--"
-                        isDisabled={disabled}
-                        className="mt-[0] sm:mt-[0] py-3"
-                        className2="mt-[0] sm:mt-[0] w-auto"
+                        isDisabled={!isOpen}
+                        className="!mt-0 !py-0 !w-full"
+                        className2="!mt-0 !w-full sm:!w-[6.5rem]"
                         onChange={(v) => setDay(day, { Open: v })}
                       />
-                      <span className="text-gray-500">-</span>
+                      <span className="text-slate-400 text-xs font-medium">
+                        –
+                      </span>
                       <CustomDatePicker
                         label=""
                         timeOnly={true}
                         value={row.Close}
-                        calendarClassName
                         placeholder="--:--"
-                        isDisabled={disabled}
-                        className="mt-[0] sm:mt-[0] py-3"
-                        className2="mt-[0] sm:mt-[0] w-auto"
+                        isDisabled={!isOpen}
+                        className="!mt-0 !py-0 !w-full"
+                        className2="!mt-0 !w-full sm:!w-[6.5rem]"
                         onChange={(v) => setDay(day, { Close: v })}
                       />
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+          </div>
 
-          <div className="w-full flex justify-end pt-4">
+          {/* SUBMIT */}
+          <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+              {workingHoursData.length > 0
+                ? t("workingHours.open_count", {
+                    count: openDayCount,
+                    closed: closedDayCount,
+                  })
+                : ""}
+            </span>
             <button
               type="submit"
               disabled={loading}
-              className="w-full sm:w-auto px-6 py-3 rounded-md bg-[--primary-1] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group inline-flex items-center justify-center gap-2 h-10 px-5 rounded-lg text-white text-sm font-semibold shadow-lg shadow-indigo-500/25 transition-all hover:shadow-indigo-500/40 hover:brightness-110 active:brightness-95 disabled:opacity-70 disabled:cursor-not-allowed"
+              style={{ background: PRIMARY_GRADIENT }}
             >
+              {loading ? (
+                <Check className="size-4 animate-pulse" />
+              ) : (
+                <Save className="size-4" />
+              )}
               {t("workingHours.save")}
             </button>
           </div>

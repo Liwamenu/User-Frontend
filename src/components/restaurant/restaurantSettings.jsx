@@ -38,6 +38,48 @@ import {
 } from "../../redux/restaurant/checkTenantAvailabilitySlice";
 import { getPaymentMethods } from "../../redux/restaurant/getPaymentMethodsSlice";
 
+const inputCls =
+  "w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
+const labelCls =
+  "block text-[11px] font-semibold text-slate-600 mb-1 tracking-wide";
+
+const SectionHeader = ({ icon: Icon, label }) => (
+  <header className="flex items-center gap-1.5 mb-2.5">
+    <Icon className="size-3.5 text-indigo-600" />
+    <h2 className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.12em]">
+      {label}
+    </h2>
+  </header>
+);
+
+const NumberWithSuffix = ({
+  label,
+  suffix,
+  value,
+  onChange,
+  placeholder,
+  required,
+}) => (
+  <div>
+    <label className={labelCls}>
+      {label}
+      {required && <span className="text-rose-500 ml-0.5">*</span>}
+    </label>
+    <div className="flex items-stretch rounded-lg border border-slate-200 bg-white focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition overflow-hidden">
+      <input
+        type="number"
+        className="flex-1 min-w-0 h-10 px-3 outline-none text-sm bg-transparent"
+        placeholder={placeholder}
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      <span className="bg-slate-50 text-slate-500 text-xs font-semibold px-3 grid place-items-center border-l border-slate-200">
+        {suffix}
+      </span>
+    </div>
+  </div>
+);
+
 const RestaurantSettings = ({ data: inData }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -163,7 +205,26 @@ const RestaurantSettings = ({ data: inData }) => {
       return;
     }
 
-    dispatch(setRestaurantSettings(restaurantData));
+    // Paket Sipariş + Masada Sipariş numeric fields must never be sent as null
+    // or empty — coerce missing values to 0 at save time.
+    const numericDefaults = {
+      onlineOrderDiscountRate: 0,
+      deliveryFee: 0,
+      minOrderAmount: 0,
+      maxDistance: 0,
+      tableOrderDiscountRate: 0,
+      maxTableOrderDistanceMeter: 0,
+    };
+    const normalized = { ...restaurantData };
+    for (const key of Object.keys(numericDefaults)) {
+      const v = normalized[key];
+      if (v === null || v === undefined || v === "") {
+        normalized[key] = numericDefaults[key];
+      }
+    }
+
+    setRestaurantData(normalized);
+    dispatch(setRestaurantSettings(normalized));
   };
 
   // Update state when inData changes
@@ -207,48 +268,7 @@ const RestaurantSettings = ({ data: inData }) => {
     dispatch(resetCheckTenantAvailability());
   }, [tenantCheckSuccess, tenantCheckData, tenantCheckError, dispatch, t]);
 
-  const inputCls =
-    "w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
-  const labelCls =
-    "block text-[11px] font-semibold text-slate-600 mb-1 tracking-wide";
   const moneySign = restaurantData?.moneySign || "₺";
-
-  const SectionHeader = ({ icon: Icon, label }) => (
-    <header className="flex items-center gap-1.5 mb-2.5">
-      <Icon className="size-3.5 text-indigo-600" />
-      <h2 className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.12em]">
-        {label}
-      </h2>
-    </header>
-  );
-
-  const NumberWithSuffix = ({
-    label,
-    suffix,
-    value,
-    onChange,
-    placeholder,
-    required,
-  }) => (
-    <div>
-      <label className={labelCls}>
-        {label}
-        {required && <span className="text-rose-500 ml-0.5">*</span>}
-      </label>
-      <div className="flex items-stretch rounded-lg border border-slate-200 bg-white focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition overflow-hidden">
-        <input
-          type="number"
-          className="flex-1 min-w-0 h-10 px-3 outline-none text-sm bg-transparent"
-          placeholder={placeholder}
-          value={value ?? ""}
-          onChange={(e) => onChange(e.target.value)}
-        />
-        <span className="bg-slate-50 text-slate-500 text-xs font-semibold px-3 grid place-items-center border-l border-slate-200">
-          {suffix}
-        </span>
-      </div>
-    </div>
-  );
 
   return (
     <div className="w-full pb-8 mt-1 text-slate-900">

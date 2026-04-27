@@ -353,6 +353,7 @@ export function googleMap(
   boundaryCoords,
   zoom = 15,
   checkBoundary = false,
+  searchInput = null,
 ) {
   const position = {
     lat: parseFloat(lat),
@@ -448,6 +449,47 @@ export function googleMap(
       map.panTo({ lat: parseFloat(lat), lng: parseFloat(lng) });
     }
   });
+
+  // Optional: bind a Places Autocomplete to the supplied input element so the
+  // user can search by place name, address, or business and have the marker
+  // moved to the chosen result.
+  // eslint-disable-next-line no-undef
+  if (searchInput && google.maps.places?.Autocomplete) {
+    // eslint-disable-next-line no-undef
+    const autocomplete = new google.maps.places.Autocomplete(searchInput, {
+      fields: ["geometry", "name", "formatted_address"],
+    });
+    autocomplete.bindTo("bounds", map);
+    autocomplete.addListener("place_changed", () => {
+      const place = autocomplete.getPlace();
+      if (!place || !place.geometry || !place.geometry.location) return;
+      const newLat = place.geometry.location.lat();
+      const newLng = place.geometry.location.lng();
+
+      if (!isPositionWithinBounds(newLat, newLng)) {
+        toast.dismiss();
+        toast("Belirlenen alan dışında konum seçemesiniz 😏.");
+        return;
+      }
+
+      if (marker) marker.setMap(null);
+      // eslint-disable-next-line no-undef
+      marker = new google.maps.marker.AdvancedMarkerElement({
+        map,
+        position: { lat: newLat, lng: newLng },
+        draggable: true,
+      });
+
+      if (place.geometry.viewport) {
+        map.fitBounds(place.geometry.viewport);
+      } else {
+        map.panTo({ lat: newLat, lng: newLng });
+        map.setZoom(15);
+      }
+      setLat(newLat.toFixed(6));
+      setLng(newLng.toFixed(6));
+    });
+  }
 }
 
 export function getDateRange(years) {

@@ -12,6 +12,12 @@
   scrollbar-width: 0.25rem;
 }
 
+/* Google Places Autocomplete dropdown — must sit above our popup overlays
+   (popup uses z-index up to 9999999). */
+.pac-container {
+  z-index: 10000000 !important;
+}
+
 body[class="dark"] {
   background-color: #161717;
 }
@@ -74,6 +80,11 @@ body[class="light"] {
   --status-brown: #3e1b11;
   --status-primary-1: #a5b4fc;
   --status-primary-2: #0f172a;
+
+  --toast-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.55),
+    0 8px 20px -8px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --toast-progress: rgba(255, 255, 255, 0.08);
 }
 
 .light {
@@ -131,6 +142,11 @@ body[class="light"] {
   --status-brown: #ede0d4;
   --status-primary-1: #e0e7ff;
   --status-primary-2: #ecfeff;
+
+  --toast-shadow: 0 24px 48px -16px rgba(15, 23, 42, 0.22),
+    0 8px 20px -8px rgba(15, 23, 42, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  --toast-progress: rgba(15, 23, 42, 0.06);
 }
 
 section {
@@ -302,6 +318,62 @@ input[type="number"] {
 
 .custom-datepicker {
   min-width: 20.5rem;
+}
+
+/* Time-only mode: drop the calendar's wide min-width and tidy up the panel
+   so it renders as a compact time list instead of a near-empty wide popover. */
+.custom-datepicker.react-datepicker--time-only,
+.react-datepicker--time-only.custom-datepicker {
+  min-width: 0 !important;
+  width: auto !important;
+  border: 1px solid var(--border-1) !important;
+  border-radius: 0.5rem !important;
+  box-shadow:
+    0 16px 32px -12px rgba(15, 23, 42, 0.18),
+    0 6px 14px -6px rgba(15, 23, 42, 0.1) !important;
+  overflow: hidden;
+}
+.custom-datepicker.react-datepicker--time-only
+  .react-datepicker__time-container,
+.react-datepicker--time-only.custom-datepicker
+  .react-datepicker__time-container {
+  width: 7rem !important;
+}
+.custom-datepicker.react-datepicker--time-only
+  .react-datepicker__header--time,
+.react-datepicker--time-only.custom-datepicker
+  .react-datepicker__header--time {
+  padding: 0.5rem 0 !important;
+  background: var(--white-2) !important;
+  border-bottom: 1px solid var(--border-1) !important;
+}
+.custom-datepicker.react-datepicker--time-only .react-datepicker-time__header,
+.react-datepicker--time-only.custom-datepicker .react-datepicker-time__header {
+  font-size: 0.7rem !important;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--gr-1) !important;
+}
+.custom-datepicker.react-datepicker--time-only
+  .react-datepicker__time-list-item,
+.react-datepicker--time-only.custom-datepicker
+  .react-datepicker__time-list-item {
+  font-size: 0.8rem !important;
+  padding: 0.4rem 0.75rem !important;
+}
+.custom-datepicker.react-datepicker--time-only
+  .react-datepicker__time-list-item--selected,
+.react-datepicker--time-only.custom-datepicker
+  .react-datepicker__time-list-item--selected {
+  background: var(--primary-1) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+}
+.custom-datepicker.react-datepicker--time-only
+  .react-datepicker__time-list-item:hover,
+.react-datepicker--time-only.custom-datepicker
+  .react-datepicker__time-list-item:hover {
+  background: color-mix(in srgb, var(--primary-1) 10%, transparent) !important;
 }
 
 /* .custom-popper-left {
