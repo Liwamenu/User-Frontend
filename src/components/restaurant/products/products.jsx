@@ -155,6 +155,21 @@ const Products = () => {
     statusFilter?.value !== null ||
     !isAllCategory(categoryFilter);
 
+  // Re-fetch with the currently active filters/page — used after a delete
+  // so the list reflects the server state immediately (no manual refresh).
+  const refetchProducts = () => {
+    dispatch(
+      getProducts({
+        restaurantId,
+        pageNumber,
+        pageSize: itemsPerPage,
+        searchKey: searchVal,
+        hide: hideForStatus(statusFilter),
+        categoryId: isAllCategory(categoryFilter) ? null : categoryFilter.id,
+      }),
+    );
+  };
+
   useEffect(() => {
     if (!productsData) {
       // Honor the URL ?page=N on first mount so back-nav from edit lands
@@ -292,7 +307,11 @@ const Products = () => {
           {productsData && productsData.length > 0 ? (
             <div className="flex flex-col gap-2.5">
               {productsData.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onDeleted={refetchProducts}
+                />
               ))}
             </div>
           ) : productsData ? (
