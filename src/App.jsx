@@ -1,5 +1,7 @@
 //MODULES
+import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 //COMP
 import Home from "./pages/home";
@@ -14,18 +16,36 @@ import ProtectedRoute from "./components/protect";
 import VerifyEmail from "./pages/verifyEmail";
 import SetNewPassword from "./pages/setNewPassword";
 import ForgotPassword from "./pages/forgotPassword";
-// import PaymentSuccess from "./pages/paymentSuccess";
-// import SlideBar from "./components/common/slideBar";
 
-//CONTEXT
-// import { SlideBarProvider } from "./context/SlideBarContext";
-// import { OrdersContextProvider } from "./context/OrdersContext";
+//REDUX & i18n
+import { getAuth } from "./redux/api";
+import { getUser } from "./redux/user/getUserSlice";
+import { setTranslationLanguage } from "./config/i18n";
 
 function App() {
+  const dispatch = useDispatch();
+  const freshUser = useSelector((s) => s.user.getUser.user);
+
+  // On boot (and on every page refresh), if the user is logged in, fetch
+  // their current profile from the server. The slice persists it back into
+  // localStorage so all consumers see fresh values without a re-login.
+  useEffect(() => {
+    if (getAuth()?.token) {
+      dispatch(getUser());
+    }
+  }, [dispatch]);
+
+  // Whenever the server returns a fresh defaultLang, propagate it to i18n
+  // so the UI re-renders in the chosen language without a hard reload.
+  useEffect(() => {
+    const lang = freshUser?.defaultLang;
+    if (lang !== undefined && lang !== null) {
+      setTranslationLanguage(lang);
+    }
+  }, [freshUser?.defaultLang]);
+
   return (
     <div>
-      {/* <SlideBarProvider> */}
-      {/* <SlideBar /> */}
       <Popup />
       <Routes>
         <Route path="/login" element={<Login />} />
@@ -48,7 +68,6 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
-      {/* </SlideBarProvider> */}
     </div>
   );
 }

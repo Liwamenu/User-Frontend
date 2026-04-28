@@ -51,21 +51,21 @@ const updateUserPasswordSlice = createSlice({
 });
 
 export const updateUserPassword = createAsyncThunk(
-  "User/updateUserPassword",
-  async ({ newPassword, newPasswordConfirm }, { rejectWithValue }) => {
+  "Auth/change-password",
+  async ({ currentPassword, newPassword }, { rejectWithValue }) => {
     try {
-      const res = await api.put(`${baseURL}Users/UpdateUserPasswordByUserId`, {
+      const res = await api.post(`${baseURL}Auth/change-password`, {
+        currentPassword,
         newPassword,
-        newPasswordConfirm,
       });
-
-      // console.log(res.data);
       return res.data;
     } catch (err) {
-      const errorMessage = err.message;
-      return rejectWithValue({ message: errorMessage });
+      // Surface server-provided message_TR / message when available so the
+      // toast shows a meaningful error (e.g. "current password is wrong").
+      const payload = err?.response?.data || { message: err.message };
+      return rejectWithValue(payload);
     }
-  }
+  },
 );
 
 export const { resetUpdateUserPassword, resetUpdateUserPasswordState } =

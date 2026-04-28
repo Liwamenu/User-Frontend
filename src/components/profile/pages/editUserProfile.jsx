@@ -3,13 +3,12 @@ import { isEqual } from "lodash";
 import toast from "react-hot-toast";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "react-i18next"; // <-- Add this
+import { useTranslation } from "react-i18next";
+import { Save, Loader2, IdCard, MapPin } from "lucide-react";
 
 //COMP
-import Button from "../../common/button";
 import CustomInput from "../../common/customInput";
 import { formatEmail } from "../../../utils/utils";
-import CustomSelect from "../../common/customSelector";
 import CustomPhoneInput from "../../common/customPhoneInput";
 
 // REDUX
@@ -18,10 +17,24 @@ import {
   resetUpdateUserData,
 } from "../../../redux/user/updateUserDataSlice";
 import { getUser } from "../../../redux/user/getUserSlice";
-import { getDistricts } from "../../../redux/data/getDistrictsSlice";
 
-const EditUserProfile = ({ user, cities }) => {
-  const { t } = useTranslation(); // <-- Add this
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
+
+const baselineFromUser = (user) => ({
+  firstName: user?.firstName ?? "",
+  lastName: user?.lastName ?? "",
+  // Backend already stores the phone in the format CustomPhoneInput expects
+  // (e.g. "905380828959" — country code + number, no plus). Use as-is.
+  phoneNumber: user?.phoneNumber ?? "",
+  email: user?.email ?? "",
+  city: user?.city ?? "",
+  district: user?.district ?? "",
+  dealerId: user?.dealerId ?? null,
+});
+
+const EditUserProfile = ({ user }) => {
+  const { t } = useTranslation();
   const toastId = useRef();
   const dispatch = useDispatch();
 
@@ -29,267 +42,148 @@ const EditUserProfile = ({ user, cities }) => {
     (state) => state.user.updateUserData,
   );
 
-  const { success: districtsSuccess, districts } = useSelector(
-    (state) => state.data.getDistricts,
-  );
-
-  const [citiesData, setCitiesData] = useState([]);
-  const [districtsData, setDistrictsData] = useState([]);
-  const [userDataBefore, setUserDataBefore] = useState({
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    email: "",
-    city: null,
-    district: null,
-  });
-  const [userData, setUserData] = useState({
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    email: "",
-    city: null,
-    district: null,
-  });
+  const [userDataBefore, setUserDataBefore] = useState(baselineFromUser(null));
+  const [userData, setUserData] = useState(baselineFromUser(null));
 
   function handleSubmit(e) {
     e.preventDefault();
     if (isEqual(userDataBefore, userData)) {
       toast.error(t("editUserProfile.no_changes"));
-    } else {
-      dispatch(
-        updateUserData({
-          ...userData,
-          phoneNumber: userData.phoneNumber.slice(1),
-        }),
-      );
+      return;
     }
+    dispatch(updateUserData(userData));
   }
 
-  // TOAST
+  // Toast lifecycle for the update request.
   useEffect(() => {
     if (loading) {
       toastId.current = toast.loading(t("editUserProfile.processing"));
     }
     if (error) {
+      toast.dismiss(toastId.current);
       dispatch(resetUpdateUserData());
     }
     if (success) {
+      // Refresh user from server (slice now persists to localStorage too).
       dispatch(getUser());
       dispatch(resetUpdateUserData());
       toast.dismiss(toastId.current);
       toast.success(t("editUserProfile.success"));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, success, error]);
 
-  // SET USER
+  // Sync state whenever the parent passes a fresh user object (e.g. after
+  // getUser resolves). Without this the form would keep showing the old
+  // values that came in via the initial localStorage hydration.
   useEffect(() => {
-    if (user) {
-      setUserDataBefore((pre) => {
-        return {
-          ...pre,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          phoneNumber: "9" + user.phoneNumber,
-          email: user.email,
-          city: { label: user.city, value: null, id: null },
-          district: { label: user.district, value: null, id: null },
-          dealerId: user.dealerId,
-        };
-      });
-      setUserData((pre) => {
-        return {
-          ...pre,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          phoneNumber: "9" + user.phoneNumber,
-          email: user.email,
-          city: { label: user.city, value: null, id: null },
-          district: { label: user.district, value: null, id: null },
-          dealerId: user.dealerId,
-        };
-      });
-    }
+    if (!user) return;
+    const baseline = baselineFromUser(user);
+    setUserDataBefore(baseline);
+    setUserData(baseline);
   }, [user]);
 
-  // GET AND SET CITIES IF THERE IS NOT
-  useEffect(() => {
-    if (cities) {
-      setCitiesData(cities);
-      if (!userData?.city?.id && userData?.city?.label) {
-        const city = cities.filter(
-          (city) => city.label === userData.city.label,
-        )[0];
-        if (city) {
-          setUserDataBefore((pre) => {
-            return {
-              ...pre,
-              city,
-            };
-          });
-          setUserData((pre) => {
-            return {
-              ...pre,
-              city,
-            };
-          });
-        }
-      }
-    }
-  }, [cities, userData.city]);
+  const dirty = !isEqual(userDataBefore, userData);
 
-  // GET DISTRICTS
-  useEffect(() => {
-    if (userData?.city?.id) {
-      dispatch(getDistricts({ cityId: userData.city.id }));
-    }
-  }, [userData.city]);
-
-  // SET DISTRICTS
-  useEffect(() => {
-    if (districtsSuccess) {
-      setDistrictsData(districts);
-      if (!userData?.district?.id && userData?.district?.label) {
-        const district = districts.filter(
-          (district) => district.label === userData.district.label,
-        )[0];
-        if (district) {
-          setUserDataBefore((pre) => {
-            return {
-              ...pre,
-              district,
-            };
-          });
-          setUserData((pre) => {
-            return {
-              ...pre,
-              district,
-            };
-          });
-        }
-      }
-    }
-  }, [districtsSuccess, districts]);
+  const setField = (key) => (val) =>
+    setUserData((prev) => ({ ...prev, [key]: val }));
 
   return (
-    <section className="flex flex-col items-start pt-3.5 pr-20 pl-6 mt-10 w-full bg-[--white-1] min-h-0 max-md:px-5">
-      <form className="w-full" onSubmit={handleSubmit}>
-        <>
-          <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-x-8 gap-y-4">
-            <CustomInput
-              label={t("editUserProfile.first_name")}
-              required
-              className="py-3.5 bg-[--white-1]"
-              value={userData.firstName}
-              onChange={(e) => {
-                setUserData((pre) => {
-                  return {
-                    ...pre,
-                    firstName: e,
-                  };
-                });
-              }}
-            />
-            <CustomInput
-              label={t("editUserProfile.last_name")}
-              required
-              className="rounded-2xl py-3.5 bg-[--white-1]"
-              value={userData.lastName}
-              onChange={(e) => {
-                setUserData((pre) => {
-                  return {
-                    ...pre,
-                    lastName: e,
-                  };
-                });
-              }}
-            />
-            <CustomPhoneInput
-              label={t("editUserProfile.phone")}
-              required
-              disabled
-              className="py-3.5"
-              value={userData.phoneNumber}
-              onChange={(e) => {
-                setUserData((pre) => {
-                  return {
-                    ...pre,
-                    phoneNumber: e,
-                  };
-                });
-              }}
-            />
-
-            <CustomInput
-              label={t("editUserProfile.email")}
-              required
-              disabled
-              className="py-3.5"
-              value={userData.email}
-              onChange={(e) => {
-                setUserData((pre) => {
-                  return {
-                    ...pre,
-                    email: formatEmail(e),
-                  };
-                });
-              }}
-            />
-            <CustomSelect
-              label={t("editUserProfile.city")}
-              required
-              style={{
-                padding: ".5rem 0",
-              }}
-              options={citiesData}
-              value={
-                userData?.city
-                  ? userData.city
-                  : { label: t("editUserProfile.city_select") }
-              }
-              onChange={(selectedOption) => {
-                setUserData((pre) => {
-                  return {
-                    ...pre,
-                    city: selectedOption,
-                  };
-                });
-              }}
-            />
-            <CustomSelect
-              label={t("editUserProfile.district")}
-              required
-              style={{
-                padding: ".5rem 0",
-              }}
-              options={districtsData}
-              value={
-                userData?.district
-                  ? userData.district
-                  : { label: t("editUserProfile.district_select") }
-              }
-              onChange={(selectedOption) => {
-                setUserData((pre) => {
-                  return {
-                    ...pre,
-                    district: selectedOption,
-                  };
-                });
-              }}
-            />
-          </div>
-        </>
-        <div className="flex justify-end mt-16 sm:mt-52">
-          <Button
-            text={t("editUserProfile.save")}
-            className="bg-[--primary-1] text-white text-lg rounded-xl py-[.8rem] sm:px-16 border-[0px]"
-            type="submit"
-            disabled={loading}
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Personal info */}
+      <Section icon={IdCard} title={t("editUserProfile.section_personal")}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <CustomInput
+            label={t("editUserProfile.first_name")}
+            required
+            className="py-2.5 bg-[--white-1]"
+            value={userData.firstName}
+            onChange={setField("firstName")}
+          />
+          <CustomInput
+            label={t("editUserProfile.last_name")}
+            required
+            className="py-2.5 bg-[--white-1]"
+            value={userData.lastName}
+            onChange={setField("lastName")}
+          />
+          <CustomPhoneInput
+            label={t("editUserProfile.phone")}
+            required
+            disabled
+            className="py-2.5"
+            value={userData.phoneNumber}
+            onChange={setField("phoneNumber")}
+          />
+          <CustomInput
+            label={t("editUserProfile.email")}
+            required
+            disabled
+            className="py-2.5"
+            value={userData.email}
+            onChange={(v) => setField("email")(formatEmail(v))}
           />
         </div>
-      </form>
-    </section>
+      </Section>
+
+      {/* Address */}
+      <Section icon={MapPin} title={t("editUserProfile.section_location")}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <CustomInput
+            label={t("editUserProfile.city")}
+            className="py-2.5 bg-[--white-1]"
+            value={userData.city}
+            onChange={setField("city")}
+          />
+          <CustomInput
+            label={t("editUserProfile.district")}
+            className="py-2.5 bg-[--white-1]"
+            value={userData.district}
+            onChange={setField("district")}
+          />
+        </div>
+      </Section>
+
+      {/* Submit */}
+      <div className="flex justify-end pt-2 border-t border-[--border-1]">
+        <button
+          type="submit"
+          disabled={loading || !dirty}
+          className={`inline-flex items-center justify-center gap-1.5 h-10 px-5 rounded-lg text-sm font-semibold transition shrink-0 ${
+            dirty && !loading
+              ? "text-white shadow-md shadow-indigo-500/25 hover:brightness-110 active:brightness-95"
+              : "text-[--gr-1] bg-[--white-2] border border-[--border-1] cursor-not-allowed"
+          }`}
+          style={
+            dirty && !loading ? { background: PRIMARY_GRADIENT } : undefined
+          }
+        >
+          {loading ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Save className="size-4" />
+          )}
+          {loading
+            ? t("editUserProfile.processing")
+            : t("editUserProfile.save")}
+        </button>
+      </div>
+    </form>
   );
 };
+
+const Section = ({ icon: Icon, title, children }) => (
+  <div className="rounded-xl border border-[--border-1] bg-[--white-1] overflow-hidden">
+    <div className="flex items-center gap-2 px-3 py-2 bg-[--white-2]/60 border-b border-[--border-1]">
+      <span className="grid place-items-center size-7 rounded-md bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300 shrink-0">
+        <Icon className="size-3.5" />
+      </span>
+      <h3 className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1]">
+        {title}
+      </h3>
+    </div>
+    <div className="p-3 sm:p-4">{children}</div>
+  </div>
+);
 
 export default EditUserProfile;

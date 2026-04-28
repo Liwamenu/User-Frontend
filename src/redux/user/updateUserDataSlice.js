@@ -54,26 +54,26 @@ export const updateUserData = createAsyncThunk(
   "User/UpdateUser",
   async (
     { dealerId, email, phoneNumber, firstName, lastName, city, district },
-    { rejectWithValue }
+    { rejectWithValue },
   ) => {
     try {
+      // City/district are plain strings (or null). Backend accepts either.
+      const trim = (v) => (typeof v === "string" ? v.trim() || null : null);
       const res = await api.put(`${baseURL}Users/UpdateUser`, {
         dealerId,
         email,
         phoneNumber,
         firstName,
         lastName,
-        city: city.label,
-        district: district.label,
+        city: trim(city),
+        district: trim(district),
       });
-
-      // console.log(res.data);
       return res.data;
     } catch (err) {
       const errorMessage = err.message;
       return rejectWithValue({ message: errorMessage });
     }
-  }
+  },
 );
 
 export const { resetUpdateUserData, resetUpdateUserDataState } =

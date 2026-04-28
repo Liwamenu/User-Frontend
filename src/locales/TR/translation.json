@@ -37,7 +37,10 @@
   "userProfile": {
     "admin": "Yetkili",
     "user": "Kullanıcı",
-    "default_name": "Kullanıcı"
+    "default_name": "Kullanıcı",
+    "menu": "Hesap menüsü",
+    "profile": "Profil",
+    "logout": "Çıkış Yap"
   },
   "auth": {
     "login_title": "Giriş",
@@ -809,6 +812,8 @@
     "delete": "Sil"
   },
   "editUserProfile": {
+    "section_personal": "Kişisel Bilgiler",
+    "section_location": "Konum",
     "first_name": "Ad",
     "last_name": "Soyad",
     "phone": "Telefon",
@@ -817,7 +822,7 @@
     "city_select": "Şehir seç",
     "district": "İlçe",
     "district_select": "İlçe seç",
-    "save": "Kaydet",
+    "save": "Değişiklikleri Kaydet",
     "processing": "İşleniyor...",
     "success": "Profiliniz başarıyla güncellendi",
     "no_changes": "Hiç bir değişiklik yapmadınız"
@@ -859,14 +864,20 @@
     "license_inactive": "Restoran lisansı aktif değil. Lütfen QR kodu oluşturmak için lisansınızı yenileyin."
   },
   "editUserPassword": {
-    "password": "Şifre",
-    "password_placeholder": "Şifre",
-    "confirm_password": "Şifreyi onayla",
-    "confirm_password_placeholder": "Şifre",
-    "save": "Kaydet",
+    "section_change": "Şifre Değiştir",
+    "current_password": "Mevcut Şifre",
+    "current_password_placeholder": "Şu an kullandığınız şifre",
+    "password": "Yeni Şifre",
+    "password_placeholder": "En az 4 karakter",
+    "confirm_password": "Şifre Tekrar",
+    "confirm_password_placeholder": "Yeni şifreyi tekrar girin",
+    "save": "Şifreyi Güncelle",
     "processing": "İşleniyor...",
     "success": "Şifreniz başarıyla güncellenmiştir",
-    "passwords_not_match": "Şifreler aynı değil"
+    "error": "Şifre güncellenemedi. Lütfen tekrar deneyin.",
+    "passwords_not_match": "Şifreler eşleşmiyor.",
+    "passwords_match": "Şifreler eşleşiyor.",
+    "hint": "Güçlü bir şifre seçin: en az 4 karakter, harf ve rakam karışımı önerilir."
   },
   "profilePage": {
     "title": "Profil",

@@ -37,7 +37,10 @@
   "userProfile": {
     "admin": "Admin",
     "user": "User",
-    "default_name": "User"
+    "default_name": "User",
+    "menu": "Account menu",
+    "profile": "Profile",
+    "logout": "Log Out"
   },
   "auth": {
     "login_title": "Login",
@@ -808,6 +811,8 @@
     "delete": "Delete"
   },
   "editUserProfile": {
+    "section_personal": "Personal Information",
+    "section_location": "Location",
     "first_name": "First Name",
     "last_name": "Last Name",
     "phone": "Phone",
@@ -816,20 +821,26 @@
     "city_select": "Select City",
     "district": "District",
     "district_select": "Select District",
-    "save": "Save",
+    "save": "Save Changes",
     "processing": "Processing...",
     "success": "Your profile has been updated successfully",
     "no_changes": "You have not made any changes"
   },
   "editUserPassword": {
-    "password": "Password",
-    "password_placeholder": "Password",
+    "section_change": "Change Password",
+    "current_password": "Current Password",
+    "current_password_placeholder": "Your current password",
+    "password": "New Password",
+    "password_placeholder": "At least 4 characters",
     "confirm_password": "Confirm Password",
-    "confirm_password_placeholder": "Confirm Password",
-    "save": "Save",
+    "confirm_password_placeholder": "Re-enter your new password",
+    "save": "Update Password",
     "processing": "Processing...",
     "success": "Your password has been updated successfully",
-    "passwords_not_match": "Passwords do not match"
+    "error": "Could not update the password. Please try again.",
+    "passwords_not_match": "Passwords do not match.",
+    "passwords_match": "Passwords match.",
+    "hint": "Pick a strong password: at least 4 characters, mixing letters and numbers is recommended."
   },
   "qrPage": {
     "header_title": "QR Batch Studio",
