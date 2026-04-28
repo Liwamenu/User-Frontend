@@ -89,22 +89,22 @@ const RestaurantReservationSettings = ({ data }) => {
   }, [success, error]);
 
   const inputCls =
-    "w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
+    "w-full h-10 px-3 rounded-lg border border-[--border-1] bg-[--white-1] text-[--black-1] placeholder:text-[--gr-2] text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
   const labelCls =
-    "block text-[11px] font-semibold text-slate-600 mb-1 tracking-wide";
+    "block text-[11px] font-semibold text-[--gr-1] mb-1 tracking-wide";
 
   const SectionHeader = ({ icon: Icon, label }) => (
     <header className="flex items-center gap-1.5 mb-2.5">
       <Icon className="size-3.5 text-indigo-600" />
-      <h2 className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.12em]">
+      <h2 className="text-[11px] font-bold text-[--gr-1] uppercase tracking-[0.12em]">
         {label}
       </h2>
     </header>
   );
 
   return (
-    <div className="w-full pb-8 mt-1 text-slate-900">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
         {/* gradient strip */}
         <div
           className="h-0.5"
@@ -114,7 +114,7 @@ const RestaurantReservationSettings = ({ data }) => {
           }}
         />
         {/* HERO HEADER */}
-        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
           <span
             className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
             style={{
@@ -125,12 +125,12 @@ const RestaurantReservationSettings = ({ data }) => {
             <CalendarClock className="size-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
               {t("restaurantReservationSettings.title", {
                 name: data?.name || "",
               })}
             </h1>
-            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
               {reservationData?.isActive
                 ? `${reservationData?.startTime || "--:--"} – ${reservationData?.endTime || "--:--"}`
                 : "—"}
@@ -146,8 +146,8 @@ const RestaurantReservationSettings = ({ data }) => {
                 icon={Power}
                 label={t("restaurantReservationSettings.is_active_label")}
               />
-              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 flex items-center justify-between gap-3">
-                <span className="text-sm font-medium text-slate-900 whitespace-nowrap">
+              <div className="rounded-xl border border-[--border-1] bg-[--white-2]/40 p-3 flex items-center justify-between gap-3">
+                <span className="text-sm font-medium text-[--black-1] whitespace-nowrap">
                   {t("restaurantReservationSettings.is_active_label")}
                 </span>
                 <CustomToggle
@@ -189,7 +189,7 @@ const RestaurantReservationSettings = ({ data }) => {
                     timeOnly
                     calendarClassName
                     className2="mt-0 sm:mt-0"
-                    className="!w-full !h-10 !px-3 !rounded-lg !border !border-slate-200 !bg-white !text-slate-900 !text-sm focus:!border-indigo-500"
+                    className="!w-full !h-10 !px-3 !rounded-lg !border !border-[--border-1] !bg-[--white-1] !text-[--black-1] !text-sm focus:!border-indigo-500"
                   />
                 </div>
                 <div>
@@ -207,7 +207,7 @@ const RestaurantReservationSettings = ({ data }) => {
                     timeOnly
                     calendarClassName
                     className2="mt-0 sm:mt-0"
-                    className="!w-full !h-10 !px-3 !rounded-lg !border !border-slate-200 !bg-white !text-slate-900 !text-sm focus:!border-indigo-500"
+                    className="!w-full !h-10 !px-3 !rounded-lg !border !border-[--border-1] !bg-[--white-1] !text-[--black-1] !text-sm focus:!border-indigo-500"
                   />
                 </div>
               </div>
@@ -224,7 +224,7 @@ const RestaurantReservationSettings = ({ data }) => {
                   <label className={labelCls}>
                     {t("restaurantReservationSettings.interval_minutes_label")}
                   </label>
-                  <div className="flex items-stretch rounded-lg border border-slate-200 bg-white focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition overflow-hidden">
+                  <div className="flex items-stretch rounded-lg border border-[--border-1] bg-[--white-1] focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition overflow-hidden">
                     <input
                       type="number"
                       min={1}
@@ -240,7 +240,7 @@ const RestaurantReservationSettings = ({ data }) => {
                         }))
                       }
                     />
-                    <span className="bg-slate-50 text-slate-500 text-xs font-semibold px-3 grid place-items-center border-l border-slate-200">
+                    <span className="bg-[--white-2] text-[--gr-1] text-xs font-semibold px-3 grid place-items-center border-l border-[--border-1]">
                       dk
                     </span>
                   </div>
@@ -249,7 +249,7 @@ const RestaurantReservationSettings = ({ data }) => {
                   <label className={labelCls}>
                     {t("restaurantReservationSettings.max_guests_label")}
                   </label>
-                  <div className="flex items-stretch rounded-lg border border-slate-200 bg-white focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition overflow-hidden">
+                  <div className="flex items-stretch rounded-lg border border-[--border-1] bg-[--white-1] focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition overflow-hidden">
                     <input
                       type="number"
                       min={1}
@@ -265,7 +265,7 @@ const RestaurantReservationSettings = ({ data }) => {
                         }))
                       }
                     />
-                    <span className="bg-slate-50 text-slate-500 text-xs font-semibold px-3 grid place-items-center border-l border-slate-200">
+                    <span className="bg-[--white-2] text-[--gr-1] text-xs font-semibold px-3 grid place-items-center border-l border-[--border-1]">
                       <Users className="size-3.5" />
                     </span>
                   </div>
@@ -274,7 +274,7 @@ const RestaurantReservationSettings = ({ data }) => {
             </div>
 
             {/* SUBMIT */}
-            <div className="flex justify-end pt-3 border-t border-slate-100">
+            <div className="flex justify-end pt-3 border-t border-[--border-1]">
               <button
                 type="submit"
                 disabled={loading}

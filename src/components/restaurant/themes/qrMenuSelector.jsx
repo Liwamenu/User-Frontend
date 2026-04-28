@@ -1,14 +1,15 @@
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Check,
   Smartphone,
   Tablet,
-  Monitor,
   Globe,
-  RefreshCw,
+  Loader2,
   ExternalLink,
-  ChevronRight,
+  RotateCw,
+  Palette,
+  Sparkles,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -16,277 +17,444 @@ import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import { setRestaurantTheme } from "../../../redux/restaurant/setRestaurantThemeSlice";
 
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
+
 const THEMES = [
   {
     id: 0,
     name: "Tema 1",
-    url: "https://demo1.liwamenu.com/",
     color: "hsl(24 95% 53%)",
+    tagKey: "qrThemeSelector.tag_classic",
   },
   {
     id: 1,
     name: "Tema 2",
-    url: "https://demo2.liwamenu.com",
     color: "hsl(270 65% 65%)",
+    tagKey: "qrThemeSelector.tag_modern",
   },
   {
     id: 2,
     name: "Tema 3",
-    url: "https://demo3.liwamenu.com",
     color: "hsl(142 58% 26%)",
+    tagKey: "qrThemeSelector.tag_natural",
   },
   {
     id: 3,
     name: "Tema 4",
-    url: "https://demo4.liwamenu.com",
     color: "hsl(48 100% 50%)",
+    tagKey: "qrThemeSelector.tag_sunny",
   },
   {
     id: 4,
     name: "Tema 5",
-    url: "https://demo5.liwamenu.com",
     color: "hsl(120 100% 25%)",
+    tagKey: "qrThemeSelector.tag_fresh",
   },
+];
+
+// Build the tenant-facing live URL — used both as the public link and as the
+// iframe preview source (theme is rendered server-side from the saved value).
+const buildTenantUrl = (tenant, fallback = "demo") => {
+  const t = (tenant || fallback).trim();
+  return `https://${t}.liwamenu.com`;
+};
+
+const DEVICES = [
+  { id: "iphone", icon: Smartphone, labelKey: "qrThemeSelector.iphone" },
+  { id: "android", icon: Smartphone, labelKey: "qrThemeSelector.android" },
+  { id: "tablet", icon: Tablet, labelKey: "qrThemeSelector.tablet" },
 ];
 
 const ThemeSelector = ({ data }) => {
   const params = useParams();
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const resraurantId = params.id;
+  const restaurantId = params.id;
+  const iframeRef = useRef(null);
 
-  const { success } = useSelector((s) => s.restaurant.setRestaurantTheme);
+  const { success, loading } = useSelector(
+    (s) => s.restaurant.setRestaurantTheme,
+  );
 
   const [device, setDevice] = useState("iphone");
   const [isLoading, setIsLoading] = useState(true);
   const [selectedThemeId, setSelectedThemeId] = useState(
-    data?.themeId || THEMES[0].id,
+    data?.themeId ?? THEMES[0].id,
+  );
+  const [activeThemeId, setActiveThemeId] = useState(
+    data?.themeId ?? THEMES[0].id,
   );
 
   const selectedTheme =
-    THEMES.find((t) => t.id === selectedThemeId) || data?.themeId || THEMES[0];
+    THEMES.find((th) => th.id === selectedThemeId) || THEMES[0];
+  const activeTheme =
+    THEMES.find((th) => th.id === activeThemeId) || THEMES[0];
 
-  const handleSaveThemeId = () => {
-    console.log(
-      `Saving theme ${selectedThemeId} for restaurant ${resraurantId}`,
-    );
+  // The iframe always renders the user's actual menu at their tenant URL.
+  // Theme changes are applied via auto-save (clicking a theme dispatches
+  // setRestaurantTheme), and the iframe is keyed off activeThemeId so it
+  // reloads after the save completes — showing the just-saved theme live.
+  const tenant = data?.tenant;
+  const liveUrl = buildTenantUrl(tenant);
+  // Cache-bust the iframe by appending a key on each saved-theme change so
+  // the menu app re-fetches and the new theme renders.
+  const iframeUrl = `${liveUrl}?v=${activeThemeId}`;
+
+  // Track which theme id is currently being saved (for inline spinner).
+  const [pendingThemeId, setPendingThemeId] = useState(null);
+  const isPending = (id) => pendingThemeId === id && loading;
+
+  // Click a theme card → optimistic select + dispatch save immediately.
+  const handlePickTheme = (themeId) => {
+    if (loading) return;
+    if (themeId === activeThemeId) return; // already saved, no-op
+    setSelectedThemeId(themeId);
+    setPendingThemeId(themeId);
     dispatch(
       setRestaurantTheme({
-        themeId: selectedThemeId,
-        restaurantId: resraurantId,
+        themeId,
+        restaurantId,
       }),
     );
   };
 
-  // Reset loading state when theme or device changes
+  const handleRefreshIframe = () => {
+    setIsLoading(true);
+    if (iframeRef.current) {
+      // Force reload the iframe by re-assigning its src
+      iframeRef.current.src = "about:blank";
+      requestAnimationFrame(() => {
+        if (iframeRef.current) iframeRef.current.src = iframeUrl;
+      });
+    }
+  };
+
+  // Reset loading state when the *saved* theme changes (after auto-save) or
+  // when the device switches. Selecting a theme dispatches a save and the
+  // iframe reloads only after activeThemeId catches up.
   useEffect(() => {
     setIsLoading(true);
-  }, [selectedThemeId, device]);
+  }, [activeThemeId, device]);
 
-  //SET initial theme from restaurant data
+  // SET initial theme from restaurant data
   useEffect(() => {
-    if (data?.themeId) {
+    if (data?.themeId !== undefined && data?.themeId !== null) {
       setSelectedThemeId(data.themeId);
+      setActiveThemeId(data.themeId);
     }
   }, [data]);
 
-  //TOAST
+  // Toast on success + commit active theme + clear pending state
   useEffect(() => {
     if (success) {
       toast.success(t("qrThemeSelector.success_updated"), {
         id: "set-theme-success",
       });
+      setActiveThemeId(selectedThemeId);
+      setPendingThemeId(null);
     }
-  }, [success, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [success]);
+
+  // Clear pending state on failure too
+  useEffect(() => {
+    if (!loading && pendingThemeId !== null && !success) {
+      setPendingThemeId(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   return (
-    <div className="w-full mt-1 bg-[--white-1] rounded-lg text-[--black-1] overflow-hidden shadow-lg border border-[--border-1] relative">
-      <div className="flex flex-col">
-        <div className="flex flex-col sm:flex-row justify-between items-center bg-indigo-800 text-white py-5 px-6 sm:px-14">
-          <h1 className="text-xl font-bold mb-4 sm:mb-0">
-            {t("qrThemeSelector.title", { name: data?.name })}
-          </h1>
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
+        {/* Gradient strip */}
+        <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
+
+        {/* HERO HEADER */}
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
+          <span
+            className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
+            style={{ background: PRIMARY_GRADIENT }}
+          >
+            <Palette className="size-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
+              {t("qrThemeSelector.title", { name: data?.name || "" })}
+            </h1>
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
+              {t("qrThemeSelector.subtitle")}
+            </p>
+          </div>
+          {loading && (
+            <span className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 dark:bg-indigo-500/15 dark:text-indigo-200 dark:border-indigo-400/30">
+              <Loader2 className="size-3.5 animate-spin" />
+              {t("qrThemeSelector.saving")}
+            </span>
+          )}
         </div>
-        <div className="flex flex-col lg:flex-row min-h-[700px] bg-[--white-1]">
-          {/* Left Side: Theme Selection (Compact) */}
-          <div className="w-full lg:w-80 border-r border-[--border-1] px-6 flex flex-col gap-6 bg-[--white-2]">
-            <div className="pt-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-400">
-                  {t("qrThemeSelector.select_theme")}
-                </h2>
-                <button
-                  onClick={handleSaveThemeId}
-                  className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors"
+
+        {/* MAIN GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-[20rem_1fr] min-h-[680px]">
+          {/* LEFT — Theme cards + active summary */}
+          <div className="border-b lg:border-b-0 lg:border-r border-[--border-1] flex flex-col">
+            {/* Active (saved) theme summary — what's currently rendered in the preview */}
+            <div className="p-4 border-b border-[--border-1] bg-[--white-2]/60">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1] mb-2">
+                {t("qrThemeSelector.saved_state")}
+              </p>
+              <div className="flex items-center gap-3">
+                <span
+                  className="grid place-items-center size-11 rounded-xl text-white font-bold text-sm shrink-0 shadow-sm"
+                  style={{ backgroundColor: activeTheme.color }}
                 >
-                  {t("qrThemeSelector.save")}
-                </button>
+                  {activeTheme.name.replace(/\D/g, "") ||
+                    activeTheme.name.charAt(0)}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-[--black-1] truncate">
+                    {activeTheme.name}
+                  </p>
+                  <p className="text-[11px] text-[--gr-1] truncate">
+                    {t(activeTheme.tagKey)}
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-200 dark:ring-emerald-400/30">
+                  <Check className="size-3" />
+                  {t("qrThemeSelector.active_badge")}
+                </span>
               </div>
-              <div className="space-y-2">
-                {THEMES.map((theme) => (
+
+            </div>
+
+            {/* Theme list */}
+            <div className="p-3 flex-1 overflow-y-auto space-y-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1] px-1 mb-1.5">
+                {t("qrThemeSelector.select_theme")}
+              </p>
+              {THEMES.map((theme) => {
+                const isActive = activeThemeId === theme.id;
+                const pending = isPending(theme.id);
+                return (
                   <button
                     key={theme.id}
-                    onClick={() => setSelectedThemeId(theme.id)}
-                    className={`w-full group relative flex items-center gap-3 p-3 rounded-xl transition-all border ${
-                      selectedThemeId === theme.id
-                        ? "bg-[--white-1] border-[--gr-4] shadow-sm"
-                        : "border-transparent hover:bg-[--white-1]"
+                    type="button"
+                    onClick={() => handlePickTheme(theme.id)}
+                    disabled={loading}
+                    className={`group w-full flex items-center gap-3 p-2.5 rounded-xl border transition-all text-left disabled:cursor-wait ${
+                      isActive
+                        ? "border-indigo-300 bg-indigo-50 ring-1 ring-indigo-100 shadow-sm dark:bg-indigo-500/15 dark:border-indigo-400/30 dark:ring-indigo-400/20"
+                        : "border-[--border-1] bg-[--white-1] hover:border-indigo-200 hover:bg-[--white-2] disabled:opacity-50"
                     }`}
                   >
-                    <div
-                      className="w-10 h-10 rounded-lg flex-none flex items-center justify-center text-white font-bold text-xs 
-                  shadow-sm"
+                    <span
+                      className="grid place-items-center size-10 rounded-lg text-white font-bold text-xs shrink-0 shadow-sm"
                       style={{ backgroundColor: theme.color }}
                     >
-                      {theme.name.charAt(0)}
-                    </div>
-                    <div className="flex-1 text-left overflow-hidden">
-                      <h3
-                        className={`text-sm font-semibold truncate 
-                      ${selectedThemeId === theme.id ? "text-indigo-600" : "text-gray-700"}`}
+                      {theme.name.replace(/\D/g, "") || theme.name.charAt(0)}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className={`text-sm font-semibold truncate ${
+                          isActive
+                            ? "text-indigo-700 dark:text-indigo-200"
+                            : "text-[--black-1]"
+                        }`}
                       >
                         {theme.name}
-                      </h3>
+                      </p>
+                      <p className="text-[10px] text-[--gr-1] truncate">
+                        {t(theme.tagKey)}
+                      </p>
                     </div>
-                    {selectedThemeId === theme.id ? (
-                      <Check className="w-4 h-4 text-indigo-600 flex-none" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    )}
+                    {pending ? (
+                      <span className="grid place-items-center size-5 rounded-full bg-indigo-600 text-white shrink-0 shadow-sm">
+                        <Loader2 className="size-3 animate-spin" />
+                      </span>
+                    ) : isActive ? (
+                      <span className="grid place-items-center size-5 rounded-full bg-emerald-500 text-white shrink-0 shadow-sm">
+                        <Check className="size-3" strokeWidth={3} />
+                      </span>
+                    ) : null}
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
 
-            <div className="mt-auto pt-6 border-t border-gray-100">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">
-                {t("qrThemeSelector.device_preview")}
-              </h2>
-              <div className="flex gap-2">
-                {["iphone", "android", "tablet" /* , "monitor" */].map((d) => (
-                  <button
-                    key={d}
-                    onClick={() => setDevice(d)}
-                    className={`flex-1 flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${
-                      device === d
-                        ? "bg-indigo-600 border-indigo-600 text-white shadow-md"
-                        : "bg-[--white-1] border-[--border-1] text-[--gr-1] hover:border-[--white-2]"
-                    }`}
-                  >
-                    {d === "iphone" && <Smartphone className="w-4 h-4" />}
-                    {d === "android" && (
-                      <Smartphone className="w-4 h-4 rotate-12" />
-                    )}
-                    {d === "tablet" && <Tablet className="w-4 h-4" />}
-                    {/* {d === "monitor" && <Monitor className="w-4 h-4" />} */}
-                    <span className="text-[10px] font-bold uppercase">
-                      {t(`qrThemeSelector.${d}`)}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="p-4 bg-[--white-1] rounded-2xl border border-[--gr-4]">
-              <div className="flex items-center gap-2 text-indigo-700 mb-2">
-                <Globe className="w-4 h-4" />
-                <span className="text-xs font-bold uppercase">
+            {/* Live URL footer */}
+            <div className="p-3 border-t border-[--border-1] bg-[--white-2]/60 space-y-2">
+              <div className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-300">
+                <Globe className="size-3.5" />
+                <span className="text-[10px] font-bold uppercase tracking-wider">
                   {t("qrThemeSelector.live_url")}
                 </span>
               </div>
-              <p className="text-[10px] text-indigo-600 font-mono break-all mb-3 opacity-80">
-                {selectedTheme.url}
+              <p className="text-[10px] text-[--gr-1] font-mono break-all">
+                {liveUrl}
               </p>
               <a
-                href={selectedTheme.url}
+                href={liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-2 bg-[--white-1] rounded-lg text-xs font-bold text-indigo-600 border border-[--gr-4] hover:bg-[--white-2] transition-colors shadow-sm"
+                className="inline-flex items-center justify-center gap-1.5 w-full h-9 rounded-lg text-xs font-semibold text-indigo-600 bg-[--white-1] border border-[--border-1] hover:border-indigo-300 hover:text-indigo-700 transition dark:text-indigo-300 dark:hover:text-indigo-200 dark:hover:border-indigo-400/40"
               >
+                <ExternalLink className="size-3.5" />
                 {t("qrThemeSelector.open_new_tab")}
-                <ExternalLink className="w-3 h-3" />
               </a>
             </div>
+
           </div>
 
-          {/* Right Side: Device Mockup (Immersive) */}
-          <div className="flex-1 bg-[--gr-4] px-8 flex items-center justify-center overflow-hidden relative">
-            {/* Background Decoration */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-              <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-200 rounded-full blur-3xl" />
-              <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-purple-200 rounded-full blur-3xl" />
+          {/* RIGHT — Preview */}
+          <div className="relative flex flex-col">
+            {/* Preview toolbar */}
+            <div className="px-4 py-3 border-b border-[--border-1] flex items-center justify-between gap-3 bg-[--white-1]">
+              <div className="flex items-center gap-2 min-w-0">
+                <Sparkles className="size-3.5 text-indigo-600 shrink-0" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1] truncate">
+                  {t("qrThemeSelector.preview_title")}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                {/* Device segmented control */}
+                <div className="inline-flex items-center gap-0.5 p-0.5 rounded-lg bg-[--white-2] border border-[--border-1]">
+                  {DEVICES.map(({ id, icon: Icon, labelKey }) => {
+                    const isActive = device === id;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => setDevice(id)}
+                        title={t(labelKey)}
+                        aria-label={t(labelKey)}
+                        className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[11px] font-semibold transition ${
+                          isActive
+                            ? "bg-[--white-1] text-indigo-600 shadow-sm dark:bg-indigo-500/20 dark:text-indigo-200"
+                            : "text-[--gr-1] hover:text-[--black-1]"
+                        }`}
+                      >
+                        <Icon className="size-3.5" />
+                        <span className="hidden sm:inline">{t(labelKey)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleRefreshIframe}
+                  title={t("qrThemeSelector.refresh")}
+                  aria-label={t("qrThemeSelector.refresh")}
+                  className="grid place-items-center size-8 rounded-md text-[--gr-1] bg-[--white-2] border border-[--border-1] hover:text-indigo-600 hover:border-indigo-300 transition"
+                >
+                  <RotateCw className="size-3.5" />
+                </button>
+              </div>
             </div>
 
-            <div className="relative z-10 flex flex-col items-center w-full max-w-4xl">
+            {/* Mockup area */}
+            <div className="flex-1 px-4 py-6 sm:py-8 grid place-items-center overflow-hidden relative bg-gradient-to-br from-[--white-2] via-[--white-1] to-[--white-2]">
+              {/* Soft accent blobs */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-50 dark:opacity-30">
+                <div className="absolute -top-32 -right-32 w-96 h-96 bg-indigo-200/60 rounded-full blur-3xl dark:bg-indigo-500/20" />
+                <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-cyan-200/60 rounded-full blur-3xl dark:bg-cyan-500/15" />
+              </div>
+
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={`${device}-${selectedThemeId}`}
-                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  // Animate only on device switch — theme changes update the
+                  // iframe src in place so the phone frame stays put.
+                  key={device}
+                  initial={{ opacity: 0, scale: 0.96, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 1.05, y: -20 }}
-                  transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                  className="relative"
+                  exit={{ opacity: 0, scale: 1.03, y: -10 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 220 }}
+                  className="relative z-10"
                 >
-                  {/* Device Frames */}
-                  {device === "iphone" && (
-                    <div className="relative w-[340px] h-[702px] bg-black rounded-[3.5rem] border-[10px] border-gray-900 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] ring-1 ring-white/10">
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-36 h-7 bg-gray-900 rounded-b-3xl z-30" />
-                      <div className="absolute top-2 right-8 w-2 h-2 bg-gray-800 rounded-full z-30" />
-                      <div className="absolute inset-0 rounded-[2.8rem] overflow-hidden bg-white">
-                        <iframe
-                          src={selectedTheme.url}
-                          className="w-full h-full border-none"
-                          onLoad={() => setIsLoading(false)}
-                        />
+                  <DeviceFrame variant={device}>
+                    <ScaledIframe
+                      iframeRef={iframeRef}
+                      src={iframeUrl}
+                      onLoad={() => setIsLoading(false)}
+                    />
+                    {/* Loading overlay — covers only the inner screen */}
+                    {isLoading && (
+                      <div className="absolute inset-0 grid place-items-center bg-[--white-1]/85 backdrop-blur-sm z-20 transition-opacity">
+                        <div className="flex flex-col items-center gap-3">
+                          <Loader2 className="size-7 text-indigo-600 animate-spin" />
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-[--gr-1]">
+                            {t("qrThemeSelector.loading_theme")}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-
-                  {device === "android" && (
-                    <div className="relative w-[340px] h-[702px] bg-gray-900 rounded-[2rem] border-[8px] border-gray-800 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)]">
-                      <div
-                        className="absolute top-4 left-1/2 -translate-x-1/2 w-3 h-3 bg-black rounded-full z-30 ring-1
-                   ring-white/20"
-                      />
-                      <div className="absolute inset-0 rounded-[1.5rem] overflow-hidden bg-white">
-                        <iframe
-                          src={selectedTheme.url}
-                          className="w-full h-full border-none"
-                          onLoad={() => setIsLoading(false)}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {device === "tablet" && (
-                    <div className="relative w-[650px] h-[487px] bg-gray-900 rounded-[2.5rem] border-[12px] border-gray-800 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)]">
-                      <div className="absolute top-1/2 -left-1 -translate-y-1/2 w-1 h-8 bg-gray-700 rounded-r-sm" />
-                      <div className="absolute inset-0 rounded-[1.8rem] overflow-hidden bg-white">
-                        <iframe
-                          src={selectedTheme.url}
-                          className="w-full h-full border-none"
-                          onLoad={() => setIsLoading(false)}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Loading Overlay */}
-                  {isLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80 backdrop-blur-sm z-20 rounded-3xl">
-                      <div className="flex flex-col items-center gap-4">
-                        <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin" />
-                        <p className="text-xs font-bold text-indigo-900/40 uppercase tracking-widest">
-                          {t("qrThemeSelector.loading_theme")}
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </DeviceFrame>
                 </motion.div>
               </AnimatePresence>
             </div>
           </div>
-        </div>{" "}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Renders the iframe at 80% zoom and clips the iframe's own scrollbars
+// by extending its size past the container's visible area.
+const ScaledIframe = ({ iframeRef, src, onLoad }) => (
+  <iframe
+    ref={iframeRef}
+    src={src}
+    title="Theme preview"
+    onLoad={onLoad}
+    scrolling="auto"
+    style={{
+      // Iframe is 1/0.8 = 125% of container, then scaled 80% → fills visually.
+      // Extra ~24px pushes the iframe's native scrollbar past the clipped edge.
+      width: "calc(100% / 0.8 + 24px)",
+      height: "calc(100% / 0.8 + 24px)",
+      transform: "scale(0.8)",
+      transformOrigin: "0 0",
+      border: 0,
+      display: "block",
+    }}
+  />
+);
+
+const DeviceFrame = ({ variant, children }) => {
+  if (variant === "iphone") {
+    return (
+      <div className="relative w-[300px] h-[620px] sm:w-[320px] sm:h-[660px] bg-black rounded-[3rem] border-[10px] border-gray-900 shadow-[0_40px_100px_-25px_rgba(0,0,0,0.4)] ring-1 ring-white/10 dark:ring-white/5">
+        {/* Notch */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-3xl z-30" />
+        {/* Camera dot */}
+        <div className="absolute top-2 right-7 w-2 h-2 bg-gray-800 rounded-full z-30" />
+        <div className="absolute inset-0 rounded-[2.4rem] overflow-hidden bg-[--white-1]">
+          {children}
+        </div>
+      </div>
+    );
+  }
+  if (variant === "android") {
+    return (
+      <div className="relative w-[300px] h-[620px] sm:w-[320px] sm:h-[660px] bg-gray-900 rounded-[1.75rem] border-[8px] border-gray-800 shadow-[0_40px_100px_-25px_rgba(0,0,0,0.4)]">
+        {/* Punch-hole camera */}
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 w-3 h-3 bg-black rounded-full z-30 ring-1 ring-white/20" />
+        <div className="absolute inset-0 rounded-[1.25rem] overflow-hidden bg-[--white-1]">
+          {children}
+        </div>
+      </div>
+    );
+  }
+  // tablet
+  return (
+    <div className="relative w-[560px] h-[420px] sm:w-[640px] sm:h-[480px] bg-gray-900 rounded-[2rem] border-[10px] border-gray-800 shadow-[0_40px_100px_-25px_rgba(0,0,0,0.4)]">
+      {/* Power button hint */}
+      <div className="absolute top-1/2 -left-1 -translate-y-1/2 w-1 h-8 bg-gray-700 rounded-r-sm" />
+      <div className="absolute inset-0 rounded-[1.5rem] overflow-hidden bg-[--white-1]">
+        {children}
       </div>
     </div>
   );

@@ -114,12 +114,12 @@ const SocialMedias = ({ data: restaurant }) => {
   const emptyCount = PLATFORMS.length - filledCount;
 
   return (
-    <div className="w-full pb-8 mt-1 text-slate-900">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
         <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
 
         {/* HERO HEADER */}
-        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
           <span
             className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
             style={{ background: PRIMARY_GRADIENT }}
@@ -127,10 +127,10 @@ const SocialMedias = ({ data: restaurant }) => {
             <Share2 className="size-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
               {t("socialMedias.title", { name: restaurant?.name || "" })}
             </h1>
-            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
               {socialMediasData
                 ? t("socialMedias.summary", {
                     count: filledCount,
@@ -171,8 +171,8 @@ const SocialMedias = ({ data: restaurant }) => {
                     key={key}
                     className={`group flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 rounded-xl border transition-all ${
                       hasValue
-                        ? "border-slate-200 bg-white shadow-sm"
-                        : "border-slate-200 bg-slate-50/40"
+                        ? "border-[--border-1] bg-[--white-1] shadow-sm"
+                        : "border-[--border-1] bg-[--white-2]/40"
                     }`}
                   >
                     {/* Platform badge + label */}
@@ -184,10 +184,10 @@ const SocialMedias = ({ data: restaurant }) => {
                         <Icon className="size-4" />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <div className="text-sm font-semibold text-slate-900 truncate">
+                        <div className="text-sm font-semibold text-[--black-1] truncate">
                           {t(labelKey)}
                         </div>
-                        <div className="text-[10px] font-medium uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                        <div className="text-[10px] font-medium uppercase tracking-wider text-[--gr-2] flex items-center gap-1">
                           {hasValue ? (
                             <>
                               <Check
@@ -210,7 +210,7 @@ const SocialMedias = ({ data: restaurant }) => {
                         inputMode="url"
                         autoComplete="off"
                         spellCheck={false}
-                        className="flex-1 min-w-0 h-10 px-3 rounded-lg border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 font-mono text-[12.5px]"
+                        className="flex-1 min-w-0 h-10 px-3 rounded-lg border border-[--border-1] bg-[--white-1] text-[--black-1] placeholder:text-[--gr-2] text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 font-mono text-[12.5px]"
                         placeholder={placeholder}
                         value={value}
                         onChange={(e) =>
@@ -228,8 +228,8 @@ const SocialMedias = ({ data: restaurant }) => {
                         aria-label={t("socialMedias.open_link")}
                         className={`grid place-items-center size-10 rounded-lg border transition shrink-0 ${
                           hasValue
-                            ? "border-slate-200 text-slate-700 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50"
-                            : "border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50"
+                            ? "border-[--border-1] text-[--black-2] hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50"
+                            : "border-[--border-1] text-[--gr-2] hover:border-[--border-1] hover:bg-[--white-2]"
                         }`}
                       >
                         <ExternalLink className="size-4" />
@@ -242,8 +242,8 @@ const SocialMedias = ({ data: restaurant }) => {
           </div>
 
           {/* SUBMIT */}
-          <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+          <div className="flex items-center justify-between gap-3 pt-3 border-t border-[--border-1]">
+            <span className="text-[11px] font-semibold text-[--gr-1] uppercase tracking-wide">
               {socialMediasData
                 ? t("socialMedias.summary", {
                     count: filledCount,

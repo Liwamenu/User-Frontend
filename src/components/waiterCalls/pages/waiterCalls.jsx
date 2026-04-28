@@ -1,22 +1,25 @@
-//MODULES
+// MODULES
 import {
   Bell,
-  CheckCircle,
+  CheckCircle2,
   Clock,
   MessageSquare,
   Utensils,
+  Hash,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-//COMP
-import { BellI } from "../../../assets/icon";
+// COMP
 import CustomSelect from "../../common/customSelector";
 import CustomPagination from "../../common/pagination";
 import FilterWaiterCalls from "../components/filterWaiterCalls";
 
-//UTILS
+// UTILS
 import { formatDateString } from "../../../utils/utils";
 import { useWaiterCalls } from "../../../context/waiterCallsContext";
+
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
 
 const WaiterCallsPage = () => {
   const { t } = useTranslation();
@@ -36,7 +39,6 @@ const WaiterCallsPage = () => {
     const now = new Date();
     const then = new Date(dateString);
     const diffInMinutes = Math.floor((now.getTime() - then.getTime()) / 60000);
-
     if (diffInMinutes < 1) return t("waiterCalls.just_now");
     if (diffInMinutes < 60)
       return t("waiterCalls.minutes_ago", { count: diffInMinutes });
@@ -44,168 +46,206 @@ const WaiterCallsPage = () => {
     return t("waiterCalls.hours_ago", { count: diffInHours });
   };
 
-  return (
-    <section className="min-h-screen bg-[--white-1] lg:ml-[280px] pt-16 px-[4%] pb-4 flex flex-col">
-      <main className="flex flex-grow w-full">
-        <div className="w-full">
-          {/* TITLE */}
-          <div className="w-full text-[--black-2] py-4 text-2xl font-semibold flex items-center gap-3">
-            <BellI className="text-red-500 animate-pulse" />
-            <h2>{t("waiterCalls.title")}</h2>
-            <span className="ml-auto text-sm font-normal text-[--gr-1] bg-[--white-1] px-3 py-1 rounded-full border border-[--border-1]">
-              {calls?.filter((c) => !c.isResolved).length}{" "}
-              {t("waiterCalls.active_calls")}
-            </span>
+  const activeCount = calls?.filter((c) => !c.isResolved).length || 0;
 
+  return (
+    <section className="lg:ml-[280px] pt-16 px-4 sm:px-6 lg:px-8 pb-8 min-h-[100dvh] flex flex-col section_row">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
+        <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
+
+        {/* HERO HEADER */}
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
+          <span
+            className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0 relative"
+            style={{ background: PRIMARY_GRADIENT }}
+          >
+            <Bell className="size-4" />
+            {activeCount > 0 && (
+              <span className="absolute -top-1 -right-1 size-3 rounded-full bg-rose-500 ring-2 ring-[--white-1] animate-pulse" />
+            )}
+          </span>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
+              {t("waiterCalls.title")}
+            </h1>
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
+              {typeof totalCount === "number"
+                ? t("waiterCalls.summary", {
+                    active: activeCount,
+                    total: totalCount,
+                  })
+                : t("waiterCalls.subtitle")}
+            </p>
+          </div>
+          <div className="shrink-0">
             <FilterWaiterCalls />
           </div>
+        </div>
 
-          {calls ? (
-            <div className="grid gap-4 mt-4">
-              {calls.map((call) => (
-                <div
-                  key={call.id}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className={`group relative overflow-hidden bg-[--white-1] rounded-2xl border transition-all duration-300 ${
-                    call.isResolved
-                      ? "border-[--light-3] opacity-60"
-                      : "border-[--border-1] hover:border-[--primary-1]"
-                  }`}
-                >
-                  <div className="p-5 flex flex-col sm:flex-row sm:items-center gap-4">
-                    {/* Table Indicator */}
-                    <div
-                      className={`flex-shrink-0 size-20 rounded-xl flex flex-col items-center justify-center transition-colors ${
-                        call.isResolved
-                          ? "bg-[--light-3] text-[--gr-1]"
-                          : "bg-[--primary-1] text-white"
-                      }`}
-                    >
-                      <span className="text-xs font-bold uppercase tracking-wider">
-                        {t("waiterCalls.table")}
-                      </span>
-                      <span className="text-base font-black w-full text-wrap text-center">
-                        {call.tableNumber}
-                      </span>
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-grow space-y-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-lg text-[--black-2]">
-                          {call.restaurantName}
-                        </h3>
-                        {!call.isResolved && (
-                          <span className="flex h-2 w-2 rounded-full bg-red-500 animate-ping" />
-                        )}
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[--gr-1]">
-                        <div className="flex items-center gap-1.5">
-                          <Clock size={14} />
-                          <span>
-                            {formatDateString({
-                              dateString: call.createdDateTime,
-                              letDay: true,
-                              letMonth: true,
-                              letYear: true,
-                              hour: true,
-                              min: true,
-                            })}
-                          </span>
-                          <span className="text-xs opacity-60">
-                            ({getTimeAgo(call.createdDateTime)})
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <Utensils size={14} />
-                          <span>{t("waiterCalls.dine_in")}</span>
-                        </div>
-                      </div>
-
-                      {call.note && (
-                        <div className="mt-3 flex items-start gap-2 p-3 bg-amber-50/50 rounded-lg border border-amber-100/50">
-                          <MessageSquare
-                            size={16}
-                            className="text-amber-600 mt-0.5"
-                          />
-                          <p className="text-sm text-amber-800 italic">
-                            "{call.note}"
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex-shrink-0 flex items-center gap-2">
-                      {!call.isResolved ? (
-                        <button
-                          onClick={() => handleResolve(call.id)}
-                          className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all flex items-center justify-center gap-2 active:scale-95"
-                        >
-                          <CheckCircle size={18} />
-                          {t("waiterCalls.resolve_call")}
-                        </button>
-                      ) : (
-                        <div className="flex items-center gap-2 text-green-600 font-medium px-4 py-2 bg-green-50 rounded-lg border border-green-100">
-                          <CheckCircle size={18} />
-                          <span>{t("waiterCalls.resolved")}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {calls.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-                  <Bell size={48} className="mb-4 opacity-20" />
-                  <p className="text-lg font-medium">
-                    {t("waiterCalls.no_active_calls")}
-                  </p>
-                  <p className="text-sm">{t("waiterCalls.running_smoothly")}</p>
-                </div>
-              )}
+        <div className="p-3 sm:p-5">
+          {!calls ? (
+            <div className="grid place-items-center py-16 text-[--gr-1] text-sm">
+              {t("waiterCalls.no_calls_yet")}
             </div>
+          ) : calls.length === 0 ? (
+            <EmptyState t={t} />
           ) : (
-            <div className="flex items-center justify-center py-20">
-              <p className="text-lg text-[--gr-1]">
-                {t("waiterCalls.no_calls_yet")}
-              </p>
+            <div className="flex flex-col gap-2.5">
+              {calls.map((call) => (
+                <WaiterCallCard
+                  key={call.id}
+                  call={call}
+                  t={t}
+                  onResolve={() => handleResolve(call.id)}
+                  getTimeAgo={getTimeAgo}
+                />
+              ))}
             </div>
           )}
         </div>
-      </main>
+      </div>
 
-      {/* PAGINATION */}
-      {calls && typeof totalCount === "number" && (
-        <div className="w-full self-end flex justify-center py-4 text-[--black-2]">
-          <div className="scale-[.8] min-w-20">
-            <CustomSelect
-              className="mt-[0] sm:mt-[0]"
-              className2="mt-[0] sm:mt-[0]"
-              menuPlacement="top"
-              value={pageSize}
-              options={pageNumbers()}
-              onChange={(option) => {
-                handleItemsPerPage(option.value);
-              }}
+      {/* PAGINATION — pinned to the bottom; hidden when one page or no data */}
+      {calls &&
+        calls.length > 0 &&
+        typeof totalCount === "number" &&
+        totalCount > (pageSize?.value || 10) && (
+          <div className="w-full flex flex-wrap justify-center items-center gap-2 pt-6 mt-auto text-[--black-2]">
+            <div className="scale-[.8] min-w-20">
+              <CustomSelect
+                className="mt-[0] sm:mt-[0]"
+                className2="mt-[0] sm:mt-[0]"
+                menuPlacement="top"
+                value={pageSize}
+                options={pageNumbers()}
+                onChange={(option) => handleItemsPerPage(option.value)}
+              />
+            </div>
+            <CustomPagination
+              pageNumber={pageNumber}
+              setPageNumber={setPageNumber}
+              itemsPerPage={pageSize.value}
+              totalItems={totalCount}
+              handlePageChange={handlePageChange}
             />
           </div>
-          <CustomPagination
-            pageNumber={pageNumber}
-            setPageNumber={setPageNumber}
-            itemsPerPage={pageSize.value}
-            totalItems={totalCount}
-            handlePageChange={handlePageChange}
-          />
-        </div>
-      )}
+        )}
     </section>
   );
 };
+
+// =================== CALL CARD ===================
+const WaiterCallCard = ({ call, t, onResolve, getTimeAgo }) => {
+  const resolved = !!call.isResolved;
+  return (
+    <div
+      className={`group flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl border transition-all ${
+        resolved
+          ? "border-[--border-1] bg-[--white-2] opacity-70"
+          : "border-[--border-1] bg-[--white-1] hover:border-indigo-300 hover:shadow-sm"
+      }`}
+    >
+      {/* TABLE BADGE */}
+      <div
+        className={`flex items-center gap-2 sm:flex-col sm:gap-0.5 sm:size-20 sm:justify-center px-3 sm:px-2 py-2 sm:py-0 rounded-lg shrink-0 transition-colors ${
+          resolved
+            ? "bg-[--white-2] text-[--gr-1] ring-1 ring-[--border-1]"
+            : "text-white shadow-md shadow-indigo-500/25"
+        }`}
+        style={!resolved ? { background: PRIMARY_GRADIENT } : undefined}
+      >
+        <Hash className="size-3.5 sm:size-3 sm:opacity-80" />
+        <span className="text-[10px] font-bold uppercase tracking-wider sm:opacity-90">
+          {t("waiterCalls.table")}
+        </span>
+        <span className="text-base sm:text-lg font-bold leading-none break-all text-center">
+          {call.tableNumber}
+        </span>
+      </div>
+
+      {/* CONTENT */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="text-sm font-semibold text-[--black-1] truncate">
+            {call.restaurantName}
+          </h3>
+          {!resolved && (
+            <span className="relative flex size-2 shrink-0">
+              <span className="absolute inset-0 rounded-full bg-rose-500 animate-ping opacity-75" />
+              <span className="relative size-2 rounded-full bg-rose-500" />
+            </span>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[--gr-1]">
+          <div className="inline-flex items-center gap-1">
+            <Clock className="size-3" />
+            <span className="tabular-nums">
+              {formatDateString({
+                dateString: call.createdDateTime,
+                letDay: true,
+                letMonth: true,
+                letYear: true,
+                hour: true,
+                min: true,
+              })}
+            </span>
+          </div>
+          <span className="inline-flex items-center text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 dark:bg-indigo-500/20 dark:text-indigo-200 dark:ring-indigo-400/20">
+            {getTimeAgo(call.createdDateTime)}
+          </span>
+          <div className="inline-flex items-center gap-1">
+            <Utensils className="size-3" />
+            <span>{t("waiterCalls.dine_in")}</span>
+          </div>
+        </div>
+
+        {call.note && (
+          <div className="mt-2 flex items-start gap-2 p-2 rounded-md bg-[--status-yellow] border border-[--yellow-1]/40">
+            <MessageSquare className="size-3.5 text-[--yellow-1] shrink-0 mt-0.5" />
+            <p className="text-[11px] text-[--black-2] italic leading-snug">
+              "{call.note}"
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* ACTIONS */}
+      <div className="shrink-0 self-end sm:self-center">
+        {!resolved ? (
+          <button
+            type="button"
+            onClick={onResolve}
+            className="inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg text-white text-xs font-semibold shadow-md shadow-indigo-500/25 hover:brightness-110 active:brightness-95 transition"
+            style={{ background: PRIMARY_GRADIENT }}
+          >
+            <CheckCircle2 className="size-4" strokeWidth={2.5} />
+            {t("waiterCalls.resolve_call")}
+          </button>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-[11px] font-bold uppercase tracking-wide bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-200 dark:ring-emerald-400/30">
+            <CheckCircle2 className="size-3.5" />
+            {t("waiterCalls.resolved")}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// =================== EMPTY STATE ===================
+const EmptyState = ({ t }) => (
+  <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2] p-8 sm:p-12 grid place-items-center text-center">
+    <span className="grid place-items-center size-14 rounded-2xl bg-indigo-50 text-indigo-600 mb-4 dark:bg-indigo-500/15 dark:text-indigo-300">
+      <Bell className="size-7" strokeWidth={1.5} />
+    </span>
+    <h3 className="text-sm font-semibold text-[--black-1]">
+      {t("waiterCalls.no_active_calls")}
+    </h3>
+    <p className="text-xs text-[--gr-1] mt-1 max-w-sm">
+      {t("waiterCalls.running_smoothly")}
+    </p>
+  </div>
+);
 
 export default WaiterCallsPage;

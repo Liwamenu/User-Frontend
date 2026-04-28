@@ -280,12 +280,12 @@ const SubCategories = ({ data: restaurant }) => {
     : 0;
 
   return (
-    <div className="w-full pb-8 mt-1 text-slate-900">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
         <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
 
         {/* HERO HEADER */}
-        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
           <span
             className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
             style={{ background: PRIMARY_GRADIENT }}
@@ -293,10 +293,10 @@ const SubCategories = ({ data: restaurant }) => {
             <FolderTree className="size-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
               {t("editSubCategories.title", { name: restaurant?.name || "" })}
             </h1>
-            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
               {subCategoriesData
                 ? t("editSubCategories.summary", {
                     groups: subCategoriesData.length,
@@ -339,18 +339,18 @@ const SubCategories = ({ data: restaurant }) => {
           )}
 
           {!subCategoriesData ? (
-            <div className="grid place-items-center py-10 text-slate-400">
+            <div className="grid place-items-center py-10 text-[--gr-2]">
               <Loader2 className="size-5 animate-spin" />
             </div>
           ) : subCategoriesData.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-8 grid place-items-center text-center">
+            <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/60 p-8 grid place-items-center text-center">
               <span className="grid place-items-center size-12 rounded-xl bg-indigo-50 text-indigo-600 mb-3">
                 <FolderTree className="size-6" />
               </span>
-              <h3 className="text-sm font-semibold text-slate-900">
+              <h3 className="text-sm font-semibold text-[--black-1]">
                 {t("editSubCategories.no_subcategories")}
               </h3>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm">
+              <p className="text-xs text-[--gr-1] mt-1 max-w-sm">
                 {t("editSubCategories.no_subcategories_info")}
               </p>
             </div>
@@ -360,14 +360,14 @@ const SubCategories = ({ data: restaurant }) => {
                 {subCategoriesData.map((group) => (
                   <div
                     key={group.category.id}
-                    className="rounded-xl border border-slate-200 bg-white overflow-hidden"
+                    className="rounded-xl border border-[--border-1] bg-[--white-1] overflow-hidden"
                   >
                     {/* Group header */}
-                    <div className="flex items-center gap-2.5 px-3 py-2 bg-slate-50/80 border-b border-slate-100">
+                    <div className="flex items-center gap-2.5 px-3 py-2 bg-[--white-2]/80 border-b border-[--border-1]">
                       <span className="grid place-items-center size-7 rounded-md bg-indigo-50 text-indigo-600 shrink-0">
                         <Layers className="size-3.5" />
                       </span>
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 truncate flex-1 min-w-0">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-[--black-2] truncate flex-1 min-w-0">
                         {group.category.name}
                       </h3>
                       <span className="inline-flex items-center text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 shrink-0">
@@ -387,7 +387,7 @@ const SubCategories = ({ data: restaurant }) => {
                           }`}
                         >
                           {group.subCategories.length === 0 ? (
-                            <div className="text-[11px] text-slate-400 italic text-center py-4">
+                            <div className="text-[11px] text-[--gr-2] italic text-center py-4">
                               {t(
                                 "editSubCategories.no_subcategories_in_category",
                               )}
@@ -403,21 +403,21 @@ const SubCategories = ({ data: restaurant }) => {
                                   <div
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
-                                    className={`flex items-center gap-3 p-2.5 rounded-lg border bg-white transition ${
+                                    className={`flex items-center gap-3 p-2.5 rounded-lg border bg-[--white-1] transition ${
                                       snapshot.isDragging
                                         ? "border-indigo-400 ring-2 ring-indigo-200 shadow-lg"
-                                        : "border-slate-200 hover:border-indigo-200 hover:shadow-sm"
+                                        : "border-[--border-1] hover:border-indigo-200 hover:shadow-sm"
                                     }`}
                                   >
                                     <button
                                       type="button"
                                       {...provided.dragHandleProps}
                                       aria-label="drag"
-                                      className="grid place-items-center size-7 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition cursor-grab active:cursor-grabbing shrink-0"
+                                      className="grid place-items-center size-7 rounded-md text-[--gr-2] hover:text-indigo-600 hover:bg-[--white-2] transition cursor-grab active:cursor-grabbing shrink-0"
                                     >
                                       <GripVertical className="size-4" />
                                     </button>
-                                    <div className="size-11 sm:size-12 rounded-lg ring-1 ring-slate-200 bg-slate-50 grid place-items-center overflow-hidden shrink-0">
+                                    <div className="size-11 sm:size-12 rounded-lg ring-1 ring-[--border-1] bg-[--white-2] grid place-items-center overflow-hidden shrink-0">
                                       <img
                                         src={
                                           subCat.imageAbsoluteUrl || fallbackImg
@@ -428,7 +428,7 @@ const SubCategories = ({ data: restaurant }) => {
                                       />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                      <div className="text-sm font-semibold text-slate-900 truncate">
+                                      <div className="text-sm font-semibold text-[--black-1] truncate">
                                         {subCat.name}
                                       </div>
                                       <div className="mt-0.5 flex flex-wrap items-center gap-1">
@@ -441,7 +441,7 @@ const SubCategories = ({ data: restaurant }) => {
                                             "editCategories.status_closed",
                                           )}
                                         />
-                                        <span className="text-[10px] font-medium text-slate-600 bg-slate-50 ring-1 ring-slate-200 px-1.5 py-0.5 rounded-md">
+                                        <span className="text-[10px] font-medium text-[--gr-1] bg-[--white-2] ring-1 ring-[--border-1] px-1.5 py-0.5 rounded-md">
                                           {t("editCategories.product_count", {
                                             count: subCat.productsCount || 0,
                                           })}
@@ -506,7 +506,7 @@ const StatusBadge = ({ active, labelOn, labelOff }) => (
     className={`inline-flex items-center text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md ${
       active
         ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
-        : "bg-slate-100 text-slate-500 ring-1 ring-slate-200"
+        : "bg-[--white-2] text-[--gr-1] ring-1 ring-[--border-1]"
     }`}
   >
     {active ? labelOn : labelOff}

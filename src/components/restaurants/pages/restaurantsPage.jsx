@@ -178,7 +178,7 @@ const RestaurantsPage = () => {
   const hasActiveSearchOrFilter = searchVal || activeFilterCount > 0;
 
   return (
-    <section className="lg:ml-[280px] pt-16 px-4 sm:px-6 lg:px-8 pb-8 min-h-[100dvh] section_row">
+    <section className="lg:ml-[280px] pt-16 px-4 sm:px-6 lg:px-8 pb-8 min-h-[100dvh] flex flex-col section_row">
       {/* HEADER */}
       <header className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pt-4 pb-6">
         <div>
@@ -337,11 +337,14 @@ const RestaurantsPage = () => {
         />
       ) : null}
 
-      {/* PAGINATION */}
+      {/* PAGINATION — pinned to the bottom of the page via mt-auto so it
+          sits at the section's footer regardless of how many cards render.
+          Hidden when only one page exists. */}
       {restaurantsData &&
         restaurantsData.length > 0 &&
-        typeof totalItems === "number" && (
-          <div className="w-full flex justify-center pt-6 text-[--black-2]">
+        typeof totalItems === "number" &&
+        totalItems > Number(itemsPerPage) && (
+          <div className="w-full flex justify-center pt-6 mt-auto text-[--black-2]">
             <CustomPagination
               pageNumber={pageNumber}
               setPageNumber={setPageNumber}

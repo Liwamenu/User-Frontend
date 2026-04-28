@@ -15,12 +15,14 @@ import {
   Check,
   Compass,
   Search,
+  Upload,
 } from "lucide-react";
 
 //COMP
 import { googleMap, toNameCase } from "../../utils/utils";
-import CustomFileInput from "../common/customFileInput";
 import CustomPhoneInput from "../common/customPhoneInput";
+import EditImageFile from "../common/editImageFile";
+import { usePopup } from "../../context/PopupContext";
 
 //REDUX
 import {
@@ -294,24 +296,24 @@ const EditRestaurant = ({ data: restaurant }) => {
   }, [document, document2]);
 
   const inputCls =
-    "w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
+    "w-full h-10 px-3 rounded-lg border border-[--border-1] bg-[--white-1] text-[--black-1] placeholder:text-[--gr-2] text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
   const labelCls =
-    "block text-[11px] font-semibold text-slate-600 mb-1 tracking-wide";
+    "block text-[11px] font-semibold text-[--gr-1] mb-1 tracking-wide";
 
   const SectionHeader = ({ icon: Icon, label }) => (
     <header className="flex items-center gap-1.5 mb-2.5">
       <Icon className="size-3.5 text-indigo-600" />
-      <h2 className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.12em]">
+      <h2 className="text-[11px] font-bold text-[--gr-1] uppercase tracking-[0.12em]">
         {label}
       </h2>
     </header>
   );
 
   return (
-    <div className="w-full pb-8 mt-1 text-slate-900">
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
       {/* MAP MODAL */}
       <div
-        className={`fixed bg-white border border-slate-200 w-[calc(100%-2rem)] top-0 bottom-0 right-0 left-0 max-w-2xl max-h-[80dvh] m-auto z-[999] rounded-2xl flex flex-col justify-start items-center shadow-2xl overflow-hidden ${
+        className={`fixed bg-[--white-1] border border-[--border-1] w-[calc(100%-2rem)] top-0 bottom-0 right-0 left-0 max-w-2xl max-h-[80dvh] m-auto z-[999] rounded-2xl flex flex-col justify-start items-center shadow-2xl overflow-hidden ${
           !isMapOpen && "hidden"
         }`}
       >
@@ -319,33 +321,33 @@ const EditRestaurant = ({ data: restaurant }) => {
         <div className="relative w-full flex-1 min-h-0">
           <div id="map" className="absolute inset-0 w-full h-full" />
           <div className="absolute top-3 left-[calc(50%+60px)] -translate-x-1/2 z-10 w-[min(320px,calc(100%-9rem))]">
-            <div className="flex items-center gap-2 h-11 px-3 rounded-xl bg-white shadow-lg ring-1 ring-black/10">
-              <Search className="size-4 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-2 h-11 px-3 rounded-xl bg-[--white-1] shadow-lg ring-1 ring-black/10">
+              <Search className="size-4 text-[--gr-2] shrink-0" />
               <input
                 ref={mapSearchInputRef}
                 type="text"
                 placeholder={t("restaurants.map_search_placeholder")}
-                className="flex-1 min-w-0 h-full bg-transparent outline-none text-sm text-slate-900 placeholder:text-slate-400"
+                className="flex-1 min-w-0 h-full bg-transparent outline-none text-sm text-[--black-1] placeholder:text-[--gr-2]"
               />
             </div>
           </div>
         </div>
 
-        <div className="w-full px-3 py-2.5 flex items-center gap-3 border-t border-slate-200 bg-white">
+        <div className="w-full px-3 py-2.5 flex items-center gap-3 border-t border-[--border-1] bg-[--white-1]">
           <div className="flex flex-1 gap-3 min-w-0">
             <div className="flex-1 min-w-0">
-              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">
+              <span className="text-[10px] font-semibold text-[--gr-1] uppercase tracking-wide">
                 {t("restaurants.latitude")}
               </span>
-              <p className="rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-900 font-medium truncate">
+              <p className="rounded-md border border-[--border-1] px-2 py-1 text-sm text-[--black-1] font-medium truncate">
                 {lat}
               </p>
             </div>
             <div className="flex-1 min-w-0">
-              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">
+              <span className="text-[10px] font-semibold text-[--gr-1] uppercase tracking-wide">
                 {t("restaurants.longitude")}
               </span>
-              <p className="rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-900 font-medium truncate">
+              <p className="rounded-md border border-[--border-1] px-2 py-1 text-sm text-[--black-1] font-medium truncate">
                 {lng}
               </p>
             </div>
@@ -354,7 +356,7 @@ const EditRestaurant = ({ data: restaurant }) => {
           <div className="flex gap-2 shrink-0">
             <button
               type="button"
-              className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition"
+              className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg bg-[--white-1] text-[--black-2] border border-[--border-1] hover:bg-[--white-2] transition"
               onClick={() => setIsMapOpen(false)}
             >
               <X className="size-4" />
@@ -379,7 +381,7 @@ const EditRestaurant = ({ data: restaurant }) => {
       </div>
 
       {/* CARD */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
         {/* Slim gradient accent strip */}
         <div
           className="h-0.5"
@@ -389,7 +391,7 @@ const EditRestaurant = ({ data: restaurant }) => {
           }}
         />
         {/* HERO HEADER — slim & elegant */}
-        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
           <span
             className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
             style={{
@@ -401,7 +403,7 @@ const EditRestaurant = ({ data: restaurant }) => {
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+              <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
                 {restaurantData?.name || t("restaurants.name")}
               </h1>
               {restaurantData?.isActive && (
@@ -410,7 +412,7 @@ const EditRestaurant = ({ data: restaurant }) => {
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
               {[restaurantData?.city, restaurantData?.district]
                 .filter(Boolean)
                 .join(" / ") || "—"}
@@ -455,7 +457,7 @@ const EditRestaurant = ({ data: restaurant }) => {
                     <CustomPhoneInput
                       required
                       placeholder={t("restaurants.phone")}
-                      className="!h-10 !rounded-lg !border-slate-200 !text-sm !bg-white"
+                      className="!h-10 !rounded-lg !border-[--border-1] !text-sm !bg-[--white-1]"
                       value={restaurantData.phoneNumber}
                       onChange={(phone) =>
                         setRestaurantData((prev) => ({
@@ -561,17 +563,17 @@ const EditRestaurant = ({ data: restaurant }) => {
                 <button
                   type="button"
                   onClick={handleOpenMap}
-                  className="w-full flex items-center gap-3 p-2.5 rounded-lg border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-indigo-300 hover:shadow-sm transition text-left group"
+                  className="w-full flex items-center gap-3 p-2.5 rounded-lg border border-[--border-1] bg-[--white-2]/60 hover:bg-[--white-1] hover:border-indigo-300 hover:shadow-sm transition text-left group"
                 >
-                  <div className="grid place-items-center size-9 rounded-lg bg-white border border-slate-200 shrink-0 group-hover:border-indigo-200 group-hover:bg-indigo-50 transition">
+                  <div className="grid place-items-center size-9 rounded-lg bg-[--white-1] border border-[--border-1] shrink-0 group-hover:border-indigo-200 group-hover:bg-indigo-50 transition">
                     <Map className="size-4 text-indigo-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">
+                    <div className="text-[10px] font-semibold text-[--gr-1] uppercase tracking-wide">
                       {t("restaurants.latitude")} ·{" "}
                       {t("restaurants.longitude")}
                     </div>
-                    <div className="text-sm font-medium text-slate-900 truncate font-mono">
+                    <div className="text-sm font-medium text-[--black-1] truncate font-mono">
                       {restaurantData.latitude || "—"},{" "}
                       {restaurantData.longitude || "—"}
                     </div>
@@ -582,31 +584,31 @@ const EditRestaurant = ({ data: restaurant }) => {
                 </button>
               </div>
 
-              {/* GÖRSELLER — kompakt yan yana */}
+              {/* GÖRSELLER — kompakt yan yana, sol: arka plan / sağ: logo */}
               <div>
                 <SectionHeader
                   icon={ImageIcon}
-                  label={t("restaurants.logo_msg")}
+                  label={t("restaurants.image_main")}
                 />
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <ImageField
-                    label={t("restaurants.logo_msg")}
+                    label={t("restaurants.background_label")}
+                    hint={t("restaurants.background_hint")}
                     preview={preview2}
-                    document={document2}
                     onChange={setDocument2}
-                    contain
                   />
                   <ImageField
-                    label={t("restaurants.file-info")}
+                    label={t("restaurants.logo_label")}
+                    hint={t("restaurants.logo_hint")}
                     preview={preview}
-                    document={document}
                     onChange={setDocument}
+                    contain
                   />
                 </div>
               </div>
 
               {/* SUBMIT */}
-              <div className="flex justify-end pt-3 border-t border-slate-100">
+              <div className="flex justify-end pt-3 border-t border-[--border-1]">
                 <button
                   type="submit"
                   disabled={loading}
@@ -630,33 +632,154 @@ const EditRestaurant = ({ data: restaurant }) => {
   );
 };
 
-const ImageField = ({ label, preview, document: doc, onChange, contain }) => (
-  <div>
-    <span className="block text-[11px] font-semibold text-slate-600 mb-1 tracking-wide">
-      {label}
-    </span>
-    <div className="flex gap-3 items-stretch">
-      <div className="w-20 sm:w-24 aspect-square rounded-lg bg-slate-50 ring-1 ring-slate-200 grid place-items-center overflow-hidden shrink-0">
+const ImageField = ({ label, hint, preview, onChange, contain }) => {
+  const { t } = useTranslation();
+  const { setCropImgPopup, setPopupContent } = usePopup();
+  const inputRef = useRef(null);
+  const maxFileSizeMB = import.meta.env.VITE_MAX_FILE_SIZE_MB || 5;
+
+  const handlePick = (e) => {
+    const file = e.target.files?.[0];
+    if (inputRef.current) inputRef.current.value = "";
+    if (!file) return;
+
+    const allowedTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/gif",
+      "image/webp",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Geçersiz dosya türü");
+      return;
+    }
+    if (file.size > maxFileSizeMB * 1024 * 1024) {
+      toast.error(`Maks. dosya boyutu: ${maxFileSizeMB} MB`);
+      return;
+    }
+
+    setCropImgPopup(<EditImageFile file={file} onSave={onChange} />);
+  };
+
+  const openLightbox = () => {
+    if (!preview) return;
+    setPopupContent(
+      <ImageLightbox
+        src={preview}
+        title={label}
+        onClose={() => setPopupContent(null)}
+      />,
+    );
+  };
+
+  const hasImage = !!preview;
+
+  return (
+    <div className="flex items-center gap-2.5 p-2 rounded-xl border border-[--border-1] bg-[--white-1] hover:border-indigo-200 transition">
+      <button
+        type="button"
+        onClick={openLightbox}
+        disabled={!hasImage}
+        className={`size-14 rounded-lg bg-[--white-2] ring-1 ring-[--border-1] grid place-items-center overflow-hidden shrink-0 relative group ${
+          hasImage
+            ? "cursor-zoom-in hover:ring-indigo-300 transition"
+            : "cursor-default"
+        }`}
+        aria-label={hasImage ? t("restaurants.image_view") : undefined}
+        title={hasImage ? t("restaurants.image_view") : undefined}
+      >
         {preview ? (
-          <img
-            src={preview}
-            alt="preview"
-            className={`size-full ${contain ? "object-contain" : "object-cover"}`}
-          />
+          <>
+            <img
+              src={preview}
+              alt="preview"
+              className={`size-full ${contain ? "object-contain" : "object-cover"}`}
+            />
+            <span className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/40 transition-colors grid place-items-center">
+              <Search className="size-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+            </span>
+          </>
         ) : (
-          <ImageIcon className="size-7 text-slate-300" />
+          <ImageIcon className="size-6 text-[--gr-3]" />
         )}
-      </div>
+      </button>
       <div className="flex-1 min-w-0">
-        <CustomFileInput
-          msg={label}
-          value={doc}
-          onChange={onChange}
-          accept={"image/png, image/jpeg, image/gif, image/webp"}
+        <p className="text-[12px] font-semibold text-[--black-1] truncate leading-tight">
+          {label}
+        </p>
+        <p className="text-[10px] text-[--gr-1] leading-snug mt-0.5 line-clamp-2">
+          {hint}
+        </p>
+      </div>
+      <label
+        className="inline-flex items-center gap-1 h-8 px-2.5 rounded-md text-[11px] font-semibold text-white cursor-pointer transition shadow-sm shrink-0 hover:brightness-110"
+        style={{
+          background:
+            "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)",
+        }}
+      >
+        <Upload className="size-3" strokeWidth={2.5} />
+        {hasImage
+          ? t("restaurants.image_change_btn")
+          : t("restaurants.image_upload_btn")}
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/png, image/jpeg, image/gif, image/webp"
+          onChange={handlePick}
+          className="hidden"
+        />
+      </label>
+    </div>
+  );
+};
+
+const ImageLightbox = ({ src, title, onClose }) => {
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div className="relative">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-[--border-1] bg-[--white-1] rounded-t-xl">
+        <h3 className="text-sm font-semibold text-[--black-1] truncate">
+          {title}
+        </h3>
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition shrink-0"
+          aria-label={t("restaurants.close") || "Kapat"}
+        >
+          <X className="size-4" strokeWidth={2.5} />
+          {t("restaurants.close") || "Kapat"}
+        </button>
+      </div>
+
+      {/* Image area with floating close button */}
+      <div className="relative grid place-items-center bg-slate-900/95 p-4 sm:p-6 min-h-[50vh] rounded-b-xl">
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-3 right-3 z-10 grid place-items-center size-10 rounded-full bg-[--white-1]/95 text-[--black-1] hover:bg-[--white-1] hover:scale-105 transition shadow-xl ring-1 ring-black/10"
+          aria-label={t("restaurants.close") || "Kapat"}
+          title={t("restaurants.close") || "Kapat"}
+        >
+          <X className="size-5" strokeWidth={2.5} />
+        </button>
+        <img
+          src={src}
+          alt={title}
+          className="block max-w-full max-h-[80vh] rounded-md shadow-2xl"
         />
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default EditRestaurant;

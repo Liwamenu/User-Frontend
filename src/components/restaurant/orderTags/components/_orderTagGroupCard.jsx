@@ -143,19 +143,19 @@ const OrderTagGroupCard = ({
     ? "border-rose-300 ring-1 ring-rose-100"
     : hasNoRelations && !group.isNew
       ? "border-rose-300 bg-rose-50/30"
-      : "border-slate-200";
+      : "border-[--border-1]";
 
   return (
     <form onSubmit={handleUpdateItem}>
       <div
-        className={`rounded-xl border bg-white transition-all ${borderTone} ${
+        className={`rounded-xl border bg-[--white-1] transition-all ${borderTone} ${
           isDragging ? "ring-2 ring-indigo-200 shadow-lg" : ""
         }`}
       >
         {/* HEADER */}
         <div
           className={`p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 ${
-            !isCollapsed ? "border-b border-slate-100" : ""
+            !isCollapsed ? "border-b border-[--border-1]" : ""
           }`}
         >
           {/* Top row: drag handle + name input + actions (mobile collapsed) */}
@@ -164,7 +164,7 @@ const OrderTagGroupCard = ({
               type="button"
               {...dragHandleProps}
               aria-label="drag"
-              className="grid place-items-center size-7 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition cursor-grab active:cursor-grabbing shrink-0"
+              className="grid place-items-center size-7 rounded-md text-[--gr-2] hover:text-indigo-600 hover:bg-[--white-2] transition cursor-grab active:cursor-grabbing shrink-0"
             >
               <GripVertical className="size-4" />
             </button>
@@ -176,7 +176,7 @@ const OrderTagGroupCard = ({
                 onUpdate({ name: e.target.value, isDirty: true })
               }
               placeholder={t("orderTags.group_name_placeholder")}
-              className="flex-1 min-w-0 h-9 px-3 rounded-lg border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-sm font-semibold outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+              className="flex-1 min-w-0 h-9 px-3 rounded-lg border border-[--border-1] bg-[--white-1] text-[--black-1] placeholder:text-[--gr-2] text-sm font-semibold outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
             />
 
             {/* Mobile-only quick actions (collapse + delete) */}
@@ -223,8 +223,8 @@ const OrderTagGroupCard = ({
 
           {/* Min/Max + Free Tagging + Save + (desktop) actions */}
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-            <div className="inline-flex items-center gap-1 h-9 px-2 rounded-lg border border-slate-200 bg-slate-50/60">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            <div className="inline-flex items-center gap-1 h-9 px-2 rounded-lg border border-[--border-1] bg-[--white-2]/60">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1]">
                 {t("orderTags.min")}
               </span>
               <input
@@ -237,10 +237,10 @@ const OrderTagGroupCard = ({
                     isDirty: true,
                   })
                 }
-                className="w-10 text-center text-sm font-bold text-slate-900 bg-transparent outline-none"
+                className="w-10 text-center text-sm font-bold text-[--black-1] bg-transparent outline-none"
               />
-              <span className="text-slate-300">|</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-[--gr-3]">|</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1]">
                 {t("orderTags.max")}
               </span>
               <input
@@ -253,11 +253,11 @@ const OrderTagGroupCard = ({
                     isDirty: true,
                   })
                 }
-                className="w-10 text-center text-sm font-bold text-slate-900 bg-transparent outline-none"
+                className="w-10 text-center text-sm font-bold text-[--black-1] bg-transparent outline-none"
               />
             </div>
 
-            <label className="inline-flex items-center gap-1.5 h-9 px-2.5 rounded-lg border border-slate-200 bg-slate-50/60 cursor-pointer">
+            <label className="inline-flex items-center gap-1.5 h-9 px-2.5 rounded-lg border border-[--border-1] bg-[--white-2]/60 cursor-pointer">
               <CustomCheckbox
                 id={`ft-${group.id}`}
                 label=""
@@ -267,7 +267,7 @@ const OrderTagGroupCard = ({
                 }
                 size="4 rounded-[4px]"
               />
-              <span className="text-[11px] font-semibold text-slate-600 whitespace-nowrap">
+              <span className="text-[11px] font-semibold text-[--gr-1] whitespace-nowrap">
                 {t("orderTags.free_tagging")}
               </span>
             </label>
@@ -329,7 +329,7 @@ const OrderTagGroupCard = ({
         {!isCollapsed && (
           <div>
             {/* Tabs */}
-            <div className="flex gap-0.5 px-2 sm:px-3 pt-2 border-b border-slate-100 overflow-x-auto">
+            <div className="flex gap-0.5 px-2 sm:px-3 pt-2 border-b border-[--border-1] overflow-x-auto">
               <TabButton
                 active={activeTab === "options"}
                 onClick={() => setActiveTab("options")}
@@ -360,7 +360,7 @@ const OrderTagGroupCard = ({
                   </div>
 
                   {/* Desktop column header */}
-                  <div className="hidden md:grid grid-cols-12 gap-2 px-3 text-[10px] uppercase font-bold tracking-wider text-slate-500">
+                  <div className="hidden md:grid grid-cols-12 gap-2 px-3 text-[10px] uppercase font-bold tracking-wider text-[--gr-1]">
                     <div className="col-span-1" />
                     <div className="col-span-3">
                       {t("orderTags.col_option_name")}
@@ -419,7 +419,7 @@ const OrderTagGroupCard = ({
 
                   {group.freeTagging && (
                     <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 flex items-start gap-2.5">
-                      <span className="grid place-items-center size-7 rounded-lg bg-white text-amber-600 ring-1 ring-amber-200 shrink-0">
+                      <span className="grid place-items-center size-7 rounded-lg bg-[--white-1] text-amber-600 ring-1 ring-amber-200 shrink-0">
                         <Lightbulb className="size-3.5" />
                       </span>
                       <div className="min-w-0">
@@ -447,7 +447,7 @@ const OrderTagGroupCard = ({
                   </div>
 
                   {/* Desktop column header */}
-                  <div className="hidden md:grid grid-cols-12 gap-2 px-3 text-[10px] uppercase font-bold tracking-wider text-slate-500">
+                  <div className="hidden md:grid grid-cols-12 gap-2 px-3 text-[10px] uppercase font-bold tracking-wider text-[--gr-1]">
                     <div className="col-span-1" />
                     <div className="col-span-3">
                       {t("orderTags.col_category")}
@@ -476,7 +476,7 @@ const OrderTagGroupCard = ({
 
                   {group.relations.length === 0 && (
                     <div className="rounded-xl border-2 border-dashed border-rose-200 bg-rose-50/40 p-4 flex items-start gap-2.5">
-                      <span className="grid place-items-center size-7 rounded-lg bg-white text-rose-600 ring-1 ring-rose-200 shrink-0">
+                      <span className="grid place-items-center size-7 rounded-lg bg-[--white-1] text-rose-600 ring-1 ring-rose-200 shrink-0">
                         <AlertTriangle className="size-3.5" />
                       </span>
                       <p className="text-[11px] text-rose-800 leading-relaxed flex-1 min-w-0">
@@ -506,7 +506,7 @@ const TabButton = ({ active, onClick, icon: Icon, label, tone = "indigo" }) => {
       className={`relative inline-flex items-center gap-1.5 px-3 py-2 rounded-t-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition border-b-2 ${
         active
           ? activeCls
-          : "text-slate-500 border-transparent hover:text-slate-700 hover:bg-slate-50"
+          : "text-[--gr-1] border-transparent hover:text-[--black-2] hover:bg-[--white-2]"
       }`}
     >
       <Icon className="size-4" />

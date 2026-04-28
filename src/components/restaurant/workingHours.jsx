@@ -170,12 +170,12 @@ const WorkingHours = ({ data }) => {
   const closedDayCount = workingHoursData.length - openDayCount;
 
   return (
-    <div className="w-full pb-8 mt-1 text-slate-900">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
         <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
 
         {/* HERO HEADER */}
-        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
           <span
             className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
             style={{ background: PRIMARY_GRADIENT }}
@@ -183,10 +183,10 @@ const WorkingHours = ({ data }) => {
             <Clock className="size-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
               {t("workingHours.title", { name: data?.name || "" })}
             </h1>
-            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
               {workingHoursData.length > 0
                 ? t("workingHours.open_count", {
                     count: openDayCount,
@@ -214,8 +214,8 @@ const WorkingHours = ({ data }) => {
                     key={day}
                     className={`group flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 rounded-xl border transition-all ${
                       isOpen
-                        ? "border-indigo-200 bg-white ring-1 ring-indigo-50 shadow-sm"
-                        : "border-slate-200 bg-slate-50/40"
+                        ? "border-indigo-200 bg-[--white-1] ring-1 ring-indigo-50 shadow-sm"
+                        : "border-[--border-1] bg-[--white-2]/40"
                     }`}
                   >
                     {/* Header row: badge + label + toggle (toggle moves right on mobile) */}
@@ -224,7 +224,7 @@ const WorkingHours = ({ data }) => {
                         className={`grid place-items-center size-9 rounded-lg shrink-0 text-[10px] font-bold uppercase tracking-wider transition-colors ${
                           isOpen
                             ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/25"
-                            : "bg-slate-100 text-slate-500"
+                            : "bg-[--white-2] text-[--gr-1]"
                         }`}
                       >
                         {short}
@@ -233,13 +233,13 @@ const WorkingHours = ({ data }) => {
                         <div
                           className={`text-sm truncate transition-colors ${
                             isOpen
-                              ? "font-semibold text-slate-900"
-                              : "font-medium text-slate-700"
+                              ? "font-semibold text-[--black-1]"
+                              : "font-medium text-[--black-2]"
                           }`}
                         >
                           {label}
                         </div>
-                        <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+                        <div className="text-[10px] text-[--gr-2] font-medium uppercase tracking-wider">
                           {isOpen
                             ? t("workingHours.open")
                             : t("workingHours.closed")}
@@ -279,7 +279,7 @@ const WorkingHours = ({ data }) => {
                         className2="!mt-0 !w-full sm:!w-[6.5rem]"
                         onChange={(v) => setDay(day, { Open: v })}
                       />
-                      <span className="text-slate-400 text-xs font-medium">
+                      <span className="text-[--gr-2] text-xs font-medium">
                         –
                       </span>
                       <CustomDatePicker
@@ -299,8 +299,8 @@ const WorkingHours = ({ data }) => {
           </div>
 
           {/* SUBMIT */}
-          <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+          <div className="flex items-center justify-between gap-3 pt-3 border-t border-[--border-1]">
+            <span className="text-[11px] font-semibold text-[--gr-1] uppercase tracking-wide">
               {workingHoursData.length > 0
                 ? t("workingHours.open_count", {
                     count: openDayCount,

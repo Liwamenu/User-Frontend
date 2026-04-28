@@ -1,9 +1,10 @@
-//MODULES
+// MODULES
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import QRCodeStyling from "qr-code-styling";
 import { useTranslation } from "react-i18next";
 import { useState, useRef, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import {
   Download,
   Plus,
@@ -11,27 +12,31 @@ import {
   Palette,
   RefreshCcw,
   LayoutGrid,
+  QrCode,
+  Sliders,
+  Loader2,
+  Trash2,
 } from "lucide-react";
 
-//COMP
-import Badge from "./components/badge";
-import Button from "./components/button";
+// COMP
 import CustomInput from "../../common/customInput";
 import CustomToggle from "../../common/customToggle";
-import { EyeI, ParamsI, QRI } from "../../../assets/icon";
 import { getRestaurant } from "../../../redux/restaurants/getRestaurantSlice";
-import { useParams } from "react-router-dom";
+
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
 
 const QRPage = ({ data: restaurant }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const initalData = {
+
+  const initialData = {
     tableStart: 1,
     tableEnd: 5,
     tablePrefix: "",
     tableSuffix: "",
-    gradientStart: "#9705E6",
-    gradientEnd: "#18A0CD",
+    gradientStart: "#000000",
+    gradientEnd: "#000000",
     logo: null,
     includeLogo: true,
     size: 1024,
@@ -40,36 +45,76 @@ const QRPage = ({ data: restaurant }) => {
   };
 
   const id = useParams()["*"].split("/")[1];
-  const [config, setConfig] = useState(initalData);
+  const [config, setConfig] = useState(initialData);
   const [generatedItems, setGeneratedItems] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const fileInputRef = useRef(null);
   const previewInstance = useRef(null);
+  const previewBoxRef = useRef(null);
   const [defaultQR, setDefaultQR] = useState(null);
 
-  const getTableId = (tableNumber) => {
-    return `${config.tablePrefix || ""}${tableNumber}${config.tableSuffix || ""}`;
-  };
+  const getTableId = (tableNumber) =>
+    `${config.tablePrefix || ""}${tableNumber}${config.tableSuffix || ""}`;
 
   const getTableUrl = (tableNumber) => {
-    if (tableNumber) {
-      return `https://${config.tenant}.liwamenu.com?&tableNumber=${encodeURIComponent(getTableId(tableNumber))}`;
+    if (tableNumber !== undefined && tableNumber !== null) {
+      return `https://${config.tenant}.liwamenu.com?tableNumber=${encodeURIComponent(getTableId(tableNumber))}`;
     }
     return `https://${config.tenant}.liwamenu.com`;
   };
 
-  const getFileSafeTableId = (tableId) => {
-    return tableId.replace(/[^a-zA-Z0-9-_]+/g, "_");
+  // Convert any reasonable label (TR, DE, FR, ES, PL, etc.) into a filename-safe
+  // ASCII string by transliterating known special letters and stripping
+  // combining diacritics. Whitespace and other punctuation collapse to "_".
+  const TRANSLIT_MAP = {
+    // Turkish
+    ı: "i",
+    İ: "I",
+    ş: "s",
+    Ş: "S",
+    ğ: "g",
+    Ğ: "G",
+    ç: "c",
+    Ç: "C",
+    ü: "u",
+    Ü: "U",
+    ö: "o",
+    Ö: "O",
+    // German
+    ä: "a",
+    Ä: "A",
+    ß: "ss",
+    // Polish (chars that don't decompose via NFD)
+    ł: "l",
+    Ł: "L",
+    // Scandinavian
+    æ: "ae",
+    Æ: "AE",
+    ø: "o",
+    Ø: "O",
+    å: "a",
+    Å: "A",
   };
 
-  const initalGenerator = async () => {
-    const generator = new QRCodeStyling({
-      width: 300,
-      height: 300,
+  const getFileSafeTableId = (tableId) => {
+    const str = String(tableId);
+    let out = "";
+    for (const ch of str) out += TRANSLIT_MAP[ch] ?? ch;
+    // Strip remaining accents (é → e, ñ → n, ć → c, …)
+    out = out.normalize("NFD").replace(/\p{M}+/gu, "");
+    // Collapse non-ASCII / unsafe filename chars to underscore
+    return out.replace(/[^a-zA-Z0-9-_]+/g, "_");
+  };
+
+  // Build a QR generator from current config (helper for both preview + batch)
+  const buildGenerator = (overrides = {}) =>
+    new QRCodeStyling({
+      width: 480,
+      height: 480,
       type: "svg",
       data: getTableUrl(),
-      image: config.logo || "",
+      image: config.includeLogo ? config.logo || "" : "",
       imageOptions: {
         crossOrigin: "anonymous",
         margin: 5,
@@ -92,15 +137,16 @@ const QRPage = ({ data: restaurant }) => {
       },
       cornersDotOptions: { type: "dot", color: config.gradientStart },
       backgroundOptions: { color: "#ffffff" },
+      ...overrides,
     });
 
+  const initialGenerator = async () => {
+    const generator = buildGenerator();
     try {
       const blob = await generator.getRawData("png");
-      if (blob) {
-        setDefaultQR(URL.createObjectURL(blob));
-      }
+      if (blob) setDefaultQR(URL.createObjectURL(blob));
     } catch (err) {
-      console.error(`Error generating QR`, err);
+      console.error("Error generating QR", err);
     }
   };
 
@@ -108,77 +154,89 @@ const QRPage = ({ data: restaurant }) => {
     if (!restaurant) return false;
     if (!restaurant?.hasQrLicense) {
       toast.error(t("qrPage.license_missing"), { id: "qr_page" });
-      return false; //testing
+      return false;
     }
     if (!restaurant?.licenseIsActive) {
       toast.error(t("qrPage.license_inactive"), { id: "qr_page" });
-      return false; //testing
+      return false;
     }
     return true;
   }
 
-  // Initialize and clean up preview QR
+  // Initialize default preview + sync tenant
   useEffect(() => {
     if (!checkLicense()) return;
-    initalGenerator();
-    setConfig((prev) => {
-      return {
-        ...prev,
-        restaurantId: restaurant?.id || null,
-        tenant: restaurant?.tenant || "demo",
-      };
-    });
+    initialGenerator();
+    setConfig((prev) => ({
+      ...prev,
+      restaurantId: restaurant?.id || null,
+      tenant: restaurant?.tenant || "demo",
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [restaurant, config.logo]);
 
-  // Sync preview with configuration changes
+  // Live preview that updates with config
   useEffect(() => {
-    if (previewInstance.current) {
-      previewInstance.current.update({
-        data: getTableUrl(),
-        image: config.includeLogo ? config.logo || "" : "",
-        dotsOptions: {
-          gradient: {
-            type: "linear",
-            rotation: 0,
-            colorStops: [
-              { offset: 0, color: config.gradientStart },
-              { offset: 1, color: config.gradientEnd },
-            ],
-          },
-        },
-        cornersSquareOptions: { color: config.gradientStart },
-        cornersDotOptions: { color: config.gradientStart },
-      });
+    if (!previewBoxRef.current) return;
+    if (!previewInstance.current) {
+      previewInstance.current = buildGenerator();
+      previewBoxRef.current.innerHTML = "";
+      previewInstance.current.append(previewBoxRef.current);
+      return;
     }
+    previewInstance.current.update({
+      data: getTableUrl(),
+      image: config.includeLogo ? config.logo || "" : "",
+      dotsOptions: {
+        gradient: {
+          type: "linear",
+          rotation: 0,
+          colorStops: [
+            { offset: 0, color: config.gradientStart },
+            { offset: 1, color: config.gradientEnd },
+          ],
+        },
+      },
+      cornersSquareOptions: { color: config.gradientStart },
+      cornersDotOptions: { color: config.gradientStart },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config]);
 
-  // Handle logo file input
   const handleLogoUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = (event) =>
         setConfig((prev) => ({ ...prev, logo: event.target?.result }));
-      };
       reader.readAsDataURL(file);
     }
   };
 
-  // Cleanup Object URLs to prevent memory leaks
+  const handleClearLogo = (e) => {
+    e?.stopPropagation();
+    setConfig((prev) => ({ ...prev, logo: null }));
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const clearGeneratedItems = () => {
     generatedItems.forEach((item) => URL.revokeObjectURL(item.dataUrl));
     setGeneratedItems([]);
   };
 
-  // Batch generation logic
   const handleGenerateBatch = async () => {
     if (!checkLicense()) return;
     setIsGenerating(true);
     clearGeneratedItems();
 
     const newItems = [];
-    const start = Math.min(config.tableStart, config.tableEnd);
-    const end = Math.max(config.tableStart, config.tableEnd);
+    // Coerce raw string inputs to integers at batch time. Empty/invalid → 1.
+    const startNum = parseInt(config.tableStart, 10);
+    const endNum = parseInt(config.tableEnd, 10);
+    const safeStart = Number.isFinite(startNum) && startNum >= 1 ? startNum : 1;
+    const safeEnd = Number.isFinite(endNum) && endNum >= 1 ? endNum : safeStart;
+    const start = Math.min(safeStart, safeEnd);
+    const end = Math.max(safeStart, safeEnd);
 
     for (let i = start; i <= end; i++) {
       const tableId = getTableId(i);
@@ -244,6 +302,52 @@ const QRPage = ({ data: restaurant }) => {
     document.body.removeChild(link);
   };
 
+  // Generate a high-resolution PNG of the default (tenant root) QR and save it.
+  const downloadDefaultQR = async () => {
+    try {
+      const generator = new QRCodeStyling({
+        width: config.size,
+        height: config.size,
+        data: getTableUrl(),
+        image: config.includeLogo ? config.logo || "" : "",
+        imageOptions: {
+          crossOrigin: "anonymous",
+          margin: 10,
+          hideBackgroundDots: true,
+        },
+        dotsOptions: {
+          type: "extra-rounded",
+          gradient: {
+            type: "linear",
+            rotation: 0,
+            colorStops: [
+              { offset: 0, color: config.gradientStart },
+              { offset: 1, color: config.gradientEnd },
+            ],
+          },
+        },
+        cornersSquareOptions: {
+          type: "extra-rounded",
+          color: config.gradientStart,
+        },
+        cornersDotOptions: { type: "dot", color: config.gradientStart },
+        backgroundOptions: { color: "#ffffff" },
+      });
+      const blob = await generator.getRawData("png");
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `qr-${config.tenant || "default"}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Default QR download error", err);
+    }
+  };
+
   const downloadAll = async () => {
     const JSZip = (await import("jszip")).default;
     const zip = new JSZip();
@@ -269,375 +373,328 @@ const QRPage = ({ data: restaurant }) => {
     URL.revokeObjectURL(link.href);
   };
 
-  //GET RESTAURANT DATA
+  // Refresh restaurant data once
   useEffect(() => {
     dispatch(getRestaurant({ restaurantId: id }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const tableCount = (() => {
+    const s = parseInt(config.tableStart, 10);
+    const e = parseInt(config.tableEnd, 10);
+    if (!Number.isFinite(s) || !Number.isFinite(e)) return 0;
+    return Math.abs(e - s) + 1;
+  })();
+
   return (
-    <div className="min-h-screen bg-[--white-2] py-10 px-4 md:px-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Navigation / Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-[--primary-1] rounded-2xl text-white shadow-xl shadow-[--white-1] transform -rotate-3">
-              <QRI className="size-[2rem]" />
-            </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-black text-[--black-2] tracking-tight">
-                {t("qrPage.header_title")}
-              </h1>
-              <p className="text-[--gr-1] text-sm font-medium">
-                {t("qrPage.header_subtitle")}
-              </p>
-            </div>
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
+        {/* Gradient strip */}
+        <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
+
+        {/* HERO HEADER */}
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
+          <span
+            className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
+            style={{ background: PRIMARY_GRADIENT }}
+          >
+            <QrCode className="size-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
+              {t("qrPage.header_title")}
+            </h1>
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
+              {t("qrPage.header_subtitle")}
+            </p>
           </div>
-          <div className="flex items-center gap-3">
-            <Button
-              variant="secondary"
-              onClick={clearGeneratedItems}
-              className="border-[--border-1]"
-            >
-              <RefreshCcw size={16} className="mr-2" />
-              {t("qrPage.clear_all")}
-            </Button>
-            <Button
-              variant="primary"
+          <div className="flex items-center gap-2 shrink-0">
+            {generatedItems.length > 0 && (
+              <button
+                type="button"
+                onClick={clearGeneratedItems}
+                className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition dark:bg-rose-500/15 dark:text-rose-200 dark:border-rose-400/30"
+              >
+                <RefreshCcw className="size-3.5" />
+                {t("qrPage.clear_all")}
+              </button>
+            )}
+            <button
+              type="button"
               onClick={handleGenerateBatch}
               disabled={isGenerating}
-              className="shadow-lg shadow-[--white-1]"
+              className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg text-white text-xs font-semibold shadow-md shadow-indigo-500/25 hover:brightness-110 active:brightness-95 transition disabled:opacity-60"
+              style={{ background: PRIMARY_GRADIENT }}
             >
               {isGenerating ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-[--border-1] border-t-[--white-1] rounded-full animate-spin mr-2" />
-                  {t("qrPage.processing")}
+                  <Loader2 className="size-3.5 animate-spin" />
+                  <span className="hidden sm:inline">
+                    {t("qrPage.processing")}
+                  </span>
                 </>
               ) : (
                 <>
-                  <Plus size={18} className="mr-2" />
-                  {t("qrPage.generate_batch")}
+                  <Plus className="size-4" />
+                  <span className="hidden sm:inline">
+                    {t("qrPage.generate_batch")}
+                  </span>
                 </>
               )}
-            </Button>
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Controls Panel */}
-          <div className="lg:col-span-4 space-y-6">
-            <main className="bg-[--white-1] rounded-xl border border-[--border-1] shadow-sm overflow-hidden">
-              <div className="p-6 space-y-8 border-none shadow-xl">
-                <div className="flex items-center gap-2 border-b border-[--white-2]">
-                  <ParamsI size={18} className="text-[--primary-1]" />
-                  <h3 className="font-bold text-[--black-2] tracking-tight uppercase text-xs">
-                    {t("qrPage.section_technical")}
-                  </h3>
-                </div>
-
-                <div className="space-y-5">
-                  {/* Tenant */}
-                  {/* <div>
-                    <div className="flex items-center relative">
-                      <div className="absolute left-3 top-[70%] -translate-y-1/2 pointer-events-none z-[999] text-[--gr-1]">
-                        <ArrowRight size={16} />
-                      </div>
-
-                      <CustomInput
-                        value={config?.tenant || "demo"}
-                        label="Liwamenu Tenant"
-                        className="py-[7px] pl-10 mt-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-[--white-1]"
-                        onChange={(v) => setConfig({ ...config, tenant: v })}
-                      />
-                    </div>
-                    <label className="text-xs text-[--gr-1]">
-                      .liwamenu.com (Custom domain prefix)
-                    </label>
-                  </div> */}
-
-                  {/* Range */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <CustomInput
-                      type="number"
-                      value={config?.tableStart}
-                      label={t("qrPage.table_start")}
-                      className="py-[7px] mt-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-[--white-1]"
-                      onChange={(v) =>
-                        setConfig({ ...config, tableStart: parseInt(v) || 1 })
-                      }
-                    />
-
-                    <CustomInput
-                      type="number"
-                      value={config?.tableEnd}
-                      label={t("qrPage.table_end")}
-                      className="py-[7px] mt-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-[--white-1]"
-                      onChange={(v) =>
-                        setConfig({ ...config, tableEnd: parseInt(v) || 1 })
-                      }
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <CustomInput
-                      type="text"
-                      value={config?.tablePrefix}
-                      label={t("qrPage.table_prefix")}
-                      className="py-[7px] mt-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-[--white-1]"
-                      onChange={(v) =>
-                        setConfig({ ...config, tablePrefix: v || "" })
-                      }
-                    />
-
-                    <CustomInput
-                      type="text"
-                      value={config?.tableSuffix}
-                      label={t("qrPage.table_suffix")}
-                      className="py-[7px] mt-2 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-[--white-1]"
-                      onChange={(v) =>
-                        setConfig({ ...config, tableSuffix: v || "" })
-                      }
-                    />
-                  </div>
-                </div>
+        {/* MAIN GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-[22rem_1fr] min-h-[640px]">
+          {/* LEFT — Settings */}
+          <div className="border-b lg:border-b-0 lg:border-r border-[--border-1] flex flex-col">
+            {/* Range section */}
+            <Section
+              icon={Sliders}
+              title={t("qrPage.section_technical")}
+              subtitle={`${tableCount} ${tableCount === 1 ? "QR" : "QR"}`}
+            >
+              <div className="grid grid-cols-2 gap-2.5">
+                <CustomInput
+                  type="text"
+                  value={config.tablePrefix}
+                  label={t("qrPage.table_prefix")}
+                  className="py-[7px] mt-2 text-sm bg-[--white-1]"
+                  onChange={(v) =>
+                    setConfig((c) => ({ ...c, tablePrefix: v || "" }))
+                  }
+                />
+                <CustomInput
+                  type="text"
+                  value={config.tableSuffix}
+                  label={t("qrPage.table_suffix")}
+                  className="py-[7px] mt-2 text-sm bg-[--white-1]"
+                  onChange={(v) =>
+                    setConfig((c) => ({ ...c, tableSuffix: v || "" }))
+                  }
+                />
               </div>
-            </main>
+              <div className="grid grid-cols-2 gap-2.5">
+                <CustomInput
+                  type="number"
+                  value={config.tableStart}
+                  label={t("qrPage.table_start")}
+                  className="py-[7px] mt-2 text-sm bg-[--white-1]"
+                  onChange={(v) =>
+                    setConfig((c) => ({
+                      ...c,
+                      // Keep the raw string so the field can be cleared.
+                      // Numeric coercion happens at batch-generate time.
+                      tableStart: v,
+                    }))
+                  }
+                />
+                <CustomInput
+                  type="number"
+                  value={config.tableEnd}
+                  label={t("qrPage.table_end")}
+                  className="py-[7px] mt-2 text-sm bg-[--white-1]"
+                  onChange={(v) =>
+                    setConfig((c) => ({
+                      ...c,
+                      tableEnd: v,
+                    }))
+                  }
+                />
+              </div>
+            </Section>
 
-            <main className="p-6 space-y-4 border-none bg-[--white-1] rounded-xl border border-[--border-1] shadow-sm overflow-hidden">
-              <div className="flex items-center gap-2 border-b border-[--white-2]">
-                <Palette size={18} className="text-[--primary-1]" />
-                <h3 className="font-bold text-[--black-2] tracking-tight uppercase text-xs">
-                  {t("qrPage.section_visual")}
-                </h3>
+            {/* Visual section */}
+            <Section icon={Palette} title={t("qrPage.section_visual")}>
+              <div className="grid grid-cols-2 gap-2.5">
+                <ColorField
+                  label={t("qrPage.gradient_start")}
+                  value={config.gradientStart}
+                  onChange={(v) =>
+                    setConfig((c) => ({ ...c, gradientStart: v }))
+                  }
+                />
+                <ColorField
+                  label={t("qrPage.gradient_end")}
+                  value={config.gradientEnd}
+                  onChange={(v) => setConfig((c) => ({ ...c, gradientEnd: v }))}
+                />
               </div>
 
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[--gr-2] uppercase tracking-widest">
-                      {t("qrPage.gradient_start")}
-                    </label>
-                    <div className="flex items-center gap-3 bg-[--white-2] p-2 rounded-xl border border-[--border-1]">
-                      <input
-                        type="color"
-                        value={config?.gradientStart}
-                        onChange={(e) =>
-                          setConfig({
-                            ...config,
-                            gradientStart: e.target.value,
-                          })
-                        }
-                        className="w-8 h-8 rounded-lg border-none p-0 bg-transparent cursor-pointer shadow-sm overflow-hidden"
-                      />
-                      <span className="text-[10px] font-mono text-[--gr-1]">
-                        {config.gradientStart}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[--gr-2] uppercase tracking-widest">
-                      {t("qrPage.gradient_end")}
-                    </label>
-                    <div className="flex items-center gap-3 bg-[--white-2] p-2 rounded-xl border border-[--border-1]">
-                      <input
-                        type="color"
-                        value={config?.gradientEnd}
-                        onChange={(e) =>
-                          setConfig({ ...config, gradientEnd: e.target.value })
-                        }
-                        className="w-8 h-8 rounded-lg border-none p-0 bg-transparent cursor-pointer shadow-sm overflow-hidden"
-                      />
-                      <span className="text-[10px] font-mono text-[--gr-1]">
-                        {config.gradientEnd}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+              <div className="flex items-center justify-between p-2.5 bg-[--white-2] rounded-lg border border-[--border-1]">
+                <CustomToggle
+                  label={t("qrPage.display_logo")}
+                  className1="text-[--black-2] text-xs font-semibold"
+                  checked={config.includeLogo}
+                  onChange={() =>
+                    setConfig((c) => ({ ...c, includeLogo: !c.includeLogo }))
+                  }
+                />
+              </div>
 
-                <div className="flex items-center justify-between p-3 bg-[--white-2] rounded-xl border border-[--border-1]">
-                  <CustomToggle
-                    label={t("qrPage.display_logo")}
-                    className1="text-[--gr-1] text-sm"
-                    checked={config.includeLogo}
-                    onChange={(val) =>
-                      setConfig({ ...config, includeLogo: !config.includeLogo })
-                    }
-                  />
-                </div>
-
-                {config.includeLogo && (
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                      {t("qrPage.brand_mark")}
-                    </label>
-                    <div
-                      onClick={() => fileInputRef.current?.click()}
-                      className="border-2 border-dashed border-[--border-1] rounded-2xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/30 transition-all group"
-                    >
+              {config.includeLogo && (
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1] mb-1.5">
+                    {t("qrPage.brand_mark")}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`relative w-full flex items-center gap-3 p-2.5 rounded-xl border transition text-left ${
+                      config.logo
+                        ? "border-[--border-1] bg-[--white-1] hover:border-indigo-300"
+                        : "border-dashed border-[--border-1] bg-[--white-2] hover:border-indigo-300 hover:bg-indigo-50/30 dark:hover:bg-indigo-500/10"
+                    }`}
+                  >
+                    <span className="grid place-items-center size-12 rounded-lg ring-1 ring-[--border-1] bg-[--white-1] overflow-hidden shrink-0">
                       {config.logo ? (
-                        <div className="relative group">
-                          <img
-                            src={config.logo}
-                            alt="Logo preview"
-                            className="w-24 h-24 object-contain rounded-xl border border-[--border-1] bg-white p-2 shadow-sm"
-                          />
-                          <div className="absolute inset-0 bg-indigo-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center rounded-xl transition-opacity">
-                            <RefreshCcw
-                              size={20}
-                              className="text-white animate-spin-slow"
-                            />
-                          </div>
-                        </div>
+                        <img
+                          src={config.logo}
+                          alt="logo"
+                          className="size-full object-contain p-1"
+                        />
                       ) : (
-                        <>
-                          <div className="p-4 bg-slate-100 rounded-full text-slate-400 group-hover:text-[--primary-1] transition-colors">
-                            <ImageIcon size={24} />
-                          </div>
-                          <span className="text-[11px] font-bold text-slate-400 text-center">
-                            {t("qrPage.upload_logo_line1")}
-                            <br />
-                            {t("qrPage.upload_logo_line2")}
-                          </span>
-                        </>
+                        <ImageIcon className="size-5 text-[--gr-2]" />
                       )}
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleLogoUpload}
-                        accept="image/*"
-                        className="hidden"
-                      />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-[--black-1] truncate">
+                        {config.logo
+                          ? t("qrPage.upload_logo_line2")
+                          : t("qrPage.upload_logo_line1")}
+                      </p>
+                      <p className="text-[10px] text-[--gr-1] truncate mt-0.5">
+                        PNG, JPG, SVG
+                      </p>
                     </div>
-                  </div>
-                )}
-              </div>
-            </main>
+                    {config.logo && (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={handleClearLogo}
+                        onKeyDown={(e) =>
+                          e.key === "Enter" && handleClearLogo(e)
+                        }
+                        className="grid place-items-center size-7 rounded-md text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/15 transition shrink-0"
+                        aria-label="Remove logo"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </span>
+                    )}
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleLogoUpload}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                  </button>
+                </div>
+              )}
+            </Section>
 
-            <main className="p-6 bg-[--white-1] border-none rounded-xl border border-[--border-1] shadow-sm overflow-hidden">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-[--gr-4] rounded-xl text-[--primary-1]">
-                  <EyeI className="size-[1.3rem]" />
-                </div>
-                <h4 className="font-bold text-[--gr-2] text-sm">
-                  {t("qrPage.default_preview")}
-                </h4>
+            {/* Live preview */}
+            <Section
+              icon={QrCode}
+              title={t("qrPage.default_preview")}
+              compact
+            >
+              <div className="grid place-items-center p-3 rounded-xl bg-[--white-2] border border-[--border-1]">
+                <div
+                  ref={previewBoxRef}
+                  className="size-60 grid place-items-center rounded-lg bg-white p-3 shadow-inner [&>svg]:!w-full [&>svg]:!h-full [&>canvas]:!w-full [&>canvas]:!h-full"
+                />
               </div>
-              <div className="flex justify-center items-center bg-[--gr-4] p-6 rounded-2xl border-2 border-[--border-1] shadow-inner">
-                <div className="max-w-full shadow-2xl p-4 bg-[--white-1] border-2 border-[--white-1] rounded-[2.5rem]">
-                  <img
-                    src={defaultQR}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-              </div>
-              <div className="mt-6 flex flex-wrap gap-2 justify-center">
-                <Badge variant="info">{t("qrPage.badge_extra_rounded")}</Badge>
-                <Badge variant="success">{t("qrPage.badge_svg")}</Badge>
-                <Badge variant="warning">{t("qrPage.badge_linear")}</Badge>
-              </div>
-            </main>
+              <button
+                type="button"
+                onClick={downloadDefaultQR}
+                className="inline-flex items-center justify-center gap-1.5 w-full h-9 rounded-lg text-xs font-semibold text-white shadow-md shadow-indigo-500/25 hover:brightness-110 active:brightness-95 transition"
+                style={{ background: PRIMARY_GRADIENT }}
+              >
+                <Download className="size-3.5" />
+                {t("qrPage.download_default", "PNG İndir")}
+              </button>
+            </Section>
           </div>
 
-          {/* Display Grid */}
-          <div className="lg:col-span-8">
+          {/* RIGHT — Output */}
+          <div className="flex flex-col">
             {generatedItems.length > 0 ? (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
-                <main className="p-8 bg-[--white-1] text-[--black-1] flex flex-col md:flex-row items-center justify-between gap-8 border-none shadow-2xl shadow-[--white-1] relative overflow-hidden rounded-xl border border-[--border-1]">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px] -mr-32 -mt-32"></div>
-                  <div className="relative z-10 flex items-center gap-6">
-                    <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-2xl border border-white/20 shadow-inner">
-                      <LayoutGrid size={32} />
-                    </div>
-                    <div>
-                      <h4 className="font-black text-2xl tracking-tighter uppercase italic">
+              <>
+                {/* Batch header */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-[--border-1] bg-[--white-2]/60">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span
+                      className="grid place-items-center size-10 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
+                      style={{ background: PRIMARY_GRADIENT }}
+                    >
+                      <LayoutGrid className="size-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <h2 className="text-sm font-bold text-[--black-1] truncate">
                         {t("qrPage.batch_operational")}
-                      </h4>
-                      <p className="text-white text-sm font-medium opacity-80">
+                      </h2>
+                      <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
                         {t("qrPage.batch_stats", {
                           count: generatedItems.length,
                         })}
                       </p>
                     </div>
                   </div>
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    className="shadow-2xl font-black tracking-tight"
+                  <button
+                    type="button"
                     onClick={downloadAll}
+                    className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg text-white text-xs font-semibold shadow-md shadow-indigo-500/25 hover:brightness-110 active:brightness-95 transition shrink-0"
+                    style={{ background: PRIMARY_GRADIENT }}
                   >
-                    <Download size={22} className="mr-3" />
+                    <Download className="size-3.5" />
                     {t("qrPage.download_all")}
-                  </Button>
-                </main>
+                  </button>
+                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                {/* Grid — 4 columns on xl, responsive down to 1 col on mobile */}
+                <div className="p-3 sm:p-4 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                   {generatedItems.map((item) => (
-                    <main
+                    <div
                       key={item.id}
-                      className="p-5 group hover:[--primary-1] transition-all transform hover:-translate-y-2 shadow-sm hover:shadow-2xl border-[--border-1] bg-[--white-1] rounded-xl border overflow-hidden"
+                      className="group flex flex-col gap-2 p-3 rounded-xl border border-[--border-1] bg-[--white-1] hover:border-indigo-300 hover:shadow-sm transition-all"
                     >
-                      <div className="relative mb-6 aspect-square bg-[--white-2] rounded-3xl overflow-hidden flex items-center justify-center p-3 border border-[--border-1] shadow-inner group-hover:bg-[--white-1] transition-colors">
+                      <div className="relative aspect-square rounded-lg bg-[--white-2] border border-[--border-1] overflow-hidden grid place-items-center p-3">
                         <img
                           src={item.dataUrl}
                           alt={`Table ${item.id}`}
                           className="w-full h-full object-contain"
                         />
-                        <div className="absolute inset-0 bg-indigo-950/0 group-hover:bg-indigo-950/80 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-[4px] rounded-3xl">
-                          <Button
-                            size="md"
-                            variant="primary"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              downloadQR(item.dataUrl, item.id.toString());
-                            }}
-                            className="rounded-2xl scale-75 group-hover:scale-100 transition-transform duration-300 text-xs"
+                        <div className="absolute inset-0 grid place-items-center bg-slate-900/0 group-hover:bg-slate-900/55 backdrop-blur-0 group-hover:backdrop-blur-[1px] transition-all">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              downloadQR(item.dataUrl, item.id.toString())
+                            }
+                            className="opacity-0 group-hover:opacity-100 inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-white text-xs font-semibold shadow-md shadow-indigo-500/25 hover:brightness-110 active:brightness-95 transition"
+                            style={{ background: PRIMARY_GRADIENT }}
                           >
-                            <Download size={20} className="mr-2" />
-                            Save PNG
-                          </Button>
+                            <Download className="size-3.5" />
+                            PNG
+                          </button>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between px-2">
-                        <div className="flex flex-col">
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                            {t("qrPage.location_label")}
-                          </span>
-                          <span className="text-base font-black tracking-tight text-[--primary-1]">
-                            {t("qrPage.table_label", { id: item.tableId })}
-                          </span>
-                        </div>
+                      <div className="px-1 pb-0.5 text-center">
+                        <p className="text-sm font-bold text-[--black-1] truncate">
+                          {item.tableId}
+                        </p>
                       </div>
-                    </main>
+                    </div>
                   ))}
                 </div>
-              </div>
+              </>
             ) : (
-              <main className="h-full min-h-[700px] flex flex-col items-center justify-center text-center p-16 border-dashed border-2 relative bg-[--white-1] rounded-xl border-[--gr-3] shadow-sm overflow-hidden">
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[--black-2] rounded-full blur-[120px] opacity-40 -mr-[250px] -mt-[250px]"></div>
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[--black-2] rounded-full blur-[120px] opacity-40 -ml-[250px] -mb-[250px]"></div>
-
-                <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-40 h-40 bg-[--gr-3] rounded-[50px] shadow-2xl shadow-[--white-1] flex items-center justify-center text-[--primary-1] mb-10 border border-[--border-1] transform -rotate-12 transition-transform hover:rotate-0 duration-500">
-                    <QRI className="size-[7rem]" strokeWidth={0.5} />
-                  </div>
-                  <h3 className="text-3xl font-black text-[--black-2] mb-4 tracking-tighter uppercase italic">
-                    {t("qrPage.batch_offline")}
-                  </h3>
-                  <p className="text-[--gr-1] max-w-md mb-12 leading-relaxed text-sm font-medium">
-                    {t("qrPage.empty_description")}
-                  </p>
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="px-14 h-16 text-xl font-black shadow-2xl shadow-indigo-300 rounded-3xl"
-                    onClick={handleGenerateBatch}
-                    disabled={isGenerating}
-                  >
-                    {isGenerating
-                      ? t("qrPage.processing_workflow")
-                      : t("qrPage.initialize_generation")}
-                  </Button>
-                </div>
-              </main>
+              <EmptyState
+                t={t}
+                onGenerate={handleGenerateBatch}
+                isGenerating={isGenerating}
+              />
             )}
           </div>
         </div>
@@ -645,5 +702,81 @@ const QRPage = ({ data: restaurant }) => {
     </div>
   );
 };
+
+const Section = ({ icon: Icon, title, subtitle, compact, children }) => (
+  <div
+    className={`p-4 ${compact ? "space-y-2" : "space-y-3"} border-b border-[--border-1] last:border-b-0`}
+  >
+    <div className="flex items-center gap-2">
+      {Icon && <Icon className="size-3.5 text-indigo-600 shrink-0" />}
+      <h3 className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1] flex-1">
+        {title}
+      </h3>
+      {subtitle && (
+        <span className="text-[10px] font-semibold text-[--gr-1]">
+          {subtitle}
+        </span>
+      )}
+    </div>
+    {children}
+  </div>
+);
+
+const ColorField = ({ label, value, onChange }) => (
+  <div className="space-y-1.5">
+    <label className="block text-[10px] font-bold uppercase tracking-wider text-[--gr-1]">
+      {label}
+    </label>
+    <div className="flex items-center gap-2 p-1.5 bg-[--white-2] rounded-lg border border-[--border-1]">
+      <input
+        type="color"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="size-7 rounded border-none p-0 bg-transparent cursor-pointer overflow-hidden"
+      />
+      <span className="text-[10px] font-mono text-[--gr-1] uppercase truncate">
+        {value}
+      </span>
+    </div>
+  </div>
+);
+
+const EmptyState = ({ t, onGenerate, isGenerating }) => (
+  <div className="flex-1 grid place-items-center text-center p-8">
+    <div className="rounded-2xl border border-dashed border-[--border-1] bg-[--white-2]/50 p-8 sm:p-12 max-w-md w-full">
+      <span
+        className="mx-auto grid place-items-center size-16 rounded-2xl text-white shadow-lg shadow-indigo-500/25 mb-4"
+        style={{ background: PRIMARY_GRADIENT }}
+      >
+        <QrCode className="size-7" strokeWidth={1.8} />
+      </span>
+      <h3 className="text-base font-semibold text-[--black-1]">
+        {t("qrPage.batch_offline")}
+      </h3>
+      <p className="text-xs text-[--gr-1] mt-1.5 leading-snug">
+        {t("qrPage.empty_description")}
+      </p>
+      <button
+        type="button"
+        onClick={onGenerate}
+        disabled={isGenerating}
+        className="mt-5 inline-flex items-center justify-center gap-1.5 h-10 px-5 rounded-lg text-white text-sm font-semibold shadow-md shadow-indigo-500/25 hover:brightness-110 active:brightness-95 transition disabled:opacity-60"
+        style={{ background: PRIMARY_GRADIENT }}
+      >
+        {isGenerating ? (
+          <>
+            <Loader2 className="size-4 animate-spin" />
+            {t("qrPage.processing_workflow")}
+          </>
+        ) : (
+          <>
+            <Plus className="size-4" />
+            {t("qrPage.initialize_generation")}
+          </>
+        )}
+      </button>
+    </div>
+  </div>
+);
 
 export default QRPage;

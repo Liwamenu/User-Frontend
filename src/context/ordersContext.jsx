@@ -43,6 +43,10 @@ export const OrdersProvider = ({ children }) => {
     typeof window !== "undefined" &&
     window.matchMedia("(min-width: 1024px)").matches;
 
+  // Re-render this provider whenever auth state changes, so that the initial
+  // fetch effect below can pick up the new token from localStorage. Without
+  // this, the provider (mounted at app root) never re-renders after login.
+  const sessionId = useSelector((s) => s.auth.login.sessionId);
   const isAuthenticated = !!getAuth()?.token;
 
   const localItemsPerPage = JSON.parse(
@@ -134,7 +138,7 @@ export const OrdersProvider = ({ children }) => {
         pageSize: pageSize.value,
       }),
     );
-  }, [dispatch, isAuthenticated, pageSize.value]);
+  }, [dispatch, isAuthenticated, sessionId, pageSize.value]);
 
   // Sync redux into context state
   useEffect(() => {

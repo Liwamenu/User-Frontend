@@ -26,7 +26,7 @@ const ProductsHeader = () => {
   ];
 
   return (
-    <div className="inline-flex items-center rounded-xl border border-slate-200 bg-white p-1 shadow-sm overflow-x-auto max-w-full">
+    <div className="inline-flex items-center rounded-xl border border-[--border-1] bg-[--white-1] p-1 shadow-sm overflow-x-auto max-w-full">
       {headers.map(({ label, path, icon: Icon }) => {
         const active = pathMatches(path);
         return (
@@ -36,7 +36,7 @@ const ProductsHeader = () => {
             className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition ${
               active
                 ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/25"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                : "text-[--gr-1] hover:text-[--black-1] hover:bg-[--white-2]"
             }`}
           >
             <Icon className="size-4" />

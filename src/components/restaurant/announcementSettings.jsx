@@ -110,11 +110,11 @@ const AnnouncementSettings = ({ data }) => {
   // };
 
   const labelCls =
-    "block text-[11px] font-semibold text-slate-600 mb-1 tracking-wide";
+    "block text-[11px] font-semibold text-[--gr-1] mb-1 tracking-wide";
 
   return (
-    <div className="w-full pb-8 mt-1 text-slate-900">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
         {/* gradient strip */}
         <div
           className="h-0.5"
@@ -124,7 +124,7 @@ const AnnouncementSettings = ({ data }) => {
           }}
         />
         {/* HERO HEADER */}
-        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
           <span
             className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
             style={{
@@ -135,10 +135,10 @@ const AnnouncementSettings = ({ data }) => {
             <Megaphone className="size-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
               {t("announcementSettings.title", { name: data?.name || "" })}
             </h1>
-            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
               {settings?.enabled
                 ? t("announcementSettings.enable_announcement")
                 : t("announcementSettings.preview_disabled")}
@@ -149,16 +149,16 @@ const AnnouncementSettings = ({ data }) => {
         <div className="p-4 sm:p-5 space-y-5">
           {/* TOP ROW: Enable + Delay */}
           <div className="grid grid-cols-1 sm:grid-cols-[1fr,auto] gap-3">
-            <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/40 p-3">
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-[--border-1] bg-[--white-2]/40 p-3">
               <div className="flex items-center gap-3 min-w-0">
                 <span className="grid place-items-center size-9 rounded-lg bg-indigo-50 text-indigo-600 shrink-0">
                   <Power className="size-4" />
                 </span>
                 <div className="min-w-0">
-                  <h3 className="text-sm font-semibold text-slate-900 truncate">
+                  <h3 className="text-sm font-semibold text-[--black-1] truncate">
                     {t("announcementSettings.enable_announcement")}
                   </h3>
-                  <p className="text-[11px] text-slate-500 truncate">
+                  <p className="text-[11px] text-[--gr-1] truncate">
                     {t("announcementSettings.enable_note")}
                   </p>
                 </div>
@@ -175,7 +175,7 @@ const AnnouncementSettings = ({ data }) => {
               />
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 flex items-center gap-3 sm:w-72">
+            <div className="rounded-xl border border-[--border-1] bg-[--white-2]/40 p-3 flex items-center gap-3 sm:w-72">
               <span className="grid place-items-center size-9 rounded-lg bg-indigo-50 text-indigo-600 shrink-0">
                 <Timer className="size-4" />
               </span>
@@ -183,7 +183,7 @@ const AnnouncementSettings = ({ data }) => {
                 <label className={labelCls}>
                   {t("announcementSettings.display_delay")}
                 </label>
-                <div className="flex items-stretch rounded-lg border border-slate-200 bg-white focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition overflow-hidden h-9">
+                <div className="flex items-stretch rounded-lg border border-[--border-1] bg-[--white-1] focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition overflow-hidden h-9">
                   <input
                     type="number"
                     className="flex-1 min-w-0 px-2.5 outline-none text-sm bg-transparent"
@@ -195,7 +195,7 @@ const AnnouncementSettings = ({ data }) => {
                       }))
                     }
                   />
-                  <span className="bg-slate-50 text-slate-500 text-xs font-semibold px-2.5 grid place-items-center border-l border-slate-200">
+                  <span className="bg-[--white-2] text-[--gr-1] text-xs font-semibold px-2.5 grid place-items-center border-l border-[--border-1]">
                     {t("announcementSettings.display_delay_unit")}
                   </span>
                 </div>
@@ -206,7 +206,7 @@ const AnnouncementSettings = ({ data }) => {
           {/* EDITOR + PREVIEW (wide HTML) */}
           <div className="grid grid-cols-1 lg:grid-cols-[1.6fr,1fr] gap-3">
             {/* HTML EDITOR */}
-            <div className="rounded-xl border border-slate-200 overflow-hidden bg-slate-900 flex flex-col min-h-[28rem] shadow-sm">
+            <div className="rounded-xl border border-[--border-1] overflow-hidden bg-slate-900 flex flex-col min-h-[28rem] shadow-sm">
               <div className="flex items-center justify-between gap-3 px-3 py-2 border-b border-slate-700/60 bg-slate-800/60">
                 <div className="flex items-center gap-2 text-slate-200 text-[11px] font-bold uppercase tracking-[0.12em]">
                   <Code2 className="size-3.5 text-cyan-400" />
@@ -237,24 +237,24 @@ const AnnouncementSettings = ({ data }) => {
             </div>
 
             {/* PREVIEW */}
-            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 flex flex-col min-h-[28rem] shadow-sm overflow-hidden">
-              <div className="flex items-center justify-between gap-3 px-3 py-2 border-b border-slate-200 bg-white/70">
-                <div className="flex items-center gap-2 text-slate-600 text-[11px] font-bold uppercase tracking-[0.12em]">
+            <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/60 flex flex-col min-h-[28rem] shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between gap-3 px-3 py-2 border-b border-[--border-1] bg-[--white-1]/70">
+                <div className="flex items-center gap-2 text-[--gr-1] text-[11px] font-bold uppercase tracking-[0.12em]">
                   <Eye className="size-3.5 text-indigo-600" />
                   {t("announcementSettings.live_preview")}
                 </div>
                 <span
                   className={`inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                     settings?.enabled
-                      ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
-                      : "bg-slate-100 text-slate-500 ring-1 ring-slate-200"
+                      ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-200 dark:ring-emerald-400/30"
+                      : "bg-[--white-2] text-[--gr-1] ring-1 ring-[--border-1]"
                   }`}
                 >
                   <span
                     className={`size-1.5 rounded-full ${
                       settings?.enabled
                         ? "bg-emerald-500 animate-pulse"
-                        : "bg-slate-400"
+                        : "bg-[--gr-2]"
                     }`}
                   />
                   {settings?.enabled ? "Aktif" : "Pasif"}
@@ -263,7 +263,7 @@ const AnnouncementSettings = ({ data }) => {
               <div className="flex-1 p-5 relative overflow-y-auto">
                 {!settings?.enabled && (
                   <div className="absolute inset-0 z-10 backdrop-blur-[1px] grid place-items-center pointer-events-none">
-                    <div className="px-4 py-2 rounded-full bg-white/90 shadow-md border border-slate-200 text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
+                    <div className="px-4 py-2 rounded-full bg-[--white-1]/90 shadow-md border border-[--border-1] text-[11px] font-semibold text-[--gr-1] uppercase tracking-wider">
                       {t("announcementSettings.preview_disabled")}
                     </div>
                   </div>
@@ -280,7 +280,7 @@ const AnnouncementSettings = ({ data }) => {
 
           {/* INFO BANNER */}
           <div className="rounded-xl bg-indigo-50/70 border border-indigo-100 p-3 flex items-start gap-3">
-            <span className="grid place-items-center size-8 rounded-lg bg-white text-indigo-600 ring-1 ring-indigo-100 shrink-0">
+            <span className="grid place-items-center size-8 rounded-lg bg-[--white-1] text-indigo-600 ring-1 ring-indigo-100 shrink-0">
               <Info className="size-4" />
             </span>
             <div className="min-w-0">
@@ -294,7 +294,7 @@ const AnnouncementSettings = ({ data }) => {
           </div>
 
           {/* SUBMIT */}
-          <div className="flex justify-end pt-3 border-t border-slate-100">
+          <div className="flex justify-end pt-3 border-t border-[--border-1]">
             <button
               type="button"
               onClick={handleSubmit}
@@ -325,7 +325,7 @@ const PropmtInputPopup = () => {
 
   return (
     <main className="w-full flex justify-center">
-      <div className="p-6 bg-white rounded-lg shadow-lg w-full max-w-xl">
+      <div className="p-6 bg-[--white-1] rounded-lg shadow-lg w-full max-w-xl">
         <h2 className="text-lg font-semibold mb-4">
           {t("restaurantReservationSettings.generate_prompt_title")}
         </h2>

@@ -157,12 +157,12 @@ const OrderTags = () => {
   const totalCount = state.tagGroups?.length || 0;
 
   return (
-    <div className="w-full pb-8 mt-1 text-slate-900">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
         <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
 
         {/* HERO HEADER */}
-        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
           <span
             className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
             style={{ background: PRIMARY_GRADIENT }}
@@ -170,10 +170,10 @@ const OrderTags = () => {
             <Tags className="size-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
               {t("orderTags.title")}
             </h1>
-            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
               {totalCount > 0
                 ? dirtyCount > 0
                   ? t("orderTags.summary", {
@@ -219,14 +219,14 @@ const OrderTags = () => {
 
         <div className="p-3 sm:p-5">
           {state.tagGroups?.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-8 grid place-items-center text-center">
+            <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/60 p-8 grid place-items-center text-center">
               <span className="grid place-items-center size-12 rounded-xl bg-indigo-50 text-indigo-600 mb-3">
                 <Tags className="size-6" />
               </span>
-              <h3 className="text-sm font-semibold text-slate-900">
+              <h3 className="text-sm font-semibold text-[--black-1]">
                 {t("orderTags.no_groups")}
               </h3>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm">
+              <p className="text-xs text-[--gr-1] mt-1 max-w-sm">
                 {t("orderTags.no_groups_info")}
               </p>
             </div>

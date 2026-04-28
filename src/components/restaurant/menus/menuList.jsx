@@ -122,12 +122,12 @@ const MenuList = () => {
   const totalCount = menusData?.length || 0;
 
   return (
-    <div className="w-full pb-8 mt-1 text-slate-900">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
         <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
 
         {/* HERO HEADER */}
-        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
           <span
             className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
             style={{ background: PRIMARY_GRADIENT }}
@@ -135,10 +135,10 @@ const MenuList = () => {
             <BookOpen className="size-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
               {t("menuList.title")}
             </h1>
-            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
               {menusData
                 ? t("menuList.summary", { count: totalCount })
                 : t("menuList.subtitle")}
@@ -159,14 +159,14 @@ const MenuList = () => {
 
         <div className="p-3 sm:p-5">
           {!menusData ? null : menusData.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-8 grid place-items-center text-center">
+            <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/60 p-8 grid place-items-center text-center">
               <span className="grid place-items-center size-12 rounded-xl bg-indigo-50 text-indigo-600 mb-3">
                 <BookOpen className="size-6" />
               </span>
-              <h3 className="text-sm font-semibold text-slate-900">
+              <h3 className="text-sm font-semibold text-[--black-1]">
                 {t("menuList.no_menus")}
               </h3>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm">
+              <p className="text-xs text-[--gr-1] mt-1 max-w-sm">
                 {t("menuList.no_menus_info")}
               </p>
             </div>
@@ -197,17 +197,17 @@ const MenuCard = ({ menu, t, onEdit, onDelete }) => {
     : 0;
 
   return (
-    <div className="group rounded-xl border border-slate-200 bg-white overflow-hidden flex flex-col hover:border-indigo-200 hover:shadow-md transition-all">
+    <div className="group rounded-xl border border-[--border-1] bg-[--white-1] overflow-hidden flex flex-col hover:border-indigo-200 hover:shadow-md transition-all">
       {/* Top accent strip */}
       <div className="h-1 shrink-0" style={{ background: PRIMARY_GRADIENT }} />
 
       {/* Header */}
-      <div className="px-3 py-2.5 flex items-start gap-2 border-b border-slate-100">
+      <div className="px-3 py-2.5 flex items-start gap-2 border-b border-[--border-1]">
         <span className="grid place-items-center size-8 rounded-lg bg-indigo-50 text-indigo-600 shrink-0 mt-0.5">
           <BookOpen className="size-3.5" />
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-semibold text-slate-900 truncate leading-tight">
+          <h3 className="text-sm font-semibold text-[--black-1] truncate leading-tight">
             {menu.name}
           </h3>
           <div className="flex flex-wrap items-center gap-1 mt-1">
@@ -260,11 +260,11 @@ const MenuCard = ({ menu, t, onEdit, onDelete }) => {
             return (
               <div
                 key={i}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-100"
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-[--white-2] border border-[--border-1]"
               >
                 <Clock className="size-3.5 text-indigo-500 shrink-0" />
                 <div className="min-w-0 flex-1 flex items-center gap-2">
-                  <span className="text-xs font-semibold text-slate-900 shrink-0 tabular-nums">
+                  <span className="text-xs font-semibold text-[--black-1] shrink-0 tabular-nums">
                     {(plan.startTime || "00:00").replace(":00", "")} –{" "}
                     {(plan.endTime || "23:59").replace(":00", "")}
                   </span>
@@ -289,7 +289,7 @@ const MenuCard = ({ menu, t, onEdit, onDelete }) => {
             );
           })
         ) : (
-          <div className="text-xs text-slate-400 italic text-center py-3">
+          <div className="text-xs text-[--gr-2] italic text-center py-3">
             {t("menuList.no_time_plan")}
           </div>
         )}
@@ -304,7 +304,7 @@ const Chip = ({ icon: Icon, tone = "indigo", children }) => {
     indigo: "text-indigo-700 bg-indigo-50 ring-1 ring-indigo-100",
     emerald: "text-emerald-700 bg-emerald-50 ring-1 ring-emerald-100",
     amber: "text-amber-700 bg-amber-50 ring-1 ring-amber-100",
-    slate: "text-slate-600 bg-slate-50 ring-1 ring-slate-200",
+    slate: "text-[--gr-1] bg-[--white-2] ring-1 ring-[--border-1]",
   };
   return (
     <span

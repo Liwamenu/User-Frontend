@@ -12,11 +12,11 @@ const Button = ({
     primary:
       "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500",
     secondary:
-      "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 focus:ring-indigo-500",
+      "bg-[--white-1] text-[--black-2] border border-[--border-1] hover:bg-[--white-2] focus:ring-indigo-500",
     danger:
       "bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 focus:ring-red-500",
     ghost:
-      "bg-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-700",
+      "bg-transparent text-[--gr-1] hover:bg-[--white-2] hover:text-[--black-2]",
   };
 
   const sizes = {
