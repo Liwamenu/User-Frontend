@@ -50,13 +50,22 @@ export const deleteProduct = createAsyncThunk(
   async (productId, { rejectWithValue }) => {
     try {
       const response = await api.delete(
-        `${baseURL}Products/DeleteProduct/${productId}`
+        `${baseURL}Products/DeleteProduct/${productId}`,
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      // `error.response` is undefined on CORS / network failures
+      // (e.g. server returns 5xx without proper CORS headers). Surface a
+      // sensible message instead of crashing the thunk.
+      const payload = error.response?.data || {
+        message_TR:
+          "Ürün silinemedi. Bu ürünün geçmiş siparişlerle bağlantısı olabilir veya sunucu hatası oluştu.",
+        message:
+          "Could not delete product. It may be linked to past orders or a server error occurred.",
+      };
+      return rejectWithValue(payload);
     }
-  }
+  },
 );
 
 export const { resetDeleteProduct } = deleteProductSlice.actions;

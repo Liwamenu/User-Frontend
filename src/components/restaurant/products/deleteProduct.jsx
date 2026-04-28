@@ -8,17 +8,26 @@ import { DeleteI } from "../../../assets/icon";
 import { usePopup } from "../../../context/PopupContext";
 
 //REDUX
-import { deleteProduct } from "../../../redux/products/deleteProductSlice";
+import {
+  deleteProduct,
+  resetDeleteProduct,
+} from "../../../redux/products/deleteProductSlice";
 
 const DeleteProduct = ({ product, onSuccess }) => {
   const dispatch = useDispatch();
   const { setSecondPopupContent } = usePopup();
 
-  const { success } = useSelector((s) => s.products.delete);
+  const { success, error, loading } = useSelector((s) => s.products.delete);
   const { t } = useTranslation();
 
+  // Clear any leftover success/error from a previous delete so this modal
+  // doesn't auto-confirm just by mounting.
+  useEffect(() => {
+    dispatch(resetDeleteProduct());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function onConfirm() {
-    console.log(product.id, "is to be deleted");
     dispatch(deleteProduct(product.id));
   }
 
@@ -27,8 +36,25 @@ const DeleteProduct = ({ product, onSuccess }) => {
       toast.success(t("deleteProduct.success"));
       setSecondPopupContent(null);
       onSuccess && onSuccess(product.id);
+      // Reset the slice so the next open of any delete modal starts clean.
+      dispatch(resetDeleteProduct());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success]);
+
+  // Surface backend failures (e.g. FK constraint, network error). Without this
+  // the modal would silently sit open and the user would think nothing happened.
+  useEffect(() => {
+    if (error) {
+      const msg =
+        error?.message_TR ||
+        error?.message ||
+        t("deleteProduct.error", "Ürün silinemedi. Lütfen tekrar deneyin.");
+      toast.error(msg, { id: "deleteProductError" });
+      dispatch(resetDeleteProduct());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error]);
 
   return (
     <main className="flex justify-center">
@@ -53,15 +79,17 @@ const DeleteProduct = ({ product, onSuccess }) => {
         <div className="flex gap-4 w-full text-sm">
           <button
             onClick={() => setSecondPopupContent(false)}
-            className="flex-1 py-2 px-6 border border-[--border-1] rounded-xl text-[--gr-1] font-semibold hover:bg-[--gr-3] transition-colors"
+            disabled={loading}
+            className="flex-1 py-2 px-6 border border-[--border-1] rounded-xl text-[--gr-1] font-semibold hover:bg-[--gr-3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {t("deleteProduct.cancel")}
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 px-6 bg-[--red-1] text-white rounded-xl font-bold hover:bg-red-700 transition-all"
+            disabled={loading}
+            className="flex-1 px-6 bg-[--red-1] text-white rounded-xl font-bold hover:bg-red-700 transition-all disabled:opacity-70 disabled:cursor-wait"
           >
-            {t("deleteProduct.delete")}
+            {loading ? "..." : t("deleteProduct.delete")}
           </button>
         </div>
       </div>

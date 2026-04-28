@@ -13,7 +13,7 @@ import {
 import DeleteProduct from "./deleteProduct";
 import { usePopup } from "../../../context/PopupContext";
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, onDeleted }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [imgError, setImgError] = useState(false);
@@ -142,7 +142,9 @@ const ProductCard = ({ product }) => {
         <button
           type="button"
           onClick={() =>
-            setSecondPopupContent(<DeleteProduct product={product} />)
+            setSecondPopupContent(
+              <DeleteProduct product={product} onSuccess={onDeleted} />,
+            )
           }
           title={t("editCategories.delete")}
           className="grid place-items-center size-8 rounded-md text-rose-600 hover:bg-rose-50 transition"

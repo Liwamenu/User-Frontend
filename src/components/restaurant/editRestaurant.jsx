@@ -591,17 +591,19 @@ const EditRestaurant = ({ data: restaurant }) => {
                   label={t("restaurants.image_main")}
                 />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {/* LEFT — Background → "Image" API field */}
                   <ImageField
                     label={t("restaurants.background_label")}
                     hint={t("restaurants.background_hint")}
-                    preview={preview2}
-                    onChange={setDocument2}
+                    preview={preview}
+                    onChange={setDocument}
                   />
+                  {/* RIGHT — Logo → "LogoImage" API field */}
                   <ImageField
                     label={t("restaurants.logo_label")}
                     hint={t("restaurants.logo_hint")}
-                    preview={preview}
-                    onChange={setDocument}
+                    preview={preview2}
+                    onChange={setDocument2}
                     contain
                   />
                 </div>
