@@ -12,10 +12,10 @@ const OptionRow = ({
   const { t } = useTranslation();
   return (
     <div
-      className={`p-2 sm:p-2.5 rounded-lg border bg-white transition group ${
+      className={`p-2 sm:p-2.5 rounded-lg border bg-[--white-1] transition group ${
         isDragging
           ? "border-indigo-300 ring-2 ring-indigo-100 shadow-lg"
-          : "border-slate-200 hover:border-indigo-200"
+          : "border-[--border-1] hover:border-indigo-200"
       }`}
     >
       {/* Desktop layout: 12-col grid */}
@@ -24,7 +24,7 @@ const OptionRow = ({
           type="button"
           {...dragHandleProps}
           aria-label="drag"
-          className="col-span-1 grid place-items-center size-7 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition cursor-grab active:cursor-grabbing mx-auto"
+          className="col-span-1 grid place-items-center size-7 rounded-md text-[--gr-2] hover:text-indigo-600 hover:bg-[--white-2] transition cursor-grab active:cursor-grabbing mx-auto"
         >
           <GripVertical className="size-4" />
         </button>
@@ -35,7 +35,7 @@ const OptionRow = ({
             value={item.name}
             onChange={(e) => onUpdate({ name: e.target.value })}
             placeholder={t("orderTags.option_name_placeholder")}
-            className="w-full h-9 px-2.5 rounded-md border border-slate-200 bg-white text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            className="w-full h-9 px-2.5 rounded-md border border-[--border-1] bg-[--white-1] text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
           />
         </div>
         <div className="col-span-2">
@@ -45,7 +45,7 @@ const OptionRow = ({
             value={item.price}
             onChange={(e) => onUpdate({ price: parseFloat(e.target.value) || 0 })}
             placeholder={t("orderTags.price_placeholder")}
-            className="w-full h-9 px-2.5 rounded-md border border-slate-200 bg-white text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            className="w-full h-9 px-2.5 rounded-md border border-[--border-1] bg-[--white-1] text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
           />
         </div>
         <div className="col-span-1 flex justify-center">
@@ -68,7 +68,7 @@ const OptionRow = ({
             type="number"
             value={item.minQuantity}
             onChange={(e) => onUpdate({ minQuantity: parseInt(e.target.value) || 0 })}
-            className="w-full h-9 px-2 text-center rounded-md border border-slate-200 bg-white text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            className="w-full h-9 px-2 text-center rounded-md border border-[--border-1] bg-[--white-1] text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
           />
         </div>
         <div className="col-span-1">
@@ -77,7 +77,7 @@ const OptionRow = ({
             type="number"
             value={item.maxQuantity}
             onChange={(e) => onUpdate({ maxQuantity: parseInt(e.target.value) || 1 })}
-            className="w-full h-9 px-2 text-center rounded-md border border-slate-200 bg-white text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            className="w-full h-9 px-2 text-center rounded-md border border-[--border-1] bg-[--white-1] text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
           />
         </div>
         <div className="col-span-2 flex justify-end">
@@ -99,7 +99,7 @@ const OptionRow = ({
             type="button"
             {...dragHandleProps}
             aria-label="drag"
-            className="grid place-items-center size-7 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition cursor-grab active:cursor-grabbing shrink-0"
+            className="grid place-items-center size-7 rounded-md text-[--gr-2] hover:text-indigo-600 hover:bg-[--white-2] transition cursor-grab active:cursor-grabbing shrink-0"
           >
             <GripVertical className="size-4" />
           </button>
@@ -109,7 +109,7 @@ const OptionRow = ({
             value={item.name}
             onChange={(e) => onUpdate({ name: e.target.value })}
             placeholder={t("orderTags.option_name_placeholder")}
-            className="flex-1 min-w-0 h-9 px-2.5 rounded-md border border-slate-200 bg-white text-sm font-medium outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            className="flex-1 min-w-0 h-9 px-2.5 rounded-md border border-[--border-1] bg-[--white-1] text-sm font-medium outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
           />
           <button
             type="button"
@@ -128,7 +128,7 @@ const OptionRow = ({
                 type="number"
                 value={item.price}
                 onChange={(e) => onUpdate({ price: parseFloat(e.target.value) || 0 })}
-                className="w-full h-8 px-2 rounded-md border border-slate-200 bg-white text-sm outline-none transition focus:border-indigo-500"
+                className="w-full h-8 px-2 rounded-md border border-[--border-1] bg-[--white-1] text-sm outline-none transition focus:border-indigo-500"
               />
             </Field>
             <Field label={t("orderTags.col_min")}>
@@ -137,7 +137,7 @@ const OptionRow = ({
                 type="number"
                 value={item.minQuantity}
                 onChange={(e) => onUpdate({ minQuantity: parseInt(e.target.value) || 0 })}
-                className="w-full h-8 px-2 text-center rounded-md border border-slate-200 bg-white text-sm outline-none transition focus:border-indigo-500"
+                className="w-full h-8 px-2 text-center rounded-md border border-[--border-1] bg-[--white-1] text-sm outline-none transition focus:border-indigo-500"
               />
             </Field>
             <Field label={t("orderTags.col_max")}>
@@ -146,7 +146,7 @@ const OptionRow = ({
                 type="number"
                 value={item.maxQuantity}
                 onChange={(e) => onUpdate({ maxQuantity: parseInt(e.target.value) || 1 })}
-                className="w-full h-8 px-2 text-center rounded-md border border-slate-200 bg-white text-sm outline-none transition focus:border-indigo-500"
+                className="w-full h-8 px-2 text-center rounded-md border border-[--border-1] bg-[--white-1] text-sm outline-none transition focus:border-indigo-500"
               />
             </Field>
           </div>
@@ -170,7 +170,7 @@ const OptionRow = ({
 
 const Field = ({ label, children }) => (
   <label className="flex flex-col gap-1">
-    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+    <span className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1]">
       {label}
     </span>
     {children}
@@ -178,14 +178,14 @@ const Field = ({ label, children }) => (
 );
 
 const ChipCheck = ({ label, checked, onChange }) => (
-  <label className="inline-flex items-center gap-1.5 h-8 px-2 rounded-md border border-slate-200 bg-slate-50/60 cursor-pointer">
+  <label className="inline-flex items-center gap-1.5 h-8 px-2 rounded-md border border-[--border-1] bg-[--white-2]/60 cursor-pointer">
     <input
       type="checkbox"
       checked={checked}
       onChange={(e) => onChange(e.target.checked)}
-      className="size-3.5 rounded border-slate-300"
+      className="size-3.5 rounded border-[--border-1]"
     />
-    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+    <span className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1]">
       {label}
     </span>
   </label>

@@ -27,17 +27,17 @@ const ProductCard = ({ product }) => {
 
   return (
     <div
-      className={`group flex flex-col sm:flex-row gap-3 p-3 rounded-xl border bg-white transition ${
+      className={`group flex flex-col sm:flex-row gap-3 p-3 rounded-xl border bg-[--white-1] transition ${
         isHidden
           ? "border-rose-100 bg-rose-50/20"
-          : "border-slate-200 hover:border-indigo-200 hover:shadow-sm"
+          : "border-[--border-1] hover:border-indigo-200 hover:shadow-sm"
       }`}
     >
       {/* LEFT: image + name + meta */}
       <div className="flex gap-3 flex-1 min-w-0">
-        <div className="size-16 sm:size-20 rounded-lg ring-1 ring-slate-200 bg-slate-50 grid place-items-center overflow-hidden shrink-0">
+        <div className="size-16 sm:size-20 rounded-lg ring-1 ring-[--border-1] bg-[--white-2] grid place-items-center overflow-hidden shrink-0">
           {!product.imageURL || imgError ? (
-            <ImageIcon className="size-6 text-slate-300" />
+            <ImageIcon className="size-6 text-[--gr-3]" />
           ) : (
             <img
               src={product.imageURL}
@@ -50,7 +50,7 @@ const ProductCard = ({ product }) => {
 
         <div className="min-w-0 flex-1 flex flex-col">
           <div className="flex items-start gap-2">
-            <h3 className="text-sm font-semibold text-slate-900 truncate flex-1 min-w-0">
+            <h3 className="text-sm font-semibold text-[--black-1] truncate flex-1 min-w-0">
               {product.name}
             </h3>
             <span
@@ -73,14 +73,14 @@ const ProductCard = ({ product }) => {
               </span>
             )}
             {portionCount > 0 && (
-              <span className="inline-flex items-center text-[10px] font-medium text-slate-600 bg-slate-50 ring-1 ring-slate-200 px-1.5 py-0.5 rounded-md">
+              <span className="inline-flex items-center text-[10px] font-medium text-[--gr-1] bg-[--white-2] ring-1 ring-[--border-1] px-1.5 py-0.5 rounded-md">
                 {t("productCard.portion_count", { count: portionCount })}
               </span>
             )}
           </div>
 
           {product.description && (
-            <p className="mt-1 text-[11px] text-slate-500 italic line-clamp-2 leading-snug">
+            <p className="mt-1 text-[11px] text-[--gr-1] italic line-clamp-2 leading-snug">
               "{product.description}"
             </p>
           )}
@@ -93,13 +93,13 @@ const ProductCard = ({ product }) => {
           {product.portions.slice(0, 4).map((portion) => (
             <div
               key={portion.id}
-              className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-md bg-slate-50 border border-slate-100"
+              className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-md bg-[--white-2] border border-[--border-1]"
             >
-              <span className="text-xs font-medium text-slate-700 truncate min-w-0">
+              <span className="text-xs font-medium text-[--black-2] truncate min-w-0">
                 {portion.name}
               </span>
               <div className="flex items-center gap-1.5 shrink-0">
-                <span className="text-xs font-bold text-slate-900 tabular-nums">
+                <span className="text-xs font-bold text-[--black-1] tabular-nums">
                   {Number(portion.price).toLocaleString("tr-TR", {
                     minimumFractionDigits: 0,
                     maximumFractionDigits: 2,
@@ -118,7 +118,7 @@ const ProductCard = ({ product }) => {
             </div>
           ))}
           {portionCount > 4 && (
-            <span className="text-[10px] text-slate-400 italic px-1">
+            <span className="text-[10px] text-[--gr-2] italic px-1">
               +{portionCount - 4}
             </span>
           )}
@@ -126,7 +126,7 @@ const ProductCard = ({ product }) => {
       )}
 
       {/* RIGHT: action buttons */}
-      <div className="flex sm:flex-col gap-1 sm:gap-1 sm:justify-center shrink-0 sm:border-l sm:border-slate-100 sm:pl-2">
+      <div className="flex sm:flex-col gap-1 sm:gap-1 sm:justify-center shrink-0 sm:border-l sm:border-[--border-1] sm:pl-2">
         <button
           type="button"
           onClick={() =>

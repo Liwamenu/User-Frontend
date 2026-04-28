@@ -1,14 +1,15 @@
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Check,
-  Smartphone,
-  Tablet,
+  Tv,
   Monitor,
   Globe,
-  RefreshCw,
+  Loader2,
   ExternalLink,
-  ChevronRight,
+  RotateCw,
+  Palette,
+  Sparkles,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -16,288 +17,465 @@ import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import { setRestaurantTheme } from "../../../redux/restaurant/setRestaurantThemeSlice";
 
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
+
 const THEMES = [
   {
     id: 0,
     name: "Tema 1",
-    url: "https://demo1.ibrahimali.net",
     color: "hsl(24 95% 53%)",
+    tagKey: "tvThemeSelector.tag_classic",
   },
   {
     id: 1,
     name: "Tema 2",
-    url: "https://demo2.ibrahimali.net",
     color: "hsl(270 65% 65%)",
+    tagKey: "tvThemeSelector.tag_modern",
   },
   {
     id: 2,
     name: "Tema 3",
-    url: "https://demo3.ibrahimali.net",
     color: "hsl(142 58% 26%)",
+    tagKey: "tvThemeSelector.tag_natural",
   },
   {
     id: 3,
     name: "Tema 4",
-    url: "https://demo4.ibrahimali.net",
     color: "hsl(48 100% 50%)",
+    tagKey: "tvThemeSelector.tag_sunny",
   },
   {
     id: 4,
     name: "Tema 5",
-    url: "https://demo5.ibrahimali.net",
     color: "hsl(120 100% 25%)",
+    tagKey: "tvThemeSelector.tag_fresh",
   },
 ];
-const RESOLUTIONS = {
-  screen1: "w-[1920px] h-[1080px]", // 16:9 TV
-  screen2: "w-[2560px] h-[1440px]", // 16:9 Monitor
-  screen3: "w-[3840px] h-[2160px]", // 16:9 Ultra Wide
+
+const DEVICES = [
+  { id: "screen1", icon: Tv, labelKey: "tvThemeSelector.screen1" },
+  { id: "screen2", icon: Monitor, labelKey: "tvThemeSelector.screen2" },
+  { id: "screen3", icon: Monitor, labelKey: "tvThemeSelector.screen3" },
+];
+
+// Build the tenant-facing live URL — used as the iframe preview source.
+const buildTenantUrl = (tenant, fallback = "demo") => {
+  const t = (tenant || fallback).trim();
+  return `https://${t}.liwamenu.com`;
 };
 
 const ThemeSelector = ({ data }) => {
   const params = useParams();
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const resraurantId = params.id;
+  const restaurantId = params.id;
+  const iframeRef = useRef(null);
 
-  const { success } = useSelector((s) => s.restaurant.setRestaurantTheme);
+  const { success, loading } = useSelector(
+    (s) => s.restaurant.setRestaurantTheme,
+  );
 
   const [device, setDevice] = useState("screen1");
   const [isLoading, setIsLoading] = useState(true);
   const [selectedThemeId, setSelectedThemeId] = useState(
-    data?.tvMenuId || THEMES[0].id,
+    data?.tvMenuId ?? THEMES[0].id,
   );
+  const [activeThemeId, setActiveThemeId] = useState(
+    data?.tvMenuId ?? THEMES[0].id,
+  );
+  const [pendingThemeId, setPendingThemeId] = useState(null);
 
-  const selectedTheme =
-    THEMES.find((t) => t.id === selectedThemeId) || data?.tvMenuId || THEMES[0];
+  const activeTheme =
+    THEMES.find((th) => th.id === activeThemeId) || THEMES[0];
 
-  const handleSaveThemeId = () => {
-    console.log(
-      `Saving theme ${selectedThemeId} for restaurant ${resraurantId}`,
-    );
+  const tenant = data?.tenant;
+  const liveUrl = buildTenantUrl(tenant);
+  const iframeUrl = `${liveUrl}?v=${activeThemeId}&mode=tv`;
+
+  const isPending = (id) => pendingThemeId === id && loading;
+
+  // Click a theme card → optimistic select + dispatch save immediately.
+  const handlePickTheme = (themeId) => {
+    if (loading) return;
+    if (themeId === activeThemeId) return;
+    setSelectedThemeId(themeId);
+    setPendingThemeId(themeId);
     dispatch(
       setRestaurantTheme({
-        tvMenuId: selectedThemeId,
-        restaurantId: resraurantId,
+        tvMenuId: themeId,
+        restaurantId,
       }),
     );
   };
 
-  // Reset loading state when theme or device changes
+  const handleRefreshIframe = () => {
+    setIsLoading(true);
+    if (iframeRef.current) {
+      iframeRef.current.src = "about:blank";
+      requestAnimationFrame(() => {
+        if (iframeRef.current) iframeRef.current.src = iframeUrl;
+      });
+    }
+  };
+
+  // Reset loading state when the saved theme or device changes.
   useEffect(() => {
     setIsLoading(true);
-  }, [selectedThemeId, device]);
+  }, [activeThemeId, device]);
 
-  //SET initial theme from restaurant data
+  // Initialize from server data
   useEffect(() => {
-    if (data?.tvMenuId) {
+    if (data?.tvMenuId !== undefined && data?.tvMenuId !== null) {
       setSelectedThemeId(data.tvMenuId);
+      setActiveThemeId(data.tvMenuId);
     }
   }, [data]);
 
-  //TOAST
+  // Toast on success + commit active theme + clear pending state
   useEffect(() => {
     if (success) {
       toast.success(t("tvThemeSelector.success_updated"), {
-        id: "set-theme-success",
+        id: "set-tv-theme-success",
       });
+      setActiveThemeId(selectedThemeId);
+      setPendingThemeId(null);
     }
-  }, [success, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [success]);
+
+  // Clear pending state on failure
+  useEffect(() => {
+    if (!loading && pendingThemeId !== null && !success) {
+      setPendingThemeId(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   return (
-    <div className="w-full mt-1 bg-[--white-1] rounded-lg text-[--black-1] overflow-hidden shadow-lg border border-[--border-1] relative">
-      <div className="flex flex-col">
-        <div className="flex flex-col sm:flex-row justify-between items-center bg-indigo-800 text-white py-5 px-6">
-          <h1 className="text-xl font-bold mb-4 sm:mb-0">
-            {t("tvThemeSelector.title", { name: data?.name })}
-          </h1>
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
+        {/* Gradient strip */}
+        <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
+
+        {/* HERO HEADER */}
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
+          <span
+            className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
+            style={{ background: PRIMARY_GRADIENT }}
+          >
+            <Palette className="size-4" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
+              {t("tvThemeSelector.title", { name: data?.name || "" })}
+            </h1>
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
+              {t("tvThemeSelector.subtitle")}
+            </p>
+          </div>
+          {loading && (
+            <span className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 dark:bg-indigo-500/15 dark:text-indigo-200 dark:border-indigo-400/30">
+              <Loader2 className="size-3.5 animate-spin" />
+              {t("tvThemeSelector.saving")}
+            </span>
+          )}
         </div>
-        <div className="flex flex-col lg:flex-row min-h-[700px] bg-[--white-1]">
-          {/* Left Side: Theme Selection (Compact) */}
-          <div className="w-full lg:w-72 border-r border-[--border-1] px-6 flex flex-col gap-6 bg-[--white-2]">
-            <div className="pt-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-400">
-                  {t("tvThemeSelector.select_theme")}
-                </h2>
-                <button
-                  onClick={handleSaveThemeId}
-                  className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors"
+
+        {/* MAIN GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-[20rem_1fr] min-h-[680px]">
+          {/* LEFT — Theme cards + active summary */}
+          <div className="border-b lg:border-b-0 lg:border-r border-[--border-1] flex flex-col">
+            {/* Active (saved) theme summary */}
+            <div className="p-4 border-b border-[--border-1] bg-[--white-2]/60">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1] mb-2">
+                {t("tvThemeSelector.saved_state")}
+              </p>
+              <div className="flex items-center gap-3">
+                <span
+                  className="grid place-items-center size-11 rounded-xl text-white font-bold text-sm shrink-0 shadow-sm"
+                  style={{ backgroundColor: activeTheme.color }}
                 >
-                  {t("tvThemeSelector.save")}
-                </button>
+                  {activeTheme.name.replace(/\D/g, "") ||
+                    activeTheme.name.charAt(0)}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-[--black-1] truncate">
+                    {activeTheme.name}
+                  </p>
+                  <p className="text-[11px] text-[--gr-1] truncate">
+                    {t(activeTheme.tagKey)}
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-200 dark:ring-emerald-400/30">
+                  <Check className="size-3" />
+                  {t("tvThemeSelector.active_badge")}
+                </span>
               </div>
-              <div className="space-y-2">
-                {THEMES.map((theme) => (
+            </div>
+
+            {/* Theme list */}
+            <div className="p-3 flex-1 overflow-y-auto space-y-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1] px-1 mb-1.5">
+                {t("tvThemeSelector.select_theme")}
+              </p>
+              {THEMES.map((theme) => {
+                const isActive = activeThemeId === theme.id;
+                const pending = isPending(theme.id);
+                return (
                   <button
                     key={theme.id}
-                    onClick={() => setSelectedThemeId(theme.id)}
-                    className={`w-full group relative flex items-center gap-3 p-3 rounded-xl transition-all border ${
-                      selectedThemeId === theme.id
-                        ? "bg-[--white-1] border-[--gr-4] shadow-sm"
-                        : "border-transparent hover:bg-[--white-1]"
+                    type="button"
+                    onClick={() => handlePickTheme(theme.id)}
+                    disabled={loading}
+                    className={`group w-full flex items-center gap-3 p-2.5 rounded-xl border transition-all text-left disabled:cursor-wait ${
+                      isActive
+                        ? "border-indigo-300 bg-indigo-50 ring-1 ring-indigo-100 shadow-sm dark:bg-indigo-500/15 dark:border-indigo-400/30 dark:ring-indigo-400/20"
+                        : "border-[--border-1] bg-[--white-1] hover:border-indigo-200 hover:bg-[--white-2] disabled:opacity-50"
                     }`}
                   >
-                    <div
-                      className="w-10 h-10 rounded-lg flex-none flex items-center justify-center text-white font-bold text-xs 
-                  shadow-sm"
+                    <span
+                      className="grid place-items-center size-10 rounded-lg text-white font-bold text-xs shrink-0 shadow-sm"
                       style={{ backgroundColor: theme.color }}
                     >
-                      {theme.name.charAt(0)}
-                    </div>
-                    <div className="flex-1 text-left overflow-hidden">
-                      <h3
-                        className={`text-sm font-semibold truncate 
-                      ${selectedThemeId === theme.id ? "text-indigo-600" : "text-gray-700"}`}
+                      {theme.name.replace(/\D/g, "") || theme.name.charAt(0)}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className={`text-sm font-semibold truncate ${
+                          isActive
+                            ? "text-indigo-700 dark:text-indigo-200"
+                            : "text-[--black-1]"
+                        }`}
                       >
                         {theme.name}
-                      </h3>
+                      </p>
+                      <p className="text-[10px] text-[--gr-1] truncate">
+                        {t(theme.tagKey)}
+                      </p>
                     </div>
-                    {selectedThemeId === theme.id ? (
-                      <Check className="w-4 h-4 text-indigo-600 flex-none" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-auto pt-6 border-t border-gray-100">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">
-                {t("tvThemeSelector.device_preview")}
-              </h2>
-              <div className="flex gap-2">
-                {["screen1", "screen2", "screen3" /* , "monitor" */].map(
-                  (d) => (
-                    <button
-                      key={d}
-                      onClick={() => setDevice(d)}
-                      className={`flex-1 flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${
-                        device === d
-                          ? "bg-indigo-600 border-indigo-600 text-white shadow-md"
-                          : "bg-[--white-1] border-[--border-1] text-[--gr-1] hover:border-[--white-2]"
-                      }`}
-                    >
-                      {d === "screen1" && <Smartphone className="w-4 h-4" />}
-                      {d === "screen2" && (
-                        <Smartphone className="w-4 h-4 rotate-12" />
-                      )}
-                      {d === "screen3" && <Tablet className="w-4 h-4" />}
-                      {/* {d === "monitor" && <Monitor className="w-4 h-4" />} */}
-                      <span className="text-[10px] font-bold uppercase">
-                        {t(`tvThemeSelector.${d}`)}
+                    {pending ? (
+                      <span className="grid place-items-center size-5 rounded-full bg-indigo-600 text-white shrink-0 shadow-sm">
+                        <Loader2 className="size-3 animate-spin" />
                       </span>
-                    </button>
-                  ),
-                )}
-              </div>
+                    ) : isActive ? (
+                      <span className="grid place-items-center size-5 rounded-full bg-emerald-500 text-white shrink-0 shadow-sm">
+                        <Check className="size-3" strokeWidth={3} />
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="p-4 bg-[--white-1] rounded-2xl border border-[--gr-4]">
-              <div className="flex items-center gap-2 text-indigo-700 mb-2">
-                <Globe className="w-4 h-4" />
-                <span className="text-xs font-bold uppercase">
+            {/* Live URL footer */}
+            <div className="p-3 border-t border-[--border-1] bg-[--white-2]/60 space-y-2">
+              <div className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-300">
+                <Globe className="size-3.5" />
+                <span className="text-[10px] font-bold uppercase tracking-wider">
                   {t("tvThemeSelector.live_url")}
                 </span>
               </div>
-              <p className="text-[10px] text-indigo-600 font-mono break-all mb-3 opacity-80">
-                {selectedTheme.url}
+              <p className="text-[10px] text-[--gr-1] font-mono break-all">
+                {liveUrl}
               </p>
               <a
-                href={selectedTheme.url}
+                href={liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-2 bg-[--white-1] rounded-lg text-xs font-bold text-indigo-600 border border-[--gr-4] hover:bg-[--white-2] transition-colors shadow-sm"
+                className="inline-flex items-center justify-center gap-1.5 w-full h-9 rounded-lg text-xs font-semibold text-indigo-600 bg-[--white-1] border border-[--border-1] hover:border-indigo-300 hover:text-indigo-700 transition dark:text-indigo-300 dark:hover:text-indigo-200 dark:hover:border-indigo-400/40"
               >
+                <ExternalLink className="size-3.5" />
                 {t("tvThemeSelector.open_new_tab")}
-                <ExternalLink className="w-3 h-3" />
               </a>
             </div>
           </div>
 
-          {/* Right Side: Device Mockup (Immersive) */}
-          <div className="flex-1 bg-[--gr-4] px-8 flex items-center justify-center overflow-hidden relative">
-            {/* Background Decoration */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-              <div className="absolute -top-24 -right-24 w-96 h-96 bg-[--gr-4] rounded-full blur-3xl" />
-              <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-[--gr-4] rounded-full blur-3xl" />
+          {/* RIGHT — Preview */}
+          <div className="relative flex flex-col">
+            {/* Preview toolbar */}
+            <div className="px-4 py-3 border-b border-[--border-1] flex items-center justify-between gap-3 bg-[--white-1]">
+              <div className="flex items-center gap-2 min-w-0">
+                <Sparkles className="size-3.5 text-indigo-600 shrink-0" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1] truncate">
+                  {t("tvThemeSelector.preview_title")}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="inline-flex items-center gap-0.5 p-0.5 rounded-lg bg-[--white-2] border border-[--border-1]">
+                  {DEVICES.map(({ id, icon: Icon, labelKey }) => {
+                    const isActive = device === id;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => setDevice(id)}
+                        title={t(labelKey)}
+                        aria-label={t(labelKey)}
+                        className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[11px] font-semibold transition ${
+                          isActive
+                            ? "bg-[--white-1] text-indigo-600 shadow-sm dark:bg-indigo-500/20 dark:text-indigo-200"
+                            : "text-[--gr-1] hover:text-[--black-1]"
+                        }`}
+                      >
+                        <Icon className="size-3.5" />
+                        <span className="hidden sm:inline">{t(labelKey)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleRefreshIframe}
+                  title={t("tvThemeSelector.refresh")}
+                  aria-label={t("tvThemeSelector.refresh")}
+                  className="grid place-items-center size-8 rounded-md text-[--gr-1] bg-[--white-2] border border-[--border-1] hover:text-indigo-600 hover:border-indigo-300 transition"
+                >
+                  <RotateCw className="size-3.5" />
+                </button>
+              </div>
             </div>
 
-            <div className="relative z-10 flex flex-col items-center w-full max-w-4xl">
+            {/* Mockup area */}
+            <div className="flex-1 px-4 py-6 sm:py-8 grid place-items-center overflow-hidden relative bg-gradient-to-br from-[--white-2] via-[--white-1] to-[--white-2]">
+              {/* Soft accent blobs */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-50 dark:opacity-30">
+                <div className="absolute -top-32 -right-32 w-96 h-96 bg-indigo-200/60 rounded-full blur-3xl dark:bg-indigo-500/20" />
+                <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-cyan-200/60 rounded-full blur-3xl dark:bg-cyan-500/15" />
+              </div>
+
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={`${device}-${selectedThemeId}`}
-                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  // Animate only on device switch — theme changes update the
+                  // iframe src in place so the screen frame stays put.
+                  key={device}
+                  initial={{ opacity: 0, scale: 0.96, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 1.05, y: -20 }}
-                  transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                  className="relative"
+                  exit={{ opacity: 0, scale: 1.03, y: -10 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 220 }}
+                  className="relative z-10"
                 >
-                  {/* Device Frames */}
-                  {device === "screen1" && (
-                    <div
-                      className={`relative bg-black border-[10px] border-gray-900 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] ring-1 ring-white/10 ${RESOLUTIONS.screen1}`}
-                      style={{ zoom: 0.35 }}
-                    >
-                      <div className="absolute inset-0 overflow-hidden bg-[--white-1]">
-                        <iframe
-                          src={selectedTheme.url}
-                          className="w-full h-full border-none"
-                          onLoad={() => setIsLoading(false)}
-                        />
+                  <ScreenFrame variant={device}>
+                    <ScaledIframe
+                      iframeRef={iframeRef}
+                      src={iframeUrl}
+                      onLoad={() => setIsLoading(false)}
+                      scale={tvScaleFor(device)}
+                    />
+                    {isLoading && (
+                      <div className="absolute inset-0 grid place-items-center bg-[--white-1]/85 backdrop-blur-sm z-20 transition-opacity">
+                        <div className="flex flex-col items-center gap-3">
+                          <Loader2 className="size-7 text-indigo-600 animate-spin" />
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-[--gr-1]">
+                            {t("tvThemeSelector.loading_theme")}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-
-                  {device === "screen2" && (
-                    <div
-                      className={`relative ${RESOLUTIONS.screen2} bg-gray-900 border-[8px] border-gray-800 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)]`}
-                      style={{ zoom: 0.3 }}
-                    >
-                      <div className="absolute inset-0 overflow-hidden bg-[--white-1]">
-                        <iframe
-                          src={selectedTheme.url}
-                          className="w-full h-full border-none"
-                          onLoad={() => setIsLoading(false)}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {device === "screen3" && (
-                    <div
-                      className={`relative ${RESOLUTIONS.screen3} bg-gray-900 border-[12px] border-gray-800 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)]`}
-                      style={{ zoom: 0.2 }}
-                    >
-                      <div className="absolute top-1/2 -left-1 -translate-y-1/2 w-1 h-8 bg-gray-700 rounded-r-sm" />
-                      <div className="absolute inset-0 overflow-hidden bg-[--white-1]">
-                        <iframe
-                          src={selectedTheme.url}
-                          className="w-full h-full border-none"
-                          onLoad={() => setIsLoading(false)}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Loading Overlay */}
-                  {isLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-[--gr-1] backdrop-blur-sm z-20">
-                      <div className="flex flex-col items-center gap-4">
-                        <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin" />
-                        <p className="text-xs font-bold text-indigo-900/40 uppercase tracking-widest">
-                          {t("tvThemeSelector.loading_theme")}
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </ScreenFrame>
                 </motion.div>
               </AnimatePresence>
             </div>
           </div>
-        </div>{" "}
+        </div>
       </div>
+    </div>
+  );
+};
+
+// Inverse zoom factor that maps the iframe content into the visible pixel
+// dimensions of the chosen TV/Monitor frame. The frame itself is rendered
+// at a fixed visual size (~720×405 px) so the layout doesn't blow up.
+const tvScaleFor = (variant) => {
+  switch (variant) {
+    case "screen1":
+      return 0.5; // 1080p → render iframe at 50% zoom inside the frame
+    case "screen2":
+      return 0.4; // 1440p → smaller text density
+    case "screen3":
+      return 0.3; // 4K → smallest text density
+    default:
+      return 0.5;
+  }
+};
+
+// Renders the iframe at the given scale and clips its scrollbars.
+const ScaledIframe = ({ iframeRef, src, onLoad, scale = 0.5 }) => {
+  const inv = 1 / scale; // e.g. scale 0.5 → 200% size, then transform back to 100%
+  return (
+    <iframe
+      ref={iframeRef}
+      src={src}
+      title="Theme preview"
+      onLoad={onLoad}
+      scrolling="auto"
+      style={{
+        width: `calc(${inv * 100}% + 24px)`,
+        height: `calc(${inv * 100}% + 24px)`,
+        transform: `scale(${scale})`,
+        transformOrigin: "0 0",
+        border: 0,
+        display: "block",
+      }}
+    />
+  );
+};
+
+// Visual TV / monitor frame at fixed display size (16:9 ratio).
+const ScreenFrame = ({ variant, children }) => {
+  // Same outer pixel size for all variants — what changes is the iframe scale
+  // (so 4K shows more content per pixel = smaller text).
+  const outer = "w-[600px] h-[338px] sm:w-[720px] sm:h-[405px]";
+
+  if (variant === "screen1") {
+    // Classic TV with bezel + stand
+    return (
+      <div className="flex flex-col items-center">
+        <div
+          className={`relative ${outer} bg-black rounded-2xl border-[10px] border-gray-900 shadow-[0_40px_100px_-25px_rgba(0,0,0,0.4)] ring-1 ring-white/10 dark:ring-white/5`}
+        >
+          {/* Brand dot */}
+          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-700 rounded-full z-30" />
+          <div className="absolute inset-0 rounded-md overflow-hidden bg-[--white-1]">
+            {children}
+          </div>
+        </div>
+        {/* Stand */}
+        <div className="w-24 h-1.5 bg-gray-800 rounded-b" />
+        <div className="w-40 h-1.5 bg-gray-700 rounded-b" />
+      </div>
+    );
+  }
+
+  if (variant === "screen2") {
+    // Slim monitor with thin bezel
+    return (
+      <div className="flex flex-col items-center">
+        <div
+          className={`relative ${outer} bg-gray-900 rounded-xl border-[6px] border-gray-800 shadow-[0_40px_100px_-25px_rgba(0,0,0,0.4)] ring-1 ring-white/5`}
+        >
+          <div className="absolute inset-0 rounded-md overflow-hidden bg-[--white-1]">
+            {children}
+          </div>
+        </div>
+        <div className="w-12 h-2 bg-gray-800 rounded-b" />
+      </div>
+    );
+  }
+
+  // screen3 — Ultra-thin 4K monitor
+  return (
+    <div className="flex flex-col items-center">
+      <div
+        className={`relative ${outer} bg-gray-900 rounded-lg border-[4px] border-gray-800 shadow-[0_40px_100px_-25px_rgba(0,0,0,0.4)] ring-1 ring-white/5`}
+      >
+        <div className="absolute inset-0 rounded-sm overflow-hidden bg-[--white-1]">
+          {children}
+        </div>
+      </div>
+      <div className="w-16 h-1.5 bg-gray-800 rounded-b" />
     </div>
   );
 };

@@ -179,12 +179,12 @@ const Categories = ({ data: restaurant }) => {
   const bulkPending = Object.keys(bulkChanges).length;
 
   return (
-    <div className="w-full pb-8 mt-1 text-slate-900">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
         <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
 
         {/* HERO HEADER */}
-        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
           <span
             className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
             style={{ background: PRIMARY_GRADIENT }}
@@ -192,10 +192,10 @@ const Categories = ({ data: restaurant }) => {
             <LayoutGrid className="size-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
               {t("editCategories.title", { name: restaurant?.name || "" })}
             </h1>
-            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
               {categoriesData
                 ? t("editCategories.summary", { count: categoriesData.length })
                 : t("editCategories.info")}
@@ -215,7 +215,7 @@ const Categories = ({ data: restaurant }) => {
         </div>
 
         {/* TABS */}
-        <div className="px-3 sm:px-4 pt-3 border-b border-slate-100 flex gap-1 overflow-x-auto">
+        <div className="px-3 sm:px-4 pt-3 border-b border-[--border-1] flex gap-1 overflow-x-auto">
           <TabButton
             active={activeTab === "list"}
             onClick={() => setActiveTab("list")}
@@ -275,7 +275,7 @@ const TabButton = ({ active, onClick, icon: Icon, label, badge }) => (
     className={`relative inline-flex items-center gap-1.5 px-3 py-2 rounded-t-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition border-b-2 ${
       active
         ? "text-indigo-700 border-indigo-600 bg-indigo-50/40"
-        : "text-slate-500 border-transparent hover:text-slate-700 hover:bg-slate-50"
+        : "text-[--gr-1] border-transparent hover:text-[--black-2] hover:bg-[--white-2]"
     }`}
   >
     <Icon className="size-4" />
@@ -307,7 +307,7 @@ function ListTab({
   // Loading skeleton — actual "no categories" only shown when fetched + empty.
   if (!categoriesData) {
     return (
-      <div className="grid place-items-center py-10 text-slate-400 text-sm">
+      <div className="grid place-items-center py-10 text-[--gr-2] text-sm">
         <Loader2 className="size-5 animate-spin" />
       </div>
     );
@@ -315,14 +315,14 @@ function ListTab({
 
   if (categoriesData.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-8 grid place-items-center text-center">
+      <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/60 p-8 grid place-items-center text-center">
         <span className="grid place-items-center size-12 rounded-xl bg-indigo-50 text-indigo-600 mb-3">
           <LayoutGrid className="size-6" />
         </span>
-        <h3 className="text-sm font-semibold text-slate-900">
+        <h3 className="text-sm font-semibold text-[--black-1]">
           {t("editCategories.no_categories")}
         </h3>
-        <p className="text-xs text-slate-500 mt-1 max-w-sm">
+        <p className="text-xs text-[--gr-1] mt-1 max-w-sm">
           {t("editCategories.no_categories_info")}
         </p>
       </div>
@@ -368,10 +368,10 @@ function ListTab({
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      className={`flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl border bg-white transition ${
+                      className={`flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl border bg-[--white-1] transition ${
                         snapshot.isDragging
                           ? "border-indigo-300 ring-2 ring-indigo-100 shadow-lg"
-                          : "border-slate-200 hover:border-indigo-200 hover:shadow-sm"
+                          : "border-[--border-1] hover:border-indigo-200 hover:shadow-sm"
                       }`}
                     >
                       {/* Drag handle + image + name */}
@@ -380,11 +380,11 @@ function ListTab({
                           type="button"
                           {...provided.dragHandleProps}
                           aria-label="drag"
-                          className="grid place-items-center size-7 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition cursor-grab active:cursor-grabbing shrink-0"
+                          className="grid place-items-center size-7 rounded-md text-[--gr-2] hover:text-indigo-600 hover:bg-[--white-2] transition cursor-grab active:cursor-grabbing shrink-0"
                         >
                           <GripVertical className="size-4" />
                         </button>
-                        <div className="size-12 sm:size-14 rounded-lg ring-1 ring-slate-200 bg-slate-50 grid place-items-center overflow-hidden shrink-0">
+                        <div className="size-12 sm:size-14 rounded-lg ring-1 ring-[--border-1] bg-[--white-2] grid place-items-center overflow-hidden shrink-0">
                           <img
                             src={cat.imageAbsoluteUrl || fallbackImg}
                             alt={cat.name}
@@ -392,7 +392,7 @@ function ListTab({
                           />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="text-sm font-semibold text-slate-900 truncate">
+                          <div className="text-sm font-semibold text-[--black-1] truncate">
                             {cat.name}
                           </div>
                           <div className="mt-0.5 flex flex-wrap items-center gap-1">
@@ -415,7 +415,7 @@ function ListTab({
                                 tone="amber"
                               />
                             )}
-                            <span className="text-[10px] font-medium text-slate-600 bg-slate-50 ring-1 ring-slate-200 px-1.5 py-0.5 rounded-md">
+                            <span className="text-[10px] font-medium text-[--gr-1] bg-[--white-2] ring-1 ring-[--border-1] px-1.5 py-0.5 rounded-md">
                               {t("editCategories.product_count", {
                                 count: cat.productsCount || 0,
                               })}
@@ -489,7 +489,7 @@ const StatusBadge = ({ active, labelOn, labelOff, tone }) => {
     ? tone === "amber"
       ? "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
       : "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
-    : "bg-slate-100 text-slate-500 ring-1 ring-slate-200";
+    : "bg-[--white-2] text-[--gr-1] ring-1 ring-[--border-1]";
   return (
     <span
       className={`inline-flex items-center text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md ${cls}`}
@@ -554,7 +554,7 @@ function BulkImageTab({
 
   if (!categoriesData) {
     return (
-      <div className="grid place-items-center py-10 text-slate-400 text-sm">
+      <div className="grid place-items-center py-10 text-[--gr-2] text-sm">
         <Loader2 className="size-5 animate-spin" />
       </div>
     );
@@ -562,11 +562,11 @@ function BulkImageTab({
 
   if (categoriesData.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-8 grid place-items-center text-center">
+      <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/60 p-8 grid place-items-center text-center">
         <span className="grid place-items-center size-12 rounded-xl bg-indigo-50 text-indigo-600 mb-3">
           <Images className="size-6" />
         </span>
-        <h3 className="text-sm font-semibold text-slate-900">
+        <h3 className="text-sm font-semibold text-[--black-1]">
           {t("editCategories.no_categories")}
         </h3>
       </div>
@@ -653,7 +653,7 @@ function BulkImageTab({
 
   const SaveBar = ({ position }) => (
     <div
-      className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 sm:justify-between p-3 rounded-xl border border-slate-200 bg-white ${
+      className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 sm:justify-between p-3 rounded-xl border border-[--border-1] bg-[--white-1] ${
         position === "bottom"
           ? "sticky bottom-0 shadow-[0_-8px_24px_-12px_rgba(15,23,42,0.08)]"
           : ""
@@ -661,7 +661,7 @@ function BulkImageTab({
     >
       <div className="flex items-center gap-3 min-w-0">
         <ViewToggle viewMode={viewMode} setViewMode={setViewMode} t={t} />
-        <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide truncate">
+        <span className="text-[11px] font-semibold text-[--gr-1] uppercase tracking-wide truncate">
           {pendingCount > 0
             ? t("editCategories.bulk_pending", { count: pendingCount })
             : t("editCategories.summary", { count: categoriesData.length })}
@@ -687,7 +687,7 @@ function BulkImageTab({
   return (
     <div className="space-y-4">
       <div className="rounded-xl bg-indigo-50/70 border border-indigo-100 p-3 flex items-start gap-3">
-        <span className="grid place-items-center size-8 rounded-lg bg-white text-indigo-600 ring-1 ring-indigo-100 shrink-0">
+        <span className="grid place-items-center size-8 rounded-lg bg-[--white-1] text-indigo-600 ring-1 ring-indigo-100 shrink-0">
           <Images className="size-4" />
         </span>
         <p className="text-[12px] text-indigo-900/90 leading-relaxed flex-1 min-w-0">
@@ -710,13 +710,13 @@ function BulkImageTab({
             return (
               <div
                 key={cat.id}
-                className={`relative rounded-xl border bg-white overflow-hidden transition-all flex flex-col ${
+                className={`relative rounded-xl border bg-[--white-1] overflow-hidden transition-all flex flex-col ${
                   dirty
                     ? "border-indigo-300 ring-2 ring-indigo-100 shadow-md"
-                    : "border-slate-200 hover:border-indigo-200 hover:shadow-sm"
+                    : "border-[--border-1] hover:border-indigo-200 hover:shadow-sm"
                 }`}
               >
-                <div className="relative aspect-square bg-slate-50">
+                <div className="relative aspect-square bg-[--white-2]">
                   <img
                     src={previewSrc}
                     alt={cat.name}
@@ -730,14 +730,14 @@ function BulkImageTab({
                   )}
                 </div>
                 <div className="p-2.5 flex flex-col gap-1.5">
-                  <div className="text-xs font-semibold text-slate-900 truncate">
+                  <div className="text-xs font-semibold text-[--black-1] truncate">
                     {cat.name}
                   </div>
                   <div className="flex gap-1">
                     <button
                       type="button"
                       onClick={() => pickFile(cat.id)}
-                      className="flex-1 inline-flex items-center justify-center gap-1 h-8 px-2 rounded-md border border-slate-200 bg-white text-[11px] font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700 hover:bg-indigo-50 transition"
+                      className="flex-1 inline-flex items-center justify-center gap-1 h-8 px-2 rounded-md border border-[--border-1] bg-[--white-1] text-[11px] font-semibold text-[--black-2] hover:border-indigo-300 hover:text-indigo-700 hover:bg-indigo-50 transition"
                     >
                       {dirty ? (
                         <Pencil className="size-3" />
@@ -754,7 +754,7 @@ function BulkImageTab({
                         onClick={() => revertChange(cat.id)}
                         title={t("editCategories.bulk_revert")}
                         aria-label={t("editCategories.bulk_revert")}
-                        className="grid place-items-center size-8 rounded-md text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition shrink-0"
+                        className="grid place-items-center size-8 rounded-md text-[--gr-1] hover:text-rose-600 hover:bg-rose-50 transition shrink-0"
                       >
                         <RotateCcw className="size-3.5" />
                       </button>
@@ -775,13 +775,13 @@ function BulkImageTab({
             return (
               <div
                 key={cat.id}
-                className={`flex items-center gap-3 p-2.5 rounded-xl border bg-white transition ${
+                className={`flex items-center gap-3 p-2.5 rounded-xl border bg-[--white-1] transition ${
                   dirty
                     ? "border-indigo-300 ring-2 ring-indigo-100 shadow-sm"
-                    : "border-slate-200 hover:border-indigo-200 hover:shadow-sm"
+                    : "border-[--border-1] hover:border-indigo-200 hover:shadow-sm"
                 }`}
               >
-                <div className="relative size-14 sm:size-16 rounded-lg ring-1 ring-slate-200 bg-slate-50 grid place-items-center overflow-hidden shrink-0">
+                <div className="relative size-14 sm:size-16 rounded-lg ring-1 ring-[--border-1] bg-[--white-2] grid place-items-center overflow-hidden shrink-0">
                   <img
                     src={previewSrc}
                     alt={cat.name}
@@ -795,10 +795,10 @@ function BulkImageTab({
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-slate-900 truncate">
+                  <div className="text-sm font-semibold text-[--black-1] truncate">
                     {cat.name}
                   </div>
-                  <div className="text-[10px] font-medium text-slate-400 mt-0.5 uppercase tracking-wider">
+                  <div className="text-[10px] font-medium text-[--gr-2] mt-0.5 uppercase tracking-wider">
                     {dirty ? (
                       <span className="text-indigo-600">
                         {t("editCategories.bulk_change_image")}
@@ -812,7 +812,7 @@ function BulkImageTab({
                   <button
                     type="button"
                     onClick={() => pickFile(cat.id)}
-                    className="inline-flex items-center justify-center gap-1 h-8 px-2.5 rounded-md border border-slate-200 bg-white text-[11px] font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700 hover:bg-indigo-50 transition"
+                    className="inline-flex items-center justify-center gap-1 h-8 px-2.5 rounded-md border border-[--border-1] bg-[--white-1] text-[11px] font-semibold text-[--black-2] hover:border-indigo-300 hover:text-indigo-700 hover:bg-indigo-50 transition"
                   >
                     {dirty ? (
                       <Pencil className="size-3" />
@@ -831,7 +831,7 @@ function BulkImageTab({
                       onClick={() => revertChange(cat.id)}
                       title={t("editCategories.bulk_revert")}
                       aria-label={t("editCategories.bulk_revert")}
-                      className="grid place-items-center size-8 rounded-md text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition shrink-0"
+                      className="grid place-items-center size-8 rounded-md text-[--gr-1] hover:text-rose-600 hover:bg-rose-50 transition shrink-0"
                     >
                       <RotateCcw className="size-3.5" />
                     </button>
@@ -849,7 +849,7 @@ function BulkImageTab({
 }
 
 const ViewToggle = ({ viewMode, setViewMode, t }) => (
-  <div className="inline-flex items-center rounded-lg border border-slate-200 bg-slate-50 p-0.5 shrink-0">
+  <div className="inline-flex items-center rounded-lg border border-[--border-1] bg-[--white-2] p-0.5 shrink-0">
     <button
       type="button"
       onClick={() => setViewMode("list")}
@@ -857,8 +857,8 @@ const ViewToggle = ({ viewMode, setViewMode, t }) => (
       aria-label={t("editCategories.view_list")}
       className={`inline-flex items-center gap-1 h-7 px-2.5 rounded-md text-[11px] font-semibold transition ${
         viewMode === "list"
-          ? "bg-white text-indigo-700 shadow-sm ring-1 ring-slate-200"
-          : "text-slate-500 hover:text-slate-700"
+          ? "bg-[--white-1] text-indigo-700 shadow-sm ring-1 ring-[--border-1]"
+          : "text-[--gr-1] hover:text-[--black-2]"
       }`}
     >
       <List className="size-3.5" />
@@ -871,8 +871,8 @@ const ViewToggle = ({ viewMode, setViewMode, t }) => (
       aria-label={t("editCategories.view_tile")}
       className={`inline-flex items-center gap-1 h-7 px-2.5 rounded-md text-[11px] font-semibold transition ${
         viewMode === "tile"
-          ? "bg-white text-indigo-700 shadow-sm ring-1 ring-slate-200"
-          : "text-slate-500 hover:text-slate-700"
+          ? "bg-[--white-1] text-indigo-700 shadow-sm ring-1 ring-[--border-1]"
+          : "text-[--gr-1] hover:text-[--black-2]"
       }`}
     >
       <Grid3x3 className="size-3.5" />

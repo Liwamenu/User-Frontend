@@ -1,23 +1,27 @@
-//MODULES
+// MODULES
 import { isEqual } from "lodash";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
+import { SlidersHorizontal, X } from "lucide-react";
 
-//UTILS
+// UTILS
 import { usePopup } from "../../../context/PopupContext";
 import { formatDateString } from "../../../utils/utils";
 import { useWaiterCalls } from "../../../context/waiterCallsContext";
 
-//REDUX
+// REDUX
 import { getWaiterCalls } from "../../../redux/waiterCalls/getWaiterCallsSlice";
 import CustomDatePicker from "../../common/customdatePicker";
 import CustomSelect from "../../common/customSelector";
 
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
+
 const FilterWaiterCalls = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const filterWaiterCallsRef = useRef();
+  const filterRef = useRef();
   const { contentRef, setContentRef } = usePopup();
   const { pageSize, setPageNumber, filterInitialState, filter, setFilter } =
     useWaiterCalls();
@@ -26,12 +30,11 @@ const FilterWaiterCalls = () => {
 
   const formatDate = (date) => {
     const dateInFront = formatDateString(date, true, true, true);
-    const yearInFront = dateInFront.split("-").reverse().join("-");
-    return yearInFront;
+    return dateInFront.split("-").reverse().join("-");
   };
 
-  function handleFilter(bool) {
-    if (bool) {
+  function handleFilter(apply) {
+    if (apply) {
       const filterData = {
         page: 1,
         pageSize: pageSize.value,
@@ -53,155 +56,133 @@ const FilterWaiterCalls = () => {
     setOpenFilter(false);
   }
 
-  //HIDE FILTER
+  // Close popover on outside click via shared popup outside-click handler.
   useEffect(() => {
-    if (filterWaiterCallsRef) {
+    if (filterRef) {
       const refs = contentRef.filter((ref) => ref.id !== "waiterCallsFilter");
       setContentRef([
         ...refs,
         {
           id: "waiterCallsFilter",
           outRef: null,
-          ref: filterWaiterCallsRef,
+          ref: filterRef,
           callback: () => setOpenFilter(false),
         },
       ]);
     }
-  }, [filterWaiterCallsRef]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterRef]);
+
+  const activeFilterCount = [
+    filter.startDateTime,
+    filter.endDateTime,
+    filter.isResolved?.value !== null && filter.isResolved?.value !== undefined
+      ? 1
+      : null,
+  ].filter(Boolean).length;
 
   return (
-    <div className="flex justify-end">
-      <div className="flex gap-2">
-        <div className="w-full relative" ref={filterWaiterCallsRef}>
-          <button
-            className="w-full h-11 flex items-center justify-center text-[--primary-1] px-3 rounded-md text-sm font-normal border-[1.5px] border-solid border-[--primary-1]"
-            onClick={() => setOpenFilter(!openFilter)}
+    <div className="relative" ref={filterRef}>
+      <button
+        type="button"
+        onClick={() => setOpenFilter(!openFilter)}
+        className={`relative inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg text-xs font-semibold transition border ${
+          openFilter || activeFilterCount > 0
+            ? "border-indigo-300 bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-200 dark:border-indigo-400/30"
+            : "border-[--border-1] bg-[--white-1] text-[--black-1] hover:border-indigo-300 hover:text-indigo-600"
+        }`}
+      >
+        <SlidersHorizontal className="size-3.5" />
+        {t("waiterCalls.filter_button")}
+        {activeFilterCount > 0 && (
+          <span
+            className="grid place-items-center min-w-[18px] h-4 px-1 rounded-full text-white text-[10px] font-bold"
+            style={{ background: PRIMARY_GRADIENT }}
           >
-            {t("waiterCalls.filter_button")}
-          </button>
+            {activeFilterCount}
+          </span>
+        )}
+      </button>
 
-          <div
-            className={`absolute right-0 top-12 px-4 pb-3 flex flex-col bg-[--white-1] w-[22rem] border border-solid border-[--light-3] rounded-lg drop-shadow-md -drop-shadow-md z-[999] min-w-max ${
-              openFilter ? "visible" : "hidden"
-            }`}
-          >
-            <div className="flex gap-6">
-              <div>
-                <CustomDatePicker
-                  label={t("waiterCalls.start_date")}
-                  className="text-sm sm:mt-1 w-36 py-2 sm:py-[0.5rem]"
-                  style={{ padding: "0 !important" }}
-                  popperClassName="react-datepicker-popper-filter-order-1"
-                  value={filter.startDateTime}
-                  dateOnly={true}
-                  onChange={(selectedDate) => {
-                    setFilter((prev) => {
-                      return {
-                        ...prev,
-                        dateRange: 0,
-                        startDateTime: selectedDate,
-                      };
-                    });
-                  }}
-                />
-                <style>
-                  {`
-                  .react-datepicker-popper-filter-order-1 {
-                    right: -2rem
-                  }
-                `}
-                </style>
-              </div>
+      {openFilter && (
+        <div className="absolute right-0 top-11 z-[999] w-[min(92vw,22rem)] rounded-xl border border-[--border-1] bg-[--white-1] shadow-xl overflow-hidden">
+          <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
+          <div className="px-4 py-3 border-b border-[--border-1] flex items-center justify-between">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[--gr-1]">
+              {t("waiterCalls.filters_title")}
+            </h3>
+            <button
+              type="button"
+              onClick={() => setOpenFilter(false)}
+              className="grid place-items-center size-7 rounded-md text-[--gr-1] hover:bg-[--white-2] hover:text-[--black-1] transition"
+              aria-label={t("waiterCalls.clear")}
+            >
+              <X className="size-3.5" />
+            </button>
+          </div>
 
-              <div>
-                <CustomDatePicker
-                  label={t("waiterCalls.end_date")}
-                  className="text-sm sm:mt-1 w-36 py-2 sm:py-[0.5rem]"
-                  style={{ padding: "0 !important" }}
-                  popperClassName="react-datepicker-popper-filter-order-2"
-                  value={filter.endDateTime}
-                  dateOnly={true}
-                  onChange={(selectedDate) => {
-                    setFilter((prev) => {
-                      return {
-                        ...prev,
-                        dateRange: 0,
-                        endDateTime: selectedDate,
-                      };
-                    });
-                  }}
-                />
-                <style>
-                  {`
-                  .react-datepicker-popper-filter-order-2 {
-                    right: -22rem
-                  }
-                `}
-                </style>
-              </div>
-            </div>
-
-            <div className="flex gap-6">
-              <CustomSelect
-                label={t("waiterCalls.is_resolved")}
-                className="text-sm sm:mt-1"
-                className2="sm:mt-3"
-                style={{ padding: "0 !important" }}
-                options={[
-                  { label: t("waiterCalls.status_all"), value: null },
-                  { label: t("waiterCalls.status_resolved"), value: true },
-                  { label: t("waiterCalls.status_pending"), value: false },
-                ]}
-                value={filter.isResolved}
-                onChange={(selectedOption) => {
-                  setFilter((prev) => {
-                    return {
-                      ...prev,
-                      statusId: selectedOption.value,
-                      isResolved: selectedOption,
-                    };
-                  });
-                }}
+          <div className="p-4 space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <CustomDatePicker
+                label={t("waiterCalls.start_date")}
+                className="text-sm py-2"
+                popperClassName="react-datepicker-popper-filter-order-1"
+                value={filter.startDateTime}
+                dateOnly
+                onChange={(d) =>
+                  setFilter((p) => ({ ...p, dateRange: 0, startDateTime: d }))
+                }
               />
-              {/* <CustomSelect
-                label="Pazaryeri"
-                className="text-sm sm:mt-1"
-                className2="sm:mt-3"
-                style={{ padding: "0 !important" }}
-                options={[
-                  { value: null, label: "Hepsi", id: null },
-                  ...filteredMarketplaces,
-                ]}
-                value={filter.marketplace}
-                onChange={(selectedOption) => {
-                  setFilter((prev) => {
-                    return {
-                      ...prev,
-                      marketplaceId: selectedOption.id,
-                      marketplace: selectedOption,
-                    };
-                  });
-                }}
-              /> */}
+              <CustomDatePicker
+                label={t("waiterCalls.end_date")}
+                className="text-sm py-2"
+                popperClassName="react-datepicker-popper-filter-order-2"
+                value={filter.endDateTime}
+                dateOnly
+                onChange={(d) =>
+                  setFilter((p) => ({ ...p, dateRange: 0, endDateTime: d }))
+                }
+              />
             </div>
 
-            <div className="w-full flex gap-2 justify-center pt-10 text-base">
-              <button
-                className="text-white bg-[--red-1] py-2 px-12 rounded-lg hover:opacity-90"
-                onClick={() => handleFilter(false)}
-              >
-                {t("waiterCalls.clear")}
-              </button>
-              <button
-                className="text-white bg-[--primary-1] py-2 px-12 rounded-lg hover:opacity-90"
-                onClick={() => handleFilter(true)}
-              >
-                {t("waiterCalls.apply")}
-              </button>
-            </div>
+            <CustomSelect
+              label={t("waiterCalls.is_resolved")}
+              className="text-sm"
+              options={[
+                { label: t("waiterCalls.status_all"), value: null },
+                { label: t("waiterCalls.status_resolved"), value: true },
+                { label: t("waiterCalls.status_pending"), value: false },
+              ]}
+              value={filter.isResolved}
+              onChange={(opt) =>
+                setFilter((p) => ({
+                  ...p,
+                  statusId: opt.value,
+                  isResolved: opt,
+                }))
+              }
+            />
+          </div>
+
+          <div className="px-4 py-3 border-t border-[--border-1] bg-[--white-2] flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => handleFilter(false)}
+              className="h-9 px-3.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition dark:bg-rose-500/15 dark:text-rose-200 dark:border-rose-400/30"
+            >
+              {t("waiterCalls.clear")}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleFilter(true)}
+              className="h-9 px-4 rounded-lg text-xs font-semibold text-white shadow-md shadow-indigo-500/25 hover:brightness-110 transition"
+              style={{ background: PRIMARY_GRADIENT }}
+            >
+              {t("waiterCalls.apply")}
+            </button>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

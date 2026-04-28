@@ -115,10 +115,10 @@ const AddOrEditCategoryPopup = ({
   }, [success, error]);
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200 overflow-hidden">
+    <div className="w-full max-w-md mx-auto bg-[--white-1] rounded-2xl shadow-2xl ring-1 ring-[--border-1] overflow-hidden">
       <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
 
-      <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+      <div className="px-5 py-4 border-b border-[--border-1] flex items-center gap-3">
         <span
           className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
           style={{ background: PRIMARY_GRADIENT }}
@@ -129,7 +129,7 @@ const AddOrEditCategoryPopup = ({
             <ClipboardList className="size-4" />
           )}
         </span>
-        <h2 className="text-sm sm:text-base font-semibold text-slate-900 flex-1 truncate">
+        <h2 className="text-sm sm:text-base font-semibold text-[--black-1] flex-1 truncate">
           {editingCategory
             ? t("surveySettings.modal_edit_title")
             : t("surveySettings.modal_add_title")}
@@ -137,7 +137,7 @@ const AddOrEditCategoryPopup = ({
         <button
           type="button"
           onClick={() => setPopupContent(null)}
-          className="grid place-items-center size-8 rounded-md text-slate-500 hover:bg-slate-100 transition"
+          className="grid place-items-center size-8 rounded-md text-[--gr-1] hover:bg-[--white-2] transition"
           aria-label={t("surveySettings.cancel")}
         >
           <X className="size-4" />
@@ -146,7 +146,7 @@ const AddOrEditCategoryPopup = ({
 
       <form onSubmit={handleSave} className="p-5 flex flex-col gap-4">
         <div>
-          <label className="block text-[11px] font-semibold text-slate-600 mb-1 tracking-wide">
+          <label className="block text-[11px] font-semibold text-[--gr-1] mb-1 tracking-wide">
             {t("surveySettings.name_label")}
             <span className="text-rose-500 ml-0.5">*</span>
           </label>
@@ -160,15 +160,15 @@ const AddOrEditCategoryPopup = ({
             value={formKey}
             onChange={(e) => setFormKey(e.target.value)}
             placeholder={t("surveySettings.name_placeholder")}
-            className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            className="w-full h-10 px-3 rounded-lg border border-[--border-1] bg-[--white-1] text-[--black-1] placeholder:text-[--gr-2] text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
           />
-          <p className="text-[10px] text-slate-500 mt-1">
+          <p className="text-[10px] text-[--gr-1] mt-1">
             {t("surveySettings.name_hint")}
           </p>
         </div>
 
         <div>
-          <label className="block text-[11px] font-semibold text-slate-600 mb-1 tracking-wide">
+          <label className="block text-[11px] font-semibold text-[--gr-1] mb-1 tracking-wide">
             {t("surveySettings.icon_label")}
             <span className="text-rose-500 ml-0.5">*</span>
           </label>
@@ -179,9 +179,9 @@ const AddOrEditCategoryPopup = ({
               maxLength={2}
               value={formIcon}
               onChange={(e) => setFormIcon(e.target.value)}
-              className="w-16 h-10 text-center text-2xl bg-white border border-slate-200 rounded-lg outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+              className="w-16 h-10 text-center text-2xl bg-[--white-1] border border-[--border-1] rounded-lg outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
             />
-            <div className="flex-1 grid grid-cols-5 gap-1 p-1 bg-slate-50 border border-slate-200 rounded-lg">
+            <div className="flex-1 grid grid-cols-5 gap-1 p-1 bg-[--white-2] border border-[--border-1] rounded-lg">
               {EMOJI_PRESETS.map((emoji) => (
                 <button
                   key={emoji}
@@ -189,8 +189,8 @@ const AddOrEditCategoryPopup = ({
                   onClick={() => setFormIcon(emoji)}
                   className={`text-lg p-1 rounded transition-colors ${
                     formIcon === emoji
-                      ? "bg-white shadow-sm ring-1 ring-indigo-200"
-                      : "hover:bg-white"
+                      ? "bg-[--white-1] shadow-sm ring-1 ring-indigo-200"
+                      : "hover:bg-[--white-1]"
                   }`}
                 >
                   {emoji}
@@ -200,11 +200,11 @@ const AddOrEditCategoryPopup = ({
           </div>
         </div>
 
-        <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+        <div className="flex justify-end gap-2 pt-3 border-t border-[--border-1]">
           <button
             type="button"
             onClick={() => setPopupContent(null)}
-            className="h-10 px-4 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+            className="h-10 px-4 rounded-lg border border-[--border-1] bg-[--white-1] text-[--black-2] text-sm font-medium hover:bg-[--white-2] transition"
           >
             {t("surveySettings.cancel")}
           </button>

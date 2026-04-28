@@ -183,17 +183,17 @@ const Products = () => {
   }, [categories]);
 
   return (
-    <div className="w-full pb-8 mt-1 text-slate-900">
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
       {/* Top tabs (Manage / Price List / Add) */}
       <div className="flex flex-wrap gap-2 mb-3 text-sm">
         <ProductsHeader />
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
         <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
 
         {/* HERO HEADER */}
-        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
           <span
             className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
             style={{ background: PRIMARY_GRADIENT }}
@@ -201,10 +201,10 @@ const Products = () => {
             <Package className="size-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
               {t("productsList.title")}
             </h1>
-            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
               {typeof totalItems === "number"
                 ? t("productsList.summary", { count: totalItems })
                 : t("productsList.subtitle")}
@@ -213,7 +213,7 @@ const Products = () => {
         </div>
 
         {/* FILTERS */}
-        <div className="px-3 sm:px-5 py-3 border-b border-slate-100 bg-slate-50/40">
+        <div className="px-3 sm:px-5 py-3 border-b border-[--border-1] bg-[--white-2]/40">
           <div className="flex flex-col sm:flex-row gap-2">
             <form
               className="relative flex-1 min-w-0"
@@ -222,7 +222,7 @@ const Products = () => {
                 handleFilter(searchVal, "search");
               }}
             >
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[--gr-2]">
                 <Search className="size-4" />
               </span>
               <input
@@ -230,7 +230,7 @@ const Products = () => {
                 placeholder={t("productsList.search_placeholder")}
                 value={searchVal}
                 onChange={(e) => setSearchVal(e.target.value)}
-                className="block w-full pl-9 pr-9 h-10 rounded-lg border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                className="block w-full pl-9 pr-9 h-10 rounded-lg border border-[--border-1] bg-[--white-1] text-[--black-1] placeholder:text-[--gr-2] text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
               />
               {searchVal && (
                 <button
@@ -239,7 +239,7 @@ const Products = () => {
                     setSearchVal("");
                     handleFilter("", "search");
                   }}
-                  className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600"
+                  className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[--gr-2] hover:text-[--gr-1]"
                   title={t("productsList.clear_filters")}
                 >
                   <X className="size-4" />
@@ -278,7 +278,7 @@ const Products = () => {
                   onClick={clearFilters}
                   title={t("productsList.clear_filters")}
                   aria-label={t("productsList.clear_filters")}
-                  className="grid place-items-center h-10 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-rose-600 hover:border-rose-200 transition shrink-0"
+                  className="grid place-items-center h-10 px-2.5 rounded-lg border border-[--border-1] bg-[--white-1] text-[--gr-1] hover:bg-[--white-2] hover:text-rose-600 hover:border-rose-200 transition shrink-0"
                 >
                   <X className="size-4" />
                 </button>
@@ -296,11 +296,11 @@ const Products = () => {
               ))}
             </div>
           ) : productsData ? (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-8 grid place-items-center text-center">
+            <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/60 p-8 grid place-items-center text-center">
               <span className="grid place-items-center size-12 rounded-xl bg-indigo-50 text-indigo-600 mb-3">
                 <Package className="size-6" />
               </span>
-              <h3 className="text-sm font-semibold text-slate-900">
+              <h3 className="text-sm font-semibold text-[--black-1]">
                 {t("productsList.no_products")}
               </h3>
             </div>
@@ -311,7 +311,7 @@ const Products = () => {
         {productsData &&
           productsData.length > 0 &&
           typeof totalItems === "number" && (
-            <div className="w-full flex justify-center px-3 pb-4 pt-1 text-slate-700 border-t border-slate-100">
+            <div className="w-full flex justify-center px-3 pb-4 pt-1 text-[--black-2] border-t border-[--border-1]">
               <CustomPagination
                 pageNumber={pageNumber}
                 setPageNumber={setPageNumber}

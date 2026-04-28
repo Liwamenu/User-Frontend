@@ -43,6 +43,9 @@ export const ReservationsProvider = ({ children }) => {
     value: 20,
   };
 
+  // Subscribe to login state so the provider re-renders after login and the
+  // initial fetch effect below picks up the freshly-stored token + restaurantId.
+  const sessionId = useSelector((s) => s.auth.login.sessionId);
   const isAuthenticated = !!getAuth()?.token;
   const auth = getAuth();
   const restaurantId =
@@ -211,7 +214,7 @@ export const ReservationsProvider = ({ children }) => {
   useEffect(() => {
     if (!isAuthenticated) return;
     fetchReservations({ pageNumber: 1, pageSize: pageSize.value });
-  }, [dispatch, isAuthenticated, restaurantId, pageSize.value]);
+  }, [dispatch, isAuthenticated, sessionId, restaurantId, pageSize.value]);
 
   useEffect(() => {
     if (reservations) {

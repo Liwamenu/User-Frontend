@@ -297,7 +297,7 @@ const FilterOrders = () => {
             {/* Amount range */}
             <div>
               <p className="block text-[10px] font-bold uppercase tracking-wider text-[--gr-1] mb-1.5">
-                Tutar Aralığı (₺)
+                Tutar Aralığı
               </p>
               <div className="grid grid-cols-2 gap-2">
                 <input

@@ -42,6 +42,9 @@ export const WaiterCallsProvider = ({ children }) => {
     value: 8,
   };
 
+  // Subscribe to login state so the provider re-renders after login and the
+  // initial fetch effect below picks up the freshly-stored token.
+  const sessionId = useSelector((s) => s.auth.login.sessionId);
   const isAuthenticated = !!getAuth()?.token;
   const { waiterCalls, error } = useSelector((s) => s.waiterCalls.get);
 
@@ -131,7 +134,7 @@ export const WaiterCallsProvider = ({ children }) => {
     if (!calls) {
       dispatch(getWaiterCalls({ page: pageNumber, pageSize: pageSize.value }));
     }
-  }, [calls, dispatch, isAuthenticated, pageNumber, pageSize.value]);
+  }, [calls, dispatch, isAuthenticated, sessionId, pageNumber, pageSize.value]);
 
   // Sync redux get response
   useEffect(() => {

@@ -82,8 +82,8 @@ const SurveySettings = ({ data }) => {
     settings?.reduce((sum, c) => sum + (c.ratingCount || 0), 0) || 0;
 
   return (
-    <div className="w-full pb-8 mt-1 text-slate-900">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
         {/* gradient strip */}
         <div
           className="h-0.5"
@@ -93,7 +93,7 @@ const SurveySettings = ({ data }) => {
           }}
         />
         {/* HERO HEADER */}
-        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3 flex-wrap sm:flex-nowrap">
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3 flex-wrap sm:flex-nowrap">
           <span
             className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
             style={{
@@ -104,10 +104,10 @@ const SurveySettings = ({ data }) => {
             <ClipboardList className="size-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
               {t("surveySettings.title", { name: data?.name || "" })}
             </h1>
-            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
               {settings?.length ?? 0} kategori · {totalReviews}{" "}
               {t("surveySettings.reviews")} · ⭐ {overallAvg}
             </p>
@@ -141,11 +141,11 @@ const SurveySettings = ({ data }) => {
         <div className="p-4 sm:p-5 space-y-4">
           {/* Empty state */}
           {settings?.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 p-8 grid place-items-center text-center">
+            <div className="rounded-2xl border border-dashed border-[--border-1] bg-[--white-2]/60 p-8 grid place-items-center text-center">
               <span className="grid place-items-center size-12 rounded-xl bg-indigo-50 text-indigo-600 mb-3">
                 <ClipboardList className="size-6" />
               </span>
-              <h3 className="text-sm font-semibold text-slate-900">
+              <h3 className="text-sm font-semibold text-[--black-1]">
                 {t("surveySettings.no_feedback")}
               </h3>
             </div>
@@ -159,23 +159,23 @@ const SurveySettings = ({ data }) => {
                 return (
                   <div
                     key={category.key}
-                    className="group flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white hover:border-indigo-300 hover:shadow-sm transition-all"
+                    className="group flex items-center gap-3 p-3 rounded-xl border border-[--border-1] bg-[--white-1] hover:border-indigo-300 hover:shadow-sm transition-all"
                   >
-                    <span className="grid place-items-center size-11 rounded-lg bg-slate-50 ring-1 ring-slate-200 text-2xl shrink-0">
+                    <span className="grid place-items-center size-11 rounded-lg bg-[--white-2] ring-1 ring-[--border-1] text-2xl shrink-0">
                       {category.icon}
                     </span>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1.5">
-                        <h3 className="font-semibold text-sm text-slate-900 truncate capitalize">
+                        <h3 className="font-semibold text-sm text-[--black-1] truncate capitalize">
                           {t(category.key)}
                         </h3>
-                        <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider shrink-0">
+                        <span className="text-[10px] text-[--gr-2] font-medium uppercase tracking-wider shrink-0">
                           · {category.ratingCount}{" "}
                           {t("surveySettings.reviews")}
                         </span>
                       </div>
-                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-1.5 w-full bg-[--white-2] rounded-full overflow-hidden">
                         <div
                           className={`h-full transition-all duration-700 ease-out ${getProgressColor(rating)}`}
                           style={{ width: `${(rating / 5) * 100}%` }}
@@ -190,7 +190,7 @@ const SurveySettings = ({ data }) => {
                           className={`size-3.5 ${
                             star <= Math.round(rating)
                               ? "text-amber-400 fill-amber-400"
-                              : "text-slate-200 fill-slate-200"
+                              : "text-slate-300 fill-slate-300 dark:text-slate-600 dark:fill-slate-600"
                           }`}
                           strokeWidth={1.5}
                         />
@@ -252,7 +252,7 @@ const SurveySettings = ({ data }) => {
           {/* INSIGHT BANNER */}
           {settings?.length > 0 && (
             <div className="rounded-xl bg-gradient-to-br from-indigo-50 via-indigo-50/70 to-cyan-50 border border-indigo-100 p-3 flex items-start gap-3">
-              <span className="grid place-items-center size-10 rounded-xl bg-white ring-1 ring-indigo-100 text-indigo-600 shrink-0 shadow-sm">
+              <span className="grid place-items-center size-10 rounded-xl bg-[--white-1] ring-1 ring-indigo-100 text-indigo-600 shrink-0 shadow-sm">
                 {ratedCategories.length > 0 ? (
                   <TrendingUp className="size-5" />
                 ) : (

@@ -114,8 +114,8 @@ const PriceList = () => {
         {/* Bulk Update Banner */}
         <div className="bg-[#2D2D75] rounded-2xl p-6 mb-8 text-white shadow-lg relative overflow-hidden">
           {/* Decorative Circles */}
-          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-5 rounded-full pointer-events-none"></div>
-          <div className="absolute bottom-0 right-20 -mb-10 w-40 h-40 bg-white opacity-5 rounded-full pointer-events-none"></div>
+          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-[--white-1] opacity-5 rounded-full pointer-events-none"></div>
+          <div className="absolute bottom-0 right-20 -mb-10 w-40 h-40 bg-[--white-1] opacity-5 rounded-full pointer-events-none"></div>
 
           <div className="relative z-10 flex flex-col md:flex-row md:items-end gap-6">
             {/* Title & Desc */}
@@ -223,7 +223,7 @@ const PriceList = () => {
         </div>
 
         {/* Product List Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+        <div className="bg-[--white-1] rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
           {Object.entries(groupedProducts).map(
             ([categoryName, catProducts]) => (
               <div
@@ -292,7 +292,7 @@ const PriceList = () => {
                                   id={`input-${globalIndex}-price`}
                                   type="text"
                                   inputMode="decimal"
-                                  className="block w-full text-right text-gray-900 font-bold bg-white border border-gray-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                  className="block w-full text-right text-gray-900 font-bold bg-[--white-1] border border-gray-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                                   value={priceValue}
                                   onChange={(e) =>
                                     handlePriceChange(

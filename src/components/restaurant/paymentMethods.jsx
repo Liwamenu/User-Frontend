@@ -184,8 +184,8 @@ const PaymentMethods = ({ data: restaurant }) => {
   const totalCount = paymentMethodsData?.length || 0;
 
   return (
-    <div className="w-full pb-8 mt-1 text-slate-900">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
+      <div className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden">
         {/* gradient strip */}
         <div
           className="h-0.5"
@@ -195,7 +195,7 @@ const PaymentMethods = ({ data: restaurant }) => {
           }}
         />
         {/* HERO HEADER */}
-        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
           <span
             className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
             style={{
@@ -206,10 +206,10 @@ const PaymentMethods = ({ data: restaurant }) => {
             <CreditCard className="size-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
               {t("paymentMethods.title", { name: restaurant?.name || "" })}
             </h1>
-            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
               {totalCount > 0
                 ? `${enabledCount} / ${totalCount} aktif`
                 : "—"}
@@ -234,7 +234,7 @@ const PaymentMethods = ({ data: restaurant }) => {
         <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
           {/* Description */}
           <div className="rounded-xl bg-indigo-50/70 border border-indigo-100 p-3 flex items-start gap-3">
-            <span className="grid place-items-center size-8 rounded-lg bg-white text-indigo-600 ring-1 ring-indigo-100 shrink-0">
+            <span className="grid place-items-center size-8 rounded-lg bg-[--white-1] text-indigo-600 ring-1 ring-indigo-100 shrink-0">
               <Banknote className="size-4" />
             </span>
             <p className="text-[12px] text-indigo-900/90 leading-relaxed flex-1 min-w-0">
@@ -245,16 +245,16 @@ const PaymentMethods = ({ data: restaurant }) => {
           {paymentMethodsData && (
             <>
               {/* Master toggle */}
-              <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 flex items-center justify-between gap-3">
+              <div className="rounded-xl border border-[--border-1] bg-[--white-2]/40 p-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <span className="grid place-items-center size-9 rounded-lg bg-indigo-50 text-indigo-600 shrink-0">
                     <Layers className="size-4" />
                   </span>
                   <div className="min-w-0">
-                    <h3 className="text-sm font-semibold text-slate-900 truncate">
+                    <h3 className="text-sm font-semibold text-[--black-1] truncate">
                       {t("paymentMethods.enable_all")}
                     </h3>
-                    <p className="text-[11px] text-slate-500 truncate">
+                    <p className="text-[11px] text-[--gr-1] truncate">
                       {t("paymentMethods.enable_all_desc")}
                     </p>
                   </div>
@@ -271,17 +271,17 @@ const PaymentMethods = ({ data: restaurant }) => {
                 {paymentMethodsData.map((M, i) => (
                   <label
                     key={M.id}
-                    className={`group flex items-center gap-3 p-3 rounded-xl border bg-white transition-all cursor-pointer ${
+                    className={`group flex items-center gap-3 p-3 rounded-xl border bg-[--white-1] transition-all cursor-pointer ${
                       M.enabled
                         ? "border-indigo-200 ring-1 ring-indigo-100 shadow-sm"
-                        : "border-slate-200 hover:border-indigo-300 hover:shadow-sm"
+                        : "border-[--border-1] hover:border-indigo-300 hover:shadow-sm"
                     }`}
                   >
                     <span
                       className={`grid place-items-center size-9 rounded-lg shrink-0 text-xs font-bold transition-colors ${
                         M.enabled
                           ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/25"
-                          : "bg-slate-100 text-slate-500"
+                          : "bg-[--white-2] text-[--gr-1]"
                       }`}
                     >
                       {M.enabled ? <Check className="size-4" /> : i + 1}
@@ -289,8 +289,8 @@ const PaymentMethods = ({ data: restaurant }) => {
                     <span
                       className={`flex-1 min-w-0 text-sm truncate transition-colors ${
                         M.enabled
-                          ? "font-semibold text-slate-900"
-                          : "font-medium text-slate-700"
+                          ? "font-semibold text-[--black-1]"
+                          : "font-medium text-[--black-2]"
                       }`}
                     >
                       {M.name}
@@ -318,8 +318,8 @@ const PaymentMethods = ({ data: restaurant }) => {
           )}
 
           {/* SUBMIT */}
-          <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+          <div className="flex items-center justify-between gap-3 pt-3 border-t border-[--border-1]">
+            <span className="text-[11px] font-semibold text-[--gr-1] uppercase tracking-wide">
               {enabledCount} / {totalCount}
             </span>
             <button
@@ -361,7 +361,7 @@ const AddMethodPopup = ({ restaurantId, onClose }) => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200 overflow-hidden">
+    <div className="w-full max-w-md mx-auto bg-[--white-1] rounded-2xl shadow-2xl ring-1 ring-[--border-1] overflow-hidden">
       <div
         className="h-0.5"
         style={{
@@ -369,7 +369,7 @@ const AddMethodPopup = ({ restaurantId, onClose }) => {
             "linear-gradient(90deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)",
         }}
       />
-      <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+      <div className="px-5 py-4 border-b border-[--border-1] flex items-center gap-3">
         <span
           className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
           style={{
@@ -379,13 +379,13 @@ const AddMethodPopup = ({ restaurantId, onClose }) => {
         >
           <Plus className="size-4" />
         </span>
-        <h2 className="text-sm sm:text-base font-semibold text-slate-900 flex-1 truncate">
+        <h2 className="text-sm sm:text-base font-semibold text-[--black-1] flex-1 truncate">
           {t("paymentMethods.add_method_title")}
         </h2>
         <button
           type="button"
           onClick={onClose}
-          className="grid place-items-center size-8 rounded-md text-slate-500 hover:bg-slate-100 transition"
+          className="grid place-items-center size-8 rounded-md text-[--gr-1] hover:bg-[--white-2] transition"
           aria-label="Kapat"
         >
           <X className="size-4" />
@@ -393,7 +393,7 @@ const AddMethodPopup = ({ restaurantId, onClose }) => {
       </div>
       <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
         <div>
-          <label className="block text-[11px] font-semibold text-slate-600 mb-1 tracking-wide">
+          <label className="block text-[11px] font-semibold text-[--gr-1] mb-1 tracking-wide">
             {t("paymentMethods.method_name")}
             <span className="text-rose-500 ml-0.5">*</span>
           </label>
@@ -402,17 +402,17 @@ const AddMethodPopup = ({ restaurantId, onClose }) => {
             type="text"
             required
             maxLength={40}
-            className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            className="w-full h-10 px-3 rounded-lg border border-[--border-1] bg-[--white-1] text-[--black-1] placeholder:text-[--gr-2] text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
             placeholder={t("paymentMethods.method_name_placeholder")}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
         </div>
-        <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+        <div className="flex justify-end gap-2 pt-2 border-t border-[--border-1]">
           <button
             type="button"
             onClick={onClose}
-            className="h-10 px-4 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+            className="h-10 px-4 rounded-lg border border-[--border-1] bg-[--white-1] text-[--black-2] text-sm font-medium hover:bg-[--white-2] transition"
           >
             {t("paymentMethods.cancel")}
           </button>
@@ -452,39 +452,39 @@ const DeleteMethodPopup = ({ restaurantId, method, onClose }) => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200 overflow-hidden">
+    <div className="w-full max-w-md mx-auto bg-[--white-1] rounded-2xl shadow-2xl ring-1 ring-[--border-1] overflow-hidden">
       <div
         className="h-0.5"
         style={{
           background: "linear-gradient(90deg, #f43f5e 0%, #ef4444 100%)",
         }}
       />
-      <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+      <div className="px-5 py-4 border-b border-[--border-1] flex items-center gap-3">
         <span className="grid place-items-center size-9 rounded-xl bg-rose-50 text-rose-600 shrink-0">
           <Trash2 className="size-4" />
         </span>
-        <h2 className="text-sm sm:text-base font-semibold text-slate-900 flex-1 truncate">
+        <h2 className="text-sm sm:text-base font-semibold text-[--black-1] flex-1 truncate">
           {t("paymentMethods.delete_method_title")}
         </h2>
         <button
           type="button"
           onClick={onClose}
-          className="grid place-items-center size-8 rounded-md text-slate-500 hover:bg-slate-100 transition"
+          className="grid place-items-center size-8 rounded-md text-[--gr-1] hover:bg-[--white-2] transition"
           aria-label="Kapat"
         >
           <X className="size-4" />
         </button>
       </div>
       <div className="p-5">
-        <p className="text-sm text-slate-700 leading-relaxed">
+        <p className="text-sm text-[--black-2] leading-relaxed">
           {t("paymentMethods.delete_confirm", { name: method?.name })}
         </p>
       </div>
-      <div className="flex justify-end gap-2 px-5 pb-5 pt-2 border-t border-slate-100">
+      <div className="flex justify-end gap-2 px-5 pb-5 pt-2 border-t border-[--border-1]">
         <button
           type="button"
           onClick={onClose}
-          className="h-10 px-4 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+          className="h-10 px-4 rounded-lg border border-[--border-1] bg-[--white-1] text-[--black-2] text-sm font-medium hover:bg-[--white-2] transition"
         >
           {t("paymentMethods.cancel")}
         </button>

@@ -400,7 +400,7 @@ const OrderRow = ({ order, onSelect, isActive, t }) => {
           {/* Right */}
           <div className="text-right flex flex-col items-end gap-1">
             <p className="font-bold text-[--black-1] text-base sm:text-lg whitespace-nowrap tabular-nums">
-              {Number(order.totalAmount || 0).toFixed(2)} ₺
+              {Number(order.totalAmount || 0).toFixed(2)}
             </p>
             <ChevronRight className="size-4 text-[--gr-1]" />
           </div>

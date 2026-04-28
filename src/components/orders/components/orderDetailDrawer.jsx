@@ -10,6 +10,7 @@ import {
   Hash,
   MapPin,
   Phone,
+  Printer,
   ShoppingBag,
   Sparkles,
   StickyNote,
@@ -21,6 +22,7 @@ import {
 
 //UTILS
 import { copyToClipboard, formatDateString } from "../../../utils/utils";
+import { printOrder } from "./printOrder";
 
 //ACTIONS
 import { useOrderStatusActions } from "../pages/actions";
@@ -92,7 +94,7 @@ export default OrderDetailDrawer;
 // ====== Subcomponents ======
 
 const DrawerHeader = ({ order, onClose }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   return (
     <header className="grid grid-cols-[auto_1fr_auto] gap-3 items-center px-4 sm:px-5 py-4 border-b border-[--border-1]">
       <div
@@ -115,14 +117,27 @@ const DrawerHeader = ({ order, onClose }) => {
           <span className="truncate">{order.id}</span>
         </button>
       </div>
-      <button
-        type="button"
-        onClick={onClose}
-        className="grid place-items-center size-9 rounded-lg hover:bg-[--white-2] text-[--gr-1] transition"
-        aria-label="Kapat"
-      >
-        <X className="size-5" />
-      </button>
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={() => printOrder(order, t, i18n.language)}
+          className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-semibold text-white shadow-md shadow-indigo-500/25 hover:brightness-110 active:brightness-95 transition"
+          style={{ background: PRIMARY_GRADIENT }}
+          title={t("orders.print_order")}
+          aria-label={t("orders.print_order")}
+        >
+          <Printer className="size-3.5" strokeWidth={2.4} />
+          <span className="hidden sm:inline">{t("orders.print")}</span>
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="grid place-items-center size-9 rounded-lg hover:bg-[--white-2] text-[--gr-1] transition"
+          aria-label="Kapat"
+        >
+          <X className="size-5" />
+        </button>
+      </div>
     </header>
   );
 };
@@ -135,7 +150,7 @@ const StatusActions = ({ order }) => {
       <p className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1] mb-2">
         {t("orders.change_status")}
       </p>
-      <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+      <div className="grid grid-cols-6 gap-1">
         {STATUS_DEFS.map((s) => {
           const Icon = s.icon;
           const active = order.status === s.key;
@@ -144,15 +159,17 @@ const StatusActions = ({ order }) => {
               key={s.key}
               type="button"
               onClick={() => updateStatus(order.id, s.key)}
-              className={`flex flex-col items-center gap-1.5 p-2.5 rounded-xl border-2 transition ${
+              title={t(s.labelKey)}
+              aria-label={t(s.labelKey)}
+              className={`flex flex-col items-center justify-center gap-1 px-1 py-2 rounded-lg border transition ${
                 active
                   ? `${STATUS_RING_CLS[s.cls]}`
                   : "border-[--border-1] bg-[--white-1] text-[--gr-1] hover:border-[--primary-1]/40"
               }`}
             >
-              <Icon className="size-4" strokeWidth={2.2} />
+              <Icon className="size-4 shrink-0" strokeWidth={2.2} />
               <span
-                className={`text-[10px] font-bold text-center uppercase tracking-wider ${
+                className={`text-[8.5px] font-bold leading-none text-center uppercase tracking-tight truncate w-full ${
                   active ? "" : "text-[--gr-1]"
                 }`}
               >
@@ -315,7 +332,7 @@ const ItemsSection = ({ order }) => {
                           </span>
                           {tagTotal > 0 && (
                             <span className="text-[--black-1] font-medium tabular-nums whitespace-nowrap">
-                              {tagTotal.toFixed(2)} ₺
+                              {tagTotal.toFixed(2)}
                             </span>
                           )}
                         </li>
@@ -325,7 +342,7 @@ const ItemsSection = ({ order }) => {
                 )}
               </div>
               <p className="text-sm font-bold text-[--black-1] tabular-nums whitespace-nowrap">
-                {Number(item.lineTotal || 0).toFixed(2)} ₺
+                {Number(item.lineTotal || 0).toFixed(2)}
               </p>
             </div>
           </li>
@@ -380,18 +397,18 @@ const DrawerFooter = ({ order }) => {
     <footer className="border-t border-[--border-1] bg-[--white-2]/40 px-4 sm:px-5 py-3 space-y-1.5">
       <SummaryLine
         label={t("orders.subtotal")}
-        value={`${Number(order.subTotal || 0).toFixed(2)} ₺`}
+        value={Number(order.subTotal || 0).toFixed(2)}
       />
       {order.deliveryFee != null && Number(order.deliveryFee) > 0 && (
         <SummaryLine
           label={t("orders.delivery_fee")}
-          value={`${Number(order.deliveryFee).toFixed(2)} ₺`}
+          value={Number(order.deliveryFee).toFixed(2)}
         />
       )}
       {order.discountAmount > 0 && (
         <SummaryLine
           label={t("orders.online_discount")}
-          value={`-${Number(order.discountAmount).toFixed(2)} ₺`}
+          value={`-${Number(order.discountAmount).toFixed(2)}`}
           accent="emerald"
         />
       )}
@@ -407,7 +424,7 @@ const DrawerFooter = ({ order }) => {
             WebkitTextFillColor: "transparent",
           }}
         >
-          {Number(order.totalAmount || 0).toFixed(2)} ₺
+          {Number(order.totalAmount || 0).toFixed(2)}
         </span>
       </div>
     </footer>

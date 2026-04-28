@@ -211,12 +211,12 @@ const CategoryProducts = ({ categoryId, onClose }) => {
   return (
     <div
       ref={rootRef}
-      className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85dvh]"
+      className="w-full max-w-2xl mx-auto bg-[--white-1] rounded-2xl shadow-2xl ring-1 ring-[--border-1] overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85dvh]"
     >
       <div className="h-0.5 shrink-0" style={{ background: PRIMARY_GRADIENT }} />
 
       {/* HEADER (sticky relative to the modal) */}
-      <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3 shrink-0">
+      <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3 shrink-0">
         <span
           className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
           style={{ background: PRIMARY_GRADIENT }}
@@ -224,10 +224,10 @@ const CategoryProducts = ({ categoryId, onClose }) => {
           <Package className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+          <h3 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
             {t("categoryProducts.title")}
           </h3>
-          <p className="text-[11px] text-slate-500 truncate mt-0.5">
+          <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
             {items?.length
               ? t("categoryProducts.summary", { count: items.length })
               : t("categoryProducts.subtitle")}
@@ -237,7 +237,7 @@ const CategoryProducts = ({ categoryId, onClose }) => {
           type="button"
           onClick={onClose}
           aria-label={t("categoryProducts.close")}
-          className="grid place-items-center size-8 rounded-md text-slate-500 hover:bg-slate-100 transition shrink-0"
+          className="grid place-items-center size-8 rounded-md text-[--gr-1] hover:bg-[--white-2] transition shrink-0"
         >
           <X className="size-4" />
         </button>
@@ -245,16 +245,16 @@ const CategoryProducts = ({ categoryId, onClose }) => {
 
       {/* SCROLLABLE BODY */}
       {!items ? (
-        <div className="flex-1 min-h-0 grid place-items-center py-10 text-slate-400">
+        <div className="flex-1 min-h-0 grid place-items-center py-10 text-[--gr-2]">
           <Loader2 className="size-5 animate-spin" />
         </div>
       ) : items.length === 0 ? (
         <div className="flex-1 min-h-0 p-3 sm:p-4">
-          <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-8 grid place-items-center text-center">
+          <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/60 p-8 grid place-items-center text-center">
             <span className="grid place-items-center size-12 rounded-xl bg-indigo-50 text-indigo-600 mb-3">
               <Package className="size-6" />
             </span>
-            <h3 className="text-sm font-semibold text-slate-900">
+            <h3 className="text-sm font-semibold text-[--black-1]">
               {t("categoryProducts.no_products")}
             </h3>
           </div>
@@ -300,8 +300,8 @@ const CategoryProducts = ({ categoryId, onClose }) => {
       )}
 
       {/* FOOTER — Save Order shows only when dirty */}
-      <div className="px-3 sm:px-5 py-3 border-t border-slate-100 flex items-center justify-between gap-3 shrink-0 bg-white">
-        <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide truncate">
+      <div className="px-3 sm:px-5 py-3 border-t border-[--border-1] flex items-center justify-between gap-3 shrink-0 bg-[--white-1]">
+        <span className="text-[11px] font-semibold text-[--gr-1] uppercase tracking-wide truncate">
           {orderDirty
             ? t("categoryProducts.drag_to_reorder")
             : items?.length
@@ -312,7 +312,7 @@ const CategoryProducts = ({ categoryId, onClose }) => {
           <button
             type="button"
             onClick={onClose}
-            className="h-10 px-4 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+            className="h-10 px-4 rounded-lg border border-[--border-1] bg-[--white-1] text-[--black-2] text-sm font-medium hover:bg-[--white-2] transition"
           >
             {t("categoryProducts.close")}
           </button>
@@ -346,21 +346,21 @@ const ProductRow = ({ prod, t, provided, isDragging, onEdit, onDelete }) => {
     <div
       ref={provided.innerRef}
       {...provided.draggableProps}
-      className={`flex items-center gap-3 p-3 rounded-xl border bg-white transition ${
+      className={`flex items-center gap-3 p-3 rounded-xl border bg-[--white-1] transition ${
         isDragging
           ? "border-indigo-400 ring-2 ring-indigo-200 shadow-xl"
-          : "border-slate-200 hover:border-indigo-200 hover:shadow-sm"
+          : "border-[--border-1] hover:border-indigo-200 hover:shadow-sm"
       }`}
     >
       <button
         type="button"
         {...provided.dragHandleProps}
         aria-label="drag"
-        className="grid place-items-center size-7 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition cursor-grab active:cursor-grabbing shrink-0"
+        className="grid place-items-center size-7 rounded-md text-[--gr-2] hover:text-indigo-600 hover:bg-[--white-2] transition cursor-grab active:cursor-grabbing shrink-0"
       >
         <GripVertical className="size-4" />
       </button>
-      <div className="size-12 rounded-lg ring-1 ring-slate-200 bg-slate-50 grid place-items-center overflow-hidden shrink-0">
+      <div className="size-12 rounded-lg ring-1 ring-[--border-1] bg-[--white-2] grid place-items-center overflow-hidden shrink-0">
         <img
           src={prod.image || fallbackImg}
           alt={prod.name}
@@ -369,10 +369,10 @@ const ProductRow = ({ prod, t, provided, isDragging, onEdit, onDelete }) => {
         />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-sm font-semibold text-slate-900 truncate">
+        <div className="text-sm font-semibold text-[--black-1] truncate">
           {prod.name}
         </div>
-        <div className="text-[11px] text-slate-500 mt-0.5">
+        <div className="text-[11px] text-[--gr-1] mt-0.5">
           {t("categoryProducts.portions", { count: portionsCount })}
         </div>
       </div>

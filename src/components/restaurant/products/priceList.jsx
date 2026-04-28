@@ -159,20 +159,20 @@ const PriceList = () => {
   const dirty = !isEqual(list, listBefore);
 
   return (
-    <div className="w-full pb-8 mt-1 text-slate-900">
+    <div className="w-full pb-8 mt-1 text-[--black-1]">
       {/* Top tabs */}
       <div className="flex flex-wrap gap-2 mb-3 text-sm">
         <ProductsHeader />
       </div>
 
       <div
-        className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+        className="bg-[--white-1] rounded-2xl border border-[--border-1] shadow-sm overflow-hidden"
         ref={containerRef}
       >
         <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
 
         {/* HERO HEADER */}
-        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center gap-3">
+        <div className="px-4 sm:px-5 py-3 border-b border-[--border-1] flex items-center gap-3">
           <span
             className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
             style={{ background: PRIMARY_GRADIENT }}
@@ -180,10 +180,10 @@ const PriceList = () => {
             <DollarSign className="size-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <h1 className="text-sm sm:text-base font-semibold text-slate-900 truncate tracking-tight">
+            <h1 className="text-sm sm:text-base font-semibold text-[--black-1] truncate tracking-tight">
               {t("priceList.title")}
             </h1>
-            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
               {list.length > 0
                 ? t("priceList.summary", {
                     count: list.length,
@@ -215,11 +215,11 @@ const PriceList = () => {
           <PriceListApplyBulk list={list} setList={setList} />
 
           {groupedByCategory.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-8 grid place-items-center text-center">
+            <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/60 p-8 grid place-items-center text-center">
               <span className="grid place-items-center size-12 rounded-xl bg-indigo-50 text-indigo-600 mb-3">
                 <DollarSign className="size-6" />
               </span>
-              <h3 className="text-sm font-semibold text-slate-900">
+              <h3 className="text-sm font-semibold text-[--black-1]">
                 {t("productsList.no_products")}
               </h3>
             </div>
@@ -228,16 +228,16 @@ const PriceList = () => {
               {groupedByCategory.map((group) => (
                 <div
                   key={group.categoryId}
-                  className="rounded-xl border border-slate-200 bg-white overflow-hidden"
+                  className="rounded-xl border border-[--border-1] bg-[--white-1] overflow-hidden"
                 >
                   {/* Category header — count sits next to the name; the two
                       price column labels live on the right and align with the
                       input columns below. */}
-                  <div className="flex items-center gap-2 px-3 py-2 bg-slate-50/80 border-b border-slate-100">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-[--white-2]/80 border-b border-[--border-1]">
                     <span className="grid place-items-center size-7 rounded-md bg-indigo-50 text-indigo-600 shrink-0">
                       <Layers className="size-3.5" />
                     </span>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 truncate min-w-0">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[--black-2] truncate min-w-0">
                       {group.categoryName || "—"}
                     </h3>
                     <span className="inline-flex items-center text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 shrink-0">
@@ -247,7 +247,7 @@ const PriceList = () => {
                       )}
                     </span>
                     <div className="flex-1" />
-                    <span className="hidden sm:block w-24 sm:w-28 text-right text-[10px] font-bold uppercase tracking-wider text-slate-500 shrink-0">
+                    <span className="hidden sm:block w-24 sm:w-28 text-right text-[10px] font-bold uppercase tracking-wider text-[--gr-1] shrink-0">
                       {t("priceList.normal_price")}
                     </span>
                     <span className="hidden sm:block w-24 sm:w-28 text-right text-[10px] font-bold uppercase tracking-wider text-emerald-600 shrink-0">
@@ -272,15 +272,15 @@ const PriceList = () => {
                             return (
                               <div
                                 key={portion.id || pi}
-                                className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-3 py-2 border-b last:border-b-0 border-slate-100 hover:bg-slate-50/60 transition-colors"
+                                className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-3 py-2 border-b last:border-b-0 border-[--border-1] hover:bg-[--white-2]/60 transition-colors"
                               >
                                 {/* Name + portion */}
                                 <div className="flex-1 min-w-0 flex items-baseline gap-1.5">
-                                  <span className="text-sm font-medium text-slate-900 truncate">
+                                  <span className="text-sm font-medium text-[--black-1] truncate">
                                     {currentProd.name}
                                   </span>
                                   {showPortion && (
-                                    <span className="text-xs text-slate-500 truncate">
+                                    <span className="text-xs text-[--gr-1] truncate">
                                       – {portion.name}
                                     </span>
                                   )}
@@ -337,7 +337,7 @@ const PriceList = () => {
 const PriceInput = ({ label, value, onChange, onKeyDown, dataAttr, tone }) => {
   const tones = {
     slate:
-      "border-slate-200 bg-white text-slate-900 focus:border-indigo-500 focus:ring-indigo-100",
+      "border-[--border-1] bg-[--white-1] text-[--black-1] focus:border-indigo-500 focus:ring-indigo-100",
     emerald:
       "border-emerald-200 bg-emerald-50/40 text-emerald-700 focus:border-emerald-500 focus:ring-emerald-100",
   };

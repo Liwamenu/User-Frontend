@@ -644,11 +644,11 @@ export const ProductImagePicker = ({
     <div
       className={`flex flex-col gap-2 p-3 rounded-xl border transition-all ${
         hasImage
-          ? "border-slate-200 bg-white"
+          ? "border-[--border-1] bg-[--white-1]"
           : "border-dashed border-[--border-1] bg-[--light-2] hover:border-indigo-300"
       }`}
     >
-      <label className="relative w-full aspect-[4/3] sm:aspect-square rounded-lg ring-1 ring-slate-200 bg-slate-50 grid place-items-center overflow-hidden cursor-pointer group">
+      <label className="relative w-full aspect-[4/3] sm:aspect-square rounded-lg ring-1 ring-[--border-1] bg-[--white-2] grid place-items-center overflow-hidden cursor-pointer group">
         {hasImage ? (
           <>
             <img
