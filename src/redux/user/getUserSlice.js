@@ -1,7 +1,7 @@
 //https://api.pentegrasyon.net:9007/api/v1/user/getUser
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { privateApi } from "../api";
+import { privateApi, setAuth } from "../api";
 
 const api = privateApi();
 const baseURL = import.meta.env.VITE_BASE_URL;
@@ -57,14 +57,16 @@ export const getUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await api.get(`${baseURL}Users/GetUser`);
-
-      //console.log(res);
-      return res?.data?.data;
+      const user = res?.data?.data;
+      // Persist the latest user payload back into the auth blob so other
+      // parts of the app (and the next page refresh) see fresh values.
+      if (user) setAuth({ user });
+      return user;
     } catch (err) {
       const errorMessage = err.message;
       return rejectWithValue({ message: errorMessage });
     }
-  }
+  },
 );
 
 export const { resetGetUserState, resetGetUser } = getUserSlice.actions;

@@ -22,6 +22,14 @@ export const getAuth = () => {
   return authItem;
 };
 
+// Merge a partial auth payload (e.g. updated `user`) into the stored auth
+// blob, leaving the token/sessionId untouched.
+export const setAuth = (patch) => {
+  const current = getAuth() || {};
+  const next = { ...current, ...patch };
+  localStorage.setItem(KEY, JSON.stringify(next));
+};
+
 export const clearAuth = () => {
   localStorage.removeItem(KEY);
 };

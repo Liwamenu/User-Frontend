@@ -6,8 +6,7 @@ import { useTranslation } from "react-i18next";
 
 //COMP
 import CustomInput from "../../common/customInput";
-import CustomDatePicker from "../../common/customdatePicker";
-import { CancelI, WaitI } from "../../../assets/icon";
+import { CancelI } from "../../../assets/icon";
 
 //REDUX
 import { addMenu, resetaddMenu } from "../../../redux/menus/addMenuSlice";
@@ -35,11 +34,10 @@ const AddMenu = ({ onClose, onSave, restaurantId }) => {
   const [categoryIds, setCategoryIds] = useState([]);
 
   const newMenu = {
-    id: Date.now(),
     restaurantId,
     name: menuName,
+    // Don't ship the client-generated row ids — let the backend assign them.
     plans: schedules.map((sch) => ({
-      id: sch.id,
       days: sch.days,
       startTime: sch.start,
       endTime: sch.end,
@@ -81,23 +79,6 @@ const AddMenu = ({ onClose, onSave, restaurantId }) => {
         sch.id === rowId ? { ...sch, [field]: value } : sch,
       ),
     );
-  };
-
-  // Helpers to convert between "HH:mm" strings and Date objects for CustomDatePicker
-  const parseTimeToDate = (timeStr) => {
-    if (!timeStr) return null;
-    const [hh, mm] = timeStr.split(":").map((v) => parseInt(v, 10));
-    if (Number.isNaN(hh) || Number.isNaN(mm)) return null;
-    const d = new Date();
-    d.setHours(hh, mm, 0, 0);
-    return d;
-  };
-
-  const formatDateToTimeString = (date) => {
-    if (!date) return "";
-    const hh = String(date.getHours()).padStart(2, "0");
-    const mm = String(date.getMinutes()).padStart(2, "0");
-    return `${hh}:${mm}`;
   };
 
   const handleSave = () => {
@@ -200,45 +181,28 @@ const AddMenu = ({ onClose, onSave, restaurantId }) => {
                     ))}
                   </div>
 
-                  {/* Times */}
+                  {/* Times — native HH:mm input. The browser supplies the
+                      clock icon and picker; no positioning hacks needed. */}
                   <div className="flex items-center gap-3">
-                    <div className="relative flex-1">
-                      <WaitI className="size-[1rem] absolute right-2 top-8 -translate-y-1/2 text-[--gr-1] text-xs" />
-                      <CustomDatePicker
-                        value={parseTimeToDate(sch.start)}
-                        onChange={(date) =>
-                          updateScheduleTime(
-                            sch.id,
-                            "start",
-                            formatDateToTimeString(date),
-                          )
-                        }
-                        placeholder="--:--"
-                        calendarClassName
-                        timeOnly
-                        className="w-full py-1"
-                      />
-                    </div>
-                    <span className="text-[--gr-1] text-sm mt-3">-</span>
-                    <div className="relative flex-1">
-                      <WaitI className="size-[1rem] absolute right-2 top-8 -translate-y-1/2 text-[--gr-1] text-xs" />
-                      <div>
-                        <CustomDatePicker
-                          value={parseTimeToDate(sch.end)}
-                          onChange={(date) =>
-                            updateScheduleTime(
-                              sch.id,
-                              "end",
-                              formatDateToTimeString(date),
-                            )
-                          }
-                          placeholder="--:--"
-                          calendarClassName
-                          timeOnly
-                          className="w-full py-1"
-                        />
-                      </div>
-                    </div>
+                    <input
+                      type="time"
+                      value={sch.start || ""}
+                      onChange={(e) =>
+                        updateScheduleTime(sch.id, "start", e.target.value)
+                      }
+                      className="flex-1 h-10 px-3 rounded-lg border border-[--border-1] bg-[--white-1] text-sm text-[--black-1] tabular-nums focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition"
+                    />
+                    <span className="text-[--gr-1] text-sm select-none">
+                      –
+                    </span>
+                    <input
+                      type="time"
+                      value={sch.end || ""}
+                      onChange={(e) =>
+                        updateScheduleTime(sch.id, "end", e.target.value)
+                      }
+                      className="flex-1 h-10 px-3 rounded-lg border border-[--border-1] bg-[--white-1] text-sm text-[--black-1] tabular-nums focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition"
+                    />
                   </div>
 
                   {/* Remove Button */}

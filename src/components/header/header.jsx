@@ -1,8 +1,9 @@
 //MODULES
 import { useTranslation } from "react-i18next";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { User, LogOut, ChevronRight } from "lucide-react";
 
 //COMP
 import { usePopup } from "../../context/PopupContext";
@@ -19,18 +20,37 @@ import {
   resetUpdateUserLangSlice,
 } from "../../redux/user/updateUserLangSlice";
 
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
+
 function Header({ openSidebar, setOpenSidebar }) {
   const langRef = useRef();
   const param = useParams();
   const dispatch = useDispatch();
+  const location = useLocation();
   const headerSettingsRef = useRef();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const KEY = import.meta.env.VITE_LOCAL_KEY;
   const userString = localStorage.getItem(KEY);
   const localData = (userString && JSON.parse(userString)) || {};
   const user = localData.user;
   const [open, setOpen] = useState(false);
+
+  const isAdmin = user?.role === 0;
+  const fullName =
+    user?.fullName ||
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+    "";
+  const initials =
+    fullName
+      .split(" ")
+      .map((s) => s[0])
+      .filter(Boolean)
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "U";
+  const isProfileActive = location.pathname.startsWith("/profile");
 
   const [langOpen, setLangOpen] = useState(false);
   const [selectedLang, setSelectedLang] = useState(user?.defaultLang || "0");
@@ -163,34 +183,91 @@ function Header({ openSidebar, setOpenSidebar }) {
               className="flex justify-center items-center relative"
               ref={headerSettingsRef}
             >
-              <div
-                className="flex justify-center items-center p-[.5rem] w-10 h-10 bg-[--light-1] text-[--primary-1] rounded-3xl cursor-pointer"
+              <button
+                type="button"
+                aria-label={t("userProfile.menu") || "Hesap"}
+                className={`grid place-items-center size-10 rounded-full text-[--gr-1] hover:text-[--primary-1] transition border ${
+                  open
+                    ? "bg-[--primary-1]/10 border-[--primary-1]/30 text-[--primary-1]"
+                    : "bg-[--light-1] border-transparent"
+                }`}
                 onClick={() => setOpen(!open)}
               >
-                <SettingsI strokeWidth={1.5} className="size-7 text-[--gr-1]" />
-              </div>
+                <SettingsI strokeWidth={1.5} className="size-6" />
+              </button>
 
+              {/* Settings dropdown — user card + actions */}
               <div
-                className={`absolute top-[3rem] right-2 bg-[--white-1] text-[--gr-1] border border-solid border-[--border-1] font-sans rounded-md transition-colors ${
-                  !open && "invisible"
+                className={`absolute top-12 right-0 z-[100] w-72 rounded-xl border border-[--border-1] bg-[--white-1] shadow-xl overflow-hidden transition-all origin-top-right ${
+                  open
+                    ? "opacity-100 scale-100 pointer-events-auto"
+                    : "opacity-0 scale-95 pointer-events-none"
                 }`}
               >
-                <ul>
-                  <Link to="/profile">
-                    <li
-                      className="px-6 py-2 pr-16 text-sm hover:bg-[--light-3] border-b border-solid border-[--light-3] cursor-pointer"
-                      onClick={() => setOpen(!open)}
-                    >
-                      Profile
-                    </li>
-                  </Link>
-                  <li
-                    className="px-6 py-2 pr-16 text-sm hover:bg-[--light-3] cursor-pointer"
-                    onClick={handleLogout}
+                {/* Gradient strip */}
+                <div className="h-0.5" style={{ background: PRIMARY_GRADIENT }} />
+
+                {/* User card */}
+                <Link
+                  to="/profile"
+                  onClick={() => setOpen(false)}
+                  className={`group flex items-center gap-3 px-4 py-3 border-b border-[--border-1] transition ${
+                    isProfileActive
+                      ? "bg-indigo-50 dark:bg-indigo-500/10"
+                      : "hover:bg-[--white-2]"
+                  }`}
+                >
+                  <span
+                    className="grid place-items-center size-11 rounded-full text-white font-semibold text-sm shrink-0 shadow-md shadow-indigo-500/20"
+                    style={{ background: PRIMARY_GRADIENT }}
+                    aria-hidden="true"
                   >
-                    Logout
-                  </li>
-                </ul>
+                    {initials}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[--black-1] truncate">
+                      {fullName || t("userProfile.default_name")}
+                    </p>
+                    <p className="text-[11px] text-[--gr-1] truncate">
+                      {user?.email || (
+                        <span>
+                          {isAdmin
+                            ? t("userProfile.admin")
+                            : t("userProfile.user")}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <ChevronRight
+                    className={`size-4 shrink-0 transition-transform group-hover:translate-x-0.5 ${
+                      isProfileActive ? "text-[--primary-1]" : "text-[--gr-2]"
+                    }`}
+                  />
+                </Link>
+
+                {/* Actions */}
+                <div className="p-1.5">
+                  <Link
+                    to="/profile"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-[--black-2] hover:bg-[--white-2] hover:text-[--primary-1] transition"
+                  >
+                    <span className="grid place-items-center size-7 rounded-md bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300 shrink-0">
+                      <User className="size-3.5" />
+                    </span>
+                    {t("userProfile.profile") || "Profil"}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-rose-600 hover:bg-rose-50 transition dark:hover:bg-rose-500/10"
+                  >
+                    <span className="grid place-items-center size-7 rounded-md bg-rose-50 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300 shrink-0">
+                      <LogOut className="size-3.5" />
+                    </span>
+                    {t("userProfile.logout") || "Çıkış Yap"}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
