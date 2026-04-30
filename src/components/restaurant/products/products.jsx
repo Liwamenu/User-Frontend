@@ -225,25 +225,33 @@ const Products = () => {
     statusFilter?.value !== null ||
     !isAllCategory(categoryFilter);
 
-  // Pull *every* product (the backend silently caps pageSize at 100, so a
-  // single big request returns only the first 100). We fetch page 1 to see
-  // totalCount, then fan out for the remaining pages in parallel.
-  // Direct API call keeps the regular paginated slice untouched.
+  // Pull *every* product. Used by the duplicate-finder and client-side
+  // search modes — both need full DTOs (description, prices, etc.) so
+  // we hit the regular endpoint, not the lite one. The backend used to
+  // silently cap pageSize at 100, forcing a fan-out paginator here; now
+  // that the cap was raised (per BACKEND_PERFORMANCE_REQUEST.md), one
+  // big request handles every menu we've seen in the wild. The fan-out
+  // remains as a defensive fallback for restaurants whose product count
+  // happens to exceed the new cap.
   const fetchAllProducts = async () => {
     setDupLoading(true);
     try {
       const api = privateApi();
-      const PAGE = 100;
+      const PAGE = 2000;
       const first = await api.get(
         `${baseURL}Products/getProductsByRestaurantId`,
         { params: { restaurantId, pageNumber: 1, pageSize: PAGE } },
       );
       const total = first?.data?.totalCount ?? 0;
       const firstPage = first?.data?.data || [];
-      const totalPages = Math.max(1, Math.ceil(total / PAGE));
 
       let combined = firstPage;
-      if (totalPages > 1) {
+      // Defensive fan-out: only kicks in if the backend returned fewer
+      // rows than the reported total (e.g. an even higher pageSize cap
+      // we don't know about, or a future change). Most calls satisfy
+      // the request on the first hit and skip this branch entirely.
+      if (firstPage.length < total) {
+        const totalPages = Math.ceil(total / PAGE);
         const rest = await Promise.all(
           Array.from({ length: totalPages - 1 }, (_, i) =>
             api
