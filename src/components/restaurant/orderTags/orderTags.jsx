@@ -15,7 +15,6 @@ import { NewOrderTagGroup } from "./components/constraints";
 import OrderTagGroupCard from "./components/_orderTagGroupCard";
 
 // REDUX
-import { privateApi } from "../../../redux/api";
 import { addOrderTag } from "../../../redux/orderTags/addOrderTagSlice";
 import {
   getOrderTags,
@@ -24,19 +23,10 @@ import {
 import { editOrderTags } from "../../../redux/orderTags/editOrderTagsSlice";
 import { getCategories } from "../../../redux/categories/getCategoriesSlice";
 import { resetEditOrderTags } from "../../../redux/orderTags/editOrderTagsSlice";
-
-const baseURL = import.meta.env.VITE_BASE_URL;
+import { getProductsLite } from "../../../redux/products/getProductsLiteSlice";
 
 const PRIMARY_GRADIENT =
   "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
-
-// Per-restaurant cache for the *full unpaged* product list. The shared
-// Products slice only stores one filtered page (the backend silently
-// caps pageSize at 100), so reading from it would make the relation
-// row's "products by category" dropdown come up empty whenever a
-// category has products beyond the first page. We keep our own complete
-// copy here, refetched per restaurant on first visit only.
-const allProductsCache = new Map();
 
 const OrderTags = () => {
   const params = useParams();
@@ -51,13 +41,14 @@ const OrderTags = () => {
   const { categories, fetchedFor: catFetchedFor } = useSelector(
     (s) => s.categories.get,
   );
-  const { success, error, loading } = useSelector((s) => s.orderTags.editAll);
-
-  // Local copy of the full product list (kept out of the shared Products
-  // slice to avoid the cap-at-100 truncation — see allProductsCache).
-  const [allProducts, setAllProducts] = useState(
-    () => allProductsCache.get(restaurantId) || null,
+  // Lite product list — backed by Products/GetProductsByRestaurantIdLite.
+  // Replaced the previous module-level Map + fan-out paginator now that
+  // the backend ships a single-shot endpoint with the dropdown shape we
+  // actually consume. See getProductsLiteSlice.js for the cache contract.
+  const { products: liteProducts, fetchedFor: liteFetchedFor } = useSelector(
+    (s) => s.products.getLite,
   );
+  const { success, error, loading } = useSelector((s) => s.orderTags.editAll);
 
   const [state, setState] = useState({
     categories: [],
@@ -149,64 +140,18 @@ const OrderTags = () => {
     }
   };
 
-  // Fetch *every* product page in parallel — the backend silently caps
-  // pageSize at 100, so a single big request truncates the list. Page 1
-  // reveals totalCount; we fan out the remaining pages in parallel and
-  // de-dupe by id. The result is cached per-restaurant at module scope
-  // so revisits don't re-hit the network.
-  const fetchAllProducts = async () => {
-    try {
-      const api = privateApi();
-      const PAGE = 100;
-      const first = await api.get(
-        `${baseURL}Products/getProductsByRestaurantId`,
-        { params: { restaurantId, pageNumber: 1, pageSize: PAGE } },
-      );
-      const total = first?.data?.totalCount ?? 0;
-      const firstPage = first?.data?.data || [];
-      const totalPages = Math.max(1, Math.ceil(total / PAGE));
-
-      let combined = firstPage;
-      if (totalPages > 1) {
-        const rest = await Promise.all(
-          Array.from({ length: totalPages - 1 }, (_, i) =>
-            api
-              .get(`${baseURL}Products/getProductsByRestaurantId`, {
-                params: { restaurantId, pageNumber: i + 2, pageSize: PAGE },
-              })
-              .then((r) => r?.data?.data || [])
-              .catch(() => []),
-          ),
-        );
-        combined = firstPage.concat(...rest);
-      }
-
-      // De-dupe by id in case pages overlap on the server side.
-      const seen = new Set();
-      const unique = [];
-      for (const p of combined) {
-        if (p?.id && !seen.has(p.id)) {
-          seen.add(p.id);
-          unique.push(p);
-        }
-      }
-      allProductsCache.set(restaurantId, unique);
-      setAllProducts(unique);
-    } catch {
-      setAllProducts([]);
-    }
-  };
-
-  // GET data — fetch only when the slice cache doesn't already have a
-  // fresh payload for THIS restaurant. Three parallel slow GETs all hit
-  // the global loadingMiddleware on this page; skipping any of them on a
-  // revisit makes the page feel instant.
+  // GET data — three parallel slice-cached fetches. Each guards on its
+  // own `fetchedFor === restaurantId` check so revisits within the same
+  // restaurant skip the network entirely. All three hit the global
+  // loadingMiddleware, so cache hits also collapse the global spinner.
   useEffect(() => {
     if (!restaurantId) return;
     if (!categories || catFetchedFor !== restaurantId) {
       dispatch(getCategories({ restaurantId }));
     }
-    if (!allProductsCache.has(restaurantId)) fetchAllProducts();
+    if (!liteProducts || liteFetchedFor !== restaurantId) {
+      dispatch(getProductsLite({ restaurantId }));
+    }
     if (!orderTags || tagsFetchedFor !== restaurantId) {
       dispatch(getOrderTags({ restaurantId }));
     }
@@ -215,12 +160,12 @@ const OrderTags = () => {
 
   useEffect(() => {
     if (categories) setState((prev) => ({ ...prev, categories }));
-    // Wrap the flat array in `{ data }` so OrderTagGroupCard's
+    // Wrap the flat lite array in `{ data }` so OrderTagGroupCard's
     // `products?.data` access pattern keeps working unchanged.
-    if (allProducts)
-      setState((prev) => ({ ...prev, products: { data: allProducts } }));
+    if (liteProducts)
+      setState((prev) => ({ ...prev, products: { data: liteProducts } }));
     if (orderTags) setState((prev) => ({ ...prev, tagGroups: orderTags }));
-  }, [categories, allProducts, orderTags]);
+  }, [categories, liteProducts, orderTags]);
 
   useEffect(() => {
     if (success) {

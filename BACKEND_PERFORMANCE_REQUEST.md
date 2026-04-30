@@ -2,7 +2,7 @@
 
 **From:** Frontend team
 **Re:** Slow load times on Categories, Products, Sub Categories, Menus, and Order Tags pages
-**Status:** Frontend caching/refactor work is in progress; the items below need backend changes that the frontend cannot work around.
+**Status:** ✅ **Implemented.** Backend shipped Priorities 1 & 2. Frontend now uses the new lite endpoint (`getProductsLiteSlice` + auto-invalidation matcher on product mutations) and a single-shot fetcher with a defensive fan-out fallback. Document kept for historical reference.
 
 ---
 
