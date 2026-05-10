@@ -17,6 +17,7 @@ import setAnnouncementSettingsSlice from "./setAnnouncementSettingsSlice";
 import getSurveySettingsSlice from "./getSurveySettingsSlice";
 import setSurveySettingsSlice from "./setSurveySettingsSlice";
 import setRestaurantThemeSlice from "./setRestaurantThemeSlice";
+import setRestaurantTvThemeSlice from "./setRestaurantTvThemeSlice";
 import checkTenantAvailabilitySlice from "./checkTenantAvailabilitySlice";
 
 const restaurantSlice = combineReducers({
@@ -36,6 +37,10 @@ const restaurantSlice = combineReducers({
   getSurveySettings: getSurveySettingsSlice,
   setSurveySettings: setSurveySettingsSlice,
   setRestaurantTheme: setRestaurantThemeSlice,
+  // Dedicated slice for TV menu theme saves — see slice file for the
+  // rationale (was sharing the QR slice and that caused the QR theme
+  // to silently switch when a TV theme was picked).
+  setRestaurantTvTheme: setRestaurantTvThemeSlice,
   checkTenantAvailability: checkTenantAvailabilitySlice,
 });
 
