@@ -409,6 +409,14 @@ const RestaurantSettings = ({ data: inData }) => {
       }
     }
 
+    // Backend expects `decimalPoint` as a string ("0".."3"), not a
+    // Number. The picker stores it as a Number internally so the option
+    // lookup matches by identity — coerce at the wire boundary.
+    {
+      const n = Number(normalized.decimalPoint);
+      normalized.decimalPoint = String(Number.isFinite(n) ? n : 2);
+    }
+
     setRestaurantData(normalized);
     dispatch(setRestaurantSettings(normalized));
   };
@@ -681,13 +689,13 @@ const RestaurantSettings = ({ data: inData }) => {
                       height: "40px",
                     }}
                     value={
-                      decimalOptions.find(
-                        (o) =>
-                          o.value ===
-                          (Number.isFinite(restaurantData?.decimalPoint)
-                            ? restaurantData.decimalPoint
-                            : 2),
-                      ) || decimalOptions[2]
+                      // Tolerate both number and string here — the
+                      // backend returns it as a string but the picker
+                      // sets it as a number on change.
+                      decimalOptions.find((o) => {
+                        const v = Number(restaurantData?.decimalPoint);
+                        return o.value === (Number.isFinite(v) ? v : 2);
+                      }) || decimalOptions[2]
                     }
                     options={decimalOptions}
                     onChange={(selected) =>
