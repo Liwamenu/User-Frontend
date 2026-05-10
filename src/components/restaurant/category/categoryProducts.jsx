@@ -580,6 +580,12 @@ const CategoryProducts = ({
             "categoryProducts.in_category_title",
             "Bu Kategorideki Ürünler",
           )}
+          // Strong indigo chip with the current category name — answers
+          // "this column = which category?" at a glance, no menu hop
+          // needed. Only the right pane gets the chip; the left column
+          // title is generic ("Bu Kategoride Olmayan Ürünler") and
+          // doesn't need a name.
+          chip={categoryName}
           count={filteredItems?.length}
           totalCount={items?.length}
           loading={!items}
@@ -695,10 +701,15 @@ const CategoryProducts = ({
   );
 };
 
-// One column wrapper — header strip + scrollable body.
+// One column wrapper — header strip + scrollable body. When `chip` is
+// supplied, the header swaps its neutral wash for a tinted indigo
+// background and renders a solid indigo badge carrying the chip text
+// (currently only used by the right pane to surface the active
+// category name; the left pane is generic and skips it).
 const ColumnPane = ({
   icon: Icon,
   title,
+  chip,
   count,
   totalCount,
   loading,
@@ -718,17 +729,40 @@ const ColumnPane = ({
       : typeof totalCount === "number"
         ? `${totalCount}`
         : null;
+  // When a chip is present, tint the entire header row with a soft
+  // indigo wash so the column reads as "scoped to a specific category"
+  // rather than just generic. Falls back to neutral for the left pane.
+  const headerBg = chip
+    ? "bg-indigo-50/60 dark:bg-indigo-500/10"
+    : "bg-[--white-2]/40";
   return (
     <div className="flex flex-col min-h-0 max-h-[60dvh] lg:max-h-none overflow-hidden">
-      <div className="flex items-center gap-2 px-3 sm:px-4 py-2.5 border-b border-[--border-1] bg-[--white-2]/40 shrink-0">
+      <div
+        className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 border-b border-[--border-1] shrink-0 ${headerBg}`}
+      >
         <span
           className={`grid place-items-center size-7 rounded-md ring-1 shrink-0 ${accentMap[accent]}`}
         >
           <Icon className="size-3.5" />
         </span>
-        <h4 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[--gr-1] truncate flex-1 min-w-0">
+        {/* Generic title shrinks first on narrow widths so the
+            (more important) category chip stays readable. */}
+        <h4 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[--gr-1] truncate min-w-0 hidden sm:block">
           {title}
         </h4>
+        {chip && (
+          <span
+            className="inline-flex items-center text-[11px] sm:text-xs font-bold tracking-wide px-2 py-1 rounded-md text-white shadow-sm shadow-indigo-500/30 truncate min-w-0 max-w-[60%] sm:max-w-[55%]"
+            style={{
+              background:
+                "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)",
+            }}
+            title={chip}
+          >
+            <span className="truncate">{chip}</span>
+          </span>
+        )}
+        <div className="flex-1 min-w-0" />
         {showCount && !loading && (
           <span className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1] bg-[--white-1] ring-1 ring-[--border-1] px-1.5 py-0.5 rounded-md shrink-0 tabular-nums">
             {showCount}
