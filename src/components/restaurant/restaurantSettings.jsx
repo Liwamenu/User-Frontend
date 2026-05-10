@@ -298,7 +298,7 @@ const RestaurantSettings = ({ data: inData }) => {
       moneySign: inData?.moneySign,
       // Number of digits shown after the decimal point in money figures
       // (e.g. ₺100,00 → 2). Defaults to 2 (kuruş) for the TR market.
-      decimalPlaces: inData?.decimalPlaces ?? 2,
+      decimalPoint: inData?.decimalPoint ?? 2,
       maxTableOrderDistanceMeter: inData?.maxTableOrderDistanceMeter,
       checkTableOrderDistance: inData?.checkTableOrderDistance,
       minOrderAmount: inData?.minOrderAmount,
@@ -684,8 +684,8 @@ const RestaurantSettings = ({ data: inData }) => {
                       decimalOptions.find(
                         (o) =>
                           o.value ===
-                          (Number.isFinite(restaurantData?.decimalPlaces)
-                            ? restaurantData.decimalPlaces
+                          (Number.isFinite(restaurantData?.decimalPoint)
+                            ? restaurantData.decimalPoint
                             : 2),
                       ) || decimalOptions[2]
                     }
@@ -693,7 +693,7 @@ const RestaurantSettings = ({ data: inData }) => {
                     onChange={(selected) =>
                       setRestaurantData((prev) => ({
                         ...prev,
-                        decimalPlaces: selected.value,
+                        decimalPoint: selected.value,
                       }))
                     }
                   />
@@ -834,8 +834,8 @@ const RestaurantSettings = ({ data: inData }) => {
                         "restaurantSettings.delivery_fee_placeholder",
                       )}
                       currencyDecimals={
-                        Number.isFinite(Number(restaurantData?.decimalPlaces))
-                          ? Number(restaurantData.decimalPlaces)
+                        Number.isFinite(Number(restaurantData?.decimalPoint))
+                          ? Number(restaurantData.decimalPoint)
                           : 2
                       }
                       maxDigits={9}
@@ -857,10 +857,10 @@ const RestaurantSettings = ({ data: inData }) => {
                       // the restaurant's Kuruş Hanesi (Genel Ayarlar).
                       // Stored as a Number, displayed with locale
                       // separators on blur (e.g. 1500 → "1.500,00" when
-                      // decimalPlaces=2, or "1.500" when 0).
+                      // decimalPoint=2, or "1.500" when 0).
                       currencyDecimals={
-                        Number.isFinite(Number(restaurantData?.decimalPlaces))
-                          ? Number(restaurantData.decimalPlaces)
+                        Number.isFinite(Number(restaurantData?.decimalPoint))
+                          ? Number(restaurantData.decimalPoint)
                           : 2
                       }
                       maxDigits={9}
