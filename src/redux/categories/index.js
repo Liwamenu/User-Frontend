@@ -4,7 +4,7 @@ import { combineReducers } from "@reduxjs/toolkit";
 import getCategoriesSlice from "./getCategoriesSlice";
 import editCategoriesSlice from "./editCategoriesSlice";
 import addCategoriesSlice from "./addCategoriesSlice";
-import addCatergorySlice from "./addCategorySlice";
+import addCategorySlice from "./addCategorySlice";
 import editCategorySlice from "./editCategorySlice";
 import deleteCategorySlice from "./deleteCategorySlice";
 
@@ -12,7 +12,10 @@ const categoriesSlice = combineReducers({
   get: getCategoriesSlice,
   edit: editCategoriesSlice,
   add: addCategoriesSlice,
-  addCatergory: addCatergorySlice,
+  // Sub-slice key was previously misspelled as `addCatergory`. Fixed
+  // here + at every consumer (addCategory.jsx selector, t() key) so
+  // the typo no longer leaks into the toast text shown to users.
+  addCategory: addCategorySlice,
   editCategory: editCategorySlice,
   deleteCategory: deleteCategorySlice,
 });

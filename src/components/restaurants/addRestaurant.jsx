@@ -114,6 +114,14 @@ function AddRestaurantPopup({ onSuccess }) {
     fd.append("Neighbourhood", r.neighbourhood);
     fd.append("Address", r.address);
     fd.append("IsActive", r.isActive);
+    // Default the two order channels OFF for newly created restaurants.
+    // The backend used to leave them ON which surprised owners — they'd
+    // see "Paket Sipariş" and "Masada Sipariş" already enabled without
+    // having configured pricing/distance/payment methods. Forcing them
+    // to FALSE here makes the owner explicitly opt in from
+    // RestaurantSettings once they're ready.
+    fd.append("OnlineOrder", false);
+    fd.append("InPersonOrder", false);
     fd.append("Image", doc);
     if (doc2) fd.append("LogoImage", doc2);
     dispatch(addRestaurant(fd));

@@ -1,6 +1,5 @@
 //MODULES
-import { useState } from "react";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 // import { GoogleGenAI } from "@google/genai";
 import { useParams } from "react-router-dom";
@@ -15,6 +14,10 @@ import {
   Info,
   Power,
   Timer,
+  Smartphone,
+  Monitor,
+  PowerOff,
+  AlertTriangle,
 } from "lucide-react";
 
 // COMPONENTS
@@ -33,6 +36,17 @@ import {
   setAnnouncementSettings,
 } from "../../redux/restaurant/setAnnouncementSettingsSlice";
 
+// HTML safety helpers (validation + sandboxed preview srcDoc) are shared
+// with externalPage.jsx — same authoring surface, same iframe contract
+// with the customer side, so any drift between the two would re-create
+// the "preview works in one spot, breaks in another" class of bugs.
+import {
+  detectDangerousContent,
+  buildPreviewSrcDoc,
+  PREVIEW_SANDBOX,
+  PREVIEW_ALLOW,
+} from "../../utils/htmlSafety";
+
 const AnnouncementSettings = ({ data }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -48,8 +62,62 @@ const AnnouncementSettings = ({ data }) => {
 
   const [settings, setSettings] = useState(null);
   const [openPreview, setOpenPreview] = useState(false);
+  // Device-frame width for the live preview. Lets the author confirm
+  // their announcement is responsive — most customers see the popup on
+  // a phone, but desktop (≥ md) breakpoints should also be checked.
+  const [previewMode, setPreviewMode] = useState("mobile");
+
+  // Self-contained HTML document for the preview iframe. Rendering the
+  // author's HTML through an iframe (instead of dangerouslySetInnerHTML
+  // on a parent <div>) is what stops pasted markup from leaking into the
+  // Duyuru page — global <style> tags, unclosed <table>/<tr> trees and
+  // CSS that targets `body`/`html` used to bleed into the surrounding
+  // tab. The full doc + Tailwind CDN wrapper lives in the shared helper
+  // so this preview matches both externalPage.jsx and the customer-side
+  // AnnouncementModal.
+  const previewSrcDoc = useMemo(
+    () => buildPreviewSrcDoc(settings?.htmlContent),
+    [settings?.htmlContent],
+  );
 
   const handleSubmit = () => {
+    // When the announcement is enabled, both the HTML body and a sane
+    // display delay are required — saving an "active but empty" state
+    // would push a blank popup to every customer. Skip these checks
+    // when the toggle is off so the author can simply turn the
+    // announcement off without filling everything in.
+    if (settings?.enabled) {
+      const hasHtml =
+        typeof settings?.htmlContent === "string" &&
+        settings.htmlContent.trim().length > 0;
+      if (!hasHtml) {
+        toast.error(t("announcementSettings.html_required"));
+        return;
+      }
+      const delay = Number(settings?.delayMs);
+      if (
+        settings?.delayMs === null ||
+        settings?.delayMs === undefined ||
+        settings?.delayMs === "" ||
+        !Number.isFinite(delay) ||
+        delay < 0
+      ) {
+        toast.error(t("announcementSettings.delay_required"));
+        return;
+      }
+    }
+    // Block save if the HTML contains XSS- or SQL-injection-shaped
+    // patterns. Surface the offending tokens in the toast so the
+    // author can fix them immediately rather than guessing.
+    const dangerous = detectDangerousContent(settings?.htmlContent);
+    if (dangerous.length > 0) {
+      toast.error(
+        t("announcementSettings.dangerous_content_blocked", {
+          items: dangerous.join(", "),
+        }),
+      );
+      return;
+    }
     dispatch(
       setAnnouncementSettings({
         restaurantId: id,
@@ -143,7 +211,7 @@ const AnnouncementSettings = ({ data }) => {
             <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
               {settings?.enabled
                 ? t("announcementSettings.enable_announcement")
-                : t("announcementSettings.preview_disabled")}
+                : t("announcementSettings.editor_hidden_title")}
             </p>
           </div>
         </div>
@@ -205,80 +273,143 @@ const AnnouncementSettings = ({ data }) => {
             </div>
           </div>
 
-          {/* EDITOR + PREVIEW (wide HTML) */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1.6fr,1fr] gap-3">
-            {/* HTML EDITOR */}
-            <div className="rounded-xl border border-[--border-1] overflow-hidden bg-slate-900 flex flex-col min-h-[28rem] shadow-sm">
-              <div className="flex items-center justify-between gap-3 px-3 py-2 border-b border-slate-700/60 bg-slate-800/60">
-                <div className="flex items-center gap-2 text-slate-200 text-[11px] font-bold uppercase tracking-[0.12em]">
-                  <Code2 className="size-3.5 text-cyan-400" />
-                  {t("announcementSettings.html_content_label")}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setPopupContent(<PropmtInputPopup />)}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold text-white bg-gradient-to-r from-indigo-500 to-cyan-500 hover:brightness-110 active:brightness-95 transition shadow-sm"
-                >
-                  <Sparkles className="size-3" />
-                  {t("announcementSettings.magic_generate")}
-                </button>
-              </div>
-              <CustomTextarea
-                value={settings?.htmlContent ?? ""}
-                onChange={(e) =>
-                  setSettings((prev) => ({
-                    ...prev,
-                    htmlContent: e.target.value,
-                  }))
-                }
-                rows={20}
-                className2="!flex-1 !min-h-0"
-                className="!w-full !flex-1 !p-4 !font-mono !text-xs !bg-slate-900 !text-slate-200 !border-0 !rounded-none focus:!ring-0 !outline-none !resize-none !shadow-none !min-h-[24rem] lg:!min-h-[26rem]"
-                placeholder={t("announcementSettings.html_content_placeholder")}
-              />
-            </div>
-
-            {/* PREVIEW */}
-            <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/60 flex flex-col min-h-[28rem] shadow-sm overflow-hidden">
-              <div className="flex items-center justify-between gap-3 px-3 py-2 border-b border-[--border-1] bg-[--white-1]/70">
-                <div className="flex items-center gap-2 text-[--gr-1] text-[11px] font-bold uppercase tracking-[0.12em]">
-                  <Eye className="size-3.5 text-indigo-600" />
-                  {t("announcementSettings.live_preview")}
-                </div>
-                <span
-                  className={`inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                    settings?.enabled
-                      ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-200 dark:ring-emerald-400/30"
-                      : "bg-[--white-2] text-[--gr-1] ring-1 ring-[--border-1]"
-                  }`}
-                >
-                  <span
-                    className={`size-1.5 rounded-full ${
-                      settings?.enabled
-                        ? "bg-emerald-500 animate-pulse"
-                        : "bg-[--gr-2]"
-                    }`}
-                  />
-                  {settings?.enabled ? "Aktif" : "Pasif"}
-                </span>
-              </div>
-              <div className="flex-1 p-5 relative overflow-y-auto">
-                {!settings?.enabled && (
-                  <div className="absolute inset-0 z-10 backdrop-blur-[1px] grid place-items-center pointer-events-none">
-                    <div className="px-4 py-2 rounded-full bg-[--white-1]/90 shadow-md border border-[--border-1] text-[11px] font-semibold text-[--gr-1] uppercase tracking-wider">
-                      {t("announcementSettings.preview_disabled")}
-                    </div>
+          {/* EDITOR + PREVIEW — only rendered when the announcement is
+              enabled. Hiding the heavy iframe + dark code editor while
+              the toggle is off keeps the screen focused on the single
+              decision the author has to make first ("am I publishing an
+              announcement?") and removes the visual noise that used to
+              sit there with a "Pasif" overlay. */}
+          {settings?.enabled ? (
+            <div className="grid grid-cols-1 lg:grid-cols-[1.6fr,1fr] gap-3">
+              {/* HTML EDITOR */}
+              <div className="rounded-xl border border-[--border-1] overflow-hidden bg-slate-900 flex flex-col min-h-[28rem] shadow-sm">
+                <div className="flex items-center justify-between gap-3 px-3 py-2 border-b border-slate-700/60 bg-slate-800/60">
+                  <div className="flex items-center gap-2 text-slate-200 text-[11px] font-bold uppercase tracking-[0.12em]">
+                    <Code2 className="size-3.5 text-cyan-400" />
+                    {t("announcementSettings.html_content_label")}
                   </div>
-                )}
-                <div
-                  className="w-full"
-                  dangerouslySetInnerHTML={{
-                    __html: settings?.htmlContent || "",
-                  }}
+                  <button
+                    type="button"
+                    onClick={() => setPopupContent(<PropmtInputPopup />)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold text-white bg-gradient-to-r from-indigo-500 to-cyan-500 hover:brightness-110 active:brightness-95 transition shadow-sm"
+                  >
+                    <Sparkles className="size-3" />
+                    {t("announcementSettings.magic_generate")}
+                  </button>
+                </div>
+                <CustomTextarea
+                  value={settings?.htmlContent ?? ""}
+                  onChange={(e) =>
+                    setSettings((prev) => ({
+                      ...prev,
+                      htmlContent: e.target.value,
+                    }))
+                  }
+                  rows={20}
+                  className2="!flex-1 !min-h-0"
+                  className="!w-full !flex-1 !p-4 !font-mono !text-xs !bg-slate-900 !text-slate-200 !border-0 !rounded-none focus:!ring-0 !outline-none !resize-none !shadow-none !min-h-[24rem] lg:!min-h-[26rem]"
+                  placeholder={t(
+                    "announcementSettings.html_content_placeholder",
+                  )}
                 />
               </div>
+
+              {/* PREVIEW — sandboxed iframe centered inside a fixed-width
+                  device frame so authors can confirm their HTML is
+                  responsive at both phone and desktop widths. The
+                  surrounding container scrolls so a tall announcement
+                  is reachable without resizing the panel. */}
+              <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/60 flex flex-col min-h-[28rem] shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-[--border-1] bg-[--white-1]/70">
+                  <div className="flex items-center gap-2 text-[--gr-1] text-[11px] font-bold uppercase tracking-[0.12em] min-w-0">
+                    <Eye className="size-3.5 text-indigo-600 shrink-0" />
+                    <span className="truncate">
+                      {t("announcementSettings.live_preview")}
+                    </span>
+                  </div>
+                  {/* Device-width toggle. Mimics the customer view where
+                      the popup is shown — most opens are on a phone, but
+                      desktop must also look right. */}
+                  <div className="inline-flex items-center rounded-md border border-[--border-1] bg-[--white-1] p-0.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewMode("mobile")}
+                      title={t("announcementSettings.preview_mobile")}
+                      aria-pressed={previewMode === "mobile"}
+                      className={`inline-flex items-center gap-1 px-2 h-6 rounded text-[10px] font-semibold uppercase tracking-wider transition ${
+                        previewMode === "mobile"
+                          ? "bg-indigo-600 text-white shadow-sm"
+                          : "text-[--gr-1] hover:bg-[--white-2]"
+                      }`}
+                    >
+                      <Smartphone className="size-3" />
+                      <span className="hidden sm:inline">
+                        {t("announcementSettings.preview_mobile")}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewMode("desktop")}
+                      title={t("announcementSettings.preview_desktop")}
+                      aria-pressed={previewMode === "desktop"}
+                      className={`inline-flex items-center gap-1 px-2 h-6 rounded text-[10px] font-semibold uppercase tracking-wider transition ${
+                        previewMode === "desktop"
+                          ? "bg-indigo-600 text-white shadow-sm"
+                          : "text-[--gr-1] hover:bg-[--white-2]"
+                      }`}
+                    >
+                      <Monitor className="size-3" />
+                      <span className="hidden sm:inline">
+                        {t("announcementSettings.preview_desktop")}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+                <div className="flex-1 relative overflow-auto p-3 grid place-items-start justify-items-center">
+                  {/* Device frame. Width is fixed per mode so the iframe
+                      renders at a realistic viewport, instead of being
+                      stretched to fill whatever column width the layout
+                      currently has — that stretching is what made the
+                      preview "feel non-responsive". */}
+                  <div
+                    className={`bg-white rounded-2xl shadow-lg border border-[--border-1] overflow-hidden transition-all duration-300 mx-auto w-full ${
+                      previewMode === "mobile"
+                        ? "max-w-[360px]"
+                        : "max-w-[768px]"
+                    }`}
+                    style={{ height: "min(28rem, 70vh)" }}
+                  >
+                    {/* Sandboxed iframe. The full sandbox + Permissions
+                        Policy contract lives in PREVIEW_SANDBOX /
+                        PREVIEW_ALLOW so the admin preview, the external
+                        page preview and the customer-side modal all
+                        agree on what's allowed. */}
+                    <iframe
+                      title={t("announcementSettings.live_preview")}
+                      className="w-full h-full border-0 bg-white block"
+                      sandbox={PREVIEW_SANDBOX}
+                      allow={PREVIEW_ALLOW}
+                      srcDoc={previewSrcDoc}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/40 p-6 sm:p-8 flex flex-col items-center text-center gap-3">
+              <span className="grid place-items-center size-11 rounded-2xl bg-[--white-1] text-[--gr-1] ring-1 ring-[--border-1] shadow-sm">
+                <PowerOff className="size-5" />
+              </span>
+              <div className="max-w-md">
+                <h3 className="text-sm font-semibold text-[--black-1]">
+                  {t("announcementSettings.editor_hidden_title")}
+                </h3>
+                <p className="text-[12px] text-[--gr-1] mt-1 leading-relaxed">
+                  {t("announcementSettings.editor_hidden_hint")}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* INFO BANNER */}
           <div className="rounded-xl bg-indigo-50/70 border border-indigo-100 p-3 flex items-start gap-3">
@@ -294,6 +425,31 @@ const AnnouncementSettings = ({ data }) => {
               </p>
             </div>
           </div>
+
+          {/* CUSTOMER-SIDE COMPATIBILITY WARNING — surfaced because the
+              admin preview is a sandboxed iframe (full HTML docs +
+              <script> + embedded YouTube all work) but the customer
+              menu is a separate project that may render the same HTML
+              with dangerouslySetInnerHTML. In that case <script> tags
+              don't execute and a full <html><head><style>…</style></head>
+              loses its head-level CSS, leaving the modal looking blank.
+              Without this notice authors think the admin panel has a
+              bug ("preview works, mobile doesn't"). */}
+          {settings?.enabled && (
+            <div className="rounded-xl bg-amber-50/70 border border-amber-200 p-3 flex items-start gap-3 dark:bg-amber-500/10 dark:border-amber-400/30">
+              <span className="grid place-items-center size-8 rounded-lg bg-[--white-1] text-amber-600 ring-1 ring-amber-200 shrink-0 dark:bg-amber-500/15 dark:ring-amber-400/40">
+                <AlertTriangle className="size-4" />
+              </span>
+              <div className="min-w-0">
+                <h4 className="text-xs font-bold text-amber-900 dark:text-amber-200">
+                  {t("announcementSettings.customer_compat_title")}
+                </h4>
+                <p className="text-[11px] text-amber-800/90 leading-relaxed mt-0.5 dark:text-amber-100/85">
+                  {t("announcementSettings.customer_compat_text")}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* SUBMIT */}
           <div className="flex justify-end pt-3 border-t border-[--border-1]">

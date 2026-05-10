@@ -18,7 +18,7 @@ import categoriesJSON from "../../../assets/js/Categories.json";
 import subCategories from "../../../assets/js/SubCategories.json";
 
 // UTILS
-import { parsePrice } from "../../../utils/utils";
+import { parsePrice, toNameCase } from "../../../utils/utils";
 import ProductsHeader from "./header";
 import { CloudUI, DeleteI } from "../../../assets/icon";
 import { Loader2 } from "lucide-react";
@@ -284,6 +284,11 @@ const AddProduct = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Sol Kolon */}
               <div className="space-y-2">
+                {/* Auto-capitalise the first letter of every word
+                    (Turkish-aware: "ızgara" → "Izgara", "şiş" →
+                    "Şiş") so menu items read consistently regardless
+                    of what casing the author types. Same convention
+                    used by addCategory.jsx / editRestaurant.jsx. */}
                 <CustomInput
                   required
                   label={`${t("editProduct.name_label")} *`}
@@ -291,7 +296,7 @@ const AddProduct = () => {
                   className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
                   className2=""
                   value={productData.name}
-                  onChange={(v) => handleField("name", v)}
+                  onChange={(v) => handleField("name", toNameCase(v))}
                 />
 
                 <CustomSelect

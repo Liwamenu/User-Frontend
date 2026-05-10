@@ -7,7 +7,10 @@ const KEY = import.meta.env.VITE_LOCAL_KEY;
 
 // Pick the localized backend message when both are present.
 // Falls back through: <lang>-specific > TR > generic message > undefined.
-const pickBackendMessage = (data) => {
+// Exported so public-API slices (login / register / password reset) can
+// pull error text the same way the private interceptor does, instead of
+// reaching into a single hard-coded key.
+export const pickBackendMessage = (data) => {
   if (!data) return null;
   const lang = (i18n.language || "tr").toLowerCase();
   if (lang.startsWith("en") && data.message_EN) return data.message_EN;
@@ -16,15 +19,50 @@ const pickBackendMessage = (data) => {
   return data.message || null;
 };
 
+// Translate an axios error into a user-readable string. Public-API slices
+// (login/register/password reset) catch their own errors instead of going
+// through the privateApi response interceptor, so without this helper they
+// would surface raw axios strings like "timeout of 30000ms exceeded" or
+// "Network Error". Order matters: backend-supplied messages win, then we
+// classify by transport (timeout / no response), then fall back to the
+// raw axios message and finally a generic Turkish default.
+export const pickAxiosErrorMessage = (err) => {
+  const t = i18n.t.bind(i18n);
+  const backendMsg = pickBackendMessage(err?.response?.data);
+  if (backendMsg) return backendMsg;
+  // axios sets code === "ECONNABORTED" when it aborts the request because
+  // the configured `timeout` elapsed. Some browsers also use ETIMEDOUT.
+  if (err?.code === "ECONNABORTED" || err?.code === "ETIMEDOUT") {
+    return t("apiErrors.timeout");
+  }
+  // err.request exists but err.response does not → request left the
+  // browser but no answer came back. Treat as transport/network failure.
+  if (err?.request && !err?.response) {
+    return t("apiErrors.network");
+  }
+  return err?.message || t("apiErrors.generic", { message: "" }).trim();
+};
+
+// 30s request timeout. Without this, axios waits indefinitely when the
+// backend hangs or a CORS preflight stalls — the loadingMiddleware never
+// sees a /fulfilled or /rejected, so the global LiwaMenu loader stays on
+// screen forever (the "Mail Gönder spinner" issue on /register). 30s is
+// long enough for cold-start backends and short enough that a real user
+// gets clear feedback (toast.error from the rejected branch) instead of a
+// frozen UI.
+const REQUEST_TIMEOUT_MS = 30000;
+
 const api = axios.create({
   baseURL: baseURL,
   withCredentials: false,
+  timeout: REQUEST_TIMEOUT_MS,
   headers: { "Content-Type": "application/json" },
 });
 
 const axiosPrivate = axios.create({
   baseURL: baseURL,
   withCredentials: false,
+  timeout: REQUEST_TIMEOUT_MS,
   headers: { "Content-Type": "application/json" },
 });
 

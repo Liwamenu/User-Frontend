@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../api";
+import api, { pickAxiosErrorMessage } from "../api";
 import { setTranslationLanguage } from "../../config/i18n";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
@@ -62,12 +62,10 @@ export const login = createAsyncThunk(
       return res.data.sessionId;
     } catch (err) {
       console.log(err);
-      const errorMessage =
-        err?.response?.data?.message_TR ||
-        err?.response?.data?.message ||
-        err.message;
-      const statusCode =
-        err?.status || err?.response?.status || err?.response?.data?.statusCode;
+      // pickAxiosErrorMessage handles locale, PascalCase, timeout and
+      // network failures uniformly — see registerSlice for the rationale.
+      const errorMessage = pickAxiosErrorMessage(err);
+      const statusCode = err?.status || err?.response?.status;
       return rejectWithValue({ message: errorMessage, statusCode });
     }
   },

@@ -144,6 +144,17 @@ const SubCategories = ({ data: restaurant }) => {
 
   const handleEditSubCategory = (updated) => {
     if (!subCategoriesData) return;
+    // Refetch from the backend so the slice cache picks up the
+    // canonical image URL the server just generated. The local merge
+    // below uses the editor's blob preview — fine for this session, but
+    // other consumers reading from `s.subCategories.get` would
+    // otherwise see the stale URL until next mount. Fired ONCE up
+    // front (instead of inside every branch) because each merge path
+    // has its own early `return`. Same pattern as
+    // handleAddSubCategory below.
+    if (restaurant?.id) {
+      dispatch(getSubCategories({ restaurantId: restaurant.id }));
+    }
     let originGroupIndex = -1;
     subCategoriesData.forEach((group, gi) => {
       if (group.subCategories.some((sc) => sc.id === updated.id)) {
