@@ -1,12 +1,53 @@
-//MODULES
+// Image crop / rotate / flip dialog — used everywhere a user uploads a
+// product / category / restaurant photo (addRestaurant, editRestaurant,
+// externalPage, customFileInput, …). Mounted via PopupContext's
+// `setCropImgPopup`, which renders us inside the dedicated crop slot
+// (`<Popup />` in App.jsx) so we don't compete with the regular popup
+// stack.
+//
+// The previous version used a fixed 400px cropper height + hard-coded
+// max-w-4xl wrapper + side-by-side aspect/tools rows that overflowed
+// horizontally on phones AND vertically on landscape. This rewrite:
+//   • uses dynamic-viewport-units (dvh) so the modal respects mobile
+//     browser chrome (URL bar, bottom toolbar)
+//   • flexes the cropper between min / max bounds based on viewport
+//   • stacks the aspect-ratio + tool rows on narrow widths and makes
+//     the buttons wrap instead of overflow
+//   • drops the ad-hoc inline SVGs in favour of the lucide icon set
+//     used throughout the rest of the admin so visual weight matches
+//
+// Modal is used in many places — keep the prop contract (file, onSave)
+// stable so call sites don't need to be touched.
+
 import "cropperjs/dist/cropper.css";
 import Cropper from "react-cropper";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  Crop,
+  X,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  RotateCw,
+  FlipHorizontal2,
+  FlipVertical2,
+  Undo2,
+  Check,
+} from "lucide-react";
 
-//CONTEXT
 import { usePopup } from "../../context/PopupContext";
-import { CancelI } from "../../assets/icon";
+
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
+
+// Aspect-ratio presets surfaced as pill buttons. The numeric value is
+// what cropperjs expects; `NaN` switches the cropper to free-form mode.
+const ASPECT_PRESETS = [
+  { value: 16 / 9, label: "16:9" },
+  { value: 4 / 3, label: "4:3" },
+  { value: 1, label: "1:1" },
+];
 
 const EditImageFile = ({ file, onSave }) => {
   const { t } = useTranslation();
@@ -31,7 +72,7 @@ const EditImageFile = ({ file, onSave }) => {
     }
   };
 
-  const cropImage = async () => {
+  const cropImage = () => {
     const cropper = cropperRef.current?.cropper;
     if (!cropper) {
       onClose();
@@ -41,7 +82,9 @@ const EditImageFile = ({ file, onSave }) => {
     const canvas = cropper.getCroppedCanvas();
     canvas.toBlob((blob) => {
       if (blob) {
-        // Create a new File object from the blob with the original filename
+        // Re-wrap the blob as a File so consumers get a value with
+        // .name + .type — original filename is preserved so backend
+        // upload validation against extensions still works.
         const croppedFile = new File([blob], file.name, {
           type: file.type,
           lastModified: Date.now(),
@@ -57,60 +100,93 @@ const EditImageFile = ({ file, onSave }) => {
     setCropImgPopup(null);
   };
 
-  const handleRotateLeft = () => {
-    cropperRef.current?.cropper.rotate(-90);
-  };
-
-  const handleRotateRight = () => {
-    cropperRef.current?.cropper.rotate(90);
-  };
+  const handleRotateLeft = () => cropperRef.current?.cropper.rotate(-90);
+  const handleRotateRight = () => cropperRef.current?.cropper.rotate(90);
 
   const handleFlipHorizontal = () => {
     const cropper = cropperRef.current?.cropper;
+    if (!cropper) return;
     const imageData = cropper.getImageData();
     cropper.scaleX(imageData.scaleX === 1 ? -1 : 1);
   };
 
   const handleFlipVertical = () => {
     const cropper = cropperRef.current?.cropper;
+    if (!cropper) return;
     const imageData = cropper.getImageData();
     cropper.scaleY(imageData.scaleY === 1 ? -1 : 1);
   };
 
-  const handleReset = () => {
-    cropperRef.current?.cropper.reset();
-  };
+  const handleReset = () => cropperRef.current?.cropper.reset();
+  const handleZoomIn = () => cropperRef.current?.cropper.zoom(0.1);
+  const handleZoomOut = () => cropperRef.current?.cropper.zoom(-0.1);
 
-  const handleZoomIn = () => {
-    cropperRef.current?.cropper.zoom(0.1);
-  };
+  // Pill style helper for aspect-ratio buttons — keeps the active /
+  // inactive variants in one place instead of duplicating Tailwind
+  // strings inline four times.
+  const ratioPillCls = (active) =>
+    `inline-flex items-center justify-center h-8 px-3 rounded-md text-[11px] font-semibold transition ${
+      active
+        ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/25"
+        : "bg-[--white-1] text-[--gr-1] ring-1 ring-[--border-1] hover:bg-[--white-2] hover:text-[--black-1]"
+    }`;
 
-  const handleZoomOut = () => {
-    cropperRef.current?.cropper.zoom(-0.1);
-  };
+  // Tool icon button — square, tinted on hover.
+  const toolBtnCls =
+    "grid place-items-center size-9 rounded-md bg-[--white-1] text-[--gr-1] ring-1 ring-[--border-1] hover:bg-indigo-50 hover:text-indigo-700 hover:ring-indigo-200 transition dark:hover:bg-indigo-500/15 dark:hover:text-indigo-200 dark:hover:ring-indigo-400/30";
 
   return (
-    <div className="flex items-center justify-center transition-all duration-300">
-      <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full max-w-4xl p-6 transform transition-all duration-300 modal-content max-h-[95vh] overflow-y-auto">
-        <div className="flex justify-between items-center pb-3">
-          <h3 className="text-xl font-bold text-[--black-1]">
+    <div className="bg-[--white-1] rounded-2xl shadow-2xl ring-1 ring-[--border-1] w-full max-w-3xl mx-auto flex flex-col max-h-[95dvh] overflow-hidden">
+      {/* Brand strip — matches the other settings modals (Announcement,
+          External Page, EditRestaurant) so this dialog feels like part
+          of the same design system. */}
+      <div className="h-0.5 shrink-0" style={{ background: PRIMARY_GRADIENT }} />
+
+      {/* Header */}
+      <header className="flex items-center gap-3 px-3 sm:px-5 py-3 border-b border-[--border-1] shrink-0">
+        <span
+          className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-indigo-500/25 shrink-0"
+          style={{ background: PRIMARY_GRADIENT }}
+        >
+          <Crop className="size-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm sm:text-base font-bold text-[--black-1] truncate tracking-tight">
             {t("cropImage.title")}
           </h3>
-          <button
-            onClick={onClose}
-            className="text-[--gr-1] hover:text-[--black-2] transition-colors"
-          >
-            <CancelI className="size-[1.5rem]" />
-          </button>
+          {file?.name && (
+            <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
+              {file.name}
+            </p>
+          )}
         </div>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t("cropImage.cancel")}
+          className="grid place-items-center size-8 rounded-md text-[--gr-2] hover:text-[--black-1] hover:bg-[--white-2] transition shrink-0"
+        >
+          <X className="size-4" />
+        </button>
+      </header>
 
-        {/* Cropper Container */}
-        <div className="mb-4 bg-[--light-1] rounded-lg border border-[--border-1] p-3">
+      {/* Body — scrollable so even a tiny landscape phone can reach
+          everything; the cropper itself is height-clamped so the body
+          rarely needs to scroll on reasonable viewports. */}
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 space-y-3 bg-[--white-2]/30">
+        {/* Cropper — height adapts to viewport (50dvh on mobile, ~480px
+            cap on desktop) with a 220px floor so the cropper handles
+            stay tappable on landscape phones with very low height. */}
+        <div className="rounded-xl border border-[--border-1] bg-[--white-1] overflow-hidden">
           {imageURL ? (
             <Cropper
               ref={cropperRef}
               src={imageURL}
-              style={{ height: 400, width: "100%" }}
+              style={{
+                width: "100%",
+                height: "min(55dvh, 480px)",
+                minHeight: 220,
+              }}
               aspectRatio={aspectRatio}
               guides={true}
               background={false}
@@ -120,7 +196,10 @@ const EditImageFile = ({ file, onSave }) => {
               viewMode={1}
             />
           ) : (
-            <div className="h-[400px] flex items-center justify-center">
+            <div
+              className="flex items-center justify-center"
+              style={{ height: "min(55dvh, 480px)", minHeight: 220 }}
+            >
               <p className="text-sm text-[--gr-1]">
                 {t("cropImage.preview_loading")}
               </p>
@@ -128,192 +207,129 @@ const EditImageFile = ({ file, onSave }) => {
           )}
         </div>
 
-        {/* Controls */}
-        <div className="space-y-4">
-          {/* Aspect Ratio */}
-          <div className="flex justify-between items-center bg-[--light-4] p-3 rounded-lg border border-[--border-1]">
-            <span className="text-xs font-medium text-[--black-2]">
-              <span className="text-[--gr-1]">{t("cropImage.size_label")}</span>{" "}
-              {t("cropImage.size_auto")}
-            </span>
-            <div className="flex space-x-2">
+        {/* Aspect-ratio row — label on top of the buttons on mobile so
+            the touch targets keep their full width, side-by-side on
+            sm: where there's horizontal room. */}
+        <div className="rounded-xl border border-[--border-1] bg-[--white-1] p-3 flex flex-col sm:flex-row sm:items-center gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[--gr-1] shrink-0">
+            {t("cropImage.size_label")}
+          </span>
+          <div className="flex flex-wrap gap-1.5 sm:ml-auto">
+            {ASPECT_PRESETS.map((preset) => (
               <button
-                onClick={() => handleAspectRatio(16 / 9)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                  aspectRatio === 16 / 9
-                    ? "bg-[--primary-1] text-white"
-                    : "bg-[--light-3] text-[--black-2] hover:bg-[--light-4]"
-                }`}
+                key={preset.label}
+                type="button"
+                onClick={() => handleAspectRatio(preset.value)}
+                className={ratioPillCls(aspectRatio === preset.value)}
               >
-                16:9
+                {preset.label}
               </button>
-              <button
-                onClick={() => handleAspectRatio(4 / 3)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                  aspectRatio === 4 / 3
-                    ? "bg-[--primary-1] text-white"
-                    : "bg-[--light-3] text-[--black-2] hover:bg-[--light-4]"
-                }`}
-              >
-                4:3
-              </button>
-              <button
-                onClick={() => handleAspectRatio(1)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                  aspectRatio === 1
-                    ? "bg-[--primary-1] text-white"
-                    : "bg-[--light-3] text-[--black-2] hover:bg-[--light-4]"
-                }`}
-              >
-                1:1
-              </button>
-              <button
-                onClick={() => handleAspectRatio(NaN)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                  Number.isNaN(aspectRatio)
-                    ? "bg-[--primary-1] text-white"
-                    : "bg-[--light-3] text-[--black-2] hover:bg-[--light-4]"
-                }`}
-              >
-                {t("cropImage.free_ratio")}
-              </button>
-            </div>
-          </div>
-
-          {/* Tools */}
-          <div className="flex justify-between items-center bg-[--light-4] p-3 rounded-lg border border-[--border-1]">
-            <span className="text-sm font-medium text-[--black-2]">
-              {t("cropImage.tools_label")}
-            </span>
-            <div className="flex space-x-2">
-              <button
-                onClick={handleZoomIn}
-                className="p-2 bg-[--light-3] text-[--black-2] rounded-lg hover:bg-[--light-4] transition-colors"
-                title={t("cropImage.zoom_in")}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 -960 960 960"
-                  width="24px"
-                  fill="currentColor"
-                >
-                  <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Zm-40-60v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Z" />
-                </svg>
-              </button>
-              <button
-                onClick={handleZoomOut}
-                className="p-2 bg-[--light-3] text-[--black-2] rounded-lg hover:bg-[--light-4] transition-colors"
-                title={t("cropImage.zoom_out")}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 -960 960 960"
-                  width="24px"
-                  fill="currentColor"
-                >
-                  <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400ZM280-540v-80h200v80H280Z" />
-                </svg>
-              </button>
-              <button
-                onClick={handleRotateLeft}
-                className="p-2 bg-[--light-3] text-[--black-2] rounded-lg hover:bg-[--light-4] transition-colors"
-                title={t("cropImage.rotate_left")}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 -960 960 960"
-                  width="24px"
-                  fill="currentColor"
-                >
-                  <path d="M440-80q-50-5-96-24.5T256-156l56-58q29 21 61.5 34t66.5 18v82Zm80 0v-82q104-15 172-93.5T760-438q0-117-81.5-198.5T480-718h-8l64 64-56 56-160-160 160-160 56 58-62 62h6q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-438q0 137-91 238.5T520-80ZM198-214q-32-42-51.5-88T122-398h82q5 34 18 66.5t34 61.5l-58 56Zm-76-264q6-51 25-98t51-86l58 56q-21 29-34 61.5T204-478h-82Z" />
-                </svg>
-              </button>
-              <button
-                onClick={handleRotateRight}
-                className="p-2 bg-[--light-3] text-[--black-2] rounded-lg hover:bg-[--light-4] transition-colors"
-                title={t("cropImage.rotate_right")}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 -960 960 960"
-                  width="24px"
-                  fill="currentColor"
-                >
-                  <path d="M522-80v-82q34-5 66.5-18t61.5-34l56 58q-42 32-88 51.5T522-80Zm-80 0Q304-98 213-199.5T122-438q0-75 28.5-140.5t77-114q48.5-48.5 114-77T482-798h6l-62-62 56-58 160 160-160 160-56-56 64-64h-8q-117 0-198.5 81.5T202-438q0 104 68 182.5T442-162v82Zm322-134-58-56q21-29 34-61.5t18-66.5h82q-5 50-24.5 96T764-214Zm76-264h-82q-5-34-18-66.5T706-606l58-56q32 39 51 86t25 98Z" />
-                </svg>
-              </button>
-              <button
-                onClick={handleFlipHorizontal}
-                className="p-2 bg-[--light-3] text-[--black-2] rounded-lg hover:bg-[--light-4] transition-colors"
-                title={t("cropImage.flip_horizontal")}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 -960 960 960"
-                  width="24px"
-                  fill="currentColor"
-                >
-                  <path d="M280-280 80-480l200-200 56 56-103 104h494L624-624l56-56 200 200-200 200-56-56 103-104H233l103 104-56 56Z" />
-                </svg>
-              </button>
-              <button
-                onClick={handleFlipVertical}
-                className="p-2 bg-[--light-3] text-[--black-2] rounded-lg hover:bg-[--light-4] transition-colors"
-                title={t("cropImage.flip_vertical")}
-              >
-                <div className="rotate-90">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    height="24px"
-                    viewBox="0 -960 960 960"
-                    width="24px"
-                    fill="currentColor"
-                  >
-                    <path d="M280-280 80-480l200-200 56 56-103 104h494L624-624l56-56 200 200-200 200-56-56 103-104H233l103 104-56 56Z" />
-                  </svg>
-                </div>
-              </button>
-              <button
-                onClick={handleReset}
-                className="p-2 bg-[--light-3] text-[--black-2] rounded-lg hover:bg-[--light-4] transition-colors"
-                title={t("cropImage.reset")}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 -960 960 960"
-                  width="24px"
-                  fill="currentColor"
-                >
-                  <path d="M680-80q-83 0-141.5-58.5T480-280q0-83 58.5-141.5T680-480q83 0 141.5 58.5T880-280q0 83-58.5 141.5T680-80Zm0-80q-20-26-30.5-56T639-280q0-34 11-64t30-56q-50 0-85 35t-35 85q0 50 35 85t85 35Zm151-400h-83q-26-88-99-144t-169-56q-117 0-198.5 81.5T200-480q0 72 32.5 132t87.5 98v-110h80v240H160v-80h94q-62-50-98-122.5T120-480q0-75 28.5-140.5t77-114q48.5-48.5 114-77T480-840q129 0 226.5 79.5T831-560Z" />
-                </svg>
-              </button>
-            </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => handleAspectRatio(NaN)}
+              className={ratioPillCls(Number.isNaN(aspectRatio))}
+            >
+              {t("cropImage.free_ratio")}
+            </button>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-end space-x-3 pt-6 border-t border-[--border-1] mt-6">
-          <button
-            onClick={onClose}
-            className="px-6 py-2.5 text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] rounded-xl hover:bg-[--light-1] hover:text-[--black-1] transition-all"
-          >
-            {t("cropImage.cancel")}
-          </button>
-          <button
-            onClick={cropImage}
-            className="px-8 py-2.5 text-sm font-medium text-white bg-[--primary-1] rounded-xl shadow-lg hover:bg-[--primary-2] transform hover:-translate-y-0.5 transition-all"
-          >
-            <i className="fa-solid fa-check mr-2"></i>
-            {t("cropImage.save")}
-          </button>
+        {/* Tools row — flex-wrap so seven small buttons collapse onto
+            two lines on tiny widths instead of overflowing. */}
+        <div className="rounded-xl border border-[--border-1] bg-[--white-1] p-3 flex flex-col sm:flex-row sm:items-center gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[--gr-1] shrink-0">
+            {t("cropImage.tools_label")}
+          </span>
+          <div className="flex flex-wrap gap-1.5 sm:ml-auto">
+            <button
+              type="button"
+              onClick={handleZoomIn}
+              title={t("cropImage.zoom_in")}
+              aria-label={t("cropImage.zoom_in")}
+              className={toolBtnCls}
+            >
+              <ZoomIn className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={handleZoomOut}
+              title={t("cropImage.zoom_out")}
+              aria-label={t("cropImage.zoom_out")}
+              className={toolBtnCls}
+            >
+              <ZoomOut className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={handleRotateLeft}
+              title={t("cropImage.rotate_left")}
+              aria-label={t("cropImage.rotate_left")}
+              className={toolBtnCls}
+            >
+              <RotateCcw className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={handleRotateRight}
+              title={t("cropImage.rotate_right")}
+              aria-label={t("cropImage.rotate_right")}
+              className={toolBtnCls}
+            >
+              <RotateCw className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={handleFlipHorizontal}
+              title={t("cropImage.flip_horizontal")}
+              aria-label={t("cropImage.flip_horizontal")}
+              className={toolBtnCls}
+            >
+              <FlipHorizontal2 className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={handleFlipVertical}
+              title={t("cropImage.flip_vertical")}
+              aria-label={t("cropImage.flip_vertical")}
+              className={toolBtnCls}
+            >
+              <FlipVertical2 className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={handleReset}
+              title={t("cropImage.reset")}
+              aria-label={t("cropImage.reset")}
+              className={toolBtnCls}
+            >
+              <Undo2 className="size-4" />
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Footer action bar — primary action is full-width on mobile so
+          it's a clean thumb target; on sm: it sits to the right of the
+          cancel button as the conventional "OK" position. */}
+      <footer className="px-3 sm:px-5 py-3 border-t border-[--border-1] shrink-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 bg-[--white-1]">
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex items-center justify-center h-10 px-5 rounded-lg text-sm font-medium text-[--black-2] bg-[--white-1] border border-[--border-1] hover:bg-[--white-2] hover:text-[--black-1] transition"
+        >
+          {t("cropImage.cancel")}
+        </button>
+        <button
+          type="button"
+          onClick={cropImage}
+          className="inline-flex items-center justify-center gap-1.5 h-10 px-5 rounded-lg text-sm font-semibold text-white shadow-md shadow-indigo-500/25 hover:brightness-110 active:brightness-95 transition"
+          style={{ background: PRIMARY_GRADIENT }}
+        >
+          <Check className="size-4" strokeWidth={2.75} />
+          {t("cropImage.save")}
+        </button>
+      </footer>
     </div>
   );
 };

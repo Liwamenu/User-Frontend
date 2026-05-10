@@ -380,7 +380,12 @@ const EditRestaurant = ({ data: restaurant }) => {
         {/* Map area with overlaid Places Autocomplete search bar */}
         <div className="relative w-full flex-1 min-h-0">
           <div id="map" className="absolute inset-0 w-full h-full" />
-          <div className="absolute top-3 left-[calc(50%+60px)] -translate-x-1/2 z-10 w-[min(320px,calc(100%-9rem))]">
+          {/* Search bar position: pushed down on mobile so it doesn't sit on
+              top of Google Maps' default "Map / Satellite" toggle (which
+              wraps to its own row at narrow widths and hugs the top-left).
+              On sm+ the toggle is compact enough that the original top-3
+              placement is fine. */}
+          <div className="absolute top-[7rem] sm:top-3 left-[calc(50%+60px)] -translate-x-1/2 z-10 w-[min(320px,calc(100%-9rem))]">
             <div className="flex items-center gap-2 h-11 px-3 rounded-xl bg-[--white-1] shadow-lg ring-1 ring-black/10">
               <Search className="size-4 text-[--gr-2] shrink-0" />
               <input
@@ -512,7 +517,7 @@ const EditRestaurant = ({ data: restaurant }) => {
                   </div>
                   <div>
                     <label className={labelCls}>
-                      {t("restaurants.phone")}
+                      {t("restaurants.contact_phone")}
                       <span className="text-rose-500 ml-0.5">*</span>
                     </label>
                     <CustomPhoneInput

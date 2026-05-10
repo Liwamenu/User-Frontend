@@ -86,6 +86,17 @@ export function createApiSlice(cfg) {
         const opts = { ...(axiosConfig || {}) };
         let res;
         if (sendMode === "params") {
+          // Axios needs `params` to be a plain object so it can serialize
+          // key/value pairs into the query string. Passing a primitive
+          // (e.g. a bare string slug) crashes inside axios with the
+          // unhelpful "target must be an object". Surface a clearer
+          // error so the next time someone forgets to wrap, they
+          // immediately see WHICH slice + WHAT type was sent.
+          if (arg != null && typeof arg !== "object") {
+            throw new Error(
+              `createApiSlice("${thunkType}"): arg must be an object for params-mode requests, received ${typeof arg}. Wrap it like dispatch(thunk({ key: value })).`,
+            );
+          }
           opts.params = arg;
           res = await api[method](fullUrl, opts);
         } else {

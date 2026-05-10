@@ -142,7 +142,20 @@ const Register = () => {
       dispatch(resetRgisterState());
     } else if (error) {
       toast.dismiss(toastId.current);
-      toast.error(error.message);
+      // Backend sometimes responds with a bare generic message
+      // (e.g. "Kayıt başarısız" / "Registration failed") that doesn't
+      // tell the user *why* it failed. Heuristically detect that and
+      // append a hint pointing at the most common cause — a duplicate
+      // email — so users have something actionable. The original
+      // backend text stays first so a more specific server message
+      // (when present) still leads.
+      const raw = error.message || "";
+      const looksGeneric =
+        /başarısız|basarisiz|failed/i.test(raw) && raw.length < 40;
+      const finalMessage = looksGeneric
+        ? `${raw}\n${t("register.likely_duplicate")}`
+        : raw;
+      toast.error(finalMessage);
       dispatch(resetRgisterState());
     }
   }, [loading, success, error, dispatch, t]);

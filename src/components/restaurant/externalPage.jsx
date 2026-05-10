@@ -12,17 +12,20 @@
 // restaurant fields from `data`, mirroring editRestaurant.jsx's payload.
 
 import toast from "react-hot-toast";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import {
+  AlertTriangle,
   Code2,
   Eye,
   Expand,
   Image as ImageIcon,
   Layout,
+  Monitor,
   MousePointerClick,
   Save,
+  Smartphone,
   Trash2,
   Upload,
   X,
@@ -36,6 +39,15 @@ import {
   updateRestaurant,
   resetUpdateRestaurant,
 } from "../../redux/restaurants/updateRestaurantSlice";
+// Shared with announcementSettings.jsx — same authoring surface, same
+// iframe contract, so any drift would re-create the "preview works in
+// one editor, breaks in another" class of bugs.
+import {
+  buildPreviewSrcDoc,
+  detectDangerousContent,
+  PREVIEW_ALLOW,
+  PREVIEW_SANDBOX,
+} from "../../utils/htmlSafety";
 
 const PRIMARY_GRADIENT =
   "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
@@ -98,6 +110,20 @@ const ExternalPage = ({ data }) => {
   const [imageFile, setImageFile] = useState(null);
   const [imageRemoved, setImageRemoved] = useState(false);
   const [imagePreview, setImagePreview] = useState(savedImageUrl);
+  // Device-frame width for the live preview. Mirrors AnnouncementSettings
+  // so authors can confirm their content holds up on a phone before
+  // publishing. Defaults to mobile because most customers visit via QR
+  // code on a phone.
+  const [previewMode, setPreviewMode] = useState("mobile");
+
+  // Self-contained HTML document for the preview iframe (full doc passed
+  // through verbatim, snippets wrapped with Tailwind CDN + sane reset).
+  // Logic shared with the announcement editor and the customer-side
+  // modal — see utils/htmlSafety.js.
+  const previewSrcDoc = useMemo(
+    () => buildPreviewSrcDoc(htmlContent),
+    [htmlContent],
+  );
 
   // Re-seed when the restaurant data prop changes (e.g. parent re-derived
   // from the slice cache after a list refetch).
@@ -175,6 +201,42 @@ const ExternalPage = ({ data }) => {
     if (!data?.id) {
       toast.error(t("externalPage.missing_restaurant"));
       return;
+    }
+
+    // Button name is the trigger label customers see in the menu — saving
+    // a blank name would render an unlabelled button, so require it any
+    // time *some* external content is being published. Both modes share
+    // this requirement.
+    const hasHtml =
+      typeof htmlContent === "string" && htmlContent.trim().length > 0;
+    const hasImage = !!imagePreview && !imageRemoved;
+    const willPublish =
+      (mode === "html" && hasHtml) || (mode === "image" && hasImage);
+    if (willPublish && !buttonName.trim()) {
+      toast.error(t("externalPage.button_name_required"));
+      return;
+    }
+
+    if (mode === "html") {
+      // Empty HTML in HTML mode would publish a button that opens a blank
+      // page. Block instead of silently saving the no-op state.
+      if (!hasHtml) {
+        toast.error(t("externalPage.html_required"));
+        return;
+      }
+      // Reject the same XSS- / SQL-injection-shaped patterns the
+      // announcement editor blocks. The customer-side renderer is a
+      // separate codebase; defending at the editor stops bad content
+      // from being persisted in the first place.
+      const dangerous = detectDangerousContent(htmlContent);
+      if (dangerous.length > 0) {
+        toast.error(
+          t("externalPage.dangerous_content_blocked", {
+            items: dangerous.join(", "),
+          }),
+        );
+        return;
+      }
     }
 
     const formData = new FormData();
@@ -309,25 +371,74 @@ const ExternalPage = ({ data }) => {
                 />
               </div>
 
-              {/* HTML LIVE PREVIEW — rendered in an iframe srcdoc so the
-                  pasted HTML's CSS (especially anything `position: fixed`,
-                  like preloader overlays) can't escape the preview pane and
-                  cover the rest of the editor. Scripts are blocked via
-                  sandbox but same-origin styles are allowed so the preview
-                  looks like real rendered HTML. */}
+              {/* HTML LIVE PREVIEW — sandboxed iframe centered inside a
+                  fixed-width device frame so authors can confirm their
+                  HTML is responsive at both phone and desktop widths.
+                  See utils/htmlSafety.js for the sandbox rationale. */}
               <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/60 flex flex-col min-h-[28rem] shadow-sm overflow-hidden">
-                <div className="flex items-center gap-2 px-3 py-2 border-b border-[--border-1] bg-[--white-1]/70 text-[--gr-1] text-[11px] font-bold uppercase tracking-[0.12em]">
-                  <Eye className="size-3.5 text-indigo-600" />
-                  {t("externalPage.live_preview")}
+                <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-[--border-1] bg-[--white-1]/70">
+                  <div className="flex items-center gap-2 text-[--gr-1] text-[11px] font-bold uppercase tracking-[0.12em] min-w-0">
+                    <Eye className="size-3.5 text-indigo-600 shrink-0" />
+                    <span className="truncate">
+                      {t("externalPage.live_preview")}
+                    </span>
+                  </div>
+                  {/* Device-width toggle — most external pages are opened
+                      on a phone after scanning the QR code, but desktop
+                      visits also need to look right. */}
+                  <div className="inline-flex items-center rounded-md border border-[--border-1] bg-[--white-1] p-0.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewMode("mobile")}
+                      title={t("externalPage.preview_mobile")}
+                      aria-pressed={previewMode === "mobile"}
+                      className={`inline-flex items-center gap-1 px-2 h-6 rounded text-[10px] font-semibold uppercase tracking-wider transition ${
+                        previewMode === "mobile"
+                          ? "bg-indigo-600 text-white shadow-sm"
+                          : "text-[--gr-1] hover:bg-[--white-2]"
+                      }`}
+                    >
+                      <Smartphone className="size-3" />
+                      <span className="hidden sm:inline">
+                        {t("externalPage.preview_mobile")}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewMode("desktop")}
+                      title={t("externalPage.preview_desktop")}
+                      aria-pressed={previewMode === "desktop"}
+                      className={`inline-flex items-center gap-1 px-2 h-6 rounded text-[10px] font-semibold uppercase tracking-wider transition ${
+                        previewMode === "desktop"
+                          ? "bg-indigo-600 text-white shadow-sm"
+                          : "text-[--gr-1] hover:bg-[--white-2]"
+                      }`}
+                    >
+                      <Monitor className="size-3" />
+                      <span className="hidden sm:inline">
+                        {t("externalPage.preview_desktop")}
+                      </span>
+                    </button>
+                  </div>
                 </div>
-                <div className="flex-1 overflow-hidden bg-white">
+                <div className="flex-1 relative overflow-auto p-3 grid place-items-start justify-items-center">
                   {htmlContent ? (
-                    <iframe
-                      title="HTML preview"
-                      srcDoc={htmlContent}
-                      sandbox=""
-                      className="w-full h-full border-0 block"
-                    />
+                    <div
+                      className={`bg-white rounded-2xl shadow-lg border border-[--border-1] overflow-hidden transition-all duration-300 mx-auto w-full ${
+                        previewMode === "mobile"
+                          ? "max-w-[360px]"
+                          : "max-w-[768px]"
+                      }`}
+                      style={{ height: "min(28rem, 70vh)" }}
+                    >
+                      <iframe
+                        title={t("externalPage.live_preview")}
+                        srcDoc={previewSrcDoc}
+                        sandbox={PREVIEW_SANDBOX}
+                        allow={PREVIEW_ALLOW}
+                        className="w-full h-full border-0 bg-white block"
+                      />
+                    </div>
                   ) : (
                     <p className="text-xs text-[--gr-1] italic text-center mt-10 px-4">
                       {t("externalPage.preview_empty")}
@@ -387,6 +498,29 @@ const ExternalPage = ({ data }) => {
                     </>
                   )}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* CUSTOMER-SIDE COMPATIBILITY WARNING — only relevant when the
+              author is publishing HTML, since the image mode is just a
+              static <img> the customer theme drops in. Mirrors the
+              identical banner in announcementSettings.jsx so authors get
+              a consistent reminder that fancy markup (full HTML docs,
+              <script>, embedded YouTube) requires the customer-side
+              renderer to use the same iframe sandbox approach. */}
+          {mode === "html" && (
+            <div className="rounded-xl bg-amber-50/70 border border-amber-200 p-3 flex items-start gap-3 dark:bg-amber-500/10 dark:border-amber-400/30">
+              <span className="grid place-items-center size-8 rounded-lg bg-[--white-1] text-amber-600 ring-1 ring-amber-200 shrink-0 dark:bg-amber-500/15 dark:ring-amber-400/40">
+                <AlertTriangle className="size-4" />
+              </span>
+              <div className="min-w-0">
+                <h4 className="text-xs font-bold text-amber-900 dark:text-amber-200">
+                  {t("externalPage.customer_compat_title")}
+                </h4>
+                <p className="text-[11px] text-amber-800/90 leading-relaxed mt-0.5 dark:text-amber-100/85">
+                  {t("externalPage.customer_compat_text")}
+                </p>
               </div>
             </div>
           )}

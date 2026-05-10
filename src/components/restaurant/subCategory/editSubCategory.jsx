@@ -106,7 +106,14 @@ const EditSubCategory = ({ subCategory, categories, onSuccess }) => {
   // TOAST
   useEffect(() => {
     if (success) {
-      onSuccess(subCategoryData);
+      // Pass the local blob preview as `imageAbsoluteUrl` so the parent
+      // list shows the just-uploaded photo IMMEDIATELY. Without this
+      // override, `subCategoryData` still carries the old server URL
+      // (only `image: <File>` is fresh), and the parent's merge keeps
+      // the stale URL — the new image only appeared after a hard
+      // refresh, when the backend round-trip returned the canonical
+      // URL. Mirrors the same trick AddCategory uses on its onSuccess.
+      onSuccess({ ...subCategoryData, imageAbsoluteUrl: preview });
       setPopupContent(null);
       toast.success(t("editSubCategory.success"), {
         id: "subCategories",

@@ -142,6 +142,9 @@ const Categories = ({ data: restaurant }) => {
       <CategoryProducts
         categoryId={categoryId}
         categoryName={categoryName}
+        // Pass restaurantId so the modal can fetch the full lite product
+        // catalogue (left column "not in this category") in one call.
+        restaurantId={params?.id}
         onClose={() => setPopupContent(null)}
       />,
     );
@@ -153,8 +156,15 @@ const Categories = ({ data: restaurant }) => {
         id={params?.id}
         data={restaurant}
         onSuccess={() => {
-          setCategoriesData(null); // trigger re-fetch
+          // Setting `categoriesData` to null was supposed to "trigger
+          // a re-fetch", but no useEffect actually watches that local
+          // value — the page just blanked and the slice cache still
+          // held the stale list, so the loader spun forever until a
+          // hard refresh. Dispatch getCategories explicitly so the
+          // hydrate useEffect (`[categories]`) re-runs with the new
+          // payload and the freshly-added category appears.
           setPopupContent(null);
+          dispatch(getCategories({ restaurantId: params?.id }));
         }}
       />,
     );

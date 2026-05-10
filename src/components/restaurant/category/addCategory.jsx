@@ -11,6 +11,7 @@ import CustomCheckbox from "../../common/customCheckbox";
 import { usePopup } from "../../../context/PopupContext";
 import CustomFileInput from "../../common/customFileInput";
 import { CancelI, CloudUI, WarnI } from "../../../assets/icon";
+import { toNameCase } from "../../../utils/utils";
 
 //REDUX
 import {
@@ -33,7 +34,7 @@ const AddCategory = ({ id, onSuccess, data: restaurant }) => {
   const { t } = useTranslation();
   const { setPopupContent } = usePopup();
 
-  const { success, error } = useSelector((s) => s.categories.addCatergory);
+  const { success, error } = useSelector((s) => s.categories.addCategory);
   const { menus, error: menusError } = useSelector((s) => s.menus.get);
 
   const [menusData, setMenusData] = useState(null);
@@ -106,7 +107,7 @@ const AddCategory = ({ id, onSuccess, data: restaurant }) => {
   useEffect(() => {
     if (success) {
       setPopupContent(null);
-      toast.success(t("addCatergory.success"), { id: "categories" });
+      toast.success(t("addCategory.success"), { id: "categories" });
       dispatch(resetAddCategory());
       onSuccess && onSuccess({ ...category, imageAbsoluteUrl: preview });
     }
@@ -156,14 +157,17 @@ const AddCategory = ({ id, onSuccess, data: restaurant }) => {
           </div>
 
           <div className="space-y-6 overflow-y-auto max-h-[80dvh] pb-14">
-            {/* Kategori Adı */}
+            {/* Kategori Adı — `toNameCase` capitalises the first letter
+                of every word (Turkish-aware: "ısı" → "Isı", "şehir" →
+                "Şehir") so menu titles read consistently regardless of
+                what casing the author types. */}
             <CustomInput
               required
               label={`${t("addCategory.category_name")} *`}
               placeholder={t("addCategory.category_name_placeholder")}
               className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
               value={category.name}
-              onChange={(v) => handleField("name", v)}
+              onChange={(v) => handleField("name", toNameCase(v))}
             />
 
             {/* Kategori Görseli */}

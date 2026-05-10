@@ -32,7 +32,9 @@
     "server_error": "Server error (500)",
     "unexpected_status": "Unexpected error (status {{status}})",
     "no_response": "Request did not reach the server",
-    "generic": "An error occurred: {{message}}"
+    "generic": "An error occurred: {{message}}",
+    "timeout": "The server timed out. Please try again in a few seconds.",
+    "network": "Connection error. Check your internet connection and try again."
   },
   "sidebar": {
     "restaurants": "Restaurants",
@@ -142,6 +144,7 @@
     "phone_incomplete": "Please complete your phone number",
     "invalid_email": "Please enter a valid email address",
     "password_too_short": "Password must be at least {{min}} characters",
+    "likely_duplicate": "This email might already be registered. Try signing in or use a different email.",
     "accept_terms": "Please accept the terms of use",
     "fill_all_fields": "Please fill in all fields",
     "processing": "Processing...",
@@ -228,7 +231,7 @@
     "edit_title": "Edit Restaurant {{name}}",
     "address": "Address",
     "phone": "Phone",
-    "contact_phone": "Restaurant Contact Phone",
+    "contact_phone": "Restaurant Contact Number",
     "select_on_map": "Pick on Map",
     "image_main": "Restaurant Image",
     "image_logo": "Restaurant Logo (optional)",
@@ -502,7 +505,14 @@
     "success": "External page updated.",
     "missing_restaurant": "Restaurant not loaded yet.",
     "invalid_image": "Please pick an image file.",
-    "image_too_large": "Image must be under {{mb}} MB."
+    "image_too_large": "Image must be under {{mb}} MB.",
+    "html_required": "HTML content cannot be empty while HTML mode is selected.",
+    "button_name_required": "Please enter the button label your customers will see.",
+    "dangerous_content_blocked": "Save blocked for security. The HTML content contains disallowed items: {{items}}. Please remove them and try again.",
+    "preview_mobile": "Mobile",
+    "preview_desktop": "Desktop",
+    "customer_compat_title": "Customer Menu Compatibility Note",
+    "customer_compat_text": "The live preview here renders content inside a sandboxed iframe, so full HTML documents, <script> blocks and embedded YouTube/Vimeo videos all work. However, the external page customers see is a separate app — for these features to also display on the customer side, the same iframe approach must be used there. Otherwise the page may appear blank or unstyled. A simple HTML snippet is the safest option for cross-app compatibility."
   },
   "announcementSettings": {
     "title": "Announcement Settings for {{name}}",
@@ -519,7 +529,16 @@
     "save_changes": "Save Changes",
     "did_you_know_title": "Did you know?",
     "did_you_know_text": "Announcements are optimized for both desktop and mobile views. You can use standard Tailwind classes like md:text-left or sm:p-8 within your HTML content to ensure a seamless cross-device experience.",
-    "success": "Announcement settings updated successfully."
+    "success": "Announcement settings updated successfully.",
+    "dangerous_content_blocked": "Save blocked for security. The HTML content contains disallowed items: {{items}}. Please remove them and try again.",
+    "html_required": "HTML content cannot be empty while the announcement is active.",
+    "delay_required": "Please enter a valid display delay (0 or greater, in seconds).",
+    "editor_hidden_title": "Announcement Disabled",
+    "editor_hidden_hint": "Enable the announcement to reveal the HTML editor and live preview here.",
+    "preview_mobile": "Mobile",
+    "preview_desktop": "Desktop",
+    "customer_compat_title": "Customer Menu Compatibility Note",
+    "customer_compat_text": "The live preview here renders your content inside a sandboxed iframe, so full HTML documents, <script> blocks and embedded YouTube/Vimeo videos all work. However, the customer-facing menu is a separate app — for these features to also display on the customer side, the same iframe approach must be used there. Otherwise the modal may appear blank or unstyled. A simple HTML snippet is the safest option for cross-app compatibility."
   },
   "workingHours": {
     "title": "Working Hours for {{name}} Restaurant",
@@ -639,7 +658,7 @@
   },
   "categoryProducts": {
     "title": "Category Products",
-    "subtitle": "Drag and drop to reorder products",
+    "subtitle": "Add products from the left, reorder them on the right",
     "close": "Close",
     "add_existing": "Add from Existing Products",
     "no_products": "No products in this category yet.",
@@ -652,7 +671,16 @@
     "order_saved": "Product order updated.",
     "order_save_failed": "Could not save order.",
     "drag_to_reorder": "Drag to reorder.",
-    "no_changes": "No changes made."
+    "no_changes": "No changes made.",
+    "search_placeholder": "Search products across both columns...",
+    "clear_search": "Clear search",
+    "available_title": "Products Not in This Category",
+    "in_category_title": "Products in This Category",
+    "add": "Add",
+    "add_success": "{{name}} added to this category.",
+    "add_failed": "Could not add the product to this category.",
+    "no_results": "No products match your search.",
+    "no_available": "No other products in this restaurant to add."
   },
   "listCategoryProducts": {
     "title": "Product Selection",
@@ -848,7 +876,9 @@
     "campaign_prefix": "Campaign:",
     "portion_count": "{{count}} portions",
     "chef_recommended": "Chef's Pick",
-    "change_image": "Change Image"
+    "change_image": "Change Image",
+    "edit": "Edit Product",
+    "delete": "Delete Product"
   },
   "quickEditImage": {
     "title": "Change Product Image",
@@ -873,6 +903,10 @@
     "normal_price": "Regular Price",
     "campaign": "Campaign",
     "special": "Special",
+    "zero_price_only": "Zero-Priced Products",
+    "zero_price_only_hint": "Show only products with a zero price",
+    "zero_priced_via_tag": "This price is 0 but a tag selection (Tags page) attached to this product adds a price — the customer is charged based on the chosen tag option.",
+    "zero_price_no_coverage": "Price is 0 and no tag selection adds one either — this product appears free to customers. Please enter a regular price or link a tag.",
     "bulk_title": "Bulk Price Update",
     "bulk_description": "Apply price changes that will affect all products here.",
     "bulk_type_label": "Operation Type",
@@ -1192,7 +1226,7 @@
     "tag_natural": "Natural & green",
     "tag_sunny": "Sunny & yellow",
     "tag_fresh": "Fresh & green",
-    "tag_placeholder": "Placeholder · coming soon"
+    "tag_placeholder": "Style description coming soon · pick to preview live"
   },
   "orders": {
     "subtitle": "Track incoming orders in real time",
@@ -1546,6 +1580,48 @@
           "heading": "Maximum Party Size",
           "body": "Largest single-reservation group size. Bigger groups can't book through the form (you might want to handle weddings/groups by phone).",
           "example": "10 → a 12-person group can't book in one reservation"
+        }
+      ]
+    },
+    "externalPage": {
+      "title": "External Page — Help",
+      "intro": "Add an extra page that opens behind a button in the customer menu. Pick either custom HTML (Tailwind-supported) or a single long image (e.g. a menu graphic). Each field is explained below.",
+      "sections": [
+        {
+          "heading": "Page Type (HTML / Image)",
+          "body": "Two options: HTML Content (custom design with Tailwind classes) or Image (a single image file, typically a long menu graphic). The theme always shows ONLY the selected mode; saving clears the other on the backend.",
+          "tip": "If you just want to share a long menu graphic, Image mode is the fastest. For a richer card / promo page, use HTML mode."
+        },
+        {
+          "heading": "Button Name (Text)",
+          "body": "The label your customer sees on the button that opens this page in the main menu. Max 40 characters. REQUIRED whenever you have publishable content (HTML or image) — leaving it blank blocks the save with a toast warning.",
+          "example": "'About Us', 'Gallery', 'Our Story', 'Promotions'"
+        },
+        {
+          "heading": "HTML Content (Textarea)",
+          "body": "Type your page's HTML into the dark panel. Tailwind CSS classes are supported (rounded-xl, bg-amber-50, text-2xl, etc.). You can paste either a full HTML document (<!DOCTYPE html>...) or just a snippet (<div>...</div>). The editor automatically wraps snippets in a Tailwind CDN wrapper.",
+          "example": "<div class=\"p-6 text-center\"><h2 class=\"text-2xl font-bold\">About Us</h2><p class=\"mt-3\">Serving Liwa flavors for 15 years...</p></div>",
+          "warning": "HTML content cannot be empty while HTML mode is selected. If you only want to stop publishing, switch to Image mode and remove any image too."
+        },
+        {
+          "heading": "Live Preview — Mobile / Desktop Toggle",
+          "body": "The right panel is the LIVE preview — it updates on every keystroke. Use the Mobile (360px) and Desktop (768px) buttons in the top right to switch widths. The preview runs inside a sandboxed iframe; <script>, embedded YouTube videos and your own <style> tags all render the way real customers will see them.",
+          "tip": "Most customers open the menu via QR on a phone — always check the Mobile view. Wide embeds like YouTube auto-scale to 100% width with a 16:9 aspect ratio."
+        },
+        {
+          "heading": "Image (Image Mode)",
+          "body": "Upload a single image file: PNG / JPG / GIF / WebP. Typical use is showing a long menu graphic as-is. The 'Full Preview' button shows the customer's full-screen perspective; 'Remove' clears the uploaded image. Picking a new image opens a crop dialog so you can frame the area you want.",
+          "warning": "Max file size follows the VITE_MAX_FILE_SIZE_MB setting (default 5 MB). Larger files are rejected."
+        },
+        {
+          "heading": "Security Filter (on save)",
+          "body": "On save the HTML is scanned for the patterns below. If any match, the save is blocked and the toast lists exactly which pattern triggered:\n• <meta http-equiv=\"refresh\"> (silent redirect)\n• <base> (URL hijack)\n• javascript: / vbscript: / data:text/html URL schemes\n• SQL injection patterns (DROP TABLE, UNION SELECT, OR 1=1, etc.)\n\nImportant: <script> and embedded <iframe> are NOT blocked — your legitimate animations and videos are allowed.",
+          "tip": "The toast names the offending pattern explicitly — remove it and save again."
+        },
+        {
+          "heading": "Customer Menu Compatibility Note",
+          "body": "The live preview here uses a sandboxed iframe. The external page customers see is a separate app (menu themes). Full HTML documents, <script> blocks and embedded media (YouTube / Vimeo) require the customer side to use the same iframe approach. Otherwise the page may appear blank or unstyled for customers.",
+          "tip": "For maximum compatibility, prefer simple HTML snippets written with Tailwind classes."
         }
       ]
     },
@@ -2202,5 +2278,27 @@
         }
       ]
     }
+  },
+  "filterReservations": {
+    "filter": "Filter",
+    "date_from": "Date From",
+    "date_to": "Date To",
+    "status": "Status",
+    "status_all": "All",
+    "status_pending": "Pending",
+    "status_accepted": "Accepted",
+    "status_rejected": "Rejected",
+    "search": "Search",
+    "search_placeholder": "Search key",
+    "full_name": "Full Name",
+    "full_name_placeholder": "Guest name",
+    "phone": "Phone",
+    "phone_placeholder": "Phone number",
+    "min_guests": "Min Guests",
+    "min_placeholder": "Min",
+    "max_guests": "Max Guests",
+    "max_placeholder": "Max",
+    "clear": "Clear",
+    "apply": "Apply"
   }
 }

@@ -32,7 +32,9 @@
     "server_error": "Sunucu hatası, durum kodu 500",
     "unexpected_status": "Beklenmedik hata, durum kodu {{status}}",
     "no_response": "İstek sunucuya ulaşamadı",
-    "generic": "Bir hata oluştu: {{message}}"
+    "generic": "Bir hata oluştu: {{message}}",
+    "timeout": "Sunucu zaman aşımına uğradı. Lütfen birkaç saniye sonra tekrar deneyin.",
+    "network": "Bağlantı hatası. İnternet bağlantınızı kontrol edip tekrar deneyin."
   },
   "sidebar": {
     "restaurants": "Restoranlar",
@@ -142,6 +144,7 @@
     "phone_incomplete": "Lütfen telefon numaranızı tamamlayın",
     "invalid_email": "Lütfen geçerli bir e-posta adresi girin",
     "password_too_short": "Şifre en az {{min}} karakter olmalı",
+    "likely_duplicate": "Bu e-posta adresi zaten kayıtlı olabilir. Giriş yapmayı deneyin veya farklı bir e-posta kullanın.",
     "accept_terms": "Lütfen kullanım şartılarını kabul edin",
     "fill_all_fields": "Tüm alanları doldurunuz",
     "processing": "İşleniyor...",
@@ -228,7 +231,7 @@
     "edit_title": "{{name}} Restoranı Düzenle",
     "address": "Adres",
     "phone": "Telefon",
-    "contact_phone": "Restoran İletişim Telefonu",
+    "contact_phone": "Restoran İletişim Numarası",
     "select_on_map": "Haritada Seç",
     "image_main": "Restoran Görseli",
     "image_logo": "Restoran Logosu (opsiyonel)",
@@ -502,7 +505,14 @@
     "success": "Harici sayfa güncellendi.",
     "missing_restaurant": "Restoran henüz yüklenmedi.",
     "invalid_image": "Lütfen bir görsel dosyası seçin.",
-    "image_too_large": "Görsel {{mb}} MB altında olmalı."
+    "image_too_large": "Görsel {{mb}} MB altında olmalı.",
+    "html_required": "HTML modu seçiliyken içerik boş bırakılamaz.",
+    "button_name_required": "Lütfen müşterilerinizin görüntüleyeceği buton adını giriniz.",
+    "dangerous_content_blocked": "Güvenlik nedeniyle kayıt durduruldu. HTML içeriğinde izin verilmeyen şu öğeler tespit edildi: {{items}}. Lütfen bu kısımları kaldırıp tekrar deneyin.",
+    "preview_mobile": "Mobil",
+    "preview_desktop": "Masaüstü",
+    "customer_compat_title": "Müşteri Menüsü Uyumluluk Notu",
+    "customer_compat_text": "Buradaki canlı önizleme içeriği sandbox'lı bir iframe içinde gösterir; bu yüzden tam HTML dokümanları, <script> blokları ve YouTube/Vimeo gibi gömülü videolar sorunsuz çalışır. Ancak müşterilerin gördüğü harici sayfa ayrı bir uygulama olduğundan, bu özelliklerin müşteri tarafında da görünebilmesi için aynı iframe yaklaşımının orada da uygulanmış olması gerekir. Aksi durumda sayfa boş veya stilsiz görünebilir — basit bir HTML snippet'i kullanmak en güvenli yoldur."
   },
   "announcementSettings": {
     "title": "{{name}} için Duyuru Ayarları",
@@ -519,7 +529,16 @@
     "save_changes": "Değişiklikleri Kaydet",
     "did_you_know_title": "Biliyor muydunuz?",
     "did_you_know_text": "Duyurular hem masaüstü hem de mobil görünümler için optimize edilmiştir. HTML içeriğinizde md:text-left veya sm:p-8 gibi standart Tailwind sınıflarını kullanabilirsiniz.",
-    "success": "Duyuru ayarları başarıyla güncellendi."
+    "success": "Duyuru ayarları başarıyla güncellendi.",
+    "dangerous_content_blocked": "Güvenlik nedeniyle kayıt durduruldu. HTML içeriğinde izin verilmeyen şu öğeler tespit edildi: {{items}}. Lütfen bu kısımları kaldırıp tekrar deneyin.",
+    "html_required": "Duyuru aktifken HTML içeriği boş bırakılamaz.",
+    "delay_required": "Lütfen geçerli bir gösterim süresi giriniz (saniye cinsinden 0 veya üzeri).",
+    "editor_hidden_title": "Duyuru Pasif",
+    "editor_hidden_hint": "Duyuruyu etkinleştirdiğinizde HTML editörü ve canlı önizleme alanları burada görünecek.",
+    "preview_mobile": "Mobil",
+    "preview_desktop": "Masaüstü",
+    "customer_compat_title": "Müşteri Menüsü Uyumluluk Notu",
+    "customer_compat_text": "Buradaki canlı önizleme, içeriği sandbox'lı bir iframe içinde gösterir; bu yüzden tam HTML dokümanları, <script> blokları ve YouTube/Vimeo gibi gömülü videolar sorunsuz çalışır. Ancak müşterilerin gördüğü menü ayrı bir uygulama olduğundan, bu özelliklerin müşteri tarafında da görünebilmesi için aynı iframe yaklaşımının orada da uygulanmış olması gerekir. Aksi durumda modal boş veya stilsiz görünebilir — basit bir HTML snippet'i kullanmak en güvenli yoldur."
   },
   "workingHours": {
     "title": "{{name}} Restoranı için Çalışma Saatleri",
@@ -640,7 +659,7 @@
   },
   "categoryProducts": {
     "title": "Kategori Ürünleri",
-    "subtitle": "Ürünleri sıralamak için sürükle bırak yapabilirsiniz",
+    "subtitle": "Soldan ürün ekleyin, sağda sıralamayı düzenleyin",
     "close": "Kapat",
     "add_existing": "Mevcut Ürünlerden Ekle",
     "no_products": "Bu kategoride henüz ürün yok.",
@@ -653,7 +672,16 @@
     "order_saved": "Ürün sıralaması güncellendi.",
     "order_save_failed": "Sıralama kaydedilemedi.",
     "drag_to_reorder": "Sıralamayı değiştirmek için sürükleyin.",
-    "no_changes": "Değişiklik yapılmadı."
+    "no_changes": "Değişiklik yapılmadı.",
+    "search_placeholder": "Her iki sütunda da ürün ara...",
+    "clear_search": "Aramayı temizle",
+    "available_title": "Bu Kategoride Olmayan Ürünler",
+    "in_category_title": "Bu Kategorideki Ürünler",
+    "add": "Ekle",
+    "add_success": "{{name}} bu kategoriye eklendi.",
+    "add_failed": "Ürün bu kategoriye eklenemedi.",
+    "no_results": "Aramayla eşleşen ürün yok.",
+    "no_available": "Bu restoranda ekleyebileceğin başka ürün yok."
   },
   "listCategoryProducts": {
     "title": "Ürün Seçimi",
@@ -849,7 +877,9 @@
     "campaign_prefix": "Kampanya:",
     "portion_count": "{{count}} porsiyon",
     "chef_recommended": "Şef Tavsiyesi",
-    "change_image": "Fotoğrafı Değiştir"
+    "change_image": "Fotoğrafı Değiştir",
+    "edit": "Ürünü Düzenle",
+    "delete": "Ürünü Sil"
   },
   "quickEditImage": {
     "title": "Ürün Fotoğrafını Değiştir",
@@ -874,6 +904,10 @@
     "normal_price": "Normal Fiyatı",
     "campaign": "Kampanya",
     "special": "Özel",
+    "zero_price_only": "Sıfır Fiyatlı Ürünler",
+    "zero_price_only_hint": "Yalnızca fiyatı 0 olan ürünleri göster",
+    "zero_priced_via_tag": "Bu fiyat 0 ama bu ürüne bağlı bir etiket seçimi (Etiketler sayfası) fiyat ekliyor — müşteri seçtiği etikete göre ücretlendirilir.",
+    "zero_price_no_coverage": "Fiyat 0 ve hiçbir etiket seçimi de fiyat eklemiyor — bu ürün müşteriye ücretsiz görünür. Lütfen normal fiyatı girin veya bir etiket bağlayın.",
     "bulk_title": "Toplu Fiyat Güncelleme",
     "bulk_description": "Tüm ürünlerde geçerli olacak değişiklikleri buradan yapabilirsiniz.",
     "bulk_type_label": "İşlem Türü",
@@ -1193,7 +1227,7 @@
     "tag_natural": "Doğal & yeşil",
     "tag_sunny": "Güneşli & sarı",
     "tag_fresh": "Taze & yeşil",
-    "tag_placeholder": "Yer tutucu · yakında"
+    "tag_placeholder": "Stil etiketi yakında · şimdiden seçip canlı önizleyin"
   },
   "orders": {
     "subtitle": "Gelen siparişleri canlı olarak takip edin",
@@ -1583,6 +1617,48 @@
           "body": "Bir rezervasyon talebinde EN FAZLA kaç kişi seçilebileceği. Min 1. Müşteri rezervasyon yaparken 1 ile bu değer arasında dropdown görür; daha büyük grup taleplerini sistem reddeder.",
           "example": "10 → en fazla 10 kişilik rezervasyon",
           "tip": "Çok büyük gruplar (40+) için telefonla görüşülmesini istiyorsanız bu alanı 30 ile sınırlayın."
+        }
+      ]
+    },
+    "externalPage": {
+      "title": "Harici Sayfa — Yardım",
+      "intro": "Müşteri menüsünde bir butonun ardında açılan ekstra bir sayfa eklersiniz. Tailwind sınıflarıyla özel HTML tasarımı veya tek bir uzun görsel (örneğin uzun menü görseli) seçebilirsiniz. Aşağıda her alan tek tek açıklanmıştır.",
+      "sections": [
+        {
+          "heading": "Sayfa Türü (HTML / Görsel)",
+          "body": "İki seçenek var: HTML İçerik (Tailwind'li özel tasarım) veya Görsel (tek bir resim dosyası, genelde uzun menü görseli). Tema her zaman SADECE seçili olanı gösterir; kayıt sırasında diğerinin verisi backend'de temizlenir.",
+          "tip": "Hızlıca uzun bir menü görselini paylaşmak istiyorsanız Görsel modu en pratik. Daha zengin bir kart / kampanya sayfası için HTML modu."
+        },
+        {
+          "heading": "Buton Adı (Text)",
+          "body": "Müşterinin ana menüde bu sayfayı açan butonun ÜZERİNDE göreceği etiket. Maksimum 40 karakter. Yayınlanacak içerik (HTML veya görsel) varsa ZORUNLU — boş bırakırsanız kayıt durdurulur ve toast uyarısı çıkar.",
+          "example": "'Hakkımızda', 'Galeri', 'Hikayemiz', 'Kampanyalar'"
+        },
+        {
+          "heading": "HTML İçeriği (Textarea)",
+          "body": "Karanlık panele sayfanızın HTML kodunu yazarsınız. Tailwind CSS sınıfları desteklenir (rounded-xl, bg-amber-50, text-2xl vs.). İki şekilde içerik girebilirsiniz: tam HTML dokümanı (<!DOCTYPE html>...) ya da sadece bir snippet (<div>...</div>). Editör snippet'leri otomatik olarak bir Tailwind CDN wrapper'ına alır.",
+          "example": "<div class=\"p-6 text-center\"><h2 class=\"text-2xl font-bold\">Hakkımızda</h2><p class=\"mt-3\">15 yıldır Liwa lezzetleri ile hizmetinizdeyiz...</p></div>",
+          "warning": "HTML modu seçiliyken içerik boş olamaz. Sadece yayını durdurmak istiyorsanız Görsel moduna geçip oradaki görseli de kaldırın."
+        },
+        {
+          "heading": "Canlı Önizleme — Mobil / Masaüstü Toggle",
+          "body": "Sağ panel CANLI önizleme — her tuşta güncellenir. Üst-sağdaki Mobil (360px) ve Masaüstü (768px) düğmeleri ile genişlik değiştirebilirsiniz. Önizleme sandbox'lı bir iframe içinde çalışır; <script>, gömülü YouTube videosu, kendi <style> tag'leriniz hepsi gerçek müşteri görünümü gibi render edilir.",
+          "tip": "Çoğu müşteri menüyü QR ile telefondan açar — Mobil görünümü mutlaka kontrol edin. YouTube embed gibi büyük genişlikli iframe'ler otomatik %100 genişlik + 16:9 oranına ölçeklenir."
+        },
+        {
+          "heading": "Görsel (Image Mode)",
+          "body": "Tek bir resim dosyası yükleyebilirsiniz: PNG / JPG / GIF / WebP. Tipik kullanım uzun bir menü görselini olduğu gibi göstermek. 'Tam Önizleme' butonu müşteri perspektifinden nasıl göründüğünü tam ekran gösterir; 'Kaldır' yüklü görseli temizler. Yeni bir görsel seçtiğinizde kırpma penceresi açılır — istediğiniz alanı belirleyebilirsiniz.",
+          "warning": "Maksimum dosya boyutu VITE_MAX_FILE_SIZE_MB ayarına göredir (varsayılan 5 MB). Daha büyükse hata alırsınız."
+        },
+        {
+          "heading": "Güvenlik Filtresi (Save anında)",
+          "body": "Kaydet anında HTML şu pattern'lere karşı taranır; bulunursa kayıt durdurulur ve hangi pattern'in tetiklendiği toast'ta listelenir:\n• <meta http-equiv=\"refresh\"> (otomatik yönlendirme)\n• <base> (URL hijack)\n• javascript: / vbscript: / data:text/html URL şemaları\n• SQL injection kalıpları (DROP TABLE, UNION SELECT, OR 1=1, vs.)\n\nÖnemli: <script> ve gömülü <iframe> ENGELLENMEZ — meşru animasyon ve video kullanımınız için izinli.",
+          "tip": "Toast'ta tetiklenen pattern net olarak gösterilir; kaldırıp tekrar kaydedebilirsiniz."
+        },
+        {
+          "heading": "Müşteri Menüsü Uyumluluk Notu",
+          "body": "Buradaki canlı önizleme sandbox'lı bir iframe ile çalışır. Müşterilerin gördüğü harici sayfa ise ayrı bir uygulamadır (menü temaları). Tam HTML dokümanları, <script> blokları ve YouTube/Vimeo gibi gömülü medyanın müşteri tarafında da görünebilmesi için temalar uygulamasının da aynı iframe yaklaşımını kullanması gerekir. Aksi durumda müşteride sayfa boş veya stilsiz görünebilir.",
+          "tip": "Maksimum uyumluluk için Tailwind class'larıyla yazılmış basit HTML snippet'leri tercih edin."
         }
       ]
     },
@@ -2006,5 +2082,27 @@
         }
       ]
     }
+  },
+  "filterReservations": {
+    "filter": "Filtrele",
+    "date_from": "Başlangıç Tarihi",
+    "date_to": "Bitiş Tarihi",
+    "status": "Durum",
+    "status_all": "Tümü",
+    "status_pending": "Onay Bekliyor",
+    "status_accepted": "Kabul Edildi",
+    "status_rejected": "Reddedildi",
+    "search": "Ara",
+    "search_placeholder": "Anahtar kelime",
+    "full_name": "Ad Soyad",
+    "full_name_placeholder": "Misafir adı",
+    "phone": "Telefon",
+    "phone_placeholder": "Telefon numarası",
+    "min_guests": "Min. Misafir",
+    "min_placeholder": "Min",
+    "max_guests": "Maks. Misafir",
+    "max_placeholder": "Maks",
+    "clear": "Temizle",
+    "apply": "Uygula"
   }
 }

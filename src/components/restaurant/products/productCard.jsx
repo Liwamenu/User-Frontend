@@ -45,7 +45,7 @@ const ProductCard = ({
 
   return (
     <div
-      className={`group flex flex-col sm:flex-row gap-3 p-3 rounded-xl border transition ${
+      className={`group flex flex-col gap-3 p-3 rounded-xl border transition ${
         selected
           ? "border-rose-400 ring-2 ring-rose-100 shadow-sm bg-rose-50/40 dark:bg-rose-500/10 dark:ring-rose-400/20 dark:border-rose-400/40"
           : isHidden
@@ -53,30 +53,37 @@ const ProductCard = ({
             : "border-[--border-1] bg-[--white-1] hover:border-indigo-200 hover:shadow-sm"
       }`}
     >
-      {selectable && (
-        <button
-          type="button"
-          onClick={() => onToggleSelect?.(product.id)}
-          aria-pressed={!!selected}
-          aria-label={
-            selected
-              ? t("productsList.deselect_product", "Seçimi kaldır")
-              : t("productsList.select_product", "Seç")
-          }
-          title={
-            selected
-              ? t("productsList.deselect_product", "Seçimi kaldır")
-              : t("productsList.select_product", "Seç")
-          }
-          className={`shrink-0 grid place-items-center size-5 sm:size-5 rounded-md border transition ${
-            selected
-              ? "bg-rose-600 border-rose-600 text-white shadow-sm"
-              : "bg-[--white-1] border-[--border-1] text-transparent hover:border-rose-400 hover:text-rose-200"
-          } self-start sm:self-center`}
-        >
-          <Check className="size-3.5" strokeWidth={3} />
-        </button>
-      )}
+      {/* Top region: checkbox + product info + portions. Buttons used to
+          live on the right edge here (desktop) or stacked at the bottom
+          on mobile, but the desktop placement was small and the mobile
+          one was easy to thumb-miss. They've been moved to a dedicated
+          horizontal strip below so they're always large, consistent and
+          tappable. */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        {selectable && (
+          <button
+            type="button"
+            onClick={() => onToggleSelect?.(product.id)}
+            aria-pressed={!!selected}
+            aria-label={
+              selected
+                ? t("productsList.deselect_product", "Seçimi kaldır")
+                : t("productsList.select_product", "Seç")
+            }
+            title={
+              selected
+                ? t("productsList.deselect_product", "Seçimi kaldır")
+                : t("productsList.select_product", "Seç")
+            }
+            className={`shrink-0 grid place-items-center size-5 sm:size-5 rounded-md border transition ${
+              selected
+                ? "bg-rose-600 border-rose-600 text-white shadow-sm"
+                : "bg-[--white-1] border-[--border-1] text-transparent hover:border-rose-400 hover:text-rose-200"
+            } self-start sm:self-center`}
+          >
+            <Check className="size-3.5" strokeWidth={3} />
+          </button>
+        )}
 
       {/* LEFT: image + name + meta */}
       <div className="flex gap-3 flex-1 min-w-0">
@@ -178,8 +185,15 @@ const ProductCard = ({
         </div>
       )}
 
-      {/* RIGHT: action buttons */}
-      <div className="flex sm:flex-col gap-1 sm:gap-1 sm:justify-center shrink-0 sm:border-l sm:border-[--border-1] sm:pl-2">
+      </div>
+
+      {/* BOTTOM: action buttons. Center-aligned horizontal strip below
+          the card content. Each button has a tinted default background
+          + ring so it reads as a real button at rest (the previous
+          ghost-text-only state was easy to miss); hover deepens the
+          tint. Mobile collapses labels to icons only to keep the strip
+          compact. */}
+      <div className="flex justify-center items-center gap-1.5 pt-2 border-t border-[--border-1]/70">
         <button
           type="button"
           onClick={() => {
@@ -191,10 +205,11 @@ const ProductCard = ({
               state: { product },
             });
           }}
-          title={t("editCategories.edit")}
-          className="grid place-items-center size-8 rounded-md text-indigo-600 hover:bg-indigo-50 transition"
+          title={t("productCard.edit")}
+          className="inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 hover:bg-indigo-100 hover:ring-indigo-200 transition dark:bg-indigo-500/15 dark:text-indigo-200 dark:ring-indigo-400/30 dark:hover:bg-indigo-500/25"
         >
-          <Pencil className="size-3.5" />
+          <Pencil className="size-4" />
+          <span className="hidden sm:inline">{t("productCard.edit")}</span>
         </button>
         {/* Quick photo swap — only rendered when the parent wires the
             handler. Distinct emerald tone from Pencil/Trash so the row
@@ -204,9 +219,12 @@ const ProductCard = ({
             type="button"
             onClick={() => onChangeImage(product)}
             title={t("productCard.change_image", "Fotoğrafı Değiştir")}
-            className="grid place-items-center size-8 rounded-md text-emerald-600 hover:bg-emerald-50 transition"
+            className="inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 hover:bg-emerald-100 hover:ring-emerald-200 transition dark:bg-emerald-500/15 dark:text-emerald-200 dark:ring-emerald-400/30 dark:hover:bg-emerald-500/25"
           >
-            <Camera className="size-3.5" />
+            <Camera className="size-4" />
+            <span className="hidden sm:inline">
+              {t("productCard.change_image", "Fotoğrafı Değiştir")}
+            </span>
           </button>
         )}
         <button
@@ -216,10 +234,11 @@ const ProductCard = ({
               <DeleteProduct product={product} onSuccess={onDeleted} />,
             )
           }
-          title={t("editCategories.delete")}
-          className="grid place-items-center size-8 rounded-md text-rose-600 hover:bg-rose-50 transition"
+          title={t("productCard.delete")}
+          className="inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-md text-xs font-semibold bg-rose-50 text-rose-700 ring-1 ring-rose-100 hover:bg-rose-100 hover:ring-rose-200 transition dark:bg-rose-500/15 dark:text-rose-200 dark:ring-rose-400/30 dark:hover:bg-rose-500/25"
         >
-          <Trash2 className="size-3.5" />
+          <Trash2 className="size-4" />
+          <span className="hidden sm:inline">{t("productCard.delete")}</span>
         </button>
       </div>
     </div>

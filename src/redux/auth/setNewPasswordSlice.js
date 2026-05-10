@@ -1,5 +1,5 @@
-import axios from "axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import api, { pickAxiosErrorMessage } from "../api";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -43,26 +43,25 @@ export const setNewPassword = createAsyncThunk(
   "Auth/setNewPassword",
   async ({ token, currentPassword, newPassword }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(
+      // Switched from a raw `axios.post(...)` to the configured `api`
+      // instance so this call inherits the 30s timeout (was hanging
+      // forever on backend stalls — same root cause as the register
+      // "Mail Gönder" infinite spinner). The optional Bearer header is
+      // attached per-request because this endpoint is sometimes called
+      // unauthenticated (password reset link) and sometimes
+      // authenticated (in-app password change).
+      const res = await api.post(
         `${baseURL}Auth/change-password`,
         {
           currentPassword: currentPassword ?? token,
           newPassword,
         },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        },
+        token ? { headers: { Authorization: `Bearer ${token}` } } : undefined,
       );
       return res.data;
     } catch (err) {
       console.log(err);
-      const errorMessage =
-        err?.response?.data?.message_TR ||
-        err?.response?.data?.message ||
-        err.message;
+      const errorMessage = pickAxiosErrorMessage(err);
       const statusCode =
         err?.response?.status || err?.response?.data?.statusCode;
       return rejectWithValue({ message: errorMessage, statusCode });

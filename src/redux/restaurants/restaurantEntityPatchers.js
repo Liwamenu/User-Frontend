@@ -11,11 +11,16 @@
 // extraction logic.
 
 const PATCH_THUNK_PREFIXES = new Set([
-  // Note: SetRestaurantTheme handles both QR theme and TV menu saves —
-  // the backend endpoint accepts { themeId, tvMenuId } in one body, and
-  // tvMenuSelector dispatches setRestaurantTheme with arg.tvMenuId. The
-  // patch logic merges whatever fields are in arg, so both flows work.
+  // QR theme save → patches `themeId` on the cached restaurant entity.
   "Restaurants/SetRestaurantTheme",
+  // TV menu theme save → patches `tvMenuId`. Used to share the QR
+  // thunk type, but a single backend endpoint that only reads
+  // `themeId` was silently overwriting the saved QR theme when the
+  // TV body arrived without it. Now an independent thunk type +
+  // endpoint, and the patcher merges whatever fields are present in
+  // the dispatched arg (so both `themeId` and `tvMenuId` patches
+  // continue to flow through the same merge logic below).
+  "Restaurants/SetRestaurantTvTheme",
   "Restaurants/SetRestaurantSettings",
   "Restaurants/SetRestaurantReservationSettings",
   "Restaurants/SetAnnouncementSettings",
