@@ -942,7 +942,7 @@
     "bulk_undo_button": "Geri Al",
     "bulk_undo_title": "Son işlemi geri al",
     "bulk_apply_button": "Uygula",
-    "bulk_category_label": "Kategori",
+    "bulk_category_label": "Fiyat Uygulanacak Kategori",
     "bulk_all_categories": "Tüm Kategoriler",
     "bulk_confirm_title": "Toplu Fiyat Güncelleme",
     "bulk_confirm_message_all": "Tüm kategorilerin fiyatları güncellenecek, emin misiniz?",
