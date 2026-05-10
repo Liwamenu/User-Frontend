@@ -13,6 +13,7 @@ import { usePopup } from "../../../context/PopupContext";
 import CustomCheckbox from "../../common/customCheckbox";
 import CustomFileInput from "../../common/customFileInput";
 import { CancelI, CloudUI, WarnI } from "../../../assets/icon";
+import { toNameCase } from "../../../utils/utils";
 
 //REDUX
 import {
@@ -193,9 +194,12 @@ const EditCategory = ({
               required
               label={`${t("addCategory.category_name")} *`}
               placeholder={t("addCategory.category_name_placeholder")}
+              // Mirror addCategory.jsx — auto-capitalise so renaming a
+              // category produces the same casing convention as adding
+              // one ("salata" → "Salata").
               className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
               value={categoryData.name}
-              onChange={(v) => handleField("name", v)}
+              onChange={(v) => handleField("name", toNameCase(v))}
             />
 
             {/* Kategori Görseli */}

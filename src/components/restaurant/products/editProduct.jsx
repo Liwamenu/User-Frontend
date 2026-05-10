@@ -15,7 +15,7 @@ import CustomTextarea from "../../common/customTextarea";
 import CustomFileInput from "../../common/customFileInput";
 
 // UTILS
-import { parsePrice } from "../../../utils/utils";
+import { parsePrice, toNameCase } from "../../../utils/utils";
 import { usePopup } from "../../../context/PopupContext";
 import { CancelI, CloudUI, DeleteI } from "../../../assets/icon";
 
@@ -339,6 +339,10 @@ const EditProduct = ({ product: prodToPopup, onSaved }) => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Sol Kolon */}
                 <div className="space-y-2">
+                  {/* Mirror addProduct.jsx — auto-capitalise so
+                      renaming a product produces the same casing
+                      convention as creating one ("etli ekmek" →
+                      "Etli Ekmek"). Turkish-aware folding. */}
                   <CustomInput
                     required
                     label={`${t("editProduct.name_label")} *`}
@@ -346,7 +350,7 @@ const EditProduct = ({ product: prodToPopup, onSaved }) => {
                     className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
                     className2=""
                     value={productData.name}
-                    onChange={(v) => handleField("name", v)}
+                    onChange={(v) => handleField("name", toNameCase(v))}
                   />
 
                   <CustomSelect

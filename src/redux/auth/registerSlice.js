@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../api";
+import api, { pickAxiosErrorMessage } from "../api";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -54,14 +54,21 @@ export const registerUser = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const res = await api.post(`${baseURL}Auth/register`, data);
-
       return res.data;
     } catch (err) {
       console.log(err);
-      const errorMessage = err.response.data.message_TR || err.message;
-      return rejectWithValue({ message: errorMessage });
+      // pickAxiosErrorMessage covers all the failure shapes the public
+      // Auth endpoints have produced in the wild:
+      //   1. Backend envelope {message_TR, message_EN} (any casing)
+      //   2. Axios timeout (ECONNABORTED) → translated apiErrors.timeout
+      //   3. Network failure (no response) → translated apiErrors.network
+      //   4. Anything else → err.message or generic fallback
+      // Without this the duplicate-user case crashed on .message_TR of
+      // undefined and a backend hang surfaced as an infinite spinner
+      // (no /rejected ever fired with a useful message).
+      return rejectWithValue({ message: pickAxiosErrorMessage(err) });
     }
-  }
+  },
 );
 
 export const { resetRgister, resetRgisterState } = registerSlice.actions;

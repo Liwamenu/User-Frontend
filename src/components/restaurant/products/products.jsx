@@ -1,6 +1,6 @@
 // MODULES
 import { useParams, useSearchParams } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import {
@@ -494,10 +494,51 @@ const Products = () => {
     recommendationFilter,
   ]);
 
+  // Snapshot the live filter state in a ref so callbacks captured by
+  // popup props (EditProduct / QuickEditImage `onSaved`) always read the
+  // CURRENT filters when the user finally hits Save — not whatever the
+  // filters happened to be at the moment the popup was opened. The
+  // popups don't re-render with fresh props after open, so without this
+  // ref the captured `refetchProducts` could dispatch a getProducts call
+  // with stale filter values and the list would silently come back
+  // mixing categories ("kategori filtresi saçmalıyor" / hard-reload
+  // fixes it because remount rebuilds the closure).
+  const filtersRef = useRef({
+    categoryFilter,
+    statusFilter,
+    recommendationFilter,
+    pageNumber,
+    showDuplicates,
+    showNoImage,
+    searchVal,
+  });
+  useEffect(() => {
+    filtersRef.current = {
+      categoryFilter,
+      statusFilter,
+      recommendationFilter,
+      pageNumber,
+      showDuplicates,
+      showNoImage,
+      searchVal,
+    };
+  }, [
+    categoryFilter,
+    statusFilter,
+    recommendationFilter,
+    pageNumber,
+    showDuplicates,
+    showNoImage,
+    searchVal,
+  ]);
+
   // Re-fetch with the currently active filters/page — used after a delete
-  // so the list reflects the server state immediately (no manual refresh).
-  const refetchProducts = () => {
-    if (showDuplicates || showNoImage || searchVal) {
+  // or edit so the list reflects the server state immediately (no manual
+  // refresh). Stable identity via useCallback + filtersRef so popup props
+  // captured at open-time don't go stale by save-time.
+  const refetchProducts = useCallback(() => {
+    const f = filtersRef.current;
+    if (f.showDuplicates || f.showNoImage || f.searchVal) {
       // Search / duplicates / no-image are all client-side over the
       // full product cache, so a delete/edit means we have to refresh
       // that cache rather than the paginated slice.
@@ -507,14 +548,17 @@ const Products = () => {
     dispatch(
       getProducts({
         restaurantId,
-        pageNumber,
+        pageNumber: f.pageNumber,
         pageSize: itemsPerPage,
-        hide: hideForStatus(statusFilter),
-        categoryId: isAllCategory(categoryFilter) ? null : categoryFilter.id,
-        recommendation: recommendationForFilter(recommendationFilter),
+        hide: hideForStatus(f.statusFilter),
+        categoryId: isAllCategory(f.categoryFilter)
+          ? null
+          : f.categoryFilter.id,
+        recommendation: recommendationForFilter(f.recommendationFilter),
       }),
     );
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurantId, dispatch]);
 
   // Open edit as a popup instead of navigating to /products/:id/edit/:prodId.
   // Full-page navigation unmounts this component, which loses the active
@@ -701,97 +745,130 @@ const Products = () => {
           </div>
 
           {/* Filter switches — duplicate-finder + no-image-finder.
-              Stacked so both stay readable on mobile; on the same
-              section so the user knows these are the "special view"
-              toggles. The two are mutually exclusive (handlers in the
-              page-level handleToggle* clear the other on enable). */}
-          <div className="mt-2.5 space-y-2 px-1">
-            {/* Duplicate-finder toggle */}
-            <div className="flex items-center justify-between gap-3">
-              <label
-                htmlFor="dup-toggle"
-                className={`flex items-center gap-2 text-xs cursor-pointer select-none transition ${
+              Wrapped in card-style rows with strong contrast so users
+              don't miss them (they used to read as muted footer text
+              that nobody clicked). Active state tints the whole row to
+              reinforce that this is now a "special view" mode, not just
+              a checkbox flag. */}
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {/* Duplicate-finder toggle. Switch sits on the LEFT so the
+                user's eye lands on the toggle state first, then reads
+                the descriptive label — easier to scan a stack of these
+                "special view" toggles than hunting for switches on the
+                right edge of varying-length labels. */}
+            <button
+              id="dup-toggle"
+              type="button"
+              role="switch"
+              aria-checked={showDuplicates}
+              onClick={() => handleToggleDuplicates(!showDuplicates)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition text-left ${
+                showDuplicates
+                  ? "bg-amber-50 border-amber-300 ring-1 ring-amber-200 shadow-sm dark:bg-amber-500/15 dark:border-amber-400/40 dark:ring-amber-400/30"
+                  : "bg-[--white-1] border-[--border-1] hover:border-amber-300 hover:bg-amber-50/40 dark:hover:bg-amber-500/10 dark:hover:border-amber-400/40"
+              }`}
+            >
+              <span
+                aria-hidden
+                className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 transition ${
                   showDuplicates
-                    ? "text-amber-700 dark:text-amber-300 font-semibold"
-                    : "text-[--gr-1]"
+                    ? "bg-amber-500 border-amber-600"
+                    : "bg-slate-200 border-slate-300 dark:bg-slate-700 dark:border-slate-600"
                 }`}
               >
-                <Copy className="size-3.5" />
-                {t("productsList.show_duplicates", "Tekrarlananları göster")}
-              </label>
-              <div className="flex items-center gap-2">
+                <span
+                  className={`inline-block size-4 rounded-full bg-white shadow-md transition-transform ${
+                    showDuplicates ? "translate-x-5" : "translate-x-0.5"
+                  } translate-y-[1px]`}
+                />
+              </span>
+              <span
+                className={`grid place-items-center size-8 rounded-lg shrink-0 transition ${
+                  showDuplicates
+                    ? "bg-amber-500 text-white shadow-sm shadow-amber-500/30"
+                    : "bg-[--white-2] text-[--gr-1]"
+                }`}
+              >
+                <Copy className="size-4" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div
+                  className={`text-[13px] font-semibold leading-tight ${
+                    showDuplicates
+                      ? "text-amber-900 dark:text-amber-100"
+                      : "text-[--black-1]"
+                  }`}
+                >
+                  {t("productsList.show_duplicates", "Tekrarlananları göster")}
+                </div>
                 {showDuplicates && !dupLoading && allProducts && (
-                  <span className="inline-flex items-center text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-500/15 dark:text-amber-200 dark:ring-amber-400/30">
+                  <div className="text-[10px] font-bold uppercase tracking-wider mt-0.5 text-amber-700 dark:text-amber-300">
                     {t("productsList.duplicates_summary", {
                       products: duplicateProducts.length,
                       groups: duplicateGroupCount,
                       defaultValue: "{{products}} ürün · {{groups}} grup",
                     })}
-                  </span>
+                  </div>
                 )}
-                <button
-                  id="dup-toggle"
-                  type="button"
-                  role="switch"
-                  aria-checked={showDuplicates}
-                  onClick={() => handleToggleDuplicates(!showDuplicates)}
-                  className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border transition ${
-                    showDuplicates
-                      ? "bg-amber-500 border-amber-500"
-                      : "bg-[--white-2] border-[--border-1]"
-                  }`}
-                >
-                  <span
-                    className={`inline-block size-4 rounded-full bg-white shadow transition-transform ${
-                      showDuplicates ? "translate-x-4" : "translate-x-0.5"
-                    } translate-y-[1px]`}
-                  />
-                </button>
               </div>
-            </div>
+            </button>
 
-            {/* No-image toggle */}
-            <div className="flex items-center justify-between gap-3">
-              <label
-                htmlFor="no-image-toggle"
-                className={`flex items-center gap-2 text-xs cursor-pointer select-none transition ${
+            {/* No-image toggle — same left-anchored switch layout. */}
+            <button
+              id="no-image-toggle"
+              type="button"
+              role="switch"
+              aria-checked={showNoImage}
+              onClick={() => handleToggleNoImage(!showNoImage)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition text-left ${
+                showNoImage
+                  ? "bg-indigo-50 border-indigo-300 ring-1 ring-indigo-200 shadow-sm dark:bg-indigo-500/15 dark:border-indigo-400/40 dark:ring-indigo-400/30"
+                  : "bg-[--white-1] border-[--border-1] hover:border-indigo-300 hover:bg-indigo-50/40 dark:hover:bg-indigo-500/10 dark:hover:border-indigo-400/40"
+              }`}
+            >
+              <span
+                aria-hidden
+                className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 transition ${
                   showNoImage
-                    ? "text-indigo-700 dark:text-indigo-300 font-semibold"
-                    : "text-[--gr-1]"
+                    ? "bg-indigo-600 border-indigo-700"
+                    : "bg-slate-200 border-slate-300 dark:bg-slate-700 dark:border-slate-600"
                 }`}
               >
-                <ImageOff className="size-3.5" />
-                {t("productsList.show_no_image", "Fotoğrafsız ürünler")}
-              </label>
-              <div className="flex items-center gap-2">
+                <span
+                  className={`inline-block size-4 rounded-full bg-white shadow-md transition-transform ${
+                    showNoImage ? "translate-x-5" : "translate-x-0.5"
+                  } translate-y-[1px]`}
+                />
+              </span>
+              <span
+                className={`grid place-items-center size-8 rounded-lg shrink-0 transition ${
+                  showNoImage
+                    ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/30"
+                    : "bg-[--white-2] text-[--gr-1]"
+                }`}
+              >
+                <ImageOff className="size-4" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div
+                  className={`text-[13px] font-semibold leading-tight ${
+                    showNoImage
+                      ? "text-indigo-900 dark:text-indigo-100"
+                      : "text-[--black-1]"
+                  }`}
+                >
+                  {t("productsList.show_no_image", "Fotoğrafsız ürünler")}
+                </div>
                 {showNoImage && !dupLoading && allProducts && (
-                  <span className="inline-flex items-center text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200 dark:bg-indigo-500/15 dark:text-indigo-200 dark:ring-indigo-400/30">
+                  <div className="text-[10px] font-bold uppercase tracking-wider mt-0.5 text-indigo-700 dark:text-indigo-300">
                     {t("productsList.no_image_summary", {
                       count: noImageProducts.length,
                       defaultValue: "{{count}} ürün",
                     })}
-                  </span>
+                  </div>
                 )}
-                <button
-                  id="no-image-toggle"
-                  type="button"
-                  role="switch"
-                  aria-checked={showNoImage}
-                  onClick={() => handleToggleNoImage(!showNoImage)}
-                  className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border transition ${
-                    showNoImage
-                      ? "bg-indigo-600 border-indigo-600"
-                      : "bg-[--white-2] border-[--border-1]"
-                  }`}
-                >
-                  <span
-                    className={`inline-block size-4 rounded-full bg-white shadow transition-transform ${
-                      showNoImage ? "translate-x-4" : "translate-x-0.5"
-                    } translate-y-[1px]`}
-                  />
-                </button>
               </div>
-            </div>
+            </button>
           </div>
         </div>
 

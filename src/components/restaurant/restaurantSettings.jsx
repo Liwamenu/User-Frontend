@@ -49,9 +49,9 @@ const inputCls =
 const labelCls =
   "block text-[11px] font-semibold text-[--gr-1] mb-1 tracking-wide";
 
-const SectionHeader = ({ icon: Icon, label }) => (
+const SectionHeader = ({ icon: Icon, label, iconClassName }) => (
   <header className="flex items-center gap-1.5 mb-2.5">
-    <Icon className="size-3.5 text-indigo-600" />
+    <Icon className={`size-3.5 ${iconClassName || "text-indigo-600"}`} />
     <h2 className="text-[11px] font-bold text-[--gr-1] uppercase tracking-[0.12em]">
       {label}
     </h2>
@@ -65,32 +65,164 @@ const NumberWithSuffix = ({
   onChange,
   placeholder,
   required,
-}) => (
-  <div>
-    <label className={labelCls}>
-      {label}
-      {required && <span className="text-rose-500 ml-0.5">*</span>}
-    </label>
-    <div className="flex items-stretch rounded-lg border border-[--border-1] bg-[--white-1] focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition overflow-hidden">
-      <input
-        type="number"
-        className="flex-1 min-w-0 h-10 px-3 outline-none text-sm bg-transparent"
-        placeholder={placeholder}
-        value={value ?? ""}
-        onChange={(e) => onChange(e.target.value)}
-      />
-      {/* Hide the pill entirely when suffix is empty — the currency-
-          backed inputs feed `moneySign` here, which is "" when the
-          user hasn't picked a Para Birimi Sembolü. Rendering an empty
-          gray box looked like a broken UI element. */}
-      {suffix ? (
-        <span className="bg-[--white-2] text-[--gr-1] text-xs font-semibold px-3 grid place-items-center border-l border-[--border-1]">
-          {suffix}
-        </span>
-      ) : null}
+  // When true, the input strips anything that isn't a digit and switches
+  // to inputMode="numeric" so the mobile keyboard is the numeric pad.
+  // Use this for whole-number fields where the backend rejects locale-
+  // formatted strings like "1,000" / "1.000" with a 400 — Turkish users
+  // tend to type the thousands separator out of habit and `type=number`
+  // round-trips it inconsistently between browsers.
+  integerOnly = false,
+  // Hard cap on the digit count of the entered value. In integer mode
+  // this caps the whole string; in currency mode it caps the digits in
+  // the integer part (decimal places are excluded from the count).
+  maxDigits,
+  // Currency mode: when set to a number (the decimal-place count), the
+  // input formats with Intl.NumberFormat("tr-TR") on blur and switches to
+  // a raw editable string on focus. Mirrors the PriceInput pattern from
+  // priceList.jsx so the field display follows the restaurant's
+  // configured Kuruş Hanesi (Genel Ayarlar → Kuruş Hanesi). When set,
+  // takes precedence over `integerOnly`.
+  currencyDecimals,
+}) => {
+  const isCurrency = typeof currencyDecimals === "number";
+
+  const formatter = useMemo(
+    () =>
+      isCurrency
+        ? new Intl.NumberFormat("tr-TR", {
+            minimumFractionDigits: currencyDecimals,
+            maximumFractionDigits: currencyDecimals,
+          })
+        : null,
+    [isCurrency, currencyDecimals],
+  );
+
+  // Coerce stored value (may arrive as a Number, a clean integer string,
+  // or a stale formatted string) into a plain Number for the formatter.
+  // Comma is normalized to dot so parseFloat treats either separator as
+  // the decimal mark — TR-style "750,5" parses to 750.5.
+  const numericValue = useMemo(() => {
+    if (value == null || value === "") return 0;
+    if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+    const n = parseFloat(String(value).replace(",", "."));
+    return Number.isFinite(n) ? n : 0;
+  }, [value]);
+
+  const [focused, setFocused] = useState(false);
+  const [editStr, setEditStr] = useState("");
+
+  // When the underlying value is empty (no minimum set yet, brand-new
+  // restaurant) keep the input visually empty so the placeholder shows
+  // instead of a misleading "0,00" that looks like the user already
+  // entered zero.
+  const isEmpty = value == null || value === "";
+  const display = isCurrency
+    ? focused
+      ? editStr
+      : isEmpty
+        ? ""
+        : formatter.format(numericValue)
+    : (value ?? "");
+
+  const handleFocus = (e) => {
+    if (!isCurrency) return;
+    // Show the raw number while editing so TR thousand separators don't
+    // trip up keyboard input. Empty for zero so users don't have to
+    // backspace before typing the new amount. Auto-select so a fresh
+    // amount replaces the existing one.
+    setEditStr(numericValue ? String(numericValue) : "");
+    setFocused(true);
+    e.target.select();
+  };
+
+  const handleBlur = () => {
+    if (!isCurrency) return;
+    setFocused(false);
+  };
+
+  const handleChange = (e) => {
+    const raw = e.target.value;
+
+    if (isCurrency) {
+      // Allow digits + . + , (TR/EN decimal separators); strip the rest.
+      // Keep only the FIRST separator so the user can't accidentally
+      // produce "1.2.3" by holding the key.
+      let cleaned = raw.replace(/[^0-9.,]/g, "");
+      const sepIndex = cleaned.search(/[.,]/);
+      if (sepIndex !== -1) {
+        const intPart = cleaned.slice(0, sepIndex);
+        const decPart = cleaned.slice(sepIndex + 1).replace(/[.,]/g, "");
+        cleaned = `${intPart}.${decPart}`;
+      }
+      // Cap the integer-part digit count so the user can't enter
+      // absurd amounts like 99 999 999 999.
+      if (typeof maxDigits === "number") {
+        const dot = cleaned.indexOf(".");
+        const intDigits = dot === -1 ? cleaned : cleaned.slice(0, dot);
+        const decDigits = dot === -1 ? "" : cleaned.slice(dot);
+        if (intDigits.length > maxDigits) {
+          cleaned = intDigits.slice(0, maxDigits) + decDigits;
+        }
+      }
+      setEditStr(cleaned);
+      const n = parseFloat(cleaned);
+      onChange(Number.isFinite(n) ? n : 0);
+      return;
+    }
+
+    if (!integerOnly) {
+      onChange(raw);
+      return;
+    }
+
+    let digits = String(raw ?? "").replace(/[^\d]/g, "");
+    if (typeof maxDigits === "number" && digits.length > maxDigits) {
+      digits = digits.slice(0, maxDigits);
+    }
+    onChange(digits);
+  };
+
+  return (
+    <div>
+      <label className={labelCls}>
+        {label}
+        {required && <span className="text-rose-500 ml-0.5">*</span>}
+      </label>
+      <div className="flex items-stretch rounded-lg border border-[--border-1] bg-[--white-1] focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100 transition overflow-hidden">
+        <input
+          // type="text" + inputMode lets us bypass the locale-aware
+          // decimal handling of type=number (which was the source of
+          // the "1,000" → 400 backend bug). Currency uses inputMode
+          // "decimal" to expose the comma key on mobile keypads;
+          // integer mode uses "numeric" for digits-only.
+          type={isCurrency || integerOnly ? "text" : "number"}
+          inputMode={
+            isCurrency ? "decimal" : integerOnly ? "numeric" : undefined
+          }
+          pattern={integerOnly && !isCurrency ? "[0-9]*" : undefined}
+          maxLength={
+            !isCurrency && integerOnly && maxDigits ? maxDigits : undefined
+          }
+          className="flex-1 min-w-0 h-10 px-3 outline-none text-sm bg-transparent"
+          placeholder={placeholder}
+          value={display}
+          onChange={handleChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+        />
+        {/* Hide the pill entirely when suffix is empty — the currency-
+            backed inputs feed `moneySign` here, which is "" when the
+            user hasn't picked a Para Birimi Sembolü. Rendering an empty
+            gray box looked like a broken UI element. */}
+        {suffix ? (
+          <span className="bg-[--white-2] text-[--gr-1] text-xs font-semibold px-3 grid place-items-center border-l border-[--border-1]">
+            {suffix}
+          </span>
+        ) : null}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const RestaurantSettings = ({ data: inData }) => {
   const { t } = useTranslation();
@@ -220,7 +352,12 @@ const RestaurantSettings = ({ data: inData }) => {
       return;
     }
 
-    dispatch(checkTenantAvailability(tenantValue));
+    // Backend expects the slug as the `name` query param. Must be wrapped
+    // in an object — passing the raw string lets the createApiSlice
+    // factory forward it to axios as `{ params: "myslug" }`, which axios
+    // rejects with "target must be an object" (params has to be a plain
+    // object so it can serialize key/value pairs into the query string).
+    dispatch(checkTenantAvailability({ name: tenantValue }));
   };
 
   const handleSubmit = (e) => {
@@ -259,6 +396,19 @@ const RestaurantSettings = ({ data: inData }) => {
       }
     }
 
+    // Currency-mode fields (deliveryFee, minOrderAmount) parse user
+    // input into a Number on every keystroke, so by the time we get
+    // here they're already clean. As a final safety net coerce any
+    // stale string ("1.000" loaded from the backend, a paste, etc.)
+    // into a numeric value the backend will accept.
+    for (const k of ["deliveryFee", "minOrderAmount"]) {
+      const v = normalized[k];
+      if (typeof v === "string") {
+        const n = parseFloat(v.replace(",", "."));
+        normalized[k] = Number.isFinite(n) ? n : 0;
+      }
+    }
+
     setRestaurantData(normalized);
     dispatch(setRestaurantSettings(normalized));
   };
@@ -283,12 +433,33 @@ const RestaurantSettings = ({ data: inData }) => {
     if (!tenantCheckSuccess && !tenantCheckError) return;
 
     if (tenantCheckSuccess) {
-      const isAvailable =
-        typeof tenantCheckData === "boolean"
-          ? tenantCheckData
-          : (tenantCheckData?.isAvailable ??
-            tenantCheckData?.available ??
-            null);
+      // Resolve the "is this tenant slug free to use?" boolean from
+      // whatever shape the backend returns. We've seen / can plausibly
+      // get any of these in the wild:
+      //   true / false                    (bare boolean)
+      //   { isAvailable: true|false }
+      //   { available: true|false }
+      //   { isInUse: true|false }         (inverted — true means taken)
+      //   { inUse: true|false }           (inverted)
+      //   { exists: true|false }          (inverted — true means taken)
+      // Inverted keys are negated so the downstream branch always
+      // treats `true = available, false = taken`.
+      let isAvailable = null;
+      if (typeof tenantCheckData === "boolean") {
+        isAvailable = tenantCheckData;
+      } else if (tenantCheckData && typeof tenantCheckData === "object") {
+        if (typeof tenantCheckData.isAvailable === "boolean") {
+          isAvailable = tenantCheckData.isAvailable;
+        } else if (typeof tenantCheckData.available === "boolean") {
+          isAvailable = tenantCheckData.available;
+        } else if (typeof tenantCheckData.isInUse === "boolean") {
+          isAvailable = !tenantCheckData.isInUse;
+        } else if (typeof tenantCheckData.inUse === "boolean") {
+          isAvailable = !tenantCheckData.inUse;
+        } else if (typeof tenantCheckData.exists === "boolean") {
+          isAvailable = !tenantCheckData.exists;
+        }
+      }
 
       if (isAvailable === false) {
         toast.error(t("restaurantSettings.tenant_check_taken"), {
@@ -608,12 +779,17 @@ const RestaurantSettings = ({ data: inData }) => {
               <SectionHeader
                 icon={ShoppingBag}
                 label={t("restaurantSettings.online_order")}
+                iconClassName="text-sky-600"
               />
-              <div className="rounded-xl border border-[--border-1] bg-[--white-2]/40 p-3">
+              {/* Sky tint distinguishes the Paket Sipariş card from the
+                  amber-tinted Masada Sipariş card directly below — owners
+                  often missed which toggle they were flipping when both
+                  cards shared the same neutral white background. */}
+              <div className="rounded-xl border border-sky-200 bg-sky-50/60 p-3 dark:border-sky-900/40 dark:bg-sky-950/20">
                 <div
                   className={`flex items-center justify-between gap-3 ${
                     restaurantData?.onlineOrder
-                      ? "pb-3 mb-3 border-b border-[--border-1]"
+                      ? "pb-3 mb-3 border-b border-sky-200/70 dark:border-sky-900/40"
                       : ""
                   }`}
                 >
@@ -657,6 +833,12 @@ const RestaurantSettings = ({ data: inData }) => {
                       placeholder={t(
                         "restaurantSettings.delivery_fee_placeholder",
                       )}
+                      currencyDecimals={
+                        Number.isFinite(Number(restaurantData?.decimalPlaces))
+                          ? Number(restaurantData.decimalPlaces)
+                          : 2
+                      }
+                      maxDigits={9}
                     />
                     <NumberWithSuffix
                       label={t("restaurantSettings.min_order_amount")}
@@ -671,6 +853,17 @@ const RestaurantSettings = ({ data: inData }) => {
                       placeholder={t(
                         "restaurantSettings.min_order_amount_placeholder",
                       )}
+                      // Currency mode keeps the input in lock-step with
+                      // the restaurant's Kuruş Hanesi (Genel Ayarlar).
+                      // Stored as a Number, displayed with locale
+                      // separators on blur (e.g. 1500 → "1.500,00" when
+                      // decimalPlaces=2, or "1.500" when 0).
+                      currencyDecimals={
+                        Number.isFinite(Number(restaurantData?.decimalPlaces))
+                          ? Number(restaurantData.decimalPlaces)
+                          : 2
+                      }
+                      maxDigits={9}
                     />
                     <NumberWithSuffix
                       label={t("restaurantSettings.max_distance")}
@@ -697,12 +890,15 @@ const RestaurantSettings = ({ data: inData }) => {
               <SectionHeader
                 icon={UtensilsCrossed}
                 label={t("restaurantSettings.in_person_order")}
+                iconClassName="text-amber-600"
               />
-              <div className="rounded-xl border border-[--border-1] bg-[--white-2]/40 p-3">
+              {/* Amber tint pairs with the sky-tinted Paket Sipariş card
+                  above so the two order channels are visually distinct. */}
+              <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3 dark:border-amber-900/40 dark:bg-amber-950/20">
                 <div
                   className={`flex items-center justify-between gap-3 ${
                     restaurantData?.inPersonOrder
-                      ? "pb-3 mb-3 border-b border-[--border-1]"
+                      ? "pb-3 mb-3 border-b border-amber-200/70 dark:border-amber-900/40"
                       : ""
                   }`}
                 >
@@ -758,7 +954,7 @@ const RestaurantSettings = ({ data: inData }) => {
                         />
                       )}
                     </div>
-                    <div className="mt-3 pt-3 border-t border-[--border-1]">
+                    <div className="mt-3 pt-3 border-t border-amber-200/70 dark:border-amber-900/40">
                       <CustomToggle
                         label={t(
                           "restaurantSettings.check_table_order_distance",

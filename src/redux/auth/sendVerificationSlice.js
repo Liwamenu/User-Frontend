@@ -1,6 +1,6 @@
 //userVerificationSlice
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../api";
+import api, { pickAxiosErrorMessage } from "../api";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -50,10 +50,10 @@ export const sendVerificationCode = createAsyncThunk(
 
       return res.data;
     } catch (err) {
-      const errorMessage = err.response.data.message_TR || err.message;
-      return rejectWithValue({ message: errorMessage });
+      // Defensive locale-aware parsing — same shape as registerSlice.
+      return rejectWithValue({ message: pickAxiosErrorMessage(err) });
     }
-  }
+  },
 );
 
 export const { resetSendVerification } = sendVerificationSlice.actions;

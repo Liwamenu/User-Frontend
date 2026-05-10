@@ -61,20 +61,27 @@ const THEMES = [
     color: "hsl(38 75% 52%)",
     tagKey: "qrThemeSelector.tag_elegant",
   },
-  // Placeholders 7-15 — the theme app project still ships these slots one
-  // by one. Names/colors are temporary so owners can switch the saved
-  // themeId and preview from the customer-facing app while the actual
-  // theme is being built. Replace each entry once the corresponding
-  // theme ships (see Tema 6 above as the template).
-  { id: 6, name: "Tema 7", color: "hsl(186 80% 45%)", tagKey: "qrThemeSelector.tag_placeholder" },
-  { id: 7, name: "Tema 8", color: "hsl(330 75% 55%)", tagKey: "qrThemeSelector.tag_placeholder" },
-  { id: 8, name: "Tema 9", color: "hsl(160 65% 40%)", tagKey: "qrThemeSelector.tag_placeholder" },
-  { id: 9, name: "Tema 10", color: "hsl(0 70% 55%)", tagKey: "qrThemeSelector.tag_placeholder" },
-  { id: 10, name: "Tema 11", color: "hsl(150 60% 35%)", tagKey: "qrThemeSelector.tag_placeholder" },
-  { id: 11, name: "Tema 12", color: "hsl(250 60% 60%)", tagKey: "qrThemeSelector.tag_placeholder" },
-  { id: 12, name: "Tema 13", color: "hsl(210 75% 50%)", tagKey: "qrThemeSelector.tag_placeholder" },
-  { id: 13, name: "Tema 14", color: "hsl(20 50% 35%)", tagKey: "qrThemeSelector.tag_placeholder" },
-  { id: 14, name: "Tema 15", color: "hsl(290 65% 55%)", tagKey: "qrThemeSelector.tag_placeholder" },
+  // Themes 7-20 — colors and tag descriptions sourced directly from
+  // each theme's `theme.css` primary HSL + design header in
+  // D:/LiwaMenu Temalar/Qr Menu/src/themes/theme-N. Update the tagKey
+  // (and the matching translation strings under qrThemeSelector.*) if
+  // the customer-side theme is rebranded.
+  { id: 6, name: "Tema 7", color: "hsl(138 38% 24%)", tagKey: "qrThemeSelector.tag_forest" },
+  { id: 7, name: "Tema 8", color: "hsl(244 55% 42%)", tagKey: "qrThemeSelector.tag_indigo" },
+  // Theme 9 is a 2-column grid variant of Theme 1 — share the same
+  // primary color so the badge matches the live preview.
+  { id: 8, name: "Tema 9", color: "hsl(24 95% 53%)", tagKey: "qrThemeSelector.tag_two_col" },
+  { id: 9, name: "Tema 10", color: "hsl(13 65% 64%)", tagKey: "qrThemeSelector.tag_coral" },
+  { id: 10, name: "Tema 11", color: "hsl(45 95% 45%)", tagKey: "qrThemeSelector.tag_mustard" },
+  { id: 11, name: "Tema 12", color: "hsl(20 60% 30%)", tagKey: "qrThemeSelector.tag_earth" },
+  { id: 12, name: "Tema 13", color: "hsl(263 87% 67%)", tagKey: "qrThemeSelector.tag_pastel" },
+  { id: 13, name: "Tema 14", color: "hsl(21 90% 53%)", tagKey: "qrThemeSelector.tag_anthracite" },
+  { id: 14, name: "Tema 15", color: "hsl(21 90% 53%)", tagKey: "qrThemeSelector.tag_anthracite_serif" },
+  { id: 15, name: "Tema 16", color: "hsl(173 80% 36%)", tagKey: "qrThemeSelector.tag_teal" },
+  { id: 16, name: "Tema 17", color: "hsl(24 60% 18%)", tagKey: "qrThemeSelector.tag_coffee" },
+  { id: 17, name: "Tema 18", color: "hsl(36 36% 54%)", tagKey: "qrThemeSelector.tag_antique_gold" },
+  { id: 18, name: "Tema 19", color: "hsl(35 80% 60%)", tagKey: "qrThemeSelector.tag_plum" },
+  { id: 19, name: "Tema 20", color: "hsl(36 95% 38%)", tagKey: "qrThemeSelector.tag_golden" },
 ];
 
 // Build the tenant-facing live URL — used both as the public link and as the

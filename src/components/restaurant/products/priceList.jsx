@@ -5,7 +5,15 @@ import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { DollarSign, Save, Layers, Loader2, Filter } from "lucide-react";
+import {
+  DollarSign,
+  Save,
+  Layers,
+  Loader2,
+  Filter,
+  CircleDollarSign,
+  Tag,
+} from "lucide-react";
 
 // COMP
 import ProductsHeader from "./header";
@@ -19,6 +27,7 @@ import {
 } from "../../../redux/products/updatePriceListSlice";
 import { getProducts } from "../../../redux/products/getProductsSlice";
 import { getCategories } from "../../../redux/categories/getCategoriesSlice";
+import { getOrderTags } from "../../../redux/orderTags/getOrderTagsSlice";
 
 const PRIMARY_GRADIENT =
   "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
@@ -50,6 +59,13 @@ const PriceList = ({ data: restaurant }) => {
   const { success, error, loading } = useSelector(
     (s) => s.products.updatePriceList,
   );
+  // Etiket (OrderTag) listesi — fiyatı 0 olan bir porsiyonun aslında
+  // etiket seçimleriyle fiyatlandırılıp fiyatlandırılmadığını anlamak
+  // için lazım. Order Tags sayfasından da aynı slice okunuyor; burada
+  // fetchedFor cache'iyle gereksiz refetch'ten kaçınıyoruz.
+  const { orderTags, fetchedFor: tagsFetchedFor } = useSelector(
+    (s) => s.orderTags.get,
+  );
 
   // categoryId → boolean: does this category have campaigns enabled?
   // Defaults to `false` for unknown ids (categories that didn't load),
@@ -73,6 +89,10 @@ const PriceList = ({ data: restaurant }) => {
   const [listBefore, setListBefore] = useState([]);
   // null = "Tüm Ürünler"; otherwise the selected categoryId
   const [categoryFilter, setCategoryFilter] = useState(null);
+  // "Sıfır Fiyatlı Ürünler" — when on, hide every product whose every
+  // portion already has a non-zero price. Combined with the category
+  // filter (both must pass for a row to render).
+  const [showZeroPriceOnly, setShowZeroPriceOnly] = useState(false);
 
   const updatePortion = (pIndex, portionIndex, key, value) => {
     setList((prev) => {
@@ -100,6 +120,16 @@ const PriceList = ({ data: restaurant }) => {
   useEffect(() => {
     if (!categories || catFetchedFor !== restaurantId) {
       dispatch(getCategories({ restaurantId }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurantId]);
+
+  // Etiketler (OrderTags) — used to compute which zero-priced portions
+  // are "really priced via tag selections" so we tone the input amber
+  // (informational) instead of rose (actually unpriced).
+  useEffect(() => {
+    if (!orderTags || tagsFetchedFor !== restaurantId) {
+      dispatch(getOrderTags({ restaurantId }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [restaurantId]);
@@ -151,12 +181,78 @@ const PriceList = ({ data: restaurant }) => {
     [groupedByCategory, t],
   );
 
-  // Apply the active filter to what's rendered. We don't filter `list` itself
-  // so that bulk-edit + save-changes still target the entire dataset.
+  // For each (productId|portionId) tuple, decide whether its pricing is
+  // actually driven by an OrderTag selection — i.e. there is at least
+  // one OrderTag that:
+  //   1. Has at least one item with price > 0, AND
+  //   2. Has a relation that targets this product (specifically the
+  //      portion, the product, or the product's category).
+  // Used by PriceInput to tone a zero-price input amber ("priced via
+  // tags, not really empty") instead of rose ("genuinely unpriced").
+  const tagPricedKeys = useMemo(() => {
+    const set = new Set();
+    if (!Array.isArray(orderTags) || orderTags.length === 0 || list.length === 0)
+      return set;
+    for (const tag of orderTags) {
+      const hasPricedItem = (tag.items || []).some(
+        (it) => Number(it?.price) > 0,
+      );
+      if (!hasPricedItem) continue;
+      const rels = tag.relations || [];
+      if (rels.length === 0) continue;
+      for (const product of list) {
+        for (const portion of product.portions || []) {
+          const matches = rels.some((rel) => {
+            // Most-specific match first: portion > product > category.
+            if (rel.portionId && rel.portionId === portion.id) return true;
+            if (
+              !rel.portionId &&
+              rel.productId &&
+              rel.productId === product.id
+            )
+              return true;
+            if (
+              !rel.portionId &&
+              !rel.productId &&
+              rel.categoryId &&
+              rel.categoryId === product.categoryId
+            )
+              return true;
+            return false;
+          });
+          if (matches) set.add(`${product.id}|${portion.id}`);
+        }
+      }
+    }
+    return set;
+  }, [orderTags, list]);
+
+  // Apply the active filters to what's rendered. We don't filter `list`
+  // itself so that bulk-edit + save-changes still target the entire
+  // dataset. Order: category filter narrows by group, then the zero-
+  // price toggle narrows products inside each surviving group.
   const visibleGroups = useMemo(() => {
-    if (categoryFilter == null) return groupedByCategory;
-    return groupedByCategory.filter((g) => g.categoryId === categoryFilter);
-  }, [groupedByCategory, categoryFilter]);
+    let groups =
+      categoryFilter == null
+        ? groupedByCategory
+        : groupedByCategory.filter((g) => g.categoryId === categoryFilter);
+    if (showZeroPriceOnly) {
+      groups = groups
+        .map((g) => ({
+          ...g,
+          // Keep a product if ANY portion has price <= 0 — that's the
+          // signal that the row needs the author's attention regardless
+          // of whether tag pricing covers it.
+          products: g.products.filter((p) =>
+            (p.portions || []).some(
+              (pt) => !Number.isFinite(Number(pt.price)) || Number(pt.price) <= 0,
+            ),
+          ),
+        }))
+        .filter((g) => g.products.length > 0);
+    }
+    return groups;
+  }, [groupedByCategory, categoryFilter, showZeroPriceOnly]);
 
   const selectedOption =
     categoryOptions.find((o) => o.value === categoryFilter) ||
@@ -300,32 +396,109 @@ const PriceList = ({ data: restaurant }) => {
         <div className="p-3 sm:p-5 space-y-4">
           <PriceListApplyBulk list={list} setList={setList} />
 
-          {/* Category filter — narrows visible groups, doesn't affect bulk/save */}
-          {groupedByCategory.length > 1 && (
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 rounded-xl border border-[--border-1] bg-[--white-2]/60">
-              <div className="flex items-center gap-2 shrink-0 sm:w-44">
-                <span className="grid place-items-center size-7 rounded-md bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300 shrink-0">
-                  <Filter className="size-3.5" />
-                </span>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1]">
-                  {t("priceList.category_filter")}
-                </p>
-              </div>
-              <div className="flex-1 min-w-0">
-                <CustomSelect
-                  className="text-sm"
-                  options={categoryOptions}
-                  value={selectedOption}
-                  onChange={(opt) => setCategoryFilter(opt?.value ?? null)}
-                  isSearchable={false}
-                />
-              </div>
-              {categoryFilter != null && (
-                <span className="inline-flex items-center text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 dark:bg-indigo-500/15 dark:text-indigo-200 dark:ring-indigo-400/30 shrink-0">
-                  {visibleGroups[0]?.products.length || 0}{" "}
-                  {t("priceList.products")}
-                </span>
+          {/* Filters row — category dropdown (only when there's more than
+              one category) + "Sıfır Fiyatlı Ürünler" toggle. Both narrow
+              the visible rows but neither touches `list`, so bulk apply
+              and Save Changes still target the entire dataset. */}
+          {(groupedByCategory.length > 1 ||
+            list.some((p) =>
+              (p.portions || []).some(
+                (pt) => !Number.isFinite(Number(pt.price)) || Number(pt.price) <= 0,
+              ),
+            )) && (
+            <div className="flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-3">
+              {groupedByCategory.length > 1 && (
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 rounded-xl border border-[--border-1] bg-[--white-2]/60 flex-1 min-w-0">
+                  <div className="flex items-center gap-2 shrink-0 sm:w-44">
+                    <span className="grid place-items-center size-7 rounded-md bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300 shrink-0">
+                      <Filter className="size-3.5" />
+                    </span>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-[--gr-1]">
+                      {t("priceList.category_filter")}
+                    </p>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <CustomSelect
+                      className="text-sm"
+                      options={categoryOptions}
+                      value={selectedOption}
+                      onChange={(opt) => setCategoryFilter(opt?.value ?? null)}
+                      isSearchable={false}
+                    />
+                  </div>
+                  {categoryFilter != null && (
+                    <span className="inline-flex items-center text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 dark:bg-indigo-500/15 dark:text-indigo-200 dark:ring-indigo-400/30 shrink-0">
+                      {visibleGroups[0]?.products.length || 0}{" "}
+                      {t("priceList.products")}
+                    </span>
+                  )}
+                </div>
               )}
+
+              {/* Zero-price toggle — same card-style as the Products page
+                  duplicate / no-image switches so the visual language is
+                  consistent. Tinted rose when active so it immediately
+                  reads as "show me the warnings". */}
+              <button
+                type="button"
+                role="switch"
+                aria-checked={showZeroPriceOnly}
+                onClick={() => setShowZeroPriceOnly((v) => !v)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition text-left sm:w-72 shrink-0 ${
+                  showZeroPriceOnly
+                    ? "bg-rose-50 border-rose-300 ring-1 ring-rose-200 shadow-sm dark:bg-rose-500/15 dark:border-rose-400/40 dark:ring-rose-400/30"
+                    : "bg-[--white-1] border-[--border-1] hover:border-rose-300 hover:bg-rose-50/40 dark:hover:bg-rose-500/10 dark:hover:border-rose-400/40"
+                }`}
+              >
+                <span
+                  aria-hidden
+                  className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 transition ${
+                    showZeroPriceOnly
+                      ? "bg-rose-500 border-rose-600"
+                      : "bg-slate-200 border-slate-300 dark:bg-slate-700 dark:border-slate-600"
+                  }`}
+                >
+                  <span
+                    className={`inline-block size-4 rounded-full bg-white shadow-md transition-transform ${
+                      showZeroPriceOnly
+                        ? "translate-x-5"
+                        : "translate-x-0.5"
+                    } translate-y-[1px]`}
+                  />
+                </span>
+                <span
+                  className={`grid place-items-center size-8 rounded-lg shrink-0 transition ${
+                    showZeroPriceOnly
+                      ? "bg-rose-500 text-white shadow-sm shadow-rose-500/30"
+                      : "bg-[--white-2] text-[--gr-1]"
+                  }`}
+                >
+                  <CircleDollarSign className="size-4" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div
+                    className={`text-[13px] font-semibold leading-tight ${
+                      showZeroPriceOnly
+                        ? "text-rose-900 dark:text-rose-100"
+                        : "text-[--black-1]"
+                    }`}
+                  >
+                    {t("priceList.zero_price_only", "Sıfır Fiyatlı Ürünler")}
+                  </div>
+                  <div
+                    className={`text-[10px] font-medium mt-0.5 ${
+                      showZeroPriceOnly
+                        ? "text-rose-700 dark:text-rose-300"
+                        : "text-[--gr-1]"
+                    }`}
+                  >
+                    {t(
+                      "priceList.zero_price_only_hint",
+                      "Yalnızca fiyatı 0 olan ürünleri göster",
+                    )}
+                  </div>
+                </div>
+              </button>
             </div>
           )}
 
@@ -362,17 +535,28 @@ const PriceList = ({ data: restaurant }) => {
                   key={group.categoryId}
                   className="rounded-xl border border-[--border-1] bg-[--white-1] overflow-hidden"
                 >
-                  {/* Category header — count sits next to the name; the two
-                      price column labels live on the right and align with the
-                      input columns below. */}
-                  <div className="flex items-center gap-2 px-3 py-2 bg-[--white-2]/80 border-b border-[--border-1]">
-                    <span className="grid place-items-center size-7 rounded-md bg-indigo-50 text-indigo-600 shrink-0">
+                  {/* Category header — strong indigo wash + brand-gradient
+                      accent stripe so the user's eye catches every
+                      category boundary while scrolling a long list.
+                      The previous `bg-[--white-2]/80` blended into the
+                      row backgrounds enough that long menus felt like
+                      one undifferentiated wall of products. */}
+                  <div className="relative flex items-center gap-2 pl-4 pr-3 py-2.5 bg-gradient-to-r from-indigo-100/80 via-indigo-50/70 to-transparent border-b-2 border-indigo-200/80 dark:from-indigo-500/20 dark:via-indigo-500/10 dark:to-transparent dark:border-indigo-400/30">
+                    {/* Left accent stripe — pure visual cue, no layout
+                        impact. Brand gradient (indigo → cyan) so the
+                        header reads as part of the design system, not
+                        a one-off decoration. */}
+                    <span
+                      aria-hidden
+                      className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 via-indigo-600 to-cyan-500"
+                    />
+                    <span className="grid place-items-center size-7 rounded-md bg-white text-indigo-600 ring-1 ring-indigo-200 shadow-sm shrink-0 dark:bg-indigo-500/25 dark:text-indigo-200 dark:ring-indigo-400/40">
                       <Layers className="size-3.5" />
                     </span>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-[--black-2] truncate min-w-0">
+                    <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-100 truncate min-w-0">
                       {group.categoryName || "—"}
                     </h3>
-                    <span className="inline-flex items-center text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 shrink-0">
+                    <span className="inline-flex items-center text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-white text-indigo-700 ring-1 ring-indigo-200 shrink-0 dark:bg-indigo-500/20 dark:text-indigo-100 dark:ring-indigo-400/40">
                       {group.products.reduce(
                         (n, p) => n + (p.portions?.length || 0),
                         0,
@@ -443,6 +627,22 @@ const PriceList = ({ data: restaurant }) => {
                                     dataAttr="data-edit"
                                     tone="slate"
                                     decimals={decimals}
+                                    // Drives the zero-price warning tone
+                                    // and the hover tooltip — only the
+                                    // Normal price column gets this; an
+                                    // empty Kampanya/Özel column is
+                                    // expected, not a problem.
+                                    isZeroPriceTagged={tagPricedKeys.has(
+                                      `${currentProd.id}|${portion.id}`,
+                                    )}
+                                    zeroPriceTaggedHint={t(
+                                      "priceList.zero_priced_via_tag",
+                                      "Bu fiyat 0 ama etiket seçimleriyle belirleniyor.",
+                                    )}
+                                    zeroPriceMissingHint={t(
+                                      "priceList.zero_price_no_coverage",
+                                      "Fiyat 0 ve hiçbir etiket seçimi de fiyat eklemiyor — bu ürün ücretsiz görünür.",
+                                    )}
                                   />
                                   {showCampaign && (
                                     <PriceInput
@@ -520,6 +720,14 @@ const PriceInput = ({
   dataAttr,
   tone,
   decimals = 2,
+  // Zero-price warning props (only meaningful for the Normal column).
+  // When the value is 0 we override the configured `tone` with either
+  // amber (priced via OrderTag selections — informational) or rose
+  // (genuinely unpriced — actual problem). The hint strings drive the
+  // hover tooltip via the `title` attribute.
+  isZeroPriceTagged = false,
+  zeroPriceTaggedHint = "",
+  zeroPriceMissingHint = "",
 }) => {
   const tones = {
     slate:
@@ -534,6 +742,14 @@ const PriceInput = ({
     // the input stays readable on either theme.
     orange:
       "border-orange-200 bg-orange-50/40 text-orange-700 focus:border-orange-500 focus:ring-orange-100 dark:border-orange-400/30 dark:bg-orange-500/15 dark:text-orange-200 dark:focus:border-orange-400 dark:focus:ring-orange-400/20",
+    // Amber — "fiyat 0 ama etiket seçimleriyle fiyatlandırılıyor".
+    // Informational, not an error: the row IS priced, just dynamically.
+    amber:
+      "border-amber-300 bg-amber-50/60 text-amber-800 focus:border-amber-500 focus:ring-amber-100 dark:border-amber-400/40 dark:bg-amber-500/15 dark:text-amber-200 dark:focus:border-amber-400 dark:focus:ring-amber-400/20",
+    // Rose — "fiyat 0 ve etiket de yok". Actual problem: the customer
+    // would see a zero-price row.
+    rose:
+      "border-rose-300 bg-rose-50/60 text-rose-800 focus:border-rose-500 focus:ring-rose-100 dark:border-rose-400/40 dark:bg-rose-500/15 dark:text-rose-200 dark:focus:border-rose-400 dark:focus:ring-rose-400/20",
   };
 
   const numericValue = Number.isFinite(Number(value)) ? Number(value) : 0;
@@ -583,6 +799,23 @@ const PriceInput = ({
   const contentCh = Math.max(4, display.length); // 4 = "0,00"
   const widthValue = `calc(${contentCh + 1}ch + 1rem)`;
 
+  // Resolve the effective tone + hover tooltip. When the value is 0
+  // we override the configured tone with amber (tag-priced) or rose
+  // (no coverage); a positive value falls back to whatever the column
+  // wanted (slate/emerald/orange).
+  const isZero = !Number.isFinite(numericValue) || numericValue <= 0;
+  let effectiveTone = tone;
+  let titleAttr = label;
+  if (isZero && (zeroPriceTaggedHint || zeroPriceMissingHint)) {
+    if (isZeroPriceTagged) {
+      effectiveTone = "amber";
+      titleAttr = zeroPriceTaggedHint;
+    } else {
+      effectiveTone = "rose";
+      titleAttr = zeroPriceMissingHint;
+    }
+  }
+
   return (
     <input
       type="text"
@@ -594,9 +827,10 @@ const PriceInput = ({
       onKeyDown={onKeyDown}
       aria-label={label}
       placeholder={label}
+      title={titleAttr}
       {...{ [dataAttr]: true }}
       style={{ width: widthValue }}
-      className={`h-9 px-2 text-right text-sm font-semibold tabular-nums rounded-md border outline-none transition focus:ring-4 shrink-0 ${tones[tone] || tones.slate}`}
+      className={`h-9 px-2 text-right text-sm font-semibold tabular-nums rounded-md border outline-none transition focus:ring-4 shrink-0 ${tones[effectiveTone] || tones.slate}`}
     />
   );
 };

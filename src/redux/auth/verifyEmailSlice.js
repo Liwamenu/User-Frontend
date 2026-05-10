@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../api";
+import api, { pickAxiosErrorMessage } from "../api";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -47,10 +47,9 @@ export const verifyEmail = createAsyncThunk(
       return data;
     } catch (err) {
       console.log(err);
-      const errorMessage = err.response.data.message_TR || err.message;
-      return rejectWithValue({ message: errorMessage });
+      return rejectWithValue({ message: pickAxiosErrorMessage(err) });
     }
-  }
+  },
 );
 
 export const { resetVerifyEmail } = verifyEmailSlice.actions;
