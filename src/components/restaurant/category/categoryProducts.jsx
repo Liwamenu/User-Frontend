@@ -32,7 +32,7 @@ import {
   GripVertical,
   Loader2,
   Search,
-  Plus,
+  ArrowRight,
   PackagePlus,
   PackageCheck,
   Inbox,
@@ -799,16 +799,22 @@ const AvailableRow = ({ prod, categoryName, t, onAdd, adding, disabled }) => {
         onClick={() => onAdd(prod)}
         disabled={adding || disabled}
         title={t("categoryProducts.add", "Ekle")}
-        className="inline-flex items-center justify-center gap-1 h-9 px-3 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 hover:bg-indigo-100 hover:ring-indigo-200 transition disabled:opacity-60 disabled:cursor-not-allowed dark:bg-indigo-500/15 dark:text-indigo-200 dark:ring-indigo-400/30 dark:hover:bg-indigo-500/25 shrink-0"
+        className="inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 hover:bg-indigo-100 hover:ring-indigo-200 transition disabled:opacity-60 disabled:cursor-not-allowed dark:bg-indigo-500/15 dark:text-indigo-200 dark:ring-indigo-400/30 dark:hover:bg-indigo-500/25 shrink-0"
       >
-        {adding ? (
-          <Loader2 className="size-3.5 animate-spin" />
-        ) : (
-          <Plus className="size-3.5" strokeWidth={2.5} />
-        )}
+        {/* Label first, then a right-pointing arrow on the right edge —
+            visually reinforces the "send this product across to the
+            right column" gesture. The arrow sits AFTER the label so
+            the eye reads "Ekle →" naturally. The loading spinner
+            replaces the arrow (not the label) so the action stays
+            recognisable mid-dispatch. */}
         <span className="hidden sm:inline">
           {t("categoryProducts.add", "Ekle")}
         </span>
+        {adding ? (
+          <Loader2 className="size-3.5 animate-spin" />
+        ) : (
+          <ArrowRight className="size-3.5" strokeWidth={2.5} />
+        )}
       </button>
     </div>
   );
