@@ -15,10 +15,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
+// Use the TV-specific slice (NOT the shared setRestaurantTheme) so the
+// backend can route TV writes to a dedicated endpoint that only touches
+// `tvMenuId` — picking a TV theme used to silently switch the QR theme
+// because both selectors hit the same endpoint and the missing
+// `themeId` was being defaulted/nulled.
 import {
-  setRestaurantTheme,
-  resetSetRestaurantTheme,
-} from "../../../redux/restaurant/setRestaurantThemeSlice";
+  setRestaurantTvTheme,
+  resetSetRestaurantTvTheme,
+} from "../../../redux/restaurant/setRestaurantTvThemeSlice";
 import PageHelp from "../../common/pageHelp";
 
 const PRIMARY_GRADIENT =
@@ -94,7 +99,7 @@ const ThemeSelector = ({ data }) => {
   const iframeRef = useRef(null);
 
   const { success, loading } = useSelector(
-    (s) => s.restaurant.setRestaurantTheme,
+    (s) => s.restaurant.setRestaurantTvTheme,
   );
 
   const [device, setDevice] = useState("screen1");
@@ -125,7 +130,7 @@ const ThemeSelector = ({ data }) => {
     setSelectedThemeId(themeId);
     setPendingThemeId(themeId);
     dispatch(
-      setRestaurantTheme({
+      setRestaurantTvTheme({
         tvMenuId: themeId,
         restaurantId,
       }),
@@ -159,7 +164,7 @@ const ThemeSelector = ({ data }) => {
   // QR themes which uses the same slice) so the success-effect below doesn't
   // fire spuriously on mount.
   useEffect(() => {
-    dispatch(resetSetRestaurantTheme());
+    dispatch(resetSetRestaurantTvTheme());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
