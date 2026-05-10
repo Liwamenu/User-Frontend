@@ -36,7 +36,9 @@ import {
   PackagePlus,
   PackageCheck,
   Inbox,
-  Unlink,
+  ArrowRightLeft,
+  Check,
+  AlertTriangle,
 } from "lucide-react";
 
 import EditProduct from "../products/editProduct";
@@ -93,6 +95,12 @@ const CategoryProducts = ({
     products: liteProducts,
     fetchedFor: liteFetchedFor,
   } = useSelector((s) => s.products.getLite);
+  // Categories list — needed by the move-to-category picker so we can
+  // offer the user a destination category (backend rejects empty
+  // categoryId, so a product can NEVER be uncategorised; "remove from
+  // this category" is therefore really "move to another category"). The
+  // parent page already populates this slice on mount.
+  const { categories } = useSelector((s) => s.categories.get);
 
   // Local state for the category-side list — initialised from the slice
   // and mutated locally so optimistic add / drag-reorder feel snappy
@@ -296,47 +304,70 @@ const CategoryProducts = ({
     }
   };
 
-  // Remove a right-column product from THIS category (it is NOT deleted —
-  // actual delete still lives on the Products page). Mirrors handle-
-  // AddToCategory in reverse: optimistically pull the row back to the
-  // left list, dispatch editProduct with an empty categoryId, roll
-  // back on failure. Backend must accept an empty categoryId for the
-  // un-categorise to stick; if it rejects with a validation error the
-  // row snaps back and the toast surfaces the message.
-  const handleRemoveFromCategory = async (prod) => {
-    if (mutatingId) return;
+  // "Bu kategoriden çıkart" → opens a destination-category picker.
+  // Backend rejects empty categoryId, so a product can never be
+  // truly uncategorised; we therefore frame the action as a MOVE to
+  // another category. The picker only lists categories OTHER than
+  // the current one, plus an empty-state when there's only one
+  // category in the restaurant. Actual product deletion still lives
+  // on the Products page (per UX spec).
+  const handleRequestMove = (prod) => {
+    setSecondPopupContent(
+      <MoveToCategoryPopup
+        product={prod}
+        currentCategoryId={categoryId}
+        categories={categories}
+        t={t}
+        onCancel={() => setSecondPopupContent(null)}
+        onConfirm={(targetCategoryId) => {
+          setSecondPopupContent(null);
+          executeMoveToCategory(prod, targetCategoryId);
+        }}
+      />,
+    );
+  };
+
+  // The actual MOVE — dispatched after the user picks a destination
+  // in the picker. Optimistic UI: drop the row from the right column
+  // and inject it into the lite cache with its new categoryId so it
+  // doesn't disappear from the picker if reopened.
+  const executeMoveToCategory = async (prod, targetCategoryId) => {
+    if (!targetCategoryId || mutatingId) return;
     setMutatingId(prod.id);
 
     const prevItems = items ?? [];
     const prevItemsBefore = itemsBefore ?? [];
     const prevLite = liteLocal ?? [];
 
-    // Optimistic local move: drop from items, push back to lite.
     setItems(prevItems.filter((p) => p.id !== prod.id));
     setItemsBefore(prevItemsBefore.filter((p) => p.id !== prod.id));
     setLiteLocal([
-      ...prevLite,
-      { ...prod, categoryId: "" },
+      ...prevLite.filter((p) => p.id !== prod.id),
+      { ...prod, categoryId: targetCategoryId },
     ]);
 
     try {
       const action = await dispatch(
         editProduct(
           buildEditPayload(prod, {
-            categoryId: "",
-            // sortOrder reset so the product doesn't carry its old
-            // position into a future re-categorisation.
+            categoryId: targetCategoryId,
+            // sortOrder reset so the product appears at the bottom of
+            // its new category (avoids inheriting the old position).
             sortOrder: 0,
           }),
         ),
       );
       if (action?.error) throw action.payload || action.error;
+      const targetCat = (categories || []).find(
+        (c) => c.id === targetCategoryId,
+      );
       toast.success(
-        t("categoryProducts.remove_success", {
+        t("categoryProducts.move_success", {
           name: prod.name,
-          defaultValue: "{{name}} bu kategoriden çıkarıldı.",
+          category: targetCat?.name || "",
+          defaultValue: "{{name}} {{category}} kategorisine taşındı.",
         }),
-        { id: "catProdRemove" },
+        { id: "catProdMove" },
       );
     } catch (err) {
       // Rollback on backend reject.
@@ -346,8 +377,8 @@ const CategoryProducts = ({
       const msg =
         err?.message_TR ||
         err?.message ||
-        t("categoryProducts.remove_failed");
-      toast.error(msg, { id: "catProdRemove" });
+        t("categoryProducts.move_failed");
+      toast.error(msg, { id: "catProdMove" });
     } finally {
       dispatch(resetEditProduct());
       setMutatingId(null);
@@ -552,7 +583,7 @@ const CategoryProducts = ({
                   prod={prod}
                   t={t}
                   onEdit={handleEditProduct}
-                  onRemove={handleRemoveFromCategory}
+                  onRequestMove={handleRequestMove}
                   removing={mutatingId === prod.id}
                   disabled={!!mutatingId && mutatingId !== prod.id}
                   draggable={false}
@@ -583,7 +614,7 @@ const CategoryProducts = ({
                             provided={provided}
                             isDragging={snapshot.isDragging}
                             onEdit={handleEditProduct}
-                            onRemove={handleRemoveFromCategory}
+                            onRequestMove={handleRequestMove}
                             removing={mutatingId === prod.id}
                             disabled={
                               !!mutatingId && mutatingId !== prod.id
@@ -746,16 +777,19 @@ const AvailableRow = ({ prod, t, onAdd, adding, disabled }) => {
 };
 
 // Right-column row — drag handle (when draggable) + name + edit +
-// "remove from this category" (NOT delete — actual delete only lives
-// on the Products page, per UX spec). Without renderClone, rfd uses
-// this very element for the drag avatar.
+// "move to another category". The move button opens a destination-
+// picker popup (handleRequestMove) instead of dispatching directly,
+// because the backend rejects an empty categoryId — every move needs
+// a target. Actual product deletion still lives on the Products page.
+// Without renderClone, rfd uses this very element for the drag
+// avatar.
 const InCategoryRow = ({
   prod,
   t,
   provided,
   isDragging,
   onEdit,
-  onRemove,
+  onRequestMove,
   removing,
   disabled,
   draggable,
@@ -802,28 +836,175 @@ const InCategoryRow = ({
         >
           <Pencil className="size-3.5" />
         </button>
-        {/* "Remove from this category" — non-destructive (the product
-            stays in the system; only the category link is broken).
-            Amber tone signals "warning, but recoverable" — distinct
-            from the rose destructive Trash on the Products page. The
-            unlink icon is the visual cue for "break association". */}
+        {/* "Başka kategoriye taşı" — non-destructive (the product stays
+            in the system; only its category changes). Amber tone signals
+            "warning, but recoverable" — distinct from the rose
+            destructive Trash on the Products page. The arrow-right-left
+            icon visually says "swap categories". */}
         <button
           type="button"
-          onClick={() => onRemove(prod)}
+          onClick={() => onRequestMove(prod)}
           disabled={removing || disabled}
           title={t(
-            "categoryProducts.remove_from_category",
-            "Bu kategoriden çıkart",
+            "categoryProducts.move_to_category",
+            "Başka kategoriye taşı",
           )}
           className="grid place-items-center size-8 rounded-md text-amber-700 hover:bg-amber-50 transition disabled:opacity-60 disabled:cursor-not-allowed dark:text-amber-300 dark:hover:bg-amber-500/15"
         >
           {removing ? (
             <Loader2 className="size-3.5 animate-spin" />
           ) : (
-            <Unlink className="size-3.5" />
+            <ArrowRightLeft className="size-3.5" />
           )}
         </button>
       </div>
+    </div>
+  );
+};
+
+// Picker modal — lists categories OTHER than the current one so the
+// user can pick a destination for the move. Empty state shown when
+// there's only one category in the restaurant (nothing to move to —
+// the user has to create another category first via the parent page).
+const MoveToCategoryPopup = ({
+  product,
+  currentCategoryId,
+  categories,
+  t,
+  onCancel,
+  onConfirm,
+}) => {
+  const targetOptions = useMemo(
+    () =>
+      (categories || [])
+        .filter((c) => c?.id && c.id !== currentCategoryId)
+        .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)),
+    [categories, currentCategoryId],
+  );
+  const [selectedId, setSelectedId] = useState(null);
+  const isEmpty = targetOptions.length === 0;
+  const canConfirm = !!selectedId;
+
+  return (
+    <div className="bg-[--white-1] rounded-2xl shadow-2xl ring-1 ring-[--border-1] w-full max-w-md mx-auto overflow-hidden flex flex-col max-h-[85dvh]">
+      <div
+        className="h-0.5 shrink-0"
+        style={{ background: PRIMARY_GRADIENT }}
+      />
+      <header className="flex items-center gap-3 px-4 sm:px-5 py-3 border-b border-[--border-1] shrink-0">
+        <span
+          className="grid place-items-center size-9 rounded-xl text-white shadow-md shadow-amber-500/25 shrink-0"
+          style={{
+            background:
+              "linear-gradient(135deg, #f59e0b 0%, #f97316 50%, #ef4444 100%)",
+          }}
+        >
+          <ArrowRightLeft className="size-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm sm:text-base font-bold text-[--black-1] truncate tracking-tight">
+            {t("categoryProducts.move_picker_title", "Kategoriyi Değiştir")}
+          </h3>
+          <p className="text-[11px] text-[--gr-1] truncate mt-0.5">
+            {product?.name}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onCancel}
+          aria-label={t("categoryProducts.close")}
+          className="grid place-items-center size-8 rounded-md text-[--gr-2] hover:text-[--black-1] hover:bg-[--white-2] transition shrink-0"
+        >
+          <X className="size-4" />
+        </button>
+      </header>
+
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 space-y-3">
+        {/* Why a destination is required */}
+        <div className="rounded-lg border border-amber-200 bg-amber-50/60 p-3 flex items-start gap-2 dark:bg-amber-500/10 dark:border-amber-400/30">
+          <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5 dark:text-amber-300" />
+          <p className="text-[12px] text-amber-900 leading-snug dark:text-amber-100">
+            {t(
+              "categoryProducts.move_picker_hint",
+              "Bir ürün kategorisiz kalamaz. Lütfen taşımak istediğiniz hedef kategoriyi seçin.",
+            )}
+          </p>
+        </div>
+
+        {/* Target list — radio-style clickable rows */}
+        {isEmpty ? (
+          <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/60 p-6 grid place-items-center text-center">
+            <span className="grid place-items-center size-10 rounded-xl bg-[--white-1] text-[--gr-1] ring-1 ring-[--border-1] mb-2">
+              <Inbox className="size-5" />
+            </span>
+            <p className="text-xs text-[--gr-1]">
+              {t(
+                "categoryProducts.move_picker_no_other",
+                "Taşınabilecek başka kategori yok. Önce yeni bir kategori oluşturun.",
+              )}
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1.5">
+            {targetOptions.map((cat) => {
+              const active = selectedId === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedId(cat.id)}
+                  className={`flex items-center gap-3 p-2.5 rounded-xl border text-left transition ${
+                    active
+                      ? "border-indigo-300 bg-indigo-50 ring-1 ring-indigo-200 shadow-sm dark:bg-indigo-500/15 dark:border-indigo-400/40 dark:ring-indigo-400/30"
+                      : "border-[--border-1] bg-[--white-1] hover:border-indigo-200 hover:bg-indigo-50/40 dark:hover:bg-indigo-500/10 dark:hover:border-indigo-400/40"
+                  }`}
+                >
+                  <span
+                    className={`grid place-items-center size-5 rounded-full border-2 transition shrink-0 ${
+                      active
+                        ? "border-indigo-600 bg-indigo-600 text-white"
+                        : "border-[--border-1] bg-[--white-1]"
+                    }`}
+                  >
+                    {active && (
+                      <Check className="size-3" strokeWidth={3.5} />
+                    )}
+                  </span>
+                  <span
+                    className={`text-sm font-semibold truncate flex-1 min-w-0 ${
+                      active
+                        ? "text-indigo-900 dark:text-indigo-100"
+                        : "text-[--black-1]"
+                    }`}
+                  >
+                    {cat.name || "—"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <footer className="px-3 sm:px-5 py-3 border-t border-[--border-1] flex justify-end gap-2 shrink-0 bg-[--white-1]">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="h-10 px-4 rounded-lg border border-[--border-1] bg-[--white-1] text-[--black-2] text-sm font-medium hover:bg-[--white-2] transition"
+        >
+          {t("categoryProducts.move_cancel", "İptal")}
+        </button>
+        <button
+          type="button"
+          onClick={() => canConfirm && onConfirm(selectedId)}
+          disabled={!canConfirm}
+          className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg text-white text-sm font-semibold shadow-md shadow-indigo-500/25 transition hover:brightness-110 active:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ background: PRIMARY_GRADIENT }}
+        >
+          <ArrowRightLeft className="size-4" />
+          {t("categoryProducts.move_confirm", "Taşı")}
+        </button>
+      </footer>
     </div>
   );
 };

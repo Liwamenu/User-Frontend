@@ -684,7 +684,15 @@
     "no_available": "Bu restoranda ekleyebileceğin başka ürün yok.",
     "remove_from_category": "Bu kategoriden çıkart",
     "remove_success": "{{name}} bu kategoriden çıkarıldı.",
-    "remove_failed": "Ürün bu kategoriden çıkarılamadı."
+    "remove_failed": "Ürün bu kategoriden çıkarılamadı.",
+    "move_to_category": "Başka kategoriye taşı",
+    "move_picker_title": "Kategoriyi Değiştir",
+    "move_picker_hint": "Bir ürün kategorisiz kalamaz. Lütfen taşımak istediğiniz hedef kategoriyi seçin.",
+    "move_picker_no_other": "Taşınabilecek başka kategori yok. Önce yeni bir kategori oluşturun.",
+    "move_cancel": "İptal",
+    "move_confirm": "Taşı",
+    "move_success": "{{name}} {{category}} kategorisine taşındı.",
+    "move_failed": "Ürün taşınamadı."
   },
   "listCategoryProducts": {
     "title": "Ürün Seçimi",

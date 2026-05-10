@@ -683,7 +683,15 @@
     "no_available": "No other products in this restaurant to add.",
     "remove_from_category": "Remove from this category",
     "remove_success": "{{name}} removed from this category.",
-    "remove_failed": "Could not remove the product from this category."
+    "remove_failed": "Could not remove the product from this category.",
+    "move_to_category": "Move to another category",
+    "move_picker_title": "Change Category",
+    "move_picker_hint": "A product cannot be left without a category. Please pick a destination category.",
+    "move_picker_no_other": "No other category available. Create a new category first.",
+    "move_cancel": "Cancel",
+    "move_confirm": "Move",
+    "move_success": "{{name}} moved to {{category}}.",
+    "move_failed": "Could not move the product."
   },
   "listCategoryProducts": {
     "title": "Product Selection",
