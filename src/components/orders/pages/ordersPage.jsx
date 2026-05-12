@@ -364,6 +364,12 @@ const OrderRow = ({ order, onSelect, isActive, t }) => {
                 {t(meta.labelKey)}
               </span>
             </div>
+            {order.restaurantName && (
+              <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-[--primary-1]">
+                <Store className="size-3 shrink-0" />
+                <span className="truncate">{order.restaurantName}</span>
+              </p>
+            )}
             <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[--gr-1]">
               <span className="inline-flex items-center gap-1">
                 <Clock className="size-3 shrink-0" />
