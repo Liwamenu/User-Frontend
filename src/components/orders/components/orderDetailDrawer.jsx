@@ -16,6 +16,7 @@ import {
   ShoppingBag,
   Sparkles,
   StickyNote,
+  Store,
   Truck,
   User,
   Utensils,
@@ -135,6 +136,12 @@ const DrawerHeader = ({ order, onClose }) => {
         <h2 className="text-base sm:text-lg font-bold text-[--black-1] leading-tight">
           {t("orders.order_details")}
         </h2>
+        {order.restaurantName && (
+          <p className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold text-[--primary-1]">
+            <Store className="size-3 shrink-0" />
+            <span className="truncate">{order.restaurantName}</span>
+          </p>
+        )}
         <button
           type="button"
           onClick={() => copyToClipboard({ text: order.id })}
@@ -221,9 +228,14 @@ const CustomerSection = ({ order }) => {
   // on first sidebar mount). Both must be valid for the map row to
   // appear — `toValidLatLng` rejects nulls, NaN, 0,0 (null island),
   // and out-of-range values so we never open a map showing nothing.
+  //
+  // Backend ships the customer coords as FLAT customerLatitude /
+  // customerLongitude fields. The earlier draft spec used a nested
+  // customerLocation object — kept as a fallback in case any caller
+  // still sends that shape.
   const customer = toValidLatLng(
-    order.customerLocation?.latitude,
-    order.customerLocation?.longitude,
+    order.customerLatitude ?? order.customerLocation?.latitude,
+    order.customerLongitude ?? order.customerLocation?.longitude,
   );
   const restaurantEntry = useSelector((s) =>
     (s.restaurants?.getRestaurants?.restaurants?.data || []).find(
