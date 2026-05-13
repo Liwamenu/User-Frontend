@@ -1087,6 +1087,8 @@
     "gradient_start": "Başlangıcı",
     "gradient_end": "Gradyan Bitişi",
     "display_logo": "Ortadaki Logoyu Göster",
+    "display_table_number": "Ortada Masa Numarasını Göster",
+    "center_overlay_warning": "Bazı Android cihazlarda ortada logo veya masa numarası bulunan QR kodlar URL yerine düz metin olarak algılanabilir ve arama motoruna düşer. Her cihazda garantili açılış için iki seçeneği de kapatın.",
     "brand_mark": "Marka Logosu",
     "upload_logo_line1": "Marka logosu yüklemek için tıklayın",
     "upload_logo_line2": "(Şeffaf PNG önerilir)",

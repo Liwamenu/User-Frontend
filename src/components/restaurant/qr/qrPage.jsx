@@ -17,6 +17,7 @@ import {
   Trash2,
   ExternalLink,
   Database,
+  AlertTriangle,
 } from "lucide-react";
 
 // COMP
@@ -78,7 +79,15 @@ const QRPage = ({ data: restaurant }) => {
     gradientStart: "#000000",
     gradientEnd: "#000000",
     logo: null,
-    includeLogo: true,
+    // Centre-overlay switches default OFF on purpose: anything in
+    // the QR's centre (logo OR a table-number badge) still trips
+    // stricter Android scanners into reading the payload as plain
+    // text even at error-correction level H with a 15% image cap.
+    // A blank centre is the only configuration that scans reliably
+    // on every device we tested, so we ship that as the default and
+    // let owners opt-in when they accept the trade-off.
+    includeLogo: false,
+    includeTableNumber: false,
     size: 1024,
     tenant: restaurant?.tenant || "demo",
     restaurantId: restaurant?.id || null,
@@ -305,6 +314,7 @@ const QRPage = ({ data: restaurant }) => {
   const runQRGeneration = async (plan) => {
     if (!plan.length) return [];
     const useLogo = config.includeLogo && !!config.logo;
+    const useTableBadge = config.includeTableNumber;
 
     const newItems = [];
     for (const entry of plan) {
@@ -315,9 +325,13 @@ const QRPage = ({ data: restaurant }) => {
           : typeof entry.id === "number"
             ? entry.id
             : null;
+      // Precedence: logo wins over badge if both are somehow on
+      // (the switches are wired mutually-exclusive in the UI, but
+      // guarding here too so an unexpected state can't render a
+      // garbled overlay). Empty string = plain QR, the safe default.
       const centerImage = useLogo
         ? config.logo
-        : badge !== null && badge !== ""
+        : useTableBadge && badge !== null && badge !== ""
           ? makeTableNumberBadge(badge)
           : "";
 
@@ -738,15 +752,65 @@ const QRPage = ({ data: restaurant }) => {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-2.5 bg-[--white-2] rounded-lg border border-[--border-1]">
-                <CustomToggle
-                  label={t("qrPage.display_logo")}
-                  className1="text-[--black-2] text-xs font-semibold"
-                  checked={config.includeLogo}
-                  onChange={() =>
-                    setConfig((c) => ({ ...c, includeLogo: !c.includeLogo }))
-                  }
-                />
+              {/* Mutually-exclusive centre-overlay switches. Both
+                  default OFF — a clean centre is the only setting
+                  that scans as a URL on every Android device we
+                  tested. Turning either on auto-disables the other
+                  so two overlays never compete for the same hole. */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between p-2.5 bg-[--white-2] rounded-lg border border-[--border-1]">
+                  <CustomToggle
+                    label={t("qrPage.display_logo")}
+                    className1="text-[--black-2] text-xs font-semibold"
+                    checked={config.includeLogo}
+                    onChange={() =>
+                      setConfig((c) => ({
+                        ...c,
+                        includeLogo: !c.includeLogo,
+                        // Turn off the sibling so the centre never
+                        // holds two overlays at once.
+                        includeTableNumber: !c.includeLogo
+                          ? false
+                          : c.includeTableNumber,
+                      }))
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-2.5 bg-[--white-2] rounded-lg border border-[--border-1]">
+                  <CustomToggle
+                    label={t("qrPage.display_table_number")}
+                    className1="text-[--black-2] text-xs font-semibold"
+                    checked={config.includeTableNumber}
+                    onChange={() =>
+                      setConfig((c) => ({
+                        ...c,
+                        includeTableNumber: !c.includeTableNumber,
+                        includeLogo: !c.includeTableNumber
+                          ? false
+                          : c.includeLogo,
+                      }))
+                    }
+                  />
+                </div>
+
+                {/* Persistent amber warning while either centre
+                    overlay is enabled. Shown as a banner (not a
+                    toast) so the trade-off stays visible while the
+                    user is configuring — they can't accidentally
+                    print 200 unscannable QRs and only notice on a
+                    customer's phone an hour later. */}
+                {(config.includeLogo || config.includeTableNumber) && (
+                  <div
+                    role="alert"
+                    className="flex items-start gap-2 p-2.5 rounded-lg border border-amber-200 bg-amber-50/70 text-amber-900 dark:bg-amber-500/15 dark:border-amber-400/30 dark:text-amber-100"
+                  >
+                    <AlertTriangle className="size-3.5 mt-0.5 shrink-0 text-amber-600 dark:text-amber-300" />
+                    <p className="text-[11px] leading-snug">
+                      {t("qrPage.center_overlay_warning")}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {config.includeLogo && (

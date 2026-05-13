@@ -1102,6 +1102,8 @@
     "gradient_start": "Gradient Start",
     "gradient_end": "Gradient End",
     "display_logo": "Display Center Logo",
+    "display_table_number": "Display Table Number in Center",
+    "center_overlay_warning": "A logo or table-number in the QR center can make some Android devices read the code as plain text instead of opening the URL, sending guests to a search engine. Disable both options for guaranteed scanning on every device.",
     "brand_mark": "Brand Mark",
     "upload_logo_line1": "Click to upload brand logo",
     "upload_logo_line2": "(Transparent PNG recommended)",
