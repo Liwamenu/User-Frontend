@@ -30,6 +30,16 @@ import { usePopup } from "../../../context/PopupContext";
 const PRIMARY_GRADIENT =
   "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
 
+// Distinct emerald → teal gradient for the "Toplu Oluştur" / "Generate
+// Batch" action. The Download All button at the top-right used the
+// same indigo-cyan gradient, so right after a batch was generated the
+// user kept aiming for Download and clicking Generate by accident
+// (re-running the workflow they just finished). Different hue + a
+// matching shadow tint makes the action vs save-result distinction
+// readable at a glance without changing button placement.
+const GENERATE_GRADIENT =
+  "linear-gradient(135deg, #059669 0%, #10b981 50%, #0d9488 100%)";
+
 // Renders a white-disc data URL with the given table number bold-centered
 // in black. Used as the QR center "image" when the user hasn't uploaded a
 // brand logo but is generating a sequential range — gives every printed QR
@@ -943,8 +953,8 @@ const QRPage = ({ data: restaurant }) => {
                     type="button"
                     onClick={handleGenerateBatch}
                     disabled={isGenerating}
-                    className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg text-white text-xs font-semibold shadow-md shadow-indigo-500/25 hover:brightness-110 active:brightness-95 transition shrink-0 disabled:opacity-60"
-                    style={{ background: PRIMARY_GRADIENT }}
+                    className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg text-white text-xs font-semibold shadow-md shadow-emerald-500/25 hover:brightness-110 active:brightness-95 transition shrink-0 disabled:opacity-60"
+                    style={{ background: GENERATE_GRADIENT }}
                   >
                     {isGenerating ? (
                       <>
@@ -1064,8 +1074,12 @@ const EmptyState = ({ t, onGenerate, isGenerating }) => (
         type="button"
         onClick={onGenerate}
         disabled={isGenerating}
-        className="mt-5 inline-flex items-center justify-center gap-1.5 h-10 px-5 rounded-lg text-white text-sm font-semibold shadow-md shadow-indigo-500/25 hover:brightness-110 active:brightness-95 transition disabled:opacity-60"
-        style={{ background: PRIMARY_GRADIENT }}
+        // Same emerald-teal gradient as the batch-header "Generate"
+        // button so users learn "emerald = create" consistently
+        // across the page (vs the indigo PRIMARY_GRADIENT reserved
+        // for Download All / save-result actions).
+        className="mt-5 inline-flex items-center justify-center gap-1.5 h-10 px-5 rounded-lg text-white text-sm font-semibold shadow-md shadow-emerald-500/25 hover:brightness-110 active:brightness-95 transition disabled:opacity-60"
+        style={{ background: GENERATE_GRADIENT }}
       >
         {isGenerating ? (
           <>
