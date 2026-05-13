@@ -17,7 +17,6 @@ import {
   Trash2,
   ExternalLink,
   Database,
-  AlertTriangle,
 } from "lucide-react";
 
 // COMP
@@ -89,14 +88,12 @@ const QRPage = ({ data: restaurant }) => {
     gradientStart: "#000000",
     gradientEnd: "#000000",
     logo: null,
-    // Centre-overlay switches default OFF on purpose: anything in
-    // the QR's centre (logo OR a table-number badge) still trips
-    // stricter Android scanners into reading the payload as plain
-    // text even at error-correction level H with a 15% image cap.
-    // A blank centre is the only configuration that scans reliably
-    // on every device we tested, so we ship that as the default and
-    // let owners opt-in when they accept the trade-off.
-    includeLogo: false,
+    // Logo ON by default — matches the original behaviour where the
+    // restaurant's brand mark sits in the centre of every QR. The
+    // table-number badge is an opt-in alternative (switching it on
+    // auto-disables the logo so the centre never holds two overlays
+    // at once).
+    includeLogo: true,
     includeTableNumber: false,
     size: 1024,
     tenant: restaurant?.tenant || "demo",
@@ -187,29 +184,21 @@ const QRPage = ({ data: restaurant }) => {
     return out.replace(/[^a-zA-Z0-9-_]+/g, "_");
   };
 
-  // SCANNER-SAFE QR GENERATION
-  // --------------------------
-  // The previous build used `extra-rounded` dots + `dot` corner pips
-  // for a "designer" look. iOS's native camera was lenient about it
-  // but stock Android scanners (Google Lens, Samsung Scanner, every
-  // browser-built-in QR reader I tested) refused to recognise the
-  // payload as a URL — they read the text contents fine, then
-  // treated it as a search query instead of an `intent://` deep link.
-  // The reference user shared (sharp square modules) scanned as a URL
-  // on every device.
+  // Stylish QR config — extra-rounded dots + decorative corner pips.
+  // We previously suspected this styling caused Android scanners to
+  // misread the payload as plain text, but the real culprit was the
+  // missing path slash before the `?` in per-table URLs (see
+  // `getTableUrl`). With the URL fixed, the stylish modules scan
+  // correctly on every device — logo + badge included.
   //
-  // Two settings restore Android-friendly behaviour:
-  //   1. Every shape switches to `square` — no decorative rounding,
-  //      no off-spec corner pips. The library still applies the
-  //      gradient on top, which is safe for scanners as long as
-  //      contrast stays high.
-  //   2. `qrOptions.errorCorrectionLevel: "H"` (30% redundancy) +
-  //      `imageOptions.imageSize: 0.15` (logo / table-number badge
-  //      occupies at most 15% of the QR area). At 15% with level H
-  //      there's headroom to spare; the prior config relied on the
-  //      library's 40% default which routinely punched past the
-  //      error-correction budget on smaller logos and rendered the
-  //      whole code unreadable.
+  // Two defensive settings stay regardless:
+  //   • `qrOptions.errorCorrectionLevel: "H"` (30% redundancy) so the
+  //     centre overlay never eats past the error-correction budget.
+  //     Library defaults to "Q" (25%).
+  //   • `imageOptions.imageSize: 0.15` caps the brand logo /
+  //     table-number disc at 15% of the QR area. Library defaults to
+  //     0.4 (40%) which routinely punches past redundancy on lower
+  //     levels and is too large visually anyway.
   const buildGenerator = (overrides = {}) =>
     new QRCodeStyling({
       width: 480,
@@ -217,20 +206,15 @@ const QRPage = ({ data: restaurant }) => {
       type: "svg",
       data: getTableUrl(),
       image: config.includeLogo ? config.logo || "" : "",
-      // Highest error-correction level so the centred badge / logo
-      // never eats past the QR's redundancy budget. Pair with
-      // `imageSize: 0.15` below for a comfortable safety margin.
       qrOptions: { errorCorrectionLevel: "H" },
       imageOptions: {
         crossOrigin: "anonymous",
         margin: 5,
         hideBackgroundDots: true,
-        // 15% of the QR area — fits the brand logo / table-number
-        // disc cleanly inside the H-level error-correction budget.
         imageSize: 0.15,
       },
       dotsOptions: {
-        type: "square",
+        type: "extra-rounded",
         gradient: {
           type: "linear",
           rotation: 0,
@@ -241,10 +225,10 @@ const QRPage = ({ data: restaurant }) => {
         },
       },
       cornersSquareOptions: {
-        type: "square",
+        type: "extra-rounded",
         color: config.gradientStart,
       },
-      cornersDotOptions: { type: "square", color: config.gradientStart },
+      cornersDotOptions: { type: "dot", color: config.gradientStart },
       backgroundOptions: { color: "#ffffff" },
       ...overrides,
     });
@@ -367,10 +351,10 @@ const QRPage = ({ data: restaurant }) => {
           ? makeTableNumberBadge(badge)
           : "";
 
-      // Same scanner-safe config as `buildGenerator` above — see the
-      // long comment there for the Android-compatibility rationale.
-      // The duplication here is intentional (different size + per-row
-      // data/image), but the safety settings must stay in lockstep.
+      // Same config as `buildGenerator` above — extra-rounded dots,
+      // level H, 15% image cap. See comment on buildGenerator for
+      // why those two defensive settings stay even though the stylish
+      // modules themselves don't cause scanner issues.
       const generator = new QRCodeStyling({
         width: config.size,
         height: config.size,
@@ -384,7 +368,7 @@ const QRPage = ({ data: restaurant }) => {
           imageSize: 0.15,
         },
         dotsOptions: {
-          type: "square",
+          type: "extra-rounded",
           gradient: {
             type: "linear",
             rotation: 0,
@@ -395,10 +379,10 @@ const QRPage = ({ data: restaurant }) => {
           },
         },
         cornersSquareOptions: {
-          type: "square",
+          type: "extra-rounded",
           color: config.gradientStart,
         },
-        cornersDotOptions: { type: "square", color: config.gradientStart },
+        cornersDotOptions: { type: "dot", color: config.gradientStart },
         backgroundOptions: { color: "#ffffff" },
       });
 
@@ -542,8 +526,7 @@ const QRPage = ({ data: restaurant }) => {
   // Generate a high-resolution PNG of the default (tenant root) QR and save it.
   const downloadDefaultQR = async () => {
     try {
-      // Same scanner-safe config as `buildGenerator` above. See the
-      // long comment there for the Android-compatibility rationale.
+      // Same config as `buildGenerator` above.
       const generator = new QRCodeStyling({
         width: config.size,
         height: config.size,
@@ -557,7 +540,7 @@ const QRPage = ({ data: restaurant }) => {
           imageSize: 0.15,
         },
         dotsOptions: {
-          type: "square",
+          type: "extra-rounded",
           gradient: {
             type: "linear",
             rotation: 0,
@@ -568,10 +551,10 @@ const QRPage = ({ data: restaurant }) => {
           },
         },
         cornersSquareOptions: {
-          type: "square",
+          type: "extra-rounded",
           color: config.gradientStart,
         },
-        cornersDotOptions: { type: "square", color: config.gradientStart },
+        cornersDotOptions: { type: "dot", color: config.gradientStart },
         backgroundOptions: { color: "#ffffff" },
       });
       const blob = await generator.getRawData("png");
@@ -784,11 +767,9 @@ const QRPage = ({ data: restaurant }) => {
                 />
               </div>
 
-              {/* Mutually-exclusive centre-overlay switches. Both
-                  default OFF — a clean centre is the only setting
-                  that scans as a URL on every Android device we
-                  tested. Turning either on auto-disables the other
-                  so two overlays never compete for the same hole. */}
+              {/* Mutually-exclusive centre-overlay switches.
+                  Toggling one ON auto-clears the other so the
+                  centre never holds two overlays at once. */}
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between p-2.5 bg-[--white-2] rounded-lg border border-[--border-1]">
                   <CustomToggle
@@ -799,8 +780,6 @@ const QRPage = ({ data: restaurant }) => {
                       setConfig((c) => ({
                         ...c,
                         includeLogo: !c.includeLogo,
-                        // Turn off the sibling so the centre never
-                        // holds two overlays at once.
                         includeTableNumber: !c.includeLogo
                           ? false
                           : c.includeTableNumber,
@@ -825,24 +804,6 @@ const QRPage = ({ data: restaurant }) => {
                     }
                   />
                 </div>
-
-                {/* Persistent amber warning while either centre
-                    overlay is enabled. Shown as a banner (not a
-                    toast) so the trade-off stays visible while the
-                    user is configuring — they can't accidentally
-                    print 200 unscannable QRs and only notice on a
-                    customer's phone an hour later. */}
-                {(config.includeLogo || config.includeTableNumber) && (
-                  <div
-                    role="alert"
-                    className="flex items-start gap-2 p-2.5 rounded-lg border border-amber-200 bg-amber-50/70 text-amber-900 dark:bg-amber-500/15 dark:border-amber-400/30 dark:text-amber-100"
-                  >
-                    <AlertTriangle className="size-3.5 mt-0.5 shrink-0 text-amber-600 dark:text-amber-300" />
-                    <p className="text-[11px] leading-snug">
-                      {t("qrPage.center_overlay_warning")}
-                    </p>
-                  </div>
-                )}
               </div>
 
               {config.includeLogo && (
