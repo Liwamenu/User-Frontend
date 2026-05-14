@@ -29,6 +29,16 @@ import { usePopup } from "../../../context/PopupContext";
 const PRIMARY_GRADIENT =
   "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #06b6d4 100%)";
 
+// Distinct emerald → teal gradient for the "Toplu Oluştur" / "Generate
+// Batch" action. The Download All button at the top-right used the
+// same indigo-cyan gradient, so right after a batch was generated the
+// user kept aiming for Download and clicking Generate by accident
+// (re-running the workflow they just finished). Different hue + a
+// matching shadow tint makes the action vs save-result distinction
+// readable at a glance without changing button placement.
+const GENERATE_GRADIENT =
+  "linear-gradient(135deg, #059669 0%, #10b981 50%, #0d9488 100%)";
+
 // Renders a white-disc data URL with the given table number bold-centered
 // in black. Used as the QR center "image" when the user hasn't uploaded a
 // brand logo but is generating a sequential range — gives every printed QR
@@ -78,7 +88,13 @@ const QRPage = ({ data: restaurant }) => {
     gradientStart: "#000000",
     gradientEnd: "#000000",
     logo: null,
+    // Logo ON by default — matches the original behaviour where the
+    // restaurant's brand mark sits in the centre of every QR. The
+    // table-number badge is an opt-in alternative (switching it on
+    // auto-disables the logo so the centre never holds two overlays
+    // at once).
     includeLogo: true,
+    includeTableNumber: false,
     size: 1024,
     tenant: restaurant?.tenant || "demo",
     restaurantId: restaurant?.id || null,
@@ -98,9 +114,29 @@ const QRPage = ({ data: restaurant }) => {
   const getTableId = (tableNumber) =>
     `${config.tablePrefix || ""}${tableNumber}${config.tableSuffix || ""}`;
 
+  // Build the tenant URL the QR encodes. Two real-world quirks:
+  //
+  //   1. Per-table URLs MUST include the explicit "/" between the
+  //      host and the query string — i.e. `host.com/?q=…`, not
+  //      `host.com?q=…`. The bare-host form is technically valid
+  //      per RFC 3986 (path-empty + query), but Android's stock QR
+  //      scanners (Google Lens, Samsung Camera, Chrome's built-in
+  //      reader) match against a stricter URL regex that REQUIRES a
+  //      path segment when a query string is present — without the
+  //      slash they classify the payload as plain text and route
+  //      guests to a search engine instead of opening the menu.
+  //      The plain root QR `https://host.com` opens fine without
+  //      the slash because there's no `?` to trigger the regex's
+  //      path check. The customer site reads `tableNumber` off
+  //      `window.location.search` the same way regardless of slash,
+  //      so this change is invisible to backend logic.
+  //
+  //   2. `encodeURIComponent` leaves hyphens / digits alone, so
+  //      `Masa-11` round-trips cleanly without surprising scanners
+  //      that re-decode the value.
   const getTableUrl = (tableNumber) => {
     if (tableNumber !== undefined && tableNumber !== null) {
-      return `https://${config.tenant}.liwamenu.com?tableNumber=${encodeURIComponent(getTableId(tableNumber))}`;
+      return `https://${config.tenant}.liwamenu.com/?tableNumber=${encodeURIComponent(getTableId(tableNumber))}`;
     }
     return `https://${config.tenant}.liwamenu.com`;
   };
@@ -148,7 +184,21 @@ const QRPage = ({ data: restaurant }) => {
     return out.replace(/[^a-zA-Z0-9-_]+/g, "_");
   };
 
-  // Build a QR generator from current config (helper for both preview + batch)
+  // Stylish QR config — extra-rounded dots + decorative corner pips.
+  // We previously suspected this styling caused Android scanners to
+  // misread the payload as plain text, but the real culprit was the
+  // missing path slash before the `?` in per-table URLs (see
+  // `getTableUrl`). With the URL fixed, the stylish modules scan
+  // correctly on every device — logo + badge included.
+  //
+  // Two defensive settings stay regardless:
+  //   • `qrOptions.errorCorrectionLevel: "H"` (30% redundancy) so the
+  //     centre overlay never eats past the error-correction budget.
+  //     Library defaults to "Q" (25%).
+  //   • `imageOptions.imageSize: 0.15` caps the brand logo /
+  //     table-number disc at 15% of the QR area. Library defaults to
+  //     0.4 (40%) which routinely punches past redundancy on lower
+  //     levels and is too large visually anyway.
   const buildGenerator = (overrides = {}) =>
     new QRCodeStyling({
       width: 480,
@@ -156,10 +206,12 @@ const QRPage = ({ data: restaurant }) => {
       type: "svg",
       data: getTableUrl(),
       image: config.includeLogo ? config.logo || "" : "",
+      qrOptions: { errorCorrectionLevel: "H" },
       imageOptions: {
         crossOrigin: "anonymous",
         margin: 5,
         hideBackgroundDots: true,
+        imageSize: 0.15,
       },
       dotsOptions: {
         type: "extra-rounded",
@@ -276,31 +328,44 @@ const QRPage = ({ data: restaurant }) => {
   const runQRGeneration = async (plan) => {
     if (!plan.length) return [];
     const useLogo = config.includeLogo && !!config.logo;
+    const useTableBadge = config.includeTableNumber;
 
     const newItems = [];
     for (const entry of plan) {
-      const url = `https://${config.tenant}.liwamenu.com?tableNumber=${encodeURIComponent(entry.tableId)}`;
+      // Explicit "/" before the query string — see the long comment
+      // on `getTableUrl` for the Android-scanner rationale.
+      const url = `https://${config.tenant}.liwamenu.com/?tableNumber=${encodeURIComponent(entry.tableId)}`;
       const badge =
         entry.badge !== undefined
           ? entry.badge
           : typeof entry.id === "number"
             ? entry.id
             : null;
+      // Precedence: logo wins over badge if both are somehow on
+      // (the switches are wired mutually-exclusive in the UI, but
+      // guarding here too so an unexpected state can't render a
+      // garbled overlay). Empty string = plain QR, the safe default.
       const centerImage = useLogo
         ? config.logo
-        : badge !== null && badge !== ""
+        : useTableBadge && badge !== null && badge !== ""
           ? makeTableNumberBadge(badge)
           : "";
 
+      // Same config as `buildGenerator` above — extra-rounded dots,
+      // level H, 15% image cap. See comment on buildGenerator for
+      // why those two defensive settings stay even though the stylish
+      // modules themselves don't cause scanner issues.
       const generator = new QRCodeStyling({
         width: config.size,
         height: config.size,
         data: url,
         image: centerImage,
+        qrOptions: { errorCorrectionLevel: "H" },
         imageOptions: {
           crossOrigin: "anonymous",
           margin: 10,
           hideBackgroundDots: true,
+          imageSize: 0.15,
         },
         dotsOptions: {
           type: "extra-rounded",
@@ -461,15 +526,18 @@ const QRPage = ({ data: restaurant }) => {
   // Generate a high-resolution PNG of the default (tenant root) QR and save it.
   const downloadDefaultQR = async () => {
     try {
+      // Same config as `buildGenerator` above.
       const generator = new QRCodeStyling({
         width: config.size,
         height: config.size,
         data: getTableUrl(),
         image: config.includeLogo ? config.logo || "" : "",
+        qrOptions: { errorCorrectionLevel: "H" },
         imageOptions: {
           crossOrigin: "anonymous",
           margin: 10,
           hideBackgroundDots: true,
+          imageSize: 0.15,
         },
         dotsOptions: {
           type: "extra-rounded",
@@ -699,15 +767,43 @@ const QRPage = ({ data: restaurant }) => {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-2.5 bg-[--white-2] rounded-lg border border-[--border-1]">
-                <CustomToggle
-                  label={t("qrPage.display_logo")}
-                  className1="text-[--black-2] text-xs font-semibold"
-                  checked={config.includeLogo}
-                  onChange={() =>
-                    setConfig((c) => ({ ...c, includeLogo: !c.includeLogo }))
-                  }
-                />
+              {/* Mutually-exclusive centre-overlay switches.
+                  Toggling one ON auto-clears the other so the
+                  centre never holds two overlays at once. */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between p-2.5 bg-[--white-2] rounded-lg border border-[--border-1]">
+                  <CustomToggle
+                    label={t("qrPage.display_logo")}
+                    className1="text-[--black-2] text-xs font-semibold"
+                    checked={config.includeLogo}
+                    onChange={() =>
+                      setConfig((c) => ({
+                        ...c,
+                        includeLogo: !c.includeLogo,
+                        includeTableNumber: !c.includeLogo
+                          ? false
+                          : c.includeTableNumber,
+                      }))
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-2.5 bg-[--white-2] rounded-lg border border-[--border-1]">
+                  <CustomToggle
+                    label={t("qrPage.display_table_number")}
+                    className1="text-[--black-2] text-xs font-semibold"
+                    checked={config.includeTableNumber}
+                    onChange={() =>
+                      setConfig((c) => ({
+                        ...c,
+                        includeTableNumber: !c.includeTableNumber,
+                        includeLogo: !c.includeTableNumber
+                          ? false
+                          : c.includeLogo,
+                      }))
+                    }
+                  />
+                </div>
               </div>
 
               {config.includeLogo && (
@@ -840,8 +936,8 @@ const QRPage = ({ data: restaurant }) => {
                     type="button"
                     onClick={handleGenerateBatch}
                     disabled={isGenerating}
-                    className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg text-white text-xs font-semibold shadow-md shadow-indigo-500/25 hover:brightness-110 active:brightness-95 transition shrink-0 disabled:opacity-60"
-                    style={{ background: PRIMARY_GRADIENT }}
+                    className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg text-white text-xs font-semibold shadow-md shadow-emerald-500/25 hover:brightness-110 active:brightness-95 transition shrink-0 disabled:opacity-60"
+                    style={{ background: GENERATE_GRADIENT }}
                   >
                     {isGenerating ? (
                       <>
@@ -961,8 +1057,12 @@ const EmptyState = ({ t, onGenerate, isGenerating }) => (
         type="button"
         onClick={onGenerate}
         disabled={isGenerating}
-        className="mt-5 inline-flex items-center justify-center gap-1.5 h-10 px-5 rounded-lg text-white text-sm font-semibold shadow-md shadow-indigo-500/25 hover:brightness-110 active:brightness-95 transition disabled:opacity-60"
-        style={{ background: PRIMARY_GRADIENT }}
+        // Same emerald-teal gradient as the batch-header "Generate"
+        // button so users learn "emerald = create" consistently
+        // across the page (vs the indigo PRIMARY_GRADIENT reserved
+        // for Download All / save-result actions).
+        className="mt-5 inline-flex items-center justify-center gap-1.5 h-10 px-5 rounded-lg text-white text-sm font-semibold shadow-md shadow-emerald-500/25 hover:brightness-110 active:brightness-95 transition disabled:opacity-60"
+        style={{ background: GENERATE_GRADIENT }}
       >
         {isGenerating ? (
           <>

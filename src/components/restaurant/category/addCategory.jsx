@@ -1,7 +1,7 @@
 //MODULES
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 //COMP
@@ -38,6 +38,12 @@ const AddCategory = ({ id, onSuccess, data: restaurant }) => {
   const { menus, error: menusError } = useSelector((s) => s.menus.get);
 
   const [menusData, setMenusData] = useState(null);
+  // Guards the "auto-select the only menu" effect so it runs once.
+  // Without it, unticking the auto-selected menu would just immediately
+  // re-tick on the next render — user could never opt out. With the
+  // ref, the auto-apply fires only on the first arrival of `menusData`
+  // (when no menus have been touched yet).
+  const autoMenuAppliedRef = useRef(false);
 
   const [category, setCategory] = useState(initialCategory());
   const [preview, setPreview] = useState(null);
@@ -79,6 +85,16 @@ const AddCategory = ({ id, onSuccess, data: restaurant }) => {
   };
 
   const handleSave = () => {
+    // Same heads-up as editCategory: a category not attached to any
+    // menu is hidden on the customer side, so warn the user before
+    // saving. Only when menus actually exist — if there are no
+    // menus to pick from, the question is meaningless.
+    const hasMenus = (menusData || []).length > 0;
+    const noMenuSelected = !(category.menuIds || []).length;
+    if (hasMenus && noMenuSelected) {
+      const ok = window.confirm(t("editCategories.no_menu_confirm"));
+      if (!ok) return;
+    }
     try {
       const formData = new FormData();
 
@@ -129,6 +145,23 @@ const AddCategory = ({ id, onSuccess, data: restaurant }) => {
     }
     if (menusError) dispatch(resetGetMenus());
   }, [menus, menusError]);
+
+  // When the restaurant has exactly one menu, pre-select it so the
+  // new category isn't accidentally saved with an empty `menuIds` (a
+  // common foot-gun that hides the category on the customer side).
+  // For two or more menus we DON'T guess — the user has to pick
+  // deliberately, and the inline banner + pre-save confirm below
+  // surface the consequence if they leave it empty.
+  // Guard against re-applying on every render so the user can still
+  // deselect after the initial auto-tick.
+  useEffect(() => {
+    if (autoMenuAppliedRef.current) return;
+    if (!menusData || menusData.length !== 1) return;
+    if ((category.menuIds || []).length > 0) return;
+    autoMenuAppliedRef.current = true;
+    setCategory((prev) => ({ ...prev, menuIds: [menusData[0].id] }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menusData]);
 
   return (
     <div className="w-full flex justify-center pb-5- mt-1-  text-[--black-2] max-h-[95dvh] overflow-hidden">
@@ -234,6 +267,21 @@ const AddCategory = ({ id, onSuccess, data: restaurant }) => {
               <p className="text-xs text-[--gr-1] mt-2">
                 {t("addCategory.menus_help")}
               </p>
+              {/* Inline reminder while no menu is selected — same
+                  pattern as editCategory. Suppressed when no menus
+                  exist at all (menus_empty already covers that). */}
+              {menusData?.length > 0 &&
+                !(category.menuIds || []).length && (
+                  <div
+                    role="alert"
+                    className="mt-2 flex items-start gap-2 p-2.5 rounded-lg border border-amber-200 bg-amber-50/70 text-amber-900 dark:bg-amber-500/15 dark:border-amber-400/30 dark:text-amber-100"
+                  >
+                    <WarnI className="text-amber-600 dark:text-amber-300 mr-1 size-[1rem] shrink-0 mt-0.5" />
+                    <p className="text-[11px] leading-snug">
+                      {t("editCategories.no_menu_warning")}
+                    </p>
+                  </div>
+                )}
             </div>
 
             {/* Toggle'lar */}

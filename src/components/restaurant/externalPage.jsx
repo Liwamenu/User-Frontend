@@ -25,7 +25,6 @@ import {
   Image as ImageIcon,
   Layout,
   Loader2,
-  Monitor,
   MousePointerClick,
   Pencil,
   Plus,
@@ -507,7 +506,14 @@ const PageEditorPopup = ({ mode, page, restaurantId }) => {
     "block text-[11px] font-semibold text-[--gr-1] mb-1 tracking-wide uppercase";
 
   return (
-    <div className="bg-[--white-1] text-[--black-1] rounded-2xl w-full max-w-3xl mx-auto shadow-2xl ring-1 ring-[--border-1] overflow-hidden flex flex-col max-h-[92dvh]">
+    <div className="bg-[--white-1] text-[--black-1] rounded-2xl w-full max-w-[1104px] mx-auto shadow-2xl ring-1 ring-[--border-1] overflow-hidden flex flex-col max-h-[92dvh]">
+      {/* Width: 1104px = the original max-w-3xl (768px) bumped ~44% in
+          two passes (768 → 920 → 1104). The 2x2 grid (Button Name +
+          HTML editor on the left, phone-frame preview on the right)
+          needed the extra room — the HTML textarea was wrapping
+          markup awkwardly at 920px even with the preview docked
+          alongside instead of below. mx-auto + max-h:92dvh keep the
+          modal centred and scrollable on smaller screens. */}
       <div className="h-0.5 shrink-0" style={{ background: PRIMARY_GRADIENT }} />
 
       {/* HEADER */}
@@ -568,45 +574,62 @@ const PageEditorPopup = ({ mode, page, restaurantId }) => {
           )}
         </div>
 
-        {/* BUTTON NAME */}
-        <div>
-          <label className={labelCls}>
-            <span className="inline-flex items-center gap-1.5">
-              <MousePointerClick className="size-3.5 text-indigo-600" />
-              {t("externalPage.button_name_label")}
-            </span>
-          </label>
-          <input
-            type="text"
-            value={buttonName}
-            onChange={(e) => setButtonName(e.target.value)}
-            placeholder={t("externalPage.button_name_placeholder")}
-            maxLength={100}
-            className="w-full h-10 px-3 rounded-lg border border-[--border-1] bg-[--white-1] text-sm text-[--black-1] placeholder:text-[--gr-2] outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-          />
-          <p className="mt-1 text-[11px] text-[--gr-1]">
-            {t("externalPage.button_name_hint")}
-          </p>
-        </div>
-
-        {/* TYPE-SPECIFIC EDITOR */}
-        {type === "Image" ? (
-          <ImageEditor
-            t={t}
-            preview={imagePreview}
-            onPick={handlePickImage}
-            onClear={() => {
-              setImageFile(null);
-              setImagePreview("");
-            }}
-            onFullPreview={openFullPreview}
-          />
+        {/* BUTTON NAME + TYPE-SPECIFIC EDITOR
+            ----------------------------------
+            For HTML pages we use a 2x2 grid so the live preview
+            spans both rows on the right while Button Name (top-left)
+            and the HTML textarea (bottom-left) stack underneath each
+            other on the left. This:
+              • narrows the Button Name input from full-width to ~58%
+                of the modal — it never needed full width anyway, the
+                placeholder example "Hakkımızda, Şarap Menüsü" is
+                short, and
+              • lets the preview start at the same vertical position
+                as Button Name, so it gets ~50% more vertical real
+                estate without growing the modal.
+            For Image pages we keep the original single-column flow:
+            the image picker is wide and self-contained, no preview
+            pane to dock alongside it. */}
+        {type === "Html" ? (
+          <div className="grid grid-cols-1 lg:grid-cols-[1.4fr,1fr] lg:grid-rows-[auto,1fr] gap-3">
+            <div className="lg:col-start-1 lg:row-start-1">
+              <ButtonNameField
+                t={t}
+                value={buttonName}
+                onChange={setButtonName}
+                labelCls={labelCls}
+              />
+            </div>
+            <div className="lg:col-start-1 lg:row-start-2 min-h-0">
+              <HtmlEditorPane
+                t={t}
+                value={htmlBody}
+                onChange={setHtmlBody}
+              />
+            </div>
+            <div className="lg:col-start-2 lg:row-start-1 lg:row-end-3 min-h-0">
+              <HtmlPreviewPane t={t} value={htmlBody} />
+            </div>
+          </div>
         ) : (
-          <HtmlEditor
-            t={t}
-            value={htmlBody}
-            onChange={setHtmlBody}
-          />
+          <>
+            <ButtonNameField
+              t={t}
+              value={buttonName}
+              onChange={setButtonName}
+              labelCls={labelCls}
+            />
+            <ImageEditor
+              t={t}
+              preview={imagePreview}
+              onPick={handlePickImage}
+              onClear={() => {
+                setImageFile(null);
+                setImagePreview("");
+              }}
+              onFullPreview={openFullPreview}
+            />
+          </>
         )}
       </div>
 
@@ -707,103 +730,123 @@ const ImageEditor = ({ t, preview, onPick, onClear, onFullPreview }) => (
   </div>
 );
 
-const HtmlEditor = ({ t, value, onChange }) => {
-  // Device-width toggle — same UX as the announcement preview. Most
-  // customers see external pages on a phone; the desktop width is for
-  // the few authors who design wider layouts.
-  const [previewMode, setPreviewMode] = useState("mobile");
-  // Self-contained HTML document for the preview iframe. Shared helper
-  // wraps snippets with Tailwind CDN + sane resets, or passes a full
-  // document through verbatim. Same contract as Announcement Settings
-  // and the customer-side renderer, so what the author sees here is
-  // what their customers will see.
+// Small reusable button-name input, lifted out of the modal body so
+// it can live either in the HTML page's 2-col grid (top-left cell)
+// or alone in the Image page's vertical stack. Width is governed by
+// whichever container it's dropped into — `w-full` here, the parent
+// grid column controls the actual rendered size.
+const ButtonNameField = ({ t, value, onChange, labelCls }) => (
+  <div>
+    <label className={labelCls}>
+      <span className="inline-flex items-center gap-1.5">
+        <MousePointerClick className="size-3.5 text-indigo-600" />
+        {t("externalPage.button_name_label")}
+      </span>
+    </label>
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={t("externalPage.button_name_placeholder")}
+      maxLength={100}
+      className="w-full h-10 px-3 rounded-lg border border-[--border-1] bg-[--white-1] text-sm text-[--black-1] placeholder:text-[--gr-2] outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+    />
+    <p className="mt-1 text-[11px] text-[--gr-1]">
+      {t("externalPage.button_name_hint")}
+    </p>
+  </div>
+);
+
+// HTML textarea pane — used to be the left half of the monolithic
+// `HtmlEditor`. Lifted out so the parent can place it next to a
+// preview pane that spans more vertical real estate (Button Name +
+// HTML editor stacked left, Preview spanning both rows right).
+const HtmlEditorPane = ({ t, value, onChange }) => (
+  <div className="rounded-xl border border-[--border-1] overflow-hidden bg-slate-900 flex flex-col h-full min-h-[16rem] shadow-sm">
+    <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-700/60 bg-slate-800/60 text-slate-200 text-[11px] font-bold uppercase tracking-[0.12em]">
+      <Code2 className="size-3.5 text-cyan-400" />
+      {t("externalPage.html_label")}
+    </div>
+    <CustomTextarea
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      rows={20}
+      className2="!flex-1 !min-h-0"
+      className="!w-full !flex-1 !p-4 !font-mono !text-xs !bg-slate-900 !text-slate-200 !border-0 !rounded-none focus:!ring-0 !outline-none !resize-none !shadow-none !min-h-[16rem]"
+      placeholder={t("externalPage.html_placeholder")}
+    />
+  </div>
+);
+
+// Live preview pane — sandboxed iframe in a fixed-width device frame.
+// Same contract as Announcement Settings + the customer renderer:
+// PREVIEW_SANDBOX + PREVIEW_ALLOW are shared so admin and customer
+// agree on what scripts / popups / embedded media are permitted.
+// Lifted out of `HtmlEditor` so the parent can let it span both rows
+// of a 2x2 grid — it now sits at the same vertical position as the
+// Button Name input AND extends down past the HTML textarea, giving
+// the iframe ~50% more vertical room without growing the modal.
+//
+// Sizing chain — fragile, easy to break, so spelled out explicitly:
+//   1. Outer wrapper has an explicit `min-h-[70dvh]` so even when the
+//      grid row's intrinsic height collapses (no parent flex chain
+//      with a real height to distribute), the pane still claims a
+//      meaningful vertical area for the iframe to fill. Using `dvh`
+//      not `vh` so it follows the visible viewport on mobile when the
+//      browser chrome animates in/out.
+//   2. Outer wrapper is `flex flex-col` and the body div uses
+//      `flex-1 min-h-0` so it grabs the leftover height inside the
+//      pane (header subtracted automatically).
+//   3. Body switches from `grid place-items-start` to
+//      `flex flex-col items-center` — the previous grid alignment
+//      kept the phone frame at its min-height instead of stretching.
+//   4. Phone frame uses `flex-1 min-h-0` to fill the body's height,
+//      not `minHeight: 28rem` (which left the iframe's `h-full` with
+//      no defined height to be 100% of, collapsing it to content).
+//   5. Iframe inside the phone frame uses `flex-1` so it fills the
+//      frame's full height instead of guessing.
+const HtmlPreviewPane = ({ t, value }) => {
   const previewSrcDoc = useMemo(() => buildPreviewSrcDoc(value), [value]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1.4fr,1fr] gap-3">
-      <div className="rounded-xl border border-[--border-1] overflow-hidden bg-slate-900 flex flex-col min-h-[24rem] shadow-sm">
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-700/60 bg-slate-800/60 text-slate-200 text-[11px] font-bold uppercase tracking-[0.12em]">
-          <Code2 className="size-3.5 text-cyan-400" />
-          {t("externalPage.html_label")}
+    <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/60 flex flex-col min-h-[70dvh] shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-[--border-1] bg-[--white-1]/70 shrink-0">
+        <div className="flex items-center gap-2 text-[--gr-1] text-[11px] font-bold uppercase tracking-[0.12em] min-w-0">
+          <Eye className="size-3.5 text-indigo-600 shrink-0" />
+          <span className="truncate">{t("externalPage.live_preview")}</span>
         </div>
-        <CustomTextarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          rows={20}
-          className2="!flex-1 !min-h-0"
-          className="!w-full !flex-1 !p-4 !font-mono !text-xs !bg-slate-900 !text-slate-200 !border-0 !rounded-none focus:!ring-0 !outline-none !resize-none !shadow-none !min-h-[20rem]"
-          placeholder={t("externalPage.html_placeholder")}
-        />
+        {/* Static "Mobil" badge — see commit history for why the
+            Mobil/Masaüstü toggle was removed. */}
+        <span
+          className="inline-flex items-center gap-1 px-2 h-6 rounded-md bg-indigo-600 text-white text-[10px] font-semibold uppercase tracking-wider shadow-sm shrink-0"
+          aria-label={t("externalPage.preview_mobile")}
+        >
+          <Smartphone className="size-3" />
+          <span className="hidden sm:inline">
+            {t("externalPage.preview_mobile")}
+          </span>
+        </span>
       </div>
-
-      {/* PREVIEW — sandboxed iframe centered inside a fixed-width device
-          frame, same contract as announcementSettings.jsx. Full sandbox +
-          Permissions Policy is shared via PREVIEW_SANDBOX/PREVIEW_ALLOW
-          so the admin preview and the customer-side renderer agree on
-          what's allowed (scripts, popups, embedded media, etc.). */}
-      <div className="rounded-xl border border-dashed border-[--border-1] bg-[--white-2]/60 flex flex-col min-h-[24rem] shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-[--border-1] bg-[--white-1]/70">
-          <div className="flex items-center gap-2 text-[--gr-1] text-[11px] font-bold uppercase tracking-[0.12em] min-w-0">
-            <Eye className="size-3.5 text-indigo-600 shrink-0" />
-            <span className="truncate">{t("externalPage.live_preview")}</span>
+      <div className="flex-1 min-h-0 p-3 flex flex-col items-center">
+        {value ? (
+          <div
+            // Fixed mobile width on the horizontal axis; vertical axis
+            // stretches to fill the body via flex-1.
+            className="bg-white rounded-2xl shadow-lg border border-[--border-1] overflow-hidden w-full max-w-[360px] flex flex-col flex-1 min-h-0"
+          >
+            <iframe
+              title={t("externalPage.live_preview")}
+              className="w-full flex-1 min-h-0 border-0 bg-white block"
+              sandbox={PREVIEW_SANDBOX}
+              allow={PREVIEW_ALLOW}
+              srcDoc={previewSrcDoc}
+            />
           </div>
-          <div className="inline-flex items-center rounded-md border border-[--border-1] bg-[--white-1] p-0.5 shrink-0">
-            <button
-              type="button"
-              onClick={() => setPreviewMode("mobile")}
-              title={t("externalPage.preview_mobile")}
-              aria-pressed={previewMode === "mobile"}
-              className={`inline-flex items-center gap-1 px-2 h-6 rounded text-[10px] font-semibold uppercase tracking-wider transition ${
-                previewMode === "mobile"
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-[--gr-1] hover:bg-[--white-2]"
-              }`}
-            >
-              <Smartphone className="size-3" />
-              <span className="hidden sm:inline">
-                {t("externalPage.preview_mobile")}
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setPreviewMode("desktop")}
-              title={t("externalPage.preview_desktop")}
-              aria-pressed={previewMode === "desktop"}
-              className={`inline-flex items-center gap-1 px-2 h-6 rounded text-[10px] font-semibold uppercase tracking-wider transition ${
-                previewMode === "desktop"
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-[--gr-1] hover:bg-[--white-2]"
-              }`}
-            >
-              <Monitor className="size-3" />
-              <span className="hidden sm:inline">
-                {t("externalPage.preview_desktop")}
-              </span>
-            </button>
-          </div>
-        </div>
-        <div className="flex-1 relative overflow-auto p-3 grid place-items-start justify-items-center">
-          {value ? (
-            <div
-              className={`bg-white rounded-2xl shadow-lg border border-[--border-1] overflow-hidden transition-all duration-300 mx-auto w-full ${
-                previewMode === "mobile" ? "max-w-[360px]" : "max-w-[768px]"
-              }`}
-              style={{ height: "min(28rem, 70vh)" }}
-            >
-              <iframe
-                title={t("externalPage.live_preview")}
-                className="w-full h-full border-0 bg-white block"
-                sandbox={PREVIEW_SANDBOX}
-                allow={PREVIEW_ALLOW}
-                srcDoc={previewSrcDoc}
-              />
-            </div>
-          ) : (
-            <p className="text-xs text-[--gr-1] italic text-center mt-10 px-4">
-              {t("externalPage.preview_empty")}
-            </p>
-          )}
-        </div>
+        ) : (
+          <p className="text-xs text-[--gr-1] italic text-center mt-10 px-4">
+            {t("externalPage.preview_empty")}
+          </p>
+        )}
       </div>
     </div>
   );
