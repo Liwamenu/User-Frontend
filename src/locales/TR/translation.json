@@ -681,7 +681,7 @@
     "bulk_pick_image": "Resim Seç",
     "bulk_change_image": "Resmi Değiştir",
     "bulk_revert": "Geri al",
-    "bulk_save_all": "Toplu Kaydet",
+    "bulk_save_all": "Kaydet",
     "bulk_pending": "{{count}} değişiklik bekliyor",
     "bulk_no_changes": "Değişiklik yapılmadı.",
     "bulk_invalid_file": "Geçersiz dosya türü",

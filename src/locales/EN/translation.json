@@ -680,7 +680,7 @@
     "bulk_pick_image": "Pick Image",
     "bulk_change_image": "Change Image",
     "bulk_revert": "Revert",
-    "bulk_save_all": "Save All",
+    "bulk_save_all": "Save",
     "bulk_pending": "{{count}} pending change(s)",
     "bulk_no_changes": "No changes made.",
     "bulk_invalid_file": "Invalid file type",
