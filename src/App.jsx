@@ -10,7 +10,8 @@ import NotFound from "./pages/404";
 // import Verify from "./pages/verify";
 import Register from "./pages/register";
 import Popup from "./components/common/popup";
-// import PaymentFailed from "./pages/paymentFailed";
+import PaymentFailed from "./pages/paymentFailed";
+import PaymentSuccess from "./pages/paymentSuccess";
 // import PrivacyPolicy from "./pages/privacyPolicy";
 import ProtectedRoute from "./components/protect";
 import VerifyEmail from "./pages/verifyEmail";
@@ -53,10 +54,13 @@ function App() {
         <Route path="/verify-email/*" element={<VerifyEmail />} />
         <Route path="/forgotPassword" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<SetNewPassword />} />
+        {/* PayTR 3DS return URLs — mounted ABOVE the protected branch
+            so the iframe can land here without an auth header (PayTR's
+            redirect won't carry session cookies). */}
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failed" element={<PaymentFailed />} />
         {/*  <Route path="/verify" element={<Verify />} />
-          <Route path="/privacyPolicy" element={<PrivacyPolicy />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/payment-failed" element={<PaymentFailed />} /> */}
+          <Route path="/privacyPolicy" element={<PrivacyPolicy />} /> */}
         <Route
           element={
             // <OrdersContextProvider>
