@@ -1,7 +1,7 @@
 //MODULES
 import toast from "react-hot-toast";
 import { useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -23,6 +23,9 @@ import {
 import UserProfile from "./userProfile";
 import { usePopup } from "../../context/PopupContext";
 
+//REDUX
+import { getMenus } from "../../redux/menus/getMenusSlice";
+
 // Paths that stay reachable even before the tenant is saved (Genel
 // Ayarlar). The "edit" + "settings" entries cover the onboarding
 // flow so a new owner can land on Restoranı Düzenle, fill in basic
@@ -43,6 +46,7 @@ const MENU_GATED_PATHS = new Set([
 function Sidebar({ openSidebar, setOpenSidebar }) {
   const { t } = useTranslation();
   const param = useParams();
+  const dispatch = useDispatch();
   const sidebarRef = useRef();
   const id = param["*"].split("/")[1];
   const { popupContent, contentRef, setContentRef } = usePopup();
@@ -66,12 +70,39 @@ function Sidebar({ openSidebar, setOpenSidebar }) {
   // either added manually on the Menüler page or imported via
   // the SambaPOS / LiwaPOS Sync Tool. Reads `menus.get` to avoid a
   // dedicated count endpoint; the same slice already powers the
-  // Menüler list, so this is free.
+  // Menüler list.
   const cachedMenus = useSelector((s) => s.menus.get?.menus);
   const cachedMenusFor = useSelector((s) => s.menus.get?.fetchedFor);
   const menusCountKnown = cachedMenusFor === id && Array.isArray(cachedMenus);
+
+  // PESSIMISTIC while the count is unknown. The earlier version only
+  // locked when `menusCountKnown` was true — but the menus slice is
+  // empty on a fresh login until the user actually opens the Menüler
+  // page, so the whole tree stayed UNLOCKED right after logout/login
+  // even for a restaurant with zero menus. Flipping to "locked unless
+  // we positively know there's ≥1 menu" means a new owner resumes at
+  // the correct onboarding step instead of being handed every page.
+  // The proactive fetch below resolves `menusCountKnown` within a
+  // few hundred ms, so an existing owner WITH menus only sees a brief
+  // locked state before it unlocks — far better than the reverse
+  // (flash-unlocked, user clicks into an empty page).
   const isMenuLocked =
-    !isTenantLocked && menusCountKnown && cachedMenus.length === 0;
+    !isTenantLocked && (!menusCountKnown || cachedMenus.length === 0);
+
+  // Proactively pull the menu list so the lock above can resolve
+  // without waiting for the user to visit the Menüler page. Silent
+  // (`__silent: true`) so it never flashes the global loading
+  // overlay — `getMenus` destructures only `restaurantId`, so the
+  // flag can't leak to the backend as a query param. Guarded on
+  // `cachedMenusFor !== id` so it fires once per restaurant (and
+  // again only if a menu mutation invalidates the cache). Skipped
+  // while tenant-locked — the user can't reach Menüler anyway, and
+  // the restaurant entity may not even be loaded yet.
+  useEffect(() => {
+    if (!id || isTenantLocked) return;
+    if (cachedMenusFor === id) return;
+    dispatch(getMenus({ restaurantId: id, __silent: true }));
+  }, [id, isTenantLocked, cachedMenusFor, dispatch]);
   const ICON_CLS = "size-[18px]";
   const ICON_STROKE = 2;
   const sidebarItems = [
