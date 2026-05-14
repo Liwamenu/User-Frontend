@@ -1,28 +1,25 @@
 // "Alt Kategori Ürünleri" — a two-column picker that assigns the PARENT
 // category's products to / removes them from one sub-category:
-//   • LEFT  — products in the parent category that are NOT in this
-//             sub-category. "Ekle →" sets the product's subCategoryId
-//             to this one. A chip flags products that currently sit in
-//             a DIFFERENT sub-category (so "Ekle" is really a move).
-//   • RIGHT — products that ARE in this sub-category. "← Çıkart" clears
-//             the product's subCategoryId. Unlike a category, a product
-//             CAN be sub-category-less, so there is no destination
-//             picker here (contrast categoryProducts.jsx's
-//             MoveToCategoryPopup).
-// One search box filters both columns (Turkish-aware diacritic folding).
+//   • LEFT  — products in the parent category with NO sub-category yet.
+//             "Ekle →" stages them for this sub-category. A product
+//             already in a DIFFERENT sub-category is intentionally NOT
+//             shown — it has to be removed from that sub-category first
+//             (a product belongs to at most one sub-category).
+//   • RIGHT — products staged for / already in this sub-category.
+//             "← Çıkart" stages their removal.
+// Nothing is persisted until the user hits "Kaydet" in the footer;
+// "Vazgeç" (or the X) discards every pending toggle. One search box
+// filters both columns (Turkish-aware diacritic folding).
 //
 // Single data source: Products/getProductsByCategoryId on the PARENT
-// category returns full product DTOs carrying subCategoryId, so both
-// columns derive from one fetch — no lite catalogue needed. Assignment
-// is 1:1 per the Products/EditProduct contract (single subCategoryId).
-//
-// Mounted via PopupContext.setPopupContent (single-popup slot). The
-// `onChanged` callback fires once on close — only when an assignment
-// actually persisted — so the host SubCategories page can refetch and
-// refresh its productsCount badges without a wasteful round-trip on a
-// look-and-close.
+// category returns full product DTOs carrying subCategoryId. The
+// working set (`assigned`) starts from that snapshot and is toggled
+// purely in local state; "Kaydet" diffs it against the snapshot and
+// fires one Products/EditProduct per changed product. On success
+// `onChanged` lets the host SubCategories page refetch so its
+// productsCount badges reflect the new state.
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
@@ -36,12 +33,13 @@ import {
   PackagePlus,
   PackageCheck,
   Inbox,
-  Layers,
   FolderTree,
+  Save,
 } from "lucide-react";
 
 import {
   getProductsByCategoryId,
+  resetGetProductsByCategoryId,
   resetGetProductsByCategoryIdState,
 } from "../../../redux/products/getProductsByCategoryIdSlice";
 import {
@@ -84,62 +82,123 @@ const SubCategoryProducts = ({
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  const { products, success, error } = useSelector(
-    (s) => s.products.getByCategoryId,
-  );
+  const { products, error } = useSelector((s) => s.products.getByCategoryId);
 
-  // Local working copy of the parent category's products, mutated
-  // optimistically as the user assigns / unassigns.
-  const [items, setItems] = useState(null);
-  // Serialises mutations — only one editProduct in flight at a time so
-  // the optimistic state can't get clobbered by overlapping rollbacks.
-  const [mutatingId, setMutatingId] = useState(null);
+  // All products in the PARENT category, straight from the slice.
+  const [allItems, setAllItems] = useState(null);
+  // Working set — product IDs currently assigned to THIS sub-category.
+  // Toggled locally by Ekle / Çıkart; only persisted on "Kaydet".
+  const [assigned, setAssigned] = useState(() => new Set());
   const [searchVal, setSearchVal] = useState("");
-  // Did any assignment actually persist? Gates the parent refetch on
-  // close so a look-and-close doesn't fire a slow getSubCategories.
-  const dirtyRef = useRef(false);
+  const [saving, setSaving] = useState(false);
 
-  // Fetch the PARENT category's products once. The DTO carries
-  // subCategoryId, so both columns derive from this single call.
+  // Initial fetch. Reset the (app-global, shared with categoryProducts)
+  // slice first so a stale payload from a previous modal session can't
+  // flash the wrong category's products before our fetch resolves.
   useEffect(() => {
+    dispatch(resetGetProductsByCategoryId());
     dispatch(getProductsByCategoryId({ categoryId }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryId]);
 
-  // Slice → local working copy.
+  // Hydrate the working state when the fetch lands. Depending only on
+  // `products` (not success/error) is deliberate: resetGetProductsBy
+  // CategoryIdState below flips `success`, and a re-run on that would
+  // wipe the user's pending toggles.
   useEffect(() => {
-    if (products) {
-      setItems((products.data || products || []).slice());
-      dispatch(resetGetProductsByCategoryIdState());
-    }
+    if (!products) return;
+    const all = products.data || products || [];
+    setAllItems(all);
+    setAssigned(
+      new Set(
+        all
+          .filter((p) => p.subCategoryId === subCategoryId)
+          .map((p) => p.id),
+      ),
+    );
+    dispatch(resetGetProductsByCategoryIdState());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products]);
+
+  useEffect(() => {
     if (error) dispatch(resetGetProductsByCategoryIdState());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [products, success, error]);
+  }, [error]);
 
-  const handleClose = () => {
-    if (dirtyRef.current) onChanged?.();
-    onClose?.();
-  };
+  // Products eligible for this modal: those with NO sub-category, or
+  // already in THIS one. A product sitting in a DIFFERENT sub-category
+  // is excluded entirely — it can't be assigned here until it's removed
+  // from its current sub-category first.
+  const relevant = useMemo(
+    () =>
+      (allItems || []).filter(
+        (p) => !p.subCategoryId || p.subCategoryId === subCategoryId,
+      ),
+    [allItems, subCategoryId],
+  );
+  // Baseline assignment as fetched — used to diff against `assigned`.
+  const originalAssigned = useMemo(
+    () =>
+      new Set(
+        (allItems || [])
+          .filter((p) => p.subCategoryId === subCategoryId)
+          .map((p) => p.id),
+      ),
+    [allItems, subCategoryId],
+  );
 
-  // Derived columns — left = not in this sub-category, right = in it.
   const q = normalizeSearch(searchVal.trim());
   const inSub = useMemo(() => {
-    if (!items) return null;
-    let arr = items.filter((p) => p.subCategoryId === subCategoryId);
-    if (q) arr = arr.filter((p) => normalizeSearch(p.name).includes(q));
-    return [...arr].sort(byName);
-  }, [items, subCategoryId, q]);
+    if (!allItems) return null;
+    return relevant
+      .filter(
+        (p) =>
+          assigned.has(p.id) && (!q || normalizeSearch(p.name).includes(q)),
+      )
+      .sort(byName);
+  }, [allItems, relevant, assigned, q]);
   const notInSub = useMemo(() => {
-    if (!items) return null;
-    let arr = items.filter((p) => p.subCategoryId !== subCategoryId);
-    if (q) arr = arr.filter((p) => normalizeSearch(p.name).includes(q));
-    return [...arr].sort(byName);
-  }, [items, subCategoryId, q]);
+    if (!allItems) return null;
+    return relevant
+      .filter(
+        (p) =>
+          !assigned.has(p.id) && (!q || normalizeSearch(p.name).includes(q)),
+      )
+      .sort(byName);
+  }, [allItems, relevant, assigned, q]);
 
-  const totalInSub = items
-    ? items.filter((p) => p.subCategoryId === subCategoryId).length
-    : 0;
-  const totalNotInSub = items ? items.length - totalInSub : 0;
+  const totalInSub = relevant.filter((p) => assigned.has(p.id)).length;
+  const totalNotInSub = relevant.length - totalInSub;
+
+  // Pending changes vs the fetched baseline — drives the footer count,
+  // the dirty flag and the save loop.
+  const changes = useMemo(() => {
+    const out = [];
+    for (const p of relevant) {
+      const isAssigned = assigned.has(p.id);
+      const wasAssigned = originalAssigned.has(p.id);
+      if (isAssigned && !wasAssigned) {
+        out.push({ product: p, subCategoryId });
+      } else if (!isAssigned && wasAssigned) {
+        out.push({ product: p, subCategoryId: "" });
+      }
+    }
+    return out;
+  }, [relevant, assigned, originalAssigned, subCategoryId]);
+  const dirty = changes.length > 0;
+
+  const add = (p) =>
+    setAssigned((prev) => {
+      const next = new Set(prev);
+      next.add(p.id);
+      return next;
+    });
+  const remove = (p) =>
+    setAssigned((prev) => {
+      const next = new Set(prev);
+      next.delete(p.id);
+      return next;
+    });
 
   // Minimal editProduct payload — carry every editable field through so
   // the backend doesn't blank them, override only subCategoryId. No
@@ -165,50 +224,49 @@ const SubCategoryProducts = ({
     return fd;
   };
 
-  // Assign (nextSubCategoryId = this sub-cat id) or unassign (= "").
-  // Optimistic: flip the row locally, roll back on backend reject. The
-  // api response interceptor already toasts the backend error, so the
-  // catch reuses that toast id instead of stacking a duplicate.
-  const mutate = async (prod, nextSubCategoryId) => {
-    if (mutatingId) return;
-    setMutatingId(prod.id);
-    const prev = items;
-    setItems(
-      items.map((p) =>
-        p.id === prod.id
-          ? {
-              ...p,
-              subCategoryId: nextSubCategoryId || null,
-              subCategoryName: nextSubCategoryId ? subCategoryName : null,
-            }
-          : p,
-      ),
-    );
+  const handleCancel = () => {
+    if (saving) return;
+    onClose?.();
+  };
+
+  // Persist every pending change, one editProduct at a time (sequential
+  // keeps error reporting simple and is friendly to the API). On full
+  // success the host page refetches via onChanged and the modal closes.
+  // On a mid-way failure we keep the modal open — but still refetch +
+  // re-pull the parent category so the working set re-syncs with
+  // whatever DID persist, so a retry only covers the remainder.
+  const handleSave = async () => {
+    if (!dirty || saving) return;
+    setSaving(true);
+    let savedAny = false;
     try {
-      const action = await dispatch(
-        editProduct(buildEditPayload(prod, nextSubCategoryId)),
-      );
-      if (action?.error) throw action.payload || action.error;
-      dirtyRef.current = true;
+      for (const ch of changes) {
+        const action = await dispatch(
+          editProduct(buildEditPayload(ch.product, ch.subCategoryId)),
+        );
+        if (action?.error) throw action.payload || action.error;
+        savedAny = true;
+      }
       toast.success(
-        t(
-          nextSubCategoryId
-            ? "subCategoryProducts.add_success"
-            : "subCategoryProducts.remove_success",
-          { name: prod.name },
-        ),
+        t("subCategoryProducts.save_success", { count: changes.length }),
         { id: "subCatProd" },
       );
+      onChanged?.();
+      onClose?.();
     } catch (err) {
-      setItems(prev);
       const msg =
         err?.message_TR ||
         err?.message ||
         t("subCategoryProducts.save_failed");
       toast.error(msg, { id: "api-error" });
+      if (savedAny) {
+        onChanged?.();
+        dispatch(resetGetProductsByCategoryId());
+        dispatch(getProductsByCategoryId({ categoryId }));
+      }
     } finally {
       dispatch(resetEditProduct());
-      setMutatingId(null);
+      setSaving(false);
     }
   };
 
@@ -242,7 +300,7 @@ const SubCategoryProducts = ({
         </div>
         <button
           type="button"
-          onClick={handleClose}
+          onClick={handleCancel}
           aria-label={t("subCategoryProducts.close")}
           className="grid place-items-center size-8 rounded-md text-[--gr-1] hover:bg-[--white-2] transition shrink-0"
         >
@@ -284,32 +342,35 @@ const SubCategoryProducts = ({
           title={t("subCategoryProducts.available_title")}
           count={notInSub?.length}
           totalCount={totalNotInSub}
-          loading={!items}
+          loading={!allItems}
           accent="slate"
         >
-          {!items ? (
+          {!allItems ? (
             <ColumnLoader />
-          ) : notInSub && notInSub.length === 0 ? (
+          ) : notInSub.length === 0 ? (
             <EmptyState
               icon={Inbox}
               title={
                 q
                   ? t("subCategoryProducts.no_results")
-                  : items.length === 0
+                  : allItems.length === 0
                     ? t("subCategoryProducts.empty_category")
-                    : t("subCategoryProducts.no_available")
+                    : relevant.length === 0
+                      ? t("subCategoryProducts.all_in_other")
+                      : t("subCategoryProducts.no_available")
               }
             />
           ) : (
             <div className="flex flex-col gap-2 p-3">
               {notInSub.map((prod) => (
-                <AvailableRow
+                <ProductRow
                   key={prod.id}
                   prod={prod}
                   t={t}
-                  onAdd={() => mutate(prod, subCategoryId)}
-                  adding={mutatingId === prod.id}
-                  disabled={!!mutatingId && mutatingId !== prod.id}
+                  side="left"
+                  pending={originalAssigned.has(prod.id)}
+                  disabled={saving}
+                  onClick={() => add(prod)}
                 />
               ))}
             </div>
@@ -323,12 +384,12 @@ const SubCategoryProducts = ({
           chip={subCategoryName}
           count={inSub?.length}
           totalCount={totalInSub}
-          loading={!items}
+          loading={!allItems}
           accent="indigo"
         >
-          {!items ? (
+          {!allItems ? (
             <ColumnLoader />
-          ) : inSub && inSub.length === 0 ? (
+          ) : inSub.length === 0 ? (
             <EmptyState
               icon={Package}
               title={
@@ -340,13 +401,14 @@ const SubCategoryProducts = ({
           ) : (
             <div className="flex flex-col gap-2 p-3">
               {inSub.map((prod) => (
-                <AssignedRow
+                <ProductRow
                   key={prod.id}
                   prod={prod}
                   t={t}
-                  onRemove={() => mutate(prod, "")}
-                  removing={mutatingId === prod.id}
-                  disabled={!!mutatingId && mutatingId !== prod.id}
+                  side="right"
+                  pending={!originalAssigned.has(prod.id)}
+                  disabled={saving}
+                  onClick={() => remove(prod)}
                 />
               ))}
             </div>
@@ -354,15 +416,45 @@ const SubCategoryProducts = ({
         </ColumnPane>
       </div>
 
-      {/* FOOTER */}
-      <div className="px-3 sm:px-5 py-3 border-t border-[--border-1] flex items-center justify-end gap-3 shrink-0 bg-[--white-1]">
-        <button
-          type="button"
-          onClick={handleClose}
-          className="h-10 px-4 rounded-lg border border-[--border-1] bg-[--white-1] text-[--black-2] text-sm font-medium hover:bg-[--white-2] transition"
-        >
-          {t("subCategoryProducts.close")}
-        </button>
+      {/* FOOTER — Vazgeç discards, Kaydet persists the pending changes */}
+      <div className="px-3 sm:px-5 py-3 border-t border-[--border-1] flex items-center justify-between gap-3 shrink-0 bg-[--white-1]">
+        <span className="text-[11px] font-semibold uppercase tracking-wide truncate">
+          {dirty ? (
+            <span className="text-indigo-600 dark:text-indigo-300">
+              {t("subCategoryProducts.pending_changes", {
+                count: changes.length,
+              })}
+            </span>
+          ) : (
+            <span className="text-[--gr-1]">
+              {t("subCategoryProducts.no_pending")}
+            </span>
+          )}
+        </span>
+        <div className="flex gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={handleCancel}
+            disabled={saving}
+            className="h-10 px-4 rounded-lg border border-rose-200 bg-rose-50 text-rose-600 text-sm font-medium hover:bg-rose-100 hover:text-rose-700 hover:border-rose-300 transition disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {t("subCategoryProducts.cancel")}
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={!dirty || saving}
+            className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-lg text-white text-sm font-semibold shadow-md shadow-indigo-500/25 transition hover:brightness-110 active:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ background: PRIMARY_GRADIENT }}
+          >
+            {saving ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Save className="size-4" />
+            )}
+            {t("subCategoryProducts.save")}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -449,95 +541,90 @@ const EmptyState = ({ icon: Icon, title }) => (
   </div>
 );
 
-// Left-column row — name + current sub-category chip + "Ekle →" button.
-// The chip flags products that already sit in ANOTHER sub-category, so
-// the author sees "Ekle" is really a move, not a fresh assignment.
-const AvailableRow = ({ prod, t, onAdd, adding, disabled }) => (
-  <div
-    className={`flex items-center gap-3 p-2.5 rounded-xl border bg-[--white-1] transition ${
-      adding
-        ? "border-indigo-300 ring-2 ring-indigo-100"
-        : "border-[--border-1] hover:border-indigo-200 hover:shadow-sm"
-    } ${disabled ? "opacity-50" : ""}`}
-  >
-    <span className="grid place-items-center size-9 rounded-lg bg-[--white-2] text-[--gr-1] shrink-0 ring-1 ring-[--border-1]">
-      <Package className="size-4" />
-    </span>
-    <div className="min-w-0 flex-1">
-      <div className="text-sm font-semibold text-[--black-1] truncate">
-        {prod.name}
-      </div>
-      <div className="mt-0.5 flex items-center gap-1 min-w-0">
-        {prod.subCategoryId ? (
-          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-indigo-700 bg-indigo-50 ring-1 ring-indigo-100 px-1.5 py-0.5 rounded-md max-w-full dark:bg-indigo-500/15 dark:text-indigo-200 dark:ring-indigo-400/30">
-            <Layers className="size-2.5 shrink-0" strokeWidth={2.25} />
-            <span className="truncate">{prod.subCategoryName || "—"}</span>
-          </span>
-        ) : (
-          <span className="inline-flex items-center text-[10px] font-medium text-[--gr-1] bg-[--white-2] ring-1 ring-[--border-1] px-1.5 py-0.5 rounded-md">
-            {t("subCategoryProducts.no_subcategory")}
-          </span>
-        )}
-      </div>
-    </div>
-    <button
-      type="button"
-      onClick={onAdd}
-      disabled={adding || disabled}
-      title={t("subCategoryProducts.add")}
-      className="inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 hover:bg-indigo-100 hover:ring-indigo-200 transition disabled:opacity-60 disabled:cursor-not-allowed dark:bg-indigo-500/15 dark:text-indigo-200 dark:ring-indigo-400/30 dark:hover:bg-indigo-500/25 shrink-0"
-    >
-      <span className="hidden sm:inline">{t("subCategoryProducts.add")}</span>
-      {adding ? (
-        <Loader2 className="size-3.5 animate-spin" />
-      ) : (
-        <ArrowRight className="size-3.5" strokeWidth={2.5} />
-      )}
-    </button>
-  </div>
-);
-
-// Right-column row — name + portions count + "← Çıkart" button. Amber
-// tone signals "non-destructive but a removal" — the product stays in
-// the system, only its subCategoryId is cleared.
-const AssignedRow = ({ prod, t, onRemove, removing, disabled }) => {
+// One product row, shared by both columns. `side` decides the action
+// button direction (left column = "Ekle →", right = "← Çıkart"); the
+// toggle is purely local — nothing persists until "Kaydet". `pending`
+// flags a row whose working state differs from the fetched baseline (a
+// left-column row staged for removal, or a right-column row staged for
+// addition) and tints it + adds a chip so the user sees exactly what
+// "Kaydet" will do.
+const ProductRow = ({ prod, t, side, pending, disabled, onClick }) => {
+  const isLeft = side === "left";
   const portionsCount = Array.isArray(prod.portions)
     ? prod.portions.length
     : 0;
   return (
     <div
       className={`flex items-center gap-3 p-2.5 rounded-xl border bg-[--white-1] transition ${
-        removing
-          ? "border-amber-300 ring-2 ring-amber-100"
+        pending
+          ? isLeft
+            ? "border-amber-300 ring-1 ring-amber-100 dark:border-amber-400/40 dark:ring-amber-400/20"
+            : "border-emerald-300 ring-1 ring-emerald-100 dark:border-emerald-400/40 dark:ring-emerald-400/20"
           : "border-[--border-1] hover:border-indigo-200 hover:shadow-sm"
-      } ${disabled ? "opacity-50" : ""}`}
+      } ${disabled ? "opacity-60" : ""}`}
     >
-      <span className="grid place-items-center size-9 rounded-lg bg-indigo-50 text-indigo-600 shrink-0 ring-1 ring-indigo-100 dark:bg-indigo-500/15 dark:text-indigo-200 dark:ring-indigo-400/30">
+      <span
+        className={`grid place-items-center size-9 rounded-lg shrink-0 ring-1 ${
+          isLeft
+            ? "bg-[--white-2] text-[--gr-1] ring-[--border-1]"
+            : "bg-indigo-50 text-indigo-600 ring-indigo-100 dark:bg-indigo-500/15 dark:text-indigo-200 dark:ring-indigo-400/30"
+        }`}
+      >
         <Package className="size-4" />
       </span>
       <div className="min-w-0 flex-1">
         <div className="text-sm font-semibold text-[--black-1] truncate">
           {prod.name}
         </div>
-        <div className="text-[11px] text-[--gr-1] mt-0.5">
-          {t("subCategoryProducts.portions", { count: portionsCount })}
+        <div className="mt-0.5 flex items-center gap-1.5 min-w-0">
+          <span className="text-[11px] text-[--gr-1] shrink-0">
+            {t("subCategoryProducts.portions", { count: portionsCount })}
+          </span>
+          {pending && (
+            <span
+              className={`inline-flex items-center text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md truncate ${
+                isLeft
+                  ? "bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:ring-amber-400/30"
+                  : "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:ring-emerald-400/30"
+              }`}
+            >
+              {isLeft
+                ? t("subCategoryProducts.pending_remove")
+                : t("subCategoryProducts.pending_add")}
+            </span>
+          )}
         </div>
       </div>
       <button
         type="button"
-        onClick={onRemove}
-        disabled={removing || disabled}
-        title={t("subCategoryProducts.remove")}
-        className="inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-md text-xs font-semibold bg-amber-50 text-amber-700 ring-1 ring-amber-200 hover:bg-amber-100 transition disabled:opacity-60 disabled:cursor-not-allowed dark:bg-amber-500/15 dark:text-amber-300 dark:ring-amber-400/30 dark:hover:bg-amber-500/25 shrink-0"
+        onClick={onClick}
+        disabled={disabled}
+        title={
+          isLeft
+            ? t("subCategoryProducts.add")
+            : t("subCategoryProducts.remove")
+        }
+        className={`inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-md text-xs font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed shrink-0 ${
+          isLeft
+            ? "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 hover:bg-indigo-100 hover:ring-indigo-200 dark:bg-indigo-500/15 dark:text-indigo-200 dark:ring-indigo-400/30 dark:hover:bg-indigo-500/25"
+            : "bg-amber-50 text-amber-700 ring-1 ring-amber-200 hover:bg-amber-100 dark:bg-amber-500/15 dark:text-amber-300 dark:ring-amber-400/30 dark:hover:bg-amber-500/25"
+        }`}
       >
-        {removing ? (
-          <Loader2 className="size-3.5 animate-spin" />
+        {isLeft ? (
+          <>
+            <span className="hidden sm:inline">
+              {t("subCategoryProducts.add")}
+            </span>
+            <ArrowRight className="size-3.5" strokeWidth={2.5} />
+          </>
         ) : (
-          <ArrowLeft className="size-3.5" strokeWidth={2.5} />
+          <>
+            <ArrowLeft className="size-3.5" strokeWidth={2.5} />
+            <span className="hidden sm:inline">
+              {t("subCategoryProducts.remove")}
+            </span>
+          </>
         )}
-        <span className="hidden sm:inline">
-          {t("subCategoryProducts.remove")}
-        </span>
       </button>
     </div>
   );
