@@ -52,7 +52,7 @@ const PRIMARY_GRADIENT =
 // working in dev / preview when the env vars aren't set yet.
 const SYNC_TOOL_URL =
   import.meta.env.VITE_SYNC_TOOL_URL ||
-  "https://cdn.liwamenu.com/tools/LiwaSyncTool-Setup.exe";
+  "https://liwamenu.pentegrasyon.net/liwamenusetup/LiwaMenuSync_Tool.exe";
 const INTEGRATION_DOCS_URL =
   import.meta.env.VITE_INTEGRATION_DOCS_URL ||
   "https://docs.liwamenu.com/integrations/sync-tool";
