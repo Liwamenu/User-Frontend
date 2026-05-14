@@ -25,7 +25,6 @@ import {
   Image as ImageIcon,
   Layout,
   Loader2,
-  Monitor,
   MousePointerClick,
   Pencil,
   Plus,
@@ -507,7 +506,10 @@ const PageEditorPopup = ({ mode, page, restaurantId }) => {
     "block text-[11px] font-semibold text-[--gr-1] mb-1 tracking-wide uppercase";
 
   return (
-    <div className="bg-[--white-1] text-[--black-1] rounded-2xl w-full max-w-3xl mx-auto shadow-2xl ring-1 ring-[--border-1] overflow-hidden flex flex-col max-h-[92dvh]">
+    <div className="bg-[--white-1] text-[--black-1] rounded-2xl w-full max-w-[920px] mx-auto shadow-2xl ring-1 ring-[--border-1] overflow-hidden flex flex-col max-h-[92dvh]">
+      {/* Width: 920px = the previous max-w-3xl (768px) bumped ~20% so
+          the HTML editor + live preview pane can breathe side-by-side
+          without the textarea wrapping to half a line per row. */}
       <div className="h-0.5 shrink-0" style={{ background: PRIMARY_GRADIENT }} />
 
       {/* HEADER */}
@@ -711,7 +713,8 @@ const HtmlEditor = ({ t, value, onChange }) => {
   // Device-width toggle — same UX as the announcement preview. Most
   // customers see external pages on a phone; the desktop width is for
   // the few authors who design wider layouts.
-  const [previewMode, setPreviewMode] = useState("mobile");
+  // Preview is mobile-only now (desktop toggle removed) — no
+  // setPreviewMode needed.
   // Self-contained HTML document for the preview iframe. Shared helper
   // wraps snippets with Tailwind CDN + sane resets, or passes a full
   // document through verbatim. Same contract as Announcement Settings
@@ -747,47 +750,28 @@ const HtmlEditor = ({ t, value, onChange }) => {
             <Eye className="size-3.5 text-indigo-600 shrink-0" />
             <span className="truncate">{t("externalPage.live_preview")}</span>
           </div>
-          <div className="inline-flex items-center rounded-md border border-[--border-1] bg-[--white-1] p-0.5 shrink-0">
-            <button
-              type="button"
-              onClick={() => setPreviewMode("mobile")}
-              title={t("externalPage.preview_mobile")}
-              aria-pressed={previewMode === "mobile"}
-              className={`inline-flex items-center gap-1 px-2 h-6 rounded text-[10px] font-semibold uppercase tracking-wider transition ${
-                previewMode === "mobile"
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-[--gr-1] hover:bg-[--white-2]"
-              }`}
-            >
-              <Smartphone className="size-3" />
-              <span className="hidden sm:inline">
-                {t("externalPage.preview_mobile")}
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setPreviewMode("desktop")}
-              title={t("externalPage.preview_desktop")}
-              aria-pressed={previewMode === "desktop"}
-              className={`inline-flex items-center gap-1 px-2 h-6 rounded text-[10px] font-semibold uppercase tracking-wider transition ${
-                previewMode === "desktop"
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-[--gr-1] hover:bg-[--white-2]"
-              }`}
-            >
-              <Monitor className="size-3" />
-              <span className="hidden sm:inline">
-                {t("externalPage.preview_desktop")}
-              </span>
-            </button>
-          </div>
+          {/* Static "Mobil" badge replaces the old Mobil/Masaüstü
+              segmented toggle. External pages are designed to be
+              previewed at customer-phone width — the desktop view
+              was a leftover from when this dialog also doubled as a
+              full-page editor, and nobody used it once the live
+              menu shipped as a mobile-first webapp. */}
+          <span
+            className="inline-flex items-center gap-1 px-2 h-6 rounded-md bg-indigo-600 text-white text-[10px] font-semibold uppercase tracking-wider shadow-sm shrink-0"
+            aria-label={t("externalPage.preview_mobile")}
+          >
+            <Smartphone className="size-3" />
+            <span className="hidden sm:inline">
+              {t("externalPage.preview_mobile")}
+            </span>
+          </span>
         </div>
         <div className="flex-1 relative overflow-auto p-3 grid place-items-start justify-items-center">
           {value ? (
             <div
-              className={`bg-white rounded-2xl shadow-lg border border-[--border-1] overflow-hidden transition-all duration-300 mx-auto w-full ${
-                previewMode === "mobile" ? "max-w-[360px]" : "max-w-[768px]"
-              }`}
+              // Fixed mobile width — the desktop preview was removed
+              // because external pages are always consumed on a phone.
+              className="bg-white rounded-2xl shadow-lg border border-[--border-1] overflow-hidden mx-auto w-full max-w-[360px]"
               style={{ height: "min(28rem, 70vh)" }}
             >
               <iframe
