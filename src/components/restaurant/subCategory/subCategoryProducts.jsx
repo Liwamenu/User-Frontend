@@ -304,12 +304,21 @@ const SubCategoryProducts = ({
               ? `${t("subCategoryProducts.title")} — ${subCategoryName}`
               : t("subCategoryProducts.title")}
           </h3>
-          <p className="text-[11px] text-[--gr-1] truncate mt-0.5 flex items-center gap-1">
-            <FolderTree className="size-3 shrink-0" />
-            {t("subCategoryProducts.subtitle", {
-              category: categoryName || "—",
-            })}
-          </p>
+          <div className="mt-0.5 flex items-center gap-1.5 min-w-0">
+            <span className="inline-flex items-center gap-1 text-[11px] text-[--gr-1] shrink-0">
+              <FolderTree className="size-3 shrink-0" />
+              {t("subCategoryProducts.subtitle")}
+            </span>
+            {/* Parent category surfaced as a bold indigo pill so it's
+                obvious at a glance which category's products this
+                picker is scoped to. */}
+            <span
+              className="inline-flex items-center text-[11px] sm:text-xs font-bold tracking-wide px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 truncate min-w-0 dark:bg-indigo-500/15 dark:text-indigo-200 dark:ring-indigo-400/30"
+              title={categoryName || "—"}
+            >
+              {categoryName || "—"}
+            </span>
+          </div>
         </div>
         <button
           type="button"

@@ -728,7 +728,7 @@
   },
   "subCategoryProducts": {
     "title": "Sub-category Products",
-    "subtitle": "Main category: {{category}}",
+    "subtitle": "Main category",
     "close": "Close",
     "search_placeholder": "Search products across both columns...",
     "clear_search": "Clear search",

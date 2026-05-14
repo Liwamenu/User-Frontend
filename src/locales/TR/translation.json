@@ -729,7 +729,7 @@
   },
   "subCategoryProducts": {
     "title": "Alt Kategori Ürünleri",
-    "subtitle": "Ana kategori: {{category}}",
+    "subtitle": "Ana kategori",
     "close": "Kapat",
     "search_placeholder": "Her iki sütunda da ürün ara...",
     "clear_search": "Aramayı temizle",
