@@ -866,8 +866,14 @@
     "integration_sync_done": "Senkronizasyon Tamamlandı",
     "integration_sync_done_hint": "Menü listesi yenilenir; SambaPOS / LiwaPOS / harici uygulama tarafından oluşturulan menüler birkaç saniye içinde aşağıda görünür.",
     "integration_sync_found": "Senkronizasyon doğrulandı: {{menus}} menü, {{categories}} kategori, {{products}} ürün bulundu. Diğer sekmelere geçebilirsiniz.",
-    "integration_sync_empty": "Henüz senkronize edilmiş menü bulunamadı. Sync Tool hâlâ çalışıyor olabilir — birkaç dakika sonra tekrar deneyin ya da Menüler sekmesinden manuel olarak bir menü ekleyin.",
-    "integration_sync_error": "Senkronizasyon kontrolü sırasında bir hata oluştu. Lütfen tekrar deneyin."
+    "integration_sync_error": "Senkronizasyon kontrolü sırasında bir hata oluştu. Lütfen tekrar deneyin.",
+    "sync_not_done_title": "Sync Tool ile henüz senkronizasyon yapılmamış!",
+    "sync_not_done_check": "Sync Tool içerisinde Restoran ayarları kısmından senkronizasyon işleminin BAŞARILI olduğunu kontrol edin.",
+    "sync_not_done_manual": "Manuel devam etmek isterseniz yeni bir Menü oluşturarak kategori ve ürünlerinizi ekleyebilirsiniz. Ancak fiyat değişikliği ve ürün güncellemelerinin senkronize çalışması için bu yöntemi uygulamanızı tavsiye etmiyoruz.",
+    "sync_not_done_support": "Dilerseniz destek portalına konu açabilirsiniz.",
+    "sync_not_done_support_label": "Destek Portalı",
+    "sync_not_done_close": "Tamam",
+    "sync_not_done_create_menu": "Yeni Menü Oluştur"
   },
   "addMenu": {
     "title": "Yeni Menü",
