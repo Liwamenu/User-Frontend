@@ -80,7 +80,9 @@
     "announcement_settings": "Duyuru Ayarları",
     "survey_settings": "Anket Ayarları",
     "tenant_locked": "Önce Ayarlar sayfasından alan adınızı (tenant) belirleyip kaydedin.",
-    "menu_locked": "Önce Menüler sayfasından en az bir menü ekleyin veya entegrasyonla içe aktarın."
+    "menu_locked": "Önce Menüler sayfasından en az bir menü ekleyin veya entegrasyonla içe aktarın.",
+    "category_locked": "Önce Kategoriler sayfasından en az bir kategori ekleyin.",
+    "product_locked": "Önce Ürünler sayfasından en az bir ürün ekleyin."
   },
   "userProfile": {
     "admin": "Yetkili",

@@ -80,7 +80,9 @@
     "announcement_settings": "Announcement Settings",
     "survey_settings": "Survey Settings",
     "tenant_locked": "Please set and save your tenant in the Settings page first.",
-    "menu_locked": "Please add at least one menu — manually or via integration import — on the Menus page first."
+    "menu_locked": "Please add at least one menu — manually or via integration import — on the Menus page first.",
+    "category_locked": "Please add at least one category on the Categories page first.",
+    "product_locked": "Please add at least one product on the Products page first."
   },
   "userProfile": {
     "admin": "Admin",
