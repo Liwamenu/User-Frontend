@@ -103,6 +103,11 @@ const PriceList = ({ data: restaurant }) => {
   // is gated per category, but here it's a single restaurant-wide
   // boolean since the special-price feature isn't per-category.
   const showSpecial = !!restaurant?.isSpecialPriceActive;
+  // The owner can rename the special-price column in Genel Ayarlar
+  // (e.g. "Personel", "Happy Hours"). Use whatever they set, fall
+  // back to the generic "Özel" label only when no name is configured.
+  const specialLabel =
+    restaurant?.specialPriceName?.trim() || t("priceList.special");
 
   const [list, setList] = useState([]);
   const [listBefore, setListBefore] = useState([]);
@@ -651,8 +656,8 @@ const PriceList = ({ data: restaurant }) => {
                       </span>
                     )}
                     {showSpecial && (
-                      <span className="hidden sm:block w-24 sm:w-28 text-right text-[10px] font-bold uppercase tracking-wider text-orange-600 shrink-0">
-                        {t("priceList.special")}
+                      <span className="hidden sm:block w-24 sm:w-28 text-right text-[10px] font-bold uppercase tracking-wider text-orange-600 shrink-0 truncate" title={specialLabel}>
+                        {specialLabel}
                       </span>
                     )}
                   </div>
@@ -743,7 +748,7 @@ const PriceList = ({ data: restaurant }) => {
                                   )}
                                   {showSpecial && (
                                     <PriceInput
-                                      label={t("priceList.special")}
+                                      label={specialLabel}
                                       value={portion.specialPrice ?? ""}
                                       onChange={(v) =>
                                         updatePortion(
