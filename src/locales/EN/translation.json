@@ -921,6 +921,25 @@
     "not_changed": "No changes were made to the menu!",
     "update": "Update"
   },
+  "menuForm": {
+    "price_list_label": "Price List",
+    "price_list_normal": "Normal",
+    "price_list_campaign": "Campaign",
+    "price_list_special": "Special Price",
+    "price_list_hint": "While the menu is active in its day/time range, products are shown with their price from this list. Products with no price in the selected list fall back to their normal price.",
+    "special_price_inactive_toast": "Special Price isn't enabled. You can turn it on under General Settings → General.",
+    "special_price_inactive_title": "Special Price is turned off",
+    "special_price_inactive_how": "Open General Settings → General tab and enable \"Activate Custom Price\" in the \"Custom Price Definition\" section.",
+    "categories_label": "Menu Categories",
+    "categories_selected": "{{count}} / {{total}} selected",
+    "categories_search": "Search category...",
+    "categories_clear_search": "Clear search",
+    "categories_select_all": "Select All",
+    "categories_clear_all": "Clear All",
+    "categories_no_results": "No matching categories.",
+    "categories_empty": "No categories in this restaurant yet.",
+    "categories_hint": "Pick the categories shown in this menu. If none are selected, all categories are shown."
+  },
   "deleteMenu": {
     "title": "Delete Operation",
     "description": " you are about to delete. This action cannot be undone.",

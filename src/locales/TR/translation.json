@@ -922,6 +922,25 @@
     "not_changed": "Menüde herhangi bir değişiklik yapılmadı!",
     "update": "Güncelle"
   },
+  "menuForm": {
+    "price_list_label": "Fiyat Listesi",
+    "price_list_normal": "Normal",
+    "price_list_campaign": "Kampanya",
+    "price_list_special": "Özel Fiyat",
+    "price_list_hint": "Menü kendi gün ve saat aralığında aktifken, ürünler bu fiyat listesindeki fiyatlarıyla gösterilir. Seçili listede fiyatı olmayan ürünler normal fiyatıyla görünür.",
+    "special_price_inactive_toast": "Özel Fiyat özelliği aktif değil. Genel Ayarlar → Genel sekmesinden açabilirsiniz.",
+    "special_price_inactive_title": "Özel Fiyat özelliği kapalı",
+    "special_price_inactive_how": "Genel Ayarlar → Genel sekmesindeki \"Özel Fiyat Tanımı\" bölümünden \"Özel Fiyatı Aktif Et\" seçeneğini açın.",
+    "categories_label": "Menü Kategorileri",
+    "categories_selected": "{{count}} / {{total}} seçili",
+    "categories_search": "Kategori ara...",
+    "categories_clear_search": "Aramayı temizle",
+    "categories_select_all": "Tümünü Seç",
+    "categories_clear_all": "Tümünü Kaldır",
+    "categories_no_results": "Eşleşen kategori yok.",
+    "categories_empty": "Bu restoranda henüz kategori yok.",
+    "categories_hint": "Bu menüde gösterilecek kategorileri seçin. Hiçbiri seçilmezse tüm kategoriler gösterilir."
+  },
   "deleteMenu": {
     "title": "Silme İşlemi",
     "description": " öğesini silmek üzeresiniz. Bu işlem geri alınamaz.",

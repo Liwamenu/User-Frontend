@@ -8,6 +8,11 @@ import { useTranslation } from "react-i18next";
 //COMP
 import CustomInput from "../../common/customInput";
 import { CancelI } from "../../../assets/icon";
+import {
+  PriceListSelect,
+  MenuCategoryPicker,
+  DEFAULT_PRICE_LIST_TYPE,
+} from "./menuFormSections";
 
 //REDUX
 import { editMenu, resetEditMenu } from "../../../redux/menus/editMenuSlice";
@@ -35,6 +40,11 @@ const EditMenu = ({ menu, onClose, onSave, restaurantId }) => {
   const [menuName, setMenuName] = useState("");
   const [schedules, setSchedules] = useState([]);
   const [categoryIds, setCategoryIds] = useState(menu?.categoryIds || []);
+  // Which product price column this menu serves while it's active —
+  // Normal / Kampanya / Özel. See menuFormSections.jsx.
+  const [priceListType, setPriceListType] = useState(
+    menu?.priceListType || DEFAULT_PRICE_LIST_TYPE,
+  );
 
   // Frontend-generated row IDs (used as React keys) start with "sch-".
   // The backend rejects those — only existing plans should round-trip their
@@ -56,6 +66,7 @@ const EditMenu = ({ menu, onClose, onSave, restaurantId }) => {
       return out;
     }),
     categoryIds,
+    priceListType,
   };
 
   const addScheduleRow = (data = null) => {
@@ -105,8 +116,16 @@ const EditMenu = ({ menu, onClose, onSave, restaurantId }) => {
       return;
     }
 
-    //check if there is no changes using isEqual from lodash
-    if (isEqual(menu.name, menuName) && isEqual(menu.plans, schedules)) {
+    // Treat the menu as unchanged only when the name, schedules,
+    // category selection AND price list all match the original.
+    // categoryIds is order-insensitive, so compare sorted copies.
+    const sortedIds = (arr) => [...(arr || [])].sort();
+    if (
+      isEqual(menu.name, menuName) &&
+      isEqual(menu.plans, schedules) &&
+      isEqual(sortedIds(menu.categoryIds), sortedIds(categoryIds)) &&
+      (menu.priceListType || DEFAULT_PRICE_LIST_TYPE) === priceListType
+    ) {
       toast.error(t("editMenu.not_changed"));
       return;
     }
@@ -132,6 +151,8 @@ const EditMenu = ({ menu, onClose, onSave, restaurantId }) => {
           endTime: plan.endTime || "23:59",
         })),
       );
+      setCategoryIds(menu.categoryIds || []);
+      setPriceListType(menu.priceListType || DEFAULT_PRICE_LIST_TYPE);
     }
   }, [menu, open]);
 
@@ -158,7 +179,7 @@ const EditMenu = ({ menu, onClose, onSave, restaurantId }) => {
 
   return (
     <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center transition-all duration-300">
-      <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full max-w-lg p-8 transform scale-95 transition-all duration-300 modal-content relative flex flex-col max-h-[90vh]">
+      <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full max-w-xl p-8 transform scale-95 transition-all duration-300 modal-content relative flex flex-col max-h-[90vh]">
         <div className="flex justify-between items-center mb-6 border-b border-[--border-1] pb-4">
           <h3 className="text-2xl font-bold text-[--black-1]">
             {t("editMenu.title")}
@@ -185,6 +206,18 @@ const EditMenu = ({ menu, onClose, onSave, restaurantId }) => {
               onChange={(v) => setMenuName(v)}
             />
           </div>
+
+          <PriceListSelect
+            restaurantId={restaurantId}
+            value={priceListType}
+            onChange={setPriceListType}
+          />
+
+          <MenuCategoryPicker
+            restaurantId={restaurantId}
+            selectedIds={categoryIds}
+            onChange={setCategoryIds}
+          />
 
           <div>
             <div className="flex justify-between items-center mb-3">

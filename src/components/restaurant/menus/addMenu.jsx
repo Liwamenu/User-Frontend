@@ -7,6 +7,11 @@ import { useTranslation } from "react-i18next";
 //COMP
 import CustomInput from "../../common/customInput";
 import { CancelI } from "../../../assets/icon";
+import {
+  PriceListSelect,
+  MenuCategoryPicker,
+  DEFAULT_PRICE_LIST_TYPE,
+} from "./menuFormSections";
 
 //REDUX
 import { addMenu, resetaddMenu } from "../../../redux/menus/addMenuSlice";
@@ -37,6 +42,9 @@ const AddMenu = ({ onClose, onSave, restaurantId }) => {
   const [menuName, setMenuName] = useState("");
   const [schedules, setSchedules] = useState([]);
   const [categoryIds, setCategoryIds] = useState([]);
+  // Which product price column this menu serves while it's active —
+  // Normal / Kampanya / Özel. See menuFormSections.jsx.
+  const [priceListType, setPriceListType] = useState(DEFAULT_PRICE_LIST_TYPE);
 
   const newMenu = {
     restaurantId,
@@ -48,6 +56,7 @@ const AddMenu = ({ onClose, onSave, restaurantId }) => {
       endTime: sch.end,
     })),
     categoryIds,
+    priceListType,
   };
 
   const addScheduleRow = (data = null) => {
@@ -126,7 +135,7 @@ const AddMenu = ({ onClose, onSave, restaurantId }) => {
 
   return (
     <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center transition-all duration-300">
-      <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full max-w-lg p-8 transform scale-95 transition-all duration-300 modal-content relative flex flex-col max-h-[90vh]">
+      <div className="bg-[--white-1] rounded-2xl shadow-2xl w-full max-w-xl p-8 transform scale-95 transition-all duration-300 modal-content relative flex flex-col max-h-[90vh]">
         <div className="flex justify-between items-center mb-6 border-b border-[--border-1] pb-4">
           <h3 className="text-2xl font-bold text-[--black-1]">
             {t("addMenu.title")}
@@ -153,6 +162,18 @@ const AddMenu = ({ onClose, onSave, restaurantId }) => {
               onChange={(v) => setMenuName(v)}
             />
           </div>
+
+          <PriceListSelect
+            restaurantId={restaurantId}
+            value={priceListType}
+            onChange={setPriceListType}
+          />
+
+          <MenuCategoryPicker
+            restaurantId={restaurantId}
+            selectedIds={categoryIds}
+            onChange={setCategoryIds}
+          />
 
           <div>
             <div className="flex justify-between items-center mb-3">
