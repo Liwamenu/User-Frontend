@@ -452,6 +452,7 @@
     "table_order_discount_placeholder": "Masada Sipariş İskonto giriniz",
     "save": "Tüm Ayarları Kaydet",
     "success": "Restoran ayarları başarıyla güncellendi.",
+    "special_price_column_added": "Ürün Fiyat Listenize \"{{name}}\" alanı eklendi.",
     "not_changed": "Değişiklik yapılmadı.",
     "special_price_section": "Özel Fiyat Tanımı (Opsiyonel)",
     "special_price_label": "Etiket (Örn: Maliyet, VIP)",

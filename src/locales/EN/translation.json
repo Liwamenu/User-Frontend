@@ -452,6 +452,7 @@
     "table_order_discount_placeholder": "Enter table order discount",
     "save": "Save All Settings",
     "success": "Restaurant settings updated successfully.",
+    "special_price_column_added": "\"{{name}}\" column was added to the Price List.",
     "not_changed": "No changes made.",
     "special_price_label": "Tag (e.g. Cost, VIP)",
     "special_price_section": "Custom Price Definition (Optional)",
