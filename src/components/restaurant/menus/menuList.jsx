@@ -32,6 +32,10 @@ import DeleteMenu from "./deleteMenu";
 import PageHelp from "../../common/pageHelp";
 import menusJSON from "../../../assets/js/Menus.json";
 import { usePopup } from "../../../context/PopupContext";
+import {
+  PRICE_LIST_META,
+  DEFAULT_PRICE_LIST_TYPE,
+} from "./menuFormSections";
 
 // REDUX
 import {
@@ -621,6 +625,12 @@ const MenuCard = ({ menu, t, onEdit, onDelete }) => {
   const categoryCount = Array.isArray(menu.categoryIds)
     ? menu.categoryIds.length
     : 0;
+  // Price list this menu serves. Falls back to "normal" for menus
+  // saved before the field existed (or backends not projecting it yet).
+  const priceListType = PRICE_LIST_META[menu.priceListType]
+    ? menu.priceListType
+    : DEFAULT_PRICE_LIST_TYPE;
+  const { icon: PriceIcon, chipTone } = PRICE_LIST_META[priceListType];
 
   return (
     <div className="group rounded-xl border border-[--border-1] bg-[--white-1] overflow-hidden flex flex-col hover:border-indigo-200 hover:shadow-md transition-all">
@@ -637,6 +647,9 @@ const MenuCard = ({ menu, t, onEdit, onDelete }) => {
             {menu.name}
           </h3>
           <div className="flex flex-wrap items-center gap-1 mt-1">
+            <Chip icon={PriceIcon} tone={chipTone}>
+              {t(`menuForm.price_list_${priceListType}`)}
+            </Chip>
             <Chip icon={Calendar} tone="indigo">
               {t("menuList.schedule_count", { count: planCount })}
             </Chip>
