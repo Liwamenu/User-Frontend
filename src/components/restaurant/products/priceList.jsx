@@ -449,7 +449,11 @@ const PriceList = ({ data: restaurant }) => {
         </div>
 
         <div className="p-3 sm:p-5 space-y-4">
-          <PriceListApplyBulk list={list} setList={setList} />
+          <PriceListApplyBulk
+            list={list}
+            setList={setList}
+            restaurant={restaurant}
+          />
 
           {/* Product search — always available when there are products
               (unlike the category/zero-price filters row below, which

@@ -1041,6 +1041,7 @@
     "bulk_target_price": "Regular Price Only",
     "bulk_target_campaign": "Campaign Price Only",
     "bulk_target_both": "Both",
+    "bulk_target_special_named": "{{name}} Only",
     "bulk_error_invalid_value": "Please enter a valid value",
     "bulk_undo_button": "Undo",
     "bulk_undo_title": "Undo last operation",
