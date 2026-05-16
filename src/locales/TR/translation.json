@@ -455,7 +455,7 @@
     "special_price_column_added": "Ürün Fiyat Listenize \"{{name}}\" alanı eklendi.",
     "not_changed": "Değişiklik yapılmadı.",
     "special_price_section": "Özel Fiyat Tanımı (Opsiyonel)",
-    "special_price_label": "Etiket (Örn: Maliyet, VIP)",
+    "special_price_label": "Etiket (Örn: Happy Hours, Maliyet, VIP)",
     "special_price_placeholder": "Personel, Müdavim gibi . . .",
     "special_price_note": "Not: Bu etiket tüm porsiyonlardaki özel fiyatlar için geçerli olacaktır.",
     "is_special_price_active": "Özel Fiyatı Aktif Et",

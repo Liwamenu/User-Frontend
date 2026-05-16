@@ -454,7 +454,7 @@
     "success": "Restaurant settings updated successfully.",
     "special_price_column_added": "\"{{name}}\" column was added to the Price List.",
     "not_changed": "No changes made.",
-    "special_price_label": "Tag (e.g. Cost, VIP)",
+    "special_price_label": "Tag (e.g. Happy Hours, Cost, VIP)",
     "special_price_section": "Custom Price Definition (Optional)",
     "special_price_placeholder": "Staff, Regular, etc...",
     "special_price_note": "Note: This tag will apply to custom prices of all portions.",
