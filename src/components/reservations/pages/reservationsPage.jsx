@@ -73,9 +73,14 @@ const ReservationsPage = () => {
   const visibleList =
     activeTab === "today" ? todayList : upcomingAcceptedList;
 
+  // Backend's reject value is "Denied" (per the write endpoint's
+  // enum check). Older code paths and the existing filter dropdown
+  // still surface "Rejected" as a label, so both map to the same
+  // user-visible TR/EN string.
   const STATUS_LABEL = {
     Accepted: t("reservationsPage.status_accepted"),
     PendingOwnerDecision: t("reservationsPage.status_pending"),
+    Denied: t("reservationsPage.status_rejected"),
     Rejected: t("reservationsPage.status_rejected"),
   };
 
@@ -85,6 +90,7 @@ const ReservationsPage = () => {
         return "bg-[--status-green] text-[--green-2] border-[--green-2]";
       case "PendingOwnerDecision":
         return "bg-[--status-yellow] text-[--yellow-1] border-[--yellow-1]";
+      case "Denied":
       case "Rejected":
         return "bg-[--status-red] text-[--red-2] border-[--red-2]";
       default:
@@ -98,6 +104,7 @@ const ReservationsPage = () => {
         return <CheckCircle size={14} />;
       case "PendingOwnerDecision":
         return <AlertCircle size={14} />;
+      case "Denied":
       case "Rejected":
         return <XCircle size={14} />;
       default:
@@ -356,7 +363,13 @@ const ReservationsPage = () => {
                           </button>
                           <button
                             onClick={() =>
-                              handleUpdateStatus(reservation.id, "Rejected", "")
+                              // Backend's PUT Reservations/OwnerUpdateStatus
+                              // returns 400 "Sadece Accepted veya Denied
+                              // gönderilebilir" if we send "Rejected" —
+                              // verified live. The display label is still
+                              // "Reddedildi" / "Rejected", only the wire
+                              // value changes.
+                              handleUpdateStatus(reservation.id, "Denied", "")
                             }
                             disabled={updateLoading}
                             className="flex-1 lg:w-full px-4 py-2 bg-[--white-1] hover:bg-[--light-4] text-[--red-2] border border-[--red-1] rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
