@@ -73,6 +73,28 @@ const ReservationsPage = () => {
   const visibleList =
     activeTab === "today" ? todayList : upcomingAcceptedList;
 
+  // Stats reflect "what's still actionable" — today's + future
+  // reservations, regardless of status. Past reservations are
+  // excluded everywhere so the counts on the dashboard match the
+  // mental model "what's coming up".
+  const activeReservations = useMemo(
+    () => reservationsData.filter((r) => r.reservationDate >= today),
+    [reservationsData, today],
+  );
+  const pendingCount = useMemo(
+    () =>
+      activeReservations.filter((r) => r.status === "PendingOwnerDecision")
+        .length,
+    [activeReservations],
+  );
+  const acceptedGuestsSum = useMemo(
+    () =>
+      activeReservations
+        .filter((r) => r.status === "Accepted")
+        .reduce((acc, r) => acc + (r.guestCount || 0), 0),
+    [activeReservations],
+  );
+
   // Backend's reject value is "Denied" (per the write endpoint's
   // enum check). Older code paths and the existing filter dropdown
   // still surface "Rejected" as a label, so both map to the same
@@ -135,30 +157,21 @@ const ReservationsPage = () => {
             {[
               {
                 label: t("reservationsPage.stat_total"),
-                value: reservationsData.length,
+                value: activeReservations.length,
                 icon: Calendar,
                 color: "text-[--primary-1]",
                 bg: "bg-[--status-primary-1]",
               },
               {
                 label: t("reservationsPage.stat_pending"),
-                value: reservationsData.filter(
-                  (reservation) =>
-                    reservation.status === "PendingOwnerDecision",
-                ).length,
+                value: pendingCount,
                 icon: Clock,
                 color: "text-[--yellow-1]",
                 bg: "bg-[--status-yellow]",
               },
               {
                 label: t("reservationsPage.stat_confirmed_guests"),
-                value: reservationsData
-                  .filter((reservation) => reservation.status === "Accepted")
-                  .reduce(
-                    (accumulator, currentItem) =>
-                      accumulator + currentItem.guestCount,
-                    0,
-                  ),
+                value: acceptedGuestsSum,
                 icon: Users,
                 color: "text-[--green-2]",
                 bg: "bg-[--status-green]",
