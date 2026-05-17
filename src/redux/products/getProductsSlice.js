@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { privateApi } from "../api";
 import { invalidateOn } from "../cacheInvalidation";
+import { normalizeProductsPayload } from "../../utils/normalizeProduct";
 
 const api = privateApi();
 const baseURL = import.meta.env.VITE_BASE_URL;
@@ -132,8 +133,12 @@ export const getProducts = createAsyncThunk(
         },
       );
 
-      // console.log(res.data);
-      return res.data;
+      // Normalize each product into the dual flat+categories shape so
+      // every reader works against either the old or the new backend
+      // response. See `utils/normalizeProduct.js` for the migration
+      // contract — this is a no-op once every reader has been pivoted
+      // to iterate `categories[]` directly.
+      return normalizeProductsPayload(res.data);
     } catch (err) {
       console.log(err);
       if (err?.response?.data) {
