@@ -106,6 +106,14 @@ const getProductsLiteSlice = createSlice({
           // consumers (Order Tags row, future ones) may grow to read
           // them — keep the cache eventually consistent either way.
           "Products/UpdateProductAllergens",
+          // Many-to-many junction mutations — the lite payload
+          // carries `categoryId`, so adding or removing a
+          // membership has to bust the cache so dropdowns stay
+          // accurate. Reorder doesn't touch the lite shape today
+          // but include it for symmetry / future-proofing.
+          "Products/AddProductToCategory",
+          "Products/RemoveProductFromCategory",
+          "Categories/UpdateProductOrder",
           // sibling categories / subcategories — denormalized labels
           "Categories/EditCategory",
           "Categories/EditCategories",

@@ -100,6 +100,13 @@ const getProductsSlice = createSlice({
           // carries them, so the Products page needs to refetch to
           // surface a fresh selection.
           "Products/UpdateProductAllergens",
+          // Many-to-many junction mutations — change a product's
+          // `categories` array, which the Products page renders
+          // verbatim. Plus the bulk per-category drag-reorder, which
+          // shifts the sortOrder field on every junction it touches.
+          "Products/AddProductToCategory",
+          "Products/RemoveProductFromCategory",
+          "Categories/UpdateProductOrder",
           // sibling categories — denormalized fields on each product
           "Categories/AddCategory",
           "Categories/AddCategories",
