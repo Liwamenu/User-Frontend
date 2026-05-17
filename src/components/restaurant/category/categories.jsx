@@ -110,41 +110,36 @@ const Categories = ({ data: restaurant }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params?.id]);
 
-  // ORPHAN SAFETY NET — runs at most once per page mount (guarded by
-  // a ref). If any products have a categoryId that no longer matches a
-  // known category, ensure a system "Uncategorized" category exists
-  // and re-home the orphans there. Idempotent — see
-  // utils/uncategorizedSafety.js for the full design notes.
+  // ORPHAN SAFETY NET — DISABLED during the m2m migration.
+  //
+  // Why: the safety net auto-runs on every Categories page mount,
+  // detects products it thinks are "orphaned" (no valid category
+  // membership), and dispatches editProduct on each one to re-home
+  // them under an "Uncategorized" system category. The reassign
+  // builds its editProduct payload from the LITE product DTO — which
+  // only carries `portions: [{ id, name }]` per portion (NO prices).
+  // If the backend interprets the resulting `portions` field as the
+  // new source of truth, it wipes every prior price on every flagged
+  // product. Combined with the more aggressive Phase 4 orphan check
+  // (now reading `categories[]`, which is null/empty on backend
+  // builds that haven't fully cut over to the m2m schema), the net
+  // result was that opening the Categories page silently zeroed (or
+  // emptied) portions across the entire menu.
+  //
+  // The right long-term fix is two parts:
+  //   1. Switch reassignOrphan to the junction endpoint
+  //      (addProductToCategory) so it never sends a portions field
+  //      at all.
+  //   2. Make orphan detection conservative — only flag products
+  //      with a non-empty memberships array whose every membership
+  //      points at a deleted category. An empty array (which the
+  //      normalizer synthesizes from a null flat categoryId) is
+  //      NOT proof of an orphan; it's just missing data.
+  // Both will land once the backend cutover is verified end-to-end.
+  // Until then the safety net stays off — manual re-homing through
+  // the Ürünleri Yönet modal is still available.
+  // eslint-disable-next-line no-unused-vars
   const safetyRanRef = useRef(false);
-  useEffect(() => {
-    if (safetyRanRef.current) return;
-    if (!params?.id) return;
-    if (!categories || !liteProducts) return;
-    safetyRanRef.current = true;
-    runUncategorizedSafety({
-      dispatch,
-      restaurantId: params.id,
-      categories,
-      products: liteProducts,
-    }).then((result) => {
-      if (result?.repaired > 0) {
-        toast.success(
-          t("editCategories.uncategorized_repaired", {
-            count: result.repaired,
-            defaultValue:
-              "{{count}} kategorisiz ürün otomatik olarak \"Uncategorized\" kategorisine taşındı.",
-          }),
-          { id: "uncategorizedSafety", duration: 6000 },
-        );
-        // The auto-create + reassignment changed both slices — refetch
-        // so the user sees the new state immediately. (The lite slice
-        // self-invalidates on EditProduct.fulfilled, so just refresh
-        // categories here.)
-        dispatch(getCategories({ restaurantId: params.id }));
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categories, liteProducts, params?.id]);
 
   // SET CATEGORIES WHEN FETCHED — also runs on remount with cached data,
   // because `categories` will be the cached reference straight from the

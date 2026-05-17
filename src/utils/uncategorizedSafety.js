@@ -25,7 +25,7 @@
 //     retried next time.
 
 import { addCategory } from "../redux/categories/addCategorySlice";
-import { editProduct } from "../redux/products/editProductSlice";
+import { addProductToCategory } from "../redux/products/addProductToCategorySlice";
 
 export const UNCATEGORIZED_NAME = "Uncategorized";
 
@@ -83,38 +83,28 @@ const createUncategorizedCategory = async (dispatch, restaurantId) => {
 };
 
 const reassignOrphan = (dispatch, prod, targetCategoryId) => {
-  // Send the full product DTO with the membership rewritten to point
-  // at the Uncategorized category. Without preserving every other
-  // editable field the backend defaults would blank out description /
-  // hide / recommendation; the lite payload carries id / name /
-  // portions / categories, so we round-trip what we have and let safe
-  // defaults cover the rest.
+  // Add a junction row pointing the orphan at the Uncategorized
+  // target. Uses the junction endpoint deliberately — sending
+  // editProduct here had a critical failure mode: the lite product
+  // payload that feeds this helper carries `portions: [{ id, name }]`
+  // (no prices), so the backend interpreted the field as "rewrite
+  // portions" and zeroed every price on every flagged row. The
+  // junction endpoint only touches the (productId, categoryId)
+  // membership — portions / prices / other product fields are never
+  // in the payload, so they can't be wiped.
   //
-  // m2m: collapse the (orphaned) memberships into a single new one
-  // pointing at the Uncategorized target. Carrying the old broken
-  // categoryIds would just hit the same orphan check on next run.
-  // Flat `categoryId` / `subCategoryId` stay on the payload as the
-  // backwards-compat bridge for backend builds still on the old
-  // schema (mirrors editProduct.jsx).
-  const fd = new FormData();
-  fd.append("id", prod.id);
-  if (prod.restaurantId) fd.append("restaurantId", prod.restaurantId);
-  fd.append("name", prod.name ?? "");
-  fd.append("description", prod.description ?? "");
-  fd.append("recommendation", String(prod.recommendation ?? false));
-  fd.append("hide", String(prod.hide ?? false));
-  fd.append("freeTagging", String(prod.freeTagging ?? false));
-  fd.append("isCampaign", String(prod.isCampaign ?? false));
-  if (Array.isArray(prod.portions)) {
-    fd.append("portions", JSON.stringify(prod.portions));
-  }
-  fd.append(
-    "categories",
-    JSON.stringify([{ categoryId: targetCategoryId }]),
+  // We don't try to also REMOVE the broken (deleted-category)
+  // membership — the orphan link is harmless once the product also
+  // has a valid Uncategorized membership. A backend cleanup job (or
+  // manual move via Ürünleri Yönet) can prune the dangling link
+  // later.
+  return dispatch(
+    addProductToCategory({
+      productId: prod.id,
+      categoryId: targetCategoryId,
+      subCategoryId: null,
+    }),
   );
-  fd.append("categoryId", targetCategoryId);
-  fd.append("subCategoryId", "");
-  return dispatch(editProduct(fd));
 };
 
 /**
