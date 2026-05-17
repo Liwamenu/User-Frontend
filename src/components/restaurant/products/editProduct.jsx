@@ -234,6 +234,41 @@ const EditProduct = ({ product: prodToPopup, onSaved }) => {
       return;
     }
 
+    // Portion price guard — every portion must have an explicit
+    // price (0 is allowed if the user typed it, blank is not).
+    // `String(...).trim() === ""` is the discriminator: it
+    // accepts "0" but rejects null / undefined / empty string.
+    // When the campaign toggle is on, the campaign price column
+    // must also be filled for every portion.
+    const missingPrice = productData.portions.some(
+      (p) => String(p.price ?? "").trim() === "",
+    );
+    if (missingPrice) {
+      toast.error(
+        t(
+          "editProduct.portion_price_required",
+          "Tüm porsiyonlar için fiyat girin.",
+        ),
+        { id: "editProductPortionPrice" },
+      );
+      return;
+    }
+    if (productData.isCampaign) {
+      const missingCampaign = productData.portions.some(
+        (p) => String(p.campaignPrice ?? "").trim() === "",
+      );
+      if (missingCampaign) {
+        toast.error(
+          t(
+            "editProduct.portion_campaign_required",
+            "Kampanya açık — tüm porsiyonlar için kampanya fiyatı girin.",
+          ),
+          { id: "editProductPortionCampaign" },
+        );
+        return;
+      }
+    }
+
     const formData = new FormData();
 
     // Append basic fields
@@ -454,35 +489,6 @@ const EditProduct = ({ product: prodToPopup, onSaved }) => {
                     </div>
                   </div>
 
-                  <div>
-                    <div className="flex justify-between items-center mb-1 py-2">
-                      <label className="block text-[--black-2] text-sm font-medium">
-                        {t("editProduct.description_label")}
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          toast(t("editProduct.ai_coming_soon"), {
-                            id: "ai-coming-soon",
-                            icon: "✨",
-                          })
-                        }
-                        className="text-xs bg-purple-50 text-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-100 transition font-medium border border-purple-200 flex items-center shadow-sm"
-                      >
-                        <i className="fa-solid fa-wand-magic-sparkles mr-1.5" />
-                        {t("editProduct.description_ai_button")}
-                      </button>
-                    </div>
-                    <CustomTextarea
-                      value={productData.description}
-                      onChange={(e) =>
-                        handleField("description", e.target.value)
-                      }
-                      placeholder={t("editProduct.description_placeholder")}
-                      className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none resize-none text-sm"
-                    />
-                  </div>
-
                   <div className="flex flex-col p-4 bg-[--light-1] rounded-xl border border-[--border-1] hover:border-indigo-200 transition-colors">
                     <span className="text-xs font-semibold text-[--gr-1] uppercase tracking-wider mb-2">
                       {t("editProduct.status_section")}
@@ -516,6 +522,39 @@ const EditProduct = ({ product: prodToPopup, onSaved }) => {
 
                 {/* Sağ Kolon */}
                 <div className="space-y-2">
+                  {/* Description sits above the image area so the
+                      longest text input lives next to the
+                      proportionally-tall image preview, keeping the
+                      two columns roughly balanced. */}
+                  <div>
+                    <div className="flex justify-between items-center mb-1 py-2">
+                      <label className="block text-[--black-2] text-sm font-medium">
+                        {t("editProduct.description_label")}
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          toast(t("editProduct.ai_coming_soon"), {
+                            id: "ai-coming-soon",
+                            icon: "✨",
+                          })
+                        }
+                        className="text-xs bg-purple-50 text-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-100 transition font-medium border border-purple-200 flex items-center shadow-sm"
+                      >
+                        <i className="fa-solid fa-wand-magic-sparkles mr-1.5" />
+                        {t("editProduct.description_ai_button")}
+                      </button>
+                    </div>
+                    <CustomTextarea
+                      value={productData.description}
+                      onChange={(e) =>
+                        handleField("description", e.target.value)
+                      }
+                      placeholder={t("editProduct.description_placeholder")}
+                      className="w-full rounded-xl border-[--border-1] bg-[--light-1] focus:bg-[--white-1] p-3.5 text-[--black-1] border focus:border-[--primary-1] focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none resize-none text-sm"
+                    />
+                  </div>
+
                   <span className="text-[--black-2] text-sm font-medium block">
                     {t("editProduct.image_label")}
                   </span>

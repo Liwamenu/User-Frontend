@@ -10,20 +10,19 @@
 //     ...
 //   ]
 //
-// Per row:
-//   • category name pill (the row IS the picked category)
-//   • inline subcategory dropdown when that category has subs;
-//     hidden otherwise so the UI doesn't pretend something exists
-//   • remove button — backend orphan guard rejects empty membership
-//     on EditProduct, but the form-level "required" check catches
-//     it client-side first
-//
-// Add affordance below the list shows the picker for an unpicked
-// category. Clicking a category picks it (and slots it as the
-// latest row). Disappears when there's nothing left to pick.
+// UI:
+//   • A single trigger button that opens a checkbox-style dropdown
+//     listing every available category. Checking/unchecking
+//     immediately toggles inclusion in `value`. No explicit
+//     "Add" affordance — the dropdown is the always-available
+//     interaction surface.
+//   • Below the trigger, for every picked category that has
+//     subcategories, an inline CustomSelect lets the user pick
+//     the optional subcategory. Categories without subs don't
+//     render anything here (no empty controls).
 
-import { useState } from "react";
-import { Plus, X, Layers } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Check, ChevronDown, Layers } from "lucide-react";
 import CustomSelect from "../../common/customSelector";
 
 const PRIMARY_GRADIENT =
@@ -38,33 +37,41 @@ const CategoriesPicker = ({
   required = false,
   label,
 }) => {
-  const [adding, setAdding] = useState(false);
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef(null);
 
-  // Set lookup for fast O(1) "is this category already picked"
-  // checks while building the "available to pick" list below.
+  // Click-outside to close. Capture phase so the listener fires
+  // before nested controls (e.g. the inline subcategory CustomSelect)
+  // swallow the event.
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  // O(1) "is this category already picked" check while rendering the
+  // checkbox list.
   const pickedIds = new Set((value || []).map((v) => v.categoryId));
 
-  const availableOptions = (categories || [])
-    .filter((c) => c?.id && !pickedIds.has(c.id))
-    .map((c) => ({ value: c.id, label: c.name }));
-
-  const handleAdd = (catId) => {
-    const cat = (categories || []).find((c) => c.id === catId);
-    if (!cat) return;
-    onChange([
-      ...(value || []),
-      {
-        categoryId: cat.id,
-        categoryName: cat.name,
-        subCategoryId: null,
-        subCategoryName: null,
-      },
-    ]);
-    setAdding(false);
-  };
-
-  const handleRemove = (catId) => {
-    onChange((value || []).filter((v) => v.categoryId !== catId));
+  const toggleCategory = (cat) => {
+    if (pickedIds.has(cat.id)) {
+      onChange((value || []).filter((v) => v.categoryId !== cat.id));
+    } else {
+      onChange([
+        ...(value || []),
+        {
+          categoryId: cat.id,
+          categoryName: cat.name,
+          subCategoryId: null,
+          subCategoryName: null,
+        },
+      ]);
+    }
   };
 
   const handleSubChange = (catId, opt) => {
@@ -86,6 +93,29 @@ const CategoriesPicker = ({
       .filter((s) => s.categoryId === catId)
       .map((s) => ({ value: s.id, label: s.name }));
 
+  // Trigger label: empty placeholder when nothing's picked, a
+  // comma-separated list when small, a count summary otherwise.
+  // The list form keeps single/double selections visible at a
+  // glance; the count form prevents the trigger from ballooning
+  // once selections start stacking up.
+  const triggerLabel =
+    (value || []).length === 0
+      ? t("editProduct.category_pick_one", "Kategori seç…")
+      : value.length <= 2
+        ? value.map((v) => v.categoryName).filter(Boolean).join(", ")
+        : t(
+            "editProduct.categories_selected_count",
+            "{{count}} kategori seçildi",
+            { count: value.length },
+          );
+
+  // Only the picked categories that actually have subs need an
+  // inline subcategory selector row. Hiding the rest keeps the
+  // form short.
+  const rowsWithSubs = (value || []).filter(
+    (v) => getSubOptions(v.categoryId).length > 0,
+  );
+
   return (
     <div className="space-y-1.5">
       <label className="block text-[--black-2] text-sm font-medium">
@@ -93,39 +123,101 @@ const CategoriesPicker = ({
         {required ? " *" : ""}
       </label>
 
-      {/* Picked categories list */}
-      <div className="space-y-2">
-        {(value || []).length === 0 && (
-          <div className="rounded-xl border border-dashed border-[--border-1] bg-[--light-1] px-3 py-3 text-xs text-[--gr-1] text-center">
-            {t("editProduct.no_categories_yet", "Henüz kategori eklenmedi")}
+      {/* Trigger + checkbox dropdown panel */}
+      <div className="relative" ref={wrapperRef}>
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          className={`w-full flex items-center justify-between gap-2 rounded-xl border bg-[--light-1] focus:bg-[--white-1] p-3 text-[--black-1] text-sm transition outline-none ${
+            open
+              ? "border-[--primary-1] ring-4 ring-indigo-500/10"
+              : "border-[--border-1]"
+          }`}
+        >
+          <span
+            className={`truncate ${
+              (value || []).length === 0 ? "text-[--gr-1]" : ""
+            }`}
+          >
+            {triggerLabel}
+          </span>
+          <ChevronDown
+            className={`size-4 shrink-0 text-[--gr-1] transition-transform ${
+              open ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        {open && (
+          <div className="absolute z-30 mt-1 w-full max-h-72 overflow-y-auto rounded-xl border border-[--border-1] bg-[--white-1] shadow-lg">
+            {(categories || []).filter((c) => c?.id).length === 0 ? (
+              <div className="p-3 text-xs text-[--gr-1] text-center">
+                {t(
+                  "editProduct.no_available_categories",
+                  "Kategori bulunamadı",
+                )}
+              </div>
+            ) : (
+              (categories || [])
+                .filter((c) => c?.id)
+                .map((c) => {
+                  const checked = pickedIds.has(c.id);
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => toggleCategory(c)}
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-indigo-50 transition ${
+                        checked ? "bg-indigo-50/60" : ""
+                      }`}
+                    >
+                      {/* Custom checkbox — gradient fill when checked
+                          to match the brand pill used elsewhere in
+                          this form, plain border when not. */}
+                      <span
+                        className={`grid place-items-center size-4 shrink-0 rounded border ${
+                          checked
+                            ? "border-transparent text-white"
+                            : "border-[--border-1] bg-[--light-1]"
+                        }`}
+                        style={
+                          checked ? { background: PRIMARY_GRADIENT } : undefined
+                        }
+                      >
+                        {checked && (
+                          <Check className="size-3" strokeWidth={3} />
+                        )}
+                      </span>
+                      <span className="truncate">{c.name}</span>
+                    </button>
+                  );
+                })
+            )}
           </div>
         )}
+      </div>
 
-        {(value || []).map((v) => {
-          const subOptions = getSubOptions(v.categoryId);
-          const hasSubs = subOptions.length > 0;
-          return (
-            <div
-              key={v.categoryId}
-              className="flex flex-col sm:flex-row sm:items-center gap-2 p-2.5 rounded-xl border border-[--border-1] bg-[--light-1] hover:border-indigo-200 transition-colors"
-            >
-              {/* Category chip — indigo wash to match the row's
-                  "this category is locked in" semantics. */}
-              <span
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-white shadow-sm shadow-indigo-500/25 shrink-0 max-w-full"
-                style={{ background: PRIMARY_GRADIENT }}
-                title={v.categoryName}
+      {/* Per-picked-category subcategory selectors. Only rendered
+          for categories that actually have subs — categories without
+          subs are fully managed via the checkbox dropdown above. */}
+      {rowsWithSubs.length > 0 && (
+        <div className="space-y-2 pt-1">
+          {rowsWithSubs.map((v) => {
+            const subOptions = getSubOptions(v.categoryId);
+            return (
+              <div
+                key={v.categoryId}
+                className="flex flex-col sm:flex-row sm:items-center gap-2 p-2.5 rounded-xl border border-[--border-1] bg-[--light-1]"
               >
-                <Layers className="size-3 shrink-0" strokeWidth={2.5} />
-                <span className="truncate">{v.categoryName}</span>
-              </span>
-
-              {/* Inline subcategory dropdown — only when that
-                  category actually has subs. Hiding the empty
-                  control prevents "why is this dropdown empty?"
-                  confusion. */}
-              <div className="flex-1 min-w-0">
-                {hasSubs ? (
+                <span
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-white shadow-sm shadow-indigo-500/25 shrink-0 max-w-full"
+                  style={{ background: PRIMARY_GRADIENT }}
+                  title={v.categoryName}
+                >
+                  <Layers className="size-3 shrink-0" strokeWidth={2.5} />
+                  <span className="truncate">{v.categoryName}</span>
+                </span>
+                <div className="flex-1 min-w-0">
                   <CustomSelect
                     isClearable
                     placeholder={t(
@@ -144,61 +236,12 @@ const CategoriesPicker = ({
                     onChange={(opt) => handleSubChange(v.categoryId, opt)}
                     className="text-xs"
                   />
-                ) : (
-                  <span className="text-[11px] text-[--gr-2] italic">
-                    {t(
-                      "editProduct.no_subs_for_category",
-                      "Bu kategoride alt kategori yok",
-                    )}
-                  </span>
-                )}
+                </div>
               </div>
-
-              {/* Remove */}
-              <button
-                type="button"
-                onClick={() => handleRemove(v.categoryId)}
-                title={t("editProduct.remove_category", "Kaldır")}
-                className="grid place-items-center size-8 rounded-md text-red-500 hover:text-red-700 hover:bg-red-50 transition shrink-0"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Add affordance — shrinks to a small "+ Kategori Ekle"
-          button when collapsed, becomes a focused autocomplete
-          select when expanded. Disappears entirely once every
-          category has been picked. */}
-      {availableOptions.length > 0 &&
-        (adding ? (
-          <div className="pt-1">
-            <CustomSelect
-              placeholder={t(
-                "editProduct.category_pick_one",
-                "Kategori seç…",
-              )}
-              options={availableOptions}
-              onChange={(opt) => opt && handleAdd(opt.value)}
-              onBlur={() => setAdding(false)}
-              isSearchable
-              autoFocus
-              menuIsOpen
-              className="text-sm"
-            />
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setAdding(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 hover:bg-indigo-100 hover:ring-indigo-200 transition dark:bg-indigo-500/15 dark:text-indigo-200 dark:ring-indigo-400/30 dark:hover:bg-indigo-500/25"
-          >
-            <Plus className="size-3.5" strokeWidth={2.5} />
-            {t("editProduct.add_category", "Kategori Ekle")}
-          </button>
-        ))}
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
